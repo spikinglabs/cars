@@ -1,0 +1,14 @@
+# allo.land cars
+
+Car tools and open data for drivers in Germany.
+
+## Data
+- [Ad-hoc EV charging prices, latest](https://cars.allo.land/data/charging-prices/latest.json): median, p10, p90 of the base energy price (EUR/kWh incl. VAT) over all published ad-hoc tariffs, overall and per data source.
+- [Daily price history](https://cars.allo.land/data/charging-prices/daily.csv): one row per day and source (date, source, tariffs, median, p10, p90, min, max). Collection started 2026-11-06.
+- [Current tariffs](https://cars.allo.land/data/charging-prices/tariffs.csv): every ad-hoc tariff with energy, time, parking and session prices.
+- [Sources and licences](https://cars.allo.land/data/charging-prices/sources.json)
+
+Data from the Open ChargePoint Database (MobiData BW), which merges AFIR feeds published on Mobilithek. Licences per source are in sources.json.
+
+## Pages
+- [Charging price history](https://cars.allo.land/charging-prices/)

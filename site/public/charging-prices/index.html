@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charging price history</title>
+<meta name="description" content="Ad-hoc EV charging prices in Germany over time, from open AFIR data.">
+<link rel="alternate" type="application/json" href="/data/charging-prices/latest.json" title="Latest prices (JSON)">
+<link rel="alternate" type="text/csv" href="/data/charging-prices/daily.csv" title="Daily history (CSV)">
+<style>
+  :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a65; --line:#e3e1da; --accent:#2f6fde; --band:rgba(47,111,222,.15); --card:#fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#161615; --fg:#ecebe6; --muted:#9a9890; --line:#33322e; --accent:#7aa5ff; --band:rgba(122,165,255,.18); --card:#1f1f1d; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:880px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  .sub { color:var(--muted); margin:0 0 24px; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:24px; }
+  .tile { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .tile b { display:block; font-size:1.5rem; font-variant-numeric:tabular-nums; }
+  .tile span { color:var(--muted); font-size:.85rem; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:24px; overflow-x:auto; }
+  h2 { font-size:1.1rem; margin:0 0 12px; }
+  svg text { fill:var(--muted); font-size:11px; }
+  table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { color:var(--muted); font-weight:500; font-size:.85rem; }
+  td.n, th.n { text-align:right; }
+  a { color:var(--accent); }
+  .note { color:var(--muted); font-size:.85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Charging price history</h1>
+  <p class="sub">Ad-hoc (no contract) EV charging prices in Germany, € per kWh incl. VAT. <span id="asof"></span></p>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="card">
+    <h2>Median ad-hoc price per day</h2>
+    <div id="chart"><p class="note">Loading…</p></div>
+    <p class="note">Line: median of all published tariffs. Band: 10th to 90th percentile. Collection started 6 Nov 2026; no earlier open archive exists.</p>
+  </div>
+
+  <div class="card">
+    <h2>By data source</h2>
+    <table id="sources"><thead><tr><th>Source</th><th class="n">Tariffs</th><th class="n">Median</th><th class="n">P10</th><th class="n">P90</th><th>Licence</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <p class="note">
+    Data: <a href="https://api.mobidata-bw.de/ocpdb/">Open ChargePoint Database (MobiData BW)</a>, which merges operator AFIR feeds from <a href="https://mobilithek.info">Mobilithek</a>.
+    Only sources with an open licence are shown. Download:
+    <a href="/data/charging-prices/latest.json">latest.json</a> ·
+    <a href="/data/charging-prices/daily.csv">daily.csv</a> ·
+    <a href="/data/charging-prices/tariffs.csv">tariffs.csv</a> ·
+    <a href="/data/charging-prices/sources.json">sources.json</a>
+  </p>
+</main>
+<script>
+const eur = (v) => v == null ? "–" : v.toFixed(2) + " €";
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function parseCsv(text) {
+  const [head, ...lines] = text.trim().split("\n");
+  const keys = head.split(",");
+  return lines.map((l) => Object.fromEntries(l.split(",").map((v, i) => [keys[i], isNaN(+v) || v === "" ? v : +v])));
+}
+
+function chart(rows) {
+  const pts = rows.filter((r) => r.source === "ALL");
+  if (!pts.length) return '<p class="note">No data yet.</p>';
+  const W = 820, H = 260, L = 44, R = 12, T = 12, B = 28;
+  const lo = Math.min(...pts.map((p) => p.p10)), hi = Math.max(...pts.map((p) => p.p90));
+  const y0 = Math.floor(lo * 10) / 10, y1 = Math.ceil(hi * 10) / 10 || 1;
+  const x = (i) => L + (pts.length === 1 ? (W - L - R) / 2 : (i * (W - L - R)) / (pts.length - 1));
+  const y = (v) => T + (1 - (v - y0) / (y1 - y0 || 1)) * (H - T - B);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Median ad-hoc charging price per day">`;
+  for (let v = y0; v <= y1 + 1e-9; v += 0.1) {
+    s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v.toFixed(1)}</text>`;
+  }
+  const band = pts.map((p, i) => `${x(i)},${y(p.p90)}`).concat(pts.map((p, i) => `${x(i)},${y(p.p10)}`).reverse());
+  s += `<polygon points="${band.join(" ")}" fill="var(--band)"/>`;
+  s += `<polyline points="${pts.map((p, i) => `${x(i)},${y(p.median)}`).join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+  pts.forEach((p, i) => { s += `<circle cx="${x(i)}" cy="${y(p.median)}" r="3" fill="var(--accent)"><title>${p.date}: ${eur(p.median)} (P10 ${eur(p.p10)}, P90 ${eur(p.p90)}, ${p.tariffs} tariffs)</title></circle>`; });
+  const step = Math.max(1, Math.ceil(pts.length / 8));
+  pts.forEach((p, i) => { if (i % step === 0 || i === pts.length - 1) s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${p.date.slice(5)}</text>`; });
+  return s + "</svg>";
+}
+
+async function load() {
+  const [latest, daily, sources] = await Promise.all([
+    fetch("/data/charging-prices/latest.json").then((r) => r.json()),
+    fetch("/data/charging-prices/daily.csv").then((r) => r.text()).then(parseCsv),
+    fetch("/data/charging-prices/sources.json").then((r) => r.json()),
+  ]);
+  const o = latest.overall || {};
+  document.getElementById("asof").textContent = "Updated " + new Date(latest.observed_at).toLocaleString();
+  document.getElementById("tiles").innerHTML = [
+    ["Median", eur(o.median)], ["10th percentile", eur(o.p10)], ["90th percentile", eur(o.p90)], ["Tariffs", o.tariffs ?? "–"],
+  ].map(([k, v]) => `<div class="tile"><b>${v}</b><span>${k}</span></div>`).join("");
+  document.getElementById("chart").innerHTML = chart(daily);
+  const names = Object.fromEntries(sources.map((s) => [s.uid, s]));
+  document.querySelector("#sources tbody").innerHTML = Object.entries(latest.by_source || {})
+    .sort((a, b) => b[1].tariffs - a[1].tariffs)
+    .map(([uid, st]) => {
+      const src = names[uid] || {};
+      const lic = src.licence_url ? `<a href="${esc(src.licence_url)}">${esc(src.licence)}</a>` : esc(src.licence);
+      return `<tr><td>${esc(src.name || uid)}</td><td class="n">${st.tariffs}</td><td class="n">${eur(st.median)}</td><td class="n">${eur(st.p10)}</td><td class="n">${eur(st.p90)}</td><td>${lic}</td></tr>`;
+    }).join("");
+}
+load().catch((e) => { document.getElementById("chart").innerHTML = `<p class="note">Could not load data: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
