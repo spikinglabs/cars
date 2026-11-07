@@ -1,4 +1,4 @@
-/* Allo Cars site behaviour shared by every page: the light/dark switch and installing the site as an app. */
+/* Allo Cars site behaviour shared by every page: the country, the light/dark switch and installing the site as an app. */
 (function () {
   "use strict";
   var KEY = "allo-cars-theme", root = document.documentElement;
@@ -13,6 +13,37 @@
     installed: "Allo Cars is already installed on this device. Open it from your home screen or app list."
   };
   var local = function (k, v) { try { return v === undefined ? localStorage.getItem(k) : (localStorage.setItem(k, v), v); } catch (e) { return null; } };
+
+  /* ---------- country ---------- */
+  // The regions people can pick come from /regions.json, written into every page head by
+  // site/chrome/apply.py. The choice is ?country=<code> in the link, else the one saved on this
+  // device, else the default. Tools ask AlloSite.data() for data URLs, so they follow the choice.
+  // (AlloSite, not AlloCars: the component bundle owns window.AlloCars.)
+  var REGION_KEY = "allo-cars-country";
+  var R = window.__acRegions || { default: "de", regions: [{ code: "de", name: { en: "Germany", de: "Deutschland" }, currency: "EUR", locale: "de-DE" }] };
+  var known = function (c) { return R.regions.some(function (r) { return r.code === c; }); };
+  var asked = (new URLSearchParams(location.search).get("country") || "").toLowerCase();
+  if (known(asked)) local(REGION_KEY, asked);
+  var region = known(asked) ? asked : known(local(REGION_KEY)) ? local(REGION_KEY) : R.default;
+  root.setAttribute("data-country", region);
+  window.AlloSite = {
+    region: region,
+    regions: R.regions,
+    info: function () { return R.regions.filter(function (r) { return r.code === region; })[0]; },
+    // AlloSite.data("charging-prices", "latest.json") -> "/data/charging-prices/de/latest.json"
+    data: function (dataset, file) { return "/data/" + dataset + "/" + region + "/" + file; }
+  };
+  document.addEventListener("change", function (e) {
+    if (!e.target.matches || !e.target.matches("[data-country]") || !known(e.target.value)) return;
+    local(REGION_KEY, e.target.value);
+    var u = new URL(location.href);
+    if (u.searchParams.has("country")) u.searchParams.set("country", e.target.value);
+    location.href = u.toString();
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    var pick = document.querySelector("[data-country]");
+    if (pick) pick.value = region;
+  });
 
   /* ---------- light or dark ---------- */
   var saved = local(KEY);

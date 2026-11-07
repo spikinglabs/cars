@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EV charging cost per 100 km · Allo Cars</title>
-<meta name="description" content="What 100 km costs in your electric car at any price per kWh, next to other EVs and a petrol car. Free, no sign-up, works with AI.">
+<title>EV charging cost vs petrol and diesel · Allo Cars</title>
+<meta name="description" content="What 100 km costs in your electric car at any price per kWh, and the break-even price against Germany's most popular petrol and diesel cars. Free, no sign-up, works with AI.">
 <link rel="alternate" type="application/json" href="/ev-cost/spec.json" title="Tool description for AI (JSON)">
 <!-- chrome:head -->
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/ev-cost/">
@@ -18,24 +18,60 @@
 <meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
 <script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css">
 <link rel="stylesheet" href="/assets/components/bundle.css">
 <script src="/assets/site.js"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px 64px; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px 64px; }
   h1 { font: 800 clamp(30px, 5vw, 44px)/1.08 var(--font-display); letter-spacing: -0.02em; margin: var(--space-5) 0 var(--space-2); }
-  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; font-size: 17px; line-height: 26px; }
-  .bench { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: flex-start; }
-  .inputs { flex: 1 1 300px; max-width: 380px; min-width: 0; display: grid; gap: var(--space-4); }
-  .results { flex: 999 1 540px; min-width: 0; display: grid; gap: var(--space-4); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 66ch; font-size: 17px; line-height: 26px; }
   .stack { display: grid; gap: 14px; }
-  select.ac-select { width: 100%; min-height: 44px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 16px/20px var(--font-sans); }
-  .chart-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
-  .bar-cell { width: 40%; }
-  .ac-bar { max-width: 100%; }
-  @media (max-width: 720px) { .inputs { max-width: none; order: 2; } .results { order: 1; } .bar-cell { display: none; } }
+  .wrap > .ac-card, .wrap > .ac-aibar, .wrap > .ac-source { margin-bottom: var(--space-4); }
+  .setup { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); align-items: start; }
+  .step { display: flex; align-items: center; gap: 10px; margin: 0; font: 700 19px/24px var(--font-display); letter-spacing: -0.01em; }
+  .step__n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: var(--gold-ink); font: 700 15px/1 var(--font-sign); flex: none; }
+  select.ac-select { width: 100%; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 18px/22px var(--font-display); }
+  .use { margin-top: 6px; }
+  .use button { display: inline-flex; gap: 6px; align-items: baseline; }
+  .use .kwh { font: 600 13px/1 var(--font-sign); opacity: .75; }
+  .more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
+  .more[open] summary { margin-bottom: 10px; }
+  .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end; }
+  .answer .ac-readouts { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+  .ac-readout__value.good { color: var(--success); }
+  .ac-readout__value.bad { color: var(--danger); }
+  .legend { margin: 10px 0 4px; }
+  .legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2.5px solid var(--accent); background: var(--surface-100); margin-right: 6px; vertical-align: -1px; }
+  .ac-legend--dash.dsl { border-top-style: dotted; }
+  #chart { margin-top: 8px; touch-action: pan-y; }
+  #chart .fuel { stroke-width: 2; stroke-dasharray: 7 5; }
+  #chart .fuel--petrol { stroke: var(--fuel); }
+  #chart .fuel--diesel { stroke: var(--ink-muted); stroke-dasharray: 2 4; stroke-linecap: round; }
+  #chart .fuel--own { stroke-width: 3; }
+  #chart text { paint-order: stroke; stroke: var(--surface-100); stroke-width: 4px; stroke-linejoin: round; }
+  #chart .lab { font-weight: 700; }
+  #chart .lab--petrol { fill: var(--fuel); }
+  #chart .lab--diesel { fill: var(--ink-muted); }
+  #chart .lab--ev { fill: var(--accent); font: 700 13px var(--font-display); }
+  #chart .be { font: 700 13px var(--font-sign); fill: var(--accent); }
+  #chart .you { font-weight: 700; fill: var(--ink); }
+  #chart .axis { font-weight: 700; }
+  .dash { display: inline-block; width: 18px; border-top: 2.5px dashed var(--fuel); margin-right: 8px; vertical-align: 3px; }
+  .dash--diesel { border-top: 2.5px dotted var(--ink-muted); }
+  .be-table { margin-top: var(--space-4); }
+  .be-table caption { text-align: left; padding-bottom: 8px; }
+  .be-table .sub { display: block; font-size: 12px; color: var(--ink-muted); font-weight: 400; }
+  .be-table td.good { color: var(--success); font-weight: 700; }
+  .be-table td.bad { color: var(--danger); font-weight: 700; }
+  .be-table .sub-save { display: none; font-weight: 700; }
+  .sub.good { color: var(--success); } .sub.bad { color: var(--danger); }
+  #ownl { min-width: 6ch; }
+  @media (max-width: 560px) { .be-table th:last-child, .be-table td:last-child { display: none; } .be-table .sub-save { display: block; } }
+  .be-table b { font: 700 18px/22px var(--font-sign); }
 </style>
 </head>
 <body>
@@ -62,61 +98,83 @@
 </aside>
 <!-- /chrome:header -->
 
-  <h1>What does <em class="ac-hl">100 km</em> cost in your car?</h1>
-  <p class="lead">Set your car and your price per kWh. You see the cost at each way of driving, next to other electric cars and a petrol car. Every setting stays in the link, so you can share it or hand it to an AI.</p>
+  <h1>When is charging <em class="ac-hl">cheaper</em> than filling up?</h1>
+  <p class="lead">Pick your electric car and what you pay per kWh. The chart shows what 100 km costs at every electricity price, and the exact price where you stop saving against Germany's most popular petrol and diesel cars.</p>
 
-  <div class="bench">
-    <aside class="inputs" aria-label="Inputs">
-      <section class="ac-card stack">
-        <label class="ac-label" for="car">Your car</label>
-        <select id="car" class="ac-select"></select>
-        <div class="stack" id="levels"></div>
-        <p class="ac-caption" style="margin:0">Starting values are rough real-world estimates. Your trip computer's numbers are better.</p>
-      </section>
-      <section class="ac-card stack">
-        <span class="ac-label">Price and losses</span>
-        <label class="ac-param"><span class="ac-param__label">Your electricity price</span><span class="ac-param__box"><input id="p" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><input id="pr" type="range" min="0" max="0.9" step="0.01" aria-label="Electricity price slider"></label>
-        <div class="ac-chips" id="pricechips"></div>
-        <label class="ac-param"><span class="ac-param__label">Charging losses</span><span class="ac-param__box"><input id="loss" type="number" min="0" max="40" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><span class="ac-param__hint">Energy lost between the plug and the battery. About 10 % on AC, less on DC.</span></label>
-      </section>
-      <section class="ac-card stack">
-        <span class="ac-label">Compare with</span>
-        <label class="ac-param"><span class="ac-param__label">Petrol car uses</span><span class="ac-param__box"><input id="fl" type="number" min="0" max="20" step="0.1" inputmode="decimal"><span class="ac-param__unit">L/100 km</span></span></label>
-        <label class="ac-param"><span class="ac-param__label">Petrol price</span><span class="ac-param__box"><input id="fp" type="number" min="0" max="4" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
-        <span class="ac-param__label">Other electric cars</span>
-        <div class="ac-chips" id="refs"></div>
-      </section>
-    </aside>
-
-    <main class="results">
-      <section class="ac-card">
-        <div class="ac-readouts" id="readouts" aria-live="polite"></div>
-      </section>
-
-      <section class="ac-card">
-        <div class="chart-head">
-          <div><h2 class="ac-card__title">Cost per 100 km by price per kWh</h2><p class="ac-card__desc" id="chartdesc">Your car's four levels in blue, other cars in grey, petrol dashed.</p></div>
-          <div class="ac-seg" role="group" aria-label="View"><button type="button" id="v-chart" aria-pressed="true">Chart</button><button type="button" id="v-table" aria-pressed="false">Table</button></div>
-        </div>
-        <div class="ac-legend" id="legend"></div>
-        <div id="chart"></div>
-        <div class="ac-table-wrap" id="tablewrap" hidden>
-          <table class="ac-table" id="table"><caption class="ac-caption" style="text-align:left;padding-bottom:8px">Cost per 100 km at your price</caption><thead><tr><th>Car</th><th class="num">kWh/100 km</th><th class="num">€/100 km</th><th class="bar-cell"><span class="ac-caption">Compared</span></th></tr></thead><tbody></tbody></table>
-        </div>
-      </section>
-
-      <section class="ac-aibar">
-        <span class="ac-aibar__text"><b>Use this with AI.</b> Copy the numbers into any assistant, share the link, or open Claude with this page attached.</span>
-        <button class="ac-btn ac-btn--ghost" type="button" id="copyai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Copy for AI</span></button>
-        <button class="ac-btn ac-btn--ghost" type="button" id="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Share link</span></button>
-        <a class="ac-btn ac-btn--ai" id="claude" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Open in Claude</a>
-      </section>
-
-      <div class="ac-source">
-        <p class="ac-source__line" style="margin:0" id="source">Formula: kWh/100 km × (1 + losses) × €/kWh. Consumption figures are rough real-world estimates.</p>
-        <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Estimates for comparison only. Your tariff, the weather and how you drive change the real cost.</span></div>
+  <div class="setup">
+    <section class="ac-card stack" aria-labelledby="h-car">
+      <h2 class="step" id="h-car"><span class="step__n">1</span>Your car</h2>
+      <select id="car" class="ac-select" aria-label="Your electric car"></select>
+      <div>
+        <span class="ac-param__label">How you drive</span>
+        <div class="ac-seg use" id="use" role="group" aria-label="How you drive, kWh per 100 km"></div>
       </div>
-    </main>
+      <details class="more">
+        <summary>Edit consumption and charging losses</summary>
+        <div class="stack">
+          <div class="levels" id="levels"></div>
+          <label class="ac-param"><span class="ac-param__label">Charging losses</span><span class="ac-param__box"><input id="loss" type="number" min="0" max="40" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><span class="ac-param__hint">Energy lost between the plug and the battery. About 10 % on AC, less on DC.</span></label>
+          <p class="ac-caption" style="margin:0">Starting values are rough real-world estimates. Your trip computer's average is better.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="ac-card stack" aria-labelledby="h-price">
+      <h2 class="step" id="h-price"><span class="step__n">2</span>What you pay for electricity</h2>
+      <label class="ac-param"><span class="ac-param__label">Price per kWh</span><span class="ac-param__box"><input id="p" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><input id="pr" type="range" min="0" max="1" step="0.01" aria-label="Electricity price slider"></label>
+      <div class="ac-chips" id="pricechips"></div>
+      <p class="ac-caption" style="margin:0">Charge in several places? Use your average, or try each price.</p>
+    </section>
+  </div>
+
+  <section class="ac-card answer" aria-label="Result">
+    <div class="ac-readouts" id="readouts" aria-live="polite"></div>
+  </section>
+
+  <section class="ac-card">
+    <h2 class="ac-card__title">Where charging stops paying off</h2>
+    <p class="ac-card__desc">Your car's cost per 100 km rises with the price per kWh (blue line; the shaded band runs from efficient to winter driving). Each dashed line is a fuel car. Where they cross is the break-even price.</p>
+    <div class="ac-legend legend"><span><i style="border-color:var(--accent);border-top-width:3.5px"></i>Your car</span><span><i class="ac-legend--dash" style="border-color:var(--fuel)"></i>Petrol</span><span><i class="ac-legend--dash dsl" style="border-color:var(--ink-muted)"></i>Diesel</span><span><b class="dot"></b>Break-even</span></div>
+    <p class="ac-notice" id="norefs" style="display:none"><span>Pick at least one car to compare with below.</span></p>
+    <div id="chart" class="ac-chart"></div>
+
+    <div class="ac-table-wrap">
+      <table class="ac-table be-table">
+        <caption class="ac-caption">Break-even electricity price, highest first. The range covers your four driving levels.</caption>
+        <thead><tr><th>Fuel car</th><th class="num">Break-even</th><th class="num">At your price, per 100 km</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ac-card stack" aria-labelledby="h-cmp">
+    <h2 class="step" id="h-cmp"><span class="step__n">3</span>Compare with</h2>
+    <div>
+      <span class="ac-param__label">Most registered new cars in Germany, 2025</span>
+      <div class="ac-chips" id="refs"></div>
+    </div>
+    <div class="row">
+      <label class="ac-param"><span class="ac-param__label">Your own fuel car uses <span class="ac-caption">(optional)</span></span><span class="ac-param__box"><input id="ownl" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="–"><span class="ac-param__unit">L/100 km</span></span></label>
+      <div><span class="ac-param__label">It runs on</span><div class="ac-seg" id="ownfuel" role="group" aria-label="Fuel of your own car"><button type="button" data-fuel="petrol">Petrol</button><button type="button" data-fuel="diesel">Diesel</button></div></div>
+    </div>
+    <div class="row">
+      <label class="ac-param"><span class="ac-param__label">Petrol price</span><span class="ac-param__box"><input id="petrol" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+      <label class="ac-param"><span class="ac-param__label">Diesel price</span><span class="ac-param__box"><input id="diesel" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+    </div>
+  </section>
+
+  <section class="ac-aibar">
+    <span class="ac-aibar__text"><b>Use this with AI.</b> Copy the numbers into any assistant, share the link, or open Claude with your numbers.</span>
+    <button class="ac-btn ac-btn--ghost" type="button" id="copyai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Copy for AI</span></button>
+    <button class="ac-btn ac-btn--ghost" type="button" id="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Share link</span></button>
+    <a class="ac-btn ac-btn--ai" id="claude" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Open in Claude</a>
+  </section>
+
+  <div class="ac-source">
+    <p class="ac-source__line" style="margin:0">Formula: cost per 100 km = kWh/100 km × (1 + losses) × €/kWh. Break-even = L/100 km × €/L ÷ (kWh/100 km × (1 + losses)).</p>
+    <p class="ac-source__line" style="margin:0">Fuel cars: the most registered new models in Germany in 2025 (<a href="https://www.kba.de/DE/Statistik/Fahrzeuge/Neuzulassungen/neuzulassungen_node.html">KBA</a>), each with its most common engine. Consumption is a real-world average rounded from owner logs on <a href="https://www.spritmonitor.de/">spritmonitor.de</a>, higher than the WLTP figure. EV figures are rough real-world estimates.</p>
+    <p class="ac-source__line" style="margin:0" id="fuelsource"></p>
+    <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Energy only: purchase price, tax, insurance and servicing are not included. Your tariff, the weather and how you drive change the real cost.</span></div>
   </div>
 <!-- chrome:footer -->
 <footer class="ac-foot">
@@ -132,6 +190,7 @@
     </ul>
   </nav>
   <p class="ac-maker">Allo Cars is a product by <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+  <p class="ac-country"><label for="ac-country">Country</label> <select id="ac-country" data-country><option value="de" selected>Germany</option></select></p>
   <p class="ac-install" data-install hidden>
     <button type="button" class="ac-btn ac-btn--gold" data-install-btn>Install the app</button>
     <span class="ac-install__how" data-install-how role="status" hidden></span>

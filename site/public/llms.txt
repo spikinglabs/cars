@@ -3,7 +3,7 @@
 Free car tools and open data for drivers in Germany, by Spiking Labs (part of allo.land). Tool inputs live in the URL, so a filled-in link reproduces a result. Machine-readable tool list: https://cars.allo.land/tools.json
 
 ## Tools
-- [EV charging cost per 100 km](https://cars.allo.land/ev-cost/): cost per 100 km at any price per kWh for your car, other EVs and petrol. Parameters: https://cars.allo.land/ev-cost/spec.json
+- [EV charging cost vs petrol and diesel](https://cars.allo.land/ev-cost/): cost per 100 km at any price per kWh for your EV, and the break-even electricity price against popular German petrol and diesel cars. Parameters: https://cars.allo.land/ev-cost/spec.json
 - [Charging price archive](https://cars.allo.land/charging-prices/): ad-hoc charging prices in Germany over time.
 
 ## Data
@@ -13,6 +13,9 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 - [Sources and licences](https://cars.allo.land/data/charging-prices/sources.json)
 
 Data from the Open ChargePoint Database (MobiData BW), which merges AFIR feeds published on Mobilithek. Licences per source are in sources.json.
+
+## Regions
+Data is arranged by region: https://cars.allo.land/data/<dataset>/<region>/<file>, with lowercase ISO codes (de for Germany). The list of regions, and which datasets each has, is at https://cars.allo.land/regions.json. Germany is the only region so far; the short URLs above without a region are Germany. Add ?country=<code> to any page link to pick the country.
 
 ## Pages
 Every page is also in German under /de/ (for example https://cars.allo.land/de/ev-cost/), with the same link parameters.
