@@ -17,6 +17,7 @@
         "fuel-prices",
         "electricity-prices",
         "registrations",
+        "chargers",
         "vehicle-catalog"
       ]
     },

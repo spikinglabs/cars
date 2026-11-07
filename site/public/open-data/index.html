@@ -44,6 +44,7 @@
   <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
   <nav class="ac-topnav" aria-label="Allo Cars">
     <a href="/">Tools</a>
+    <a href="/chargers/">Charger map</a>
     <a href="/ev-cost/">Charging cost</a>
     <a href="/charging-prices/">Price archive</a>
     <a href="/charge-times/">Best time</a>
@@ -125,6 +126,20 @@
     <p>Source: © Kraftfahrt-Bundesamt, Flensburg, under the <a href="https://www.govdata.de/dl-de/by-2-0">Data licence Germany, attribution, version 2.0</a>. When you reuse the data, credit the KBA the same way.</p>
   </section>
 
+  <section class="ac-card" id="chargers">
+    <span class="ac-label">Charger map</span>
+    <h2>Public charge points</h2>
+    <p>The <a href="/chargers/">charger map</a> shows the <a href="https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/E-Mobilitaet/start.html">Ladesäulenregister</a> of the Bundesnetzagentur (Federal Network Agency), the official list of public charge points in Germany. It is published a few times a year; we check daily and rebuild the map when a new file appears. Only operators who completed the agency's notification are in it, so the real number of chargers is higher. Devices at the same place (within about 10 m) are shown as one location, with the highest power of any of its charge points. About 200 locations whose coordinates lie far from their own postcode are left out until the register fixes them.</p>
+    <p>Licence: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, credit "Bundesnetzagentur.de". Free to download, no key and no sign-up:</p>
+    <ul>
+      <li><a href="/data/chargers/de/latest.json"><code>/data/chargers/de/latest.json</code></a>: counts overall, per federal state and per operator, the list of map cells, and the date of the register</li>
+      <li><a href="/data/chargers/de/stations.csv"><code>/data/chargers/de/stations.csv</code></a>: every location with position, power, charge points, plugs, operator, address and payment</li>
+      <li><code>/data/chargers/de/cells/&lt;id&gt;.json</code>: the locations in one 0.5 × 0.5 degree square, id = floor(lat × 2)_floor(lon × 2), for example <a href="/data/chargers/de/cells/101_13.json"><code>101_13</code></a> around Cologne</li>
+      <li><a href="/data/chargers/de/overview.json"><code>/data/chargers/de/overview.json</code></a> and <a href="/data/chargers/de/places.json"><code>places.json</code></a>: counts on a 0.1 degree grid, and postcode and town centres</li>
+    </ul>
+    <p>Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, served by the OpenStreetMap Foundation. The map uses <a href="https://leafletjs.com/">Leaflet</a> (BSD-2-Clause), loaded from this site.</p>
+  </section>
+
   <section class="ac-card" id="vehicle-catalog">
     <span class="ac-label">Vehicle catalog</span>
     <h2>Official consumption of every new car model</h2>
@@ -164,7 +179,7 @@
 
 <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p class="ac-foot__links"><a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">More from Allo</h2>
