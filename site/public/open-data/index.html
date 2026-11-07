@@ -108,6 +108,23 @@
     <p>Safety Gate data: &copy; European Union, reused under Commission Decision 2011/833/EU. NHTSA data is a US government work in the public domain. Whether a particular car is affected depends on its VIN.</p>
   </section>
 
+  <section class="ac-card" id="registrations">
+    <span class="ac-label">Registrations</span>
+    <h2>New cars by model</h2>
+    <p>The <a href="https://www.kba.de/DE/Statistik/Produktkatalog/produkte/Fahrzeuge/fz10/fz10_gentab.html">Kraftfahrt-Bundesamt</a> (KBA), Germany's federal motor transport authority, publishes how many passenger cars of each brand and model series were newly registered every month (statistic FZ10). We read each monthly table once it comes out, about a week after the month ends, and keep every month since December 2018.</p>
+    <p>Free to download, no key and no sign-up:</p>
+    <ul>
+      <li><a href="/data/registrations/de/latest.json"><code>/data/registrations/de/latest.json</code></a>: the newest month: all new cars by drive type, the top 20 models and the top 10 electric models, with the change on a year before</li>
+      <li><a href="/data/registrations/de/models.json"><code>/data/registrations/de/models.json</code></a>: every model ever listed, with its file, newest count, rank and last 12 months</li>
+      <li><code>/data/registrations/de/models/&lt;slug&gt;.json</code>: one model per month, for example <a href="/data/registrations/de/models/volvo-ex30.json"><code>volvo-ex30.json</code></a></li>
+      <li><a href="/data/registrations/de/monthly.csv"><code>/data/registrations/de/monthly.csv</code></a>: every model, every month (month, brand, model, slug, total, diesel, hybrid, phev, bev)</li>
+      <li><a href="/data/registrations/de/market.csv"><code>/data/registrations/de/market.csv</code></a>: all new cars per month by drive type and the electric share</li>
+      <li><a href="/data/registrations/de/brands.json"><code>/data/registrations/de/brands.json</code></a>: every brand per month, total and electric</li>
+    </ul>
+    <p>Counts are new registrations in the month. <code>hybrid</code> includes plug-in hybrids, which have their own <code>phev</code> column since 2021. <code>bev</code> is battery electric only. Model names are as the KBA writes them; <code>SONSTIGE</code> means a brand's other models.</p>
+    <p>Source: © Kraftfahrt-Bundesamt, Flensburg, under the <a href="https://www.govdata.de/dl-de/by-2-0">Data licence Germany, attribution, version 2.0</a>. When you reuse the data, credit the KBA the same way.</p>
+  </section>
+
   <section class="ac-card">
     <span class="ac-label">Calculators</span>
     <h2>Car consumption figures</h2>
