@@ -1,13 +1,21 @@
 /* Fuel price page: this week's petrol, diesel and LPG prices and their weekly history since 2005,
-   from /data/fuel-prices/<region>/{latest.json,weekly.csv}. One script for /fuel-prices/ and
-   /de/fuel-prices/. Link state: ?fuel=euro_super_95|diesel|lpg and ?range=1y|5y|all. */
+   from /data/fuel-prices/<region>/{latest.json,weekly.csv}. One script for /fuel-prices/,
+   /de/fuel-prices/ and /zh/fuel-prices/. Link state: ?fuel=euro_super_95|diesel|lpg and ?range=1y|5y|all. */
 (() => {
-  const de = document.documentElement.lang === "de";
+  const lang = (document.documentElement.lang || "en").slice(0, 2);
+  const de = lang === "de", zh = lang === "zh";
   const NAMES = de
     ? { euro_super_95: "Super (E5)", diesel: "Diesel", lpg: "Autogas (LPG)" }
+    : zh ? { euro_super_95: "汽油 (Super E5)", diesel: "柴油", lpg: "液化石油气 (LPG)" }
     : { euro_super_95: "Petrol (Super E5)", diesel: "Diesel", lpg: "LPG" };
   const RANGES = { "1y": 52, "5y": 261, all: Infinity };
-  const T = de ? {
+  const T = zh ? {
+    locale: "zh-CN", ranges: { "1y": "1 年", "5y": "5 年", all: "2005 年以来" },
+    now: (f, w) => `${f}，${w} 这一周的全国平均价`,
+    change: (c) => c == null ? "" : ` · 比上周 ${c > 0 ? "+" : ""}${cent(c)}`,
+    avg4: "最近 4 周平均", avg52: "最近 52 周平均",
+    chart: "每周每升价格", made: "数据日期 ", failed: "无法加载数据：", dot: "。",
+  } : de ? {
     locale: "de-DE", ranges: { "1y": "1 Jahr", "5y": "5 Jahre", all: "Seit 2005" },
     now: (f, w) => `${f}, Bundesdurchschnitt in der Woche ab ${w}`,
     change: (c) => c == null ? "" : ` · ${c > 0 ? "+" : ""}${cent(c)} zur Vorwoche`,
@@ -102,7 +110,7 @@
     const [latest, csv] = await Promise.all([get("latest.json", "json"), get("weekly.csv", "text")]);
     S.latest = latest; S.rows = parseCsv(csv); S.cur = latest.currency || "EUR";
     if (!latest.products[S.fuel]) S.fuel = Object.keys(latest.products)[0];
-    $("asof").textContent = T.made + new Date(latest.observed_at).toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric" }) + ".";
+    $("asof").textContent = T.made + new Date(latest.observed_at).toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric" }) + (T.dot || ".");
     render();
   }
   load().catch((e) => { $("chart").innerHTML = `<p class="ac-caption">${T.failed}${esc(e.message)}</p>`; });

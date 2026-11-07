@@ -1,0 +1,85 @@
+{
+ "id": "/",
+ "name": "Allo Cars",
+ "short_name": "Allo Cars",
+ "description": "面向德国的汽车工具和开放数据：电动车跑 100 公里要花多少钱，公共充电价格的变化。",
+ "lang": "zh-Hans",
+ "start_url": "/zh/",
+ "scope": "/",
+ "display": "standalone",
+ "background_color": "#f6f5f2",
+ "theme_color": "#ffcc00",
+ "categories": [
+  "utilities",
+  "travel",
+  "navigation"
+ ],
+ "icons": [
+  {
+   "src": "/icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "/icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "/icons/maskable-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "maskable"
+  },
+  {
+   "src": "/icons/maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  },
+  {
+   "src": "/favicon.svg",
+   "sizes": "any",
+   "type": "image/svg+xml",
+   "purpose": "any"
+  }
+ ],
+ "related_applications": [
+  {
+   "platform": "webapp",
+   "url": "https://cars.allo.land/manifest.webmanifest"
+  },
+  {
+   "platform": "webapp",
+   "url": "https://cars.allo.land/de/manifest.webmanifest"
+  },
+  {
+   "platform": "webapp",
+   "url": "https://cars.allo.land/zh/manifest.webmanifest"
+  }
+ ],
+ "shortcuts": [
+  {
+   "name": "充电成本",
+   "url": "/zh/ev-cost/",
+   "icons": [
+    {
+     "src": "/icons/icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  },
+  {
+   "name": "价格档案",
+   "url": "/zh/charging-prices/",
+   "icons": [
+    {
+     "src": "/icons/icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  }
+ ]
+}

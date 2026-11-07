@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>电动车充电成本与汽油、柴油对比 · Allo Cars</title>
+<meta name="description" content="在任意每 kWh 电价下，你的电动车跑 100 公里要花多少钱，以及与德国最热门汽油车和柴油车持平的电价。免费、无需注册、支持 AI。">
+<link rel="alternate" type="application/json" href="/ev-cost/spec.json" title="供 AI 读取的工具说明 (JSON)">
+<!-- chrome:head -->
+<link rel="alternate" hreflang="en" href="https://cars.allo.land/ev-cost/">
+<link rel="alternate" hreflang="de" href="https://cars.allo.land/de/ev-cost/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/ev-cost/">
+<link rel="alternate" hreflang="x-default" href="https://cars.allo.land/ev-cost/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/zh/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Allo Cars">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
+<!-- /chrome:head -->
+<link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=2eae6260a9">
+<script src="/assets/site.js?v=4d5b1b5049"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { font: 800 clamp(30px, 5vw, 44px)/1.08 var(--font-display); letter-spacing: -0.02em; margin: var(--space-5) 0 var(--space-2); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 66ch; font-size: 17px; line-height: 26px; }
+  .stack { display: grid; gap: 14px; }
+  .wrap > .ac-card, .wrap > .ac-aibar, .wrap > .ac-source { margin-bottom: var(--space-4); }
+  .setup { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); align-items: start; }
+  .step { display: flex; align-items: center; gap: 10px; margin: 0; font: 700 19px/24px var(--font-display); letter-spacing: -0.01em; }
+  .step__n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: var(--gold-ink); font: 700 15px/1 var(--font-sign); flex: none; }
+  select.ac-select { width: 100%; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 18px/22px var(--font-display); }
+  .use { margin-top: 6px; }
+  .use button { display: inline-flex; gap: 6px; align-items: baseline; }
+  .use .kwh { font: 600 13px/1 var(--font-sign); opacity: .75; }
+  .more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
+  .more[open] summary { margin-bottom: 10px; }
+  .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end; }
+  .extras { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 6px; }
+  .subcard { display: grid; gap: 14px; align-content: start; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-50); }
+  .subcard h3 { margin: 0; font: 700 16px/20px var(--font-display); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .subcard h3 .ac-caption { font-weight: 400; }
+  .subcard > p { margin: -8px 0 0; }
+  .subcard .ac-param__label { font-size: 14px; }
+  .answer .ac-readouts { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+  .ac-readout__value.good { color: var(--success); }
+  .answer, .answer__body { display: grid; gap: 14px; }
+  .step__n--res { background: var(--ink); color: var(--surface-100); }
+  .verdict { border-top: 1px solid var(--border); padding-top: 14px; display: grid; gap: 6px; }
+  .verdict p { margin: 0; max-width: 70ch; }
+  .verdict__head { font: 700 18px/24px var(--font-display); }
+  .verdict__head.good { color: var(--success); } .verdict__head.bad { color: var(--danger); }
+  .verdict__detail { color: var(--ink-muted); font-size: 15px; line-height: 22px; }
+  #chart .tick { stroke: var(--chart-axis); fill: none; }
+  #chart .lab--own { font-style: italic; }
+  .be-table td:first-child { white-space: normal; }
+  .be-table { width: 100%; }
+  .saved { margin: calc(-1 * var(--space-3)) 0 var(--space-5); font-size: 13px; color: var(--ink-muted); }
+  .linkbtn { background: none; border: 0; padding: 0; font: inherit; color: var(--ink); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .ai-split { position: relative; display: inline-flex; }
+  .ai-split__go { border-radius: var(--radius-pill) 0 0 var(--radius-pill); }
+  .ai-split__more { border-radius: 0 var(--radius-pill) var(--radius-pill) 0; padding: 0 10px; margin-left: 1px; }
+  .ai-split__more svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+  .ai-menu { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 5; min-width: 170px; display: grid; padding: 6px; background: var(--surface-100); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); }
+  .ai-menu[hidden] { display: none; }
+  .ai-menu a { padding: 10px 12px; border-radius: var(--radius-xs); color: var(--ink); text-decoration: none; font-weight: 700; }
+  .ai-menu a:hover, .ai-menu a:focus-visible { background: var(--surface-200); }
+  .ai-menu a[aria-current="true"]::after { content: " ✓"; color: var(--accent); }
+  .method summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--ink-muted); padding: 4px 0; }
+  .method[open] { gap: var(--space-2); }
+  .ac-readout__value.bad { color: var(--danger); }
+  .legend { margin: 10px 0 4px; }
+  .legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2.5px solid var(--accent); background: var(--surface-100); margin-right: 6px; vertical-align: -1px; }
+  .ac-legend--dash.dsl { border-top-style: dotted; }
+  #chart { margin-top: 8px; touch-action: pan-y; }
+  #chart .fuel { stroke-width: 2; stroke-dasharray: 7 5; }
+  #chart .fuel--petrol { stroke: var(--fuel); }
+  #chart .fuel--diesel { stroke: var(--ink-muted); stroke-dasharray: 2 4; stroke-linecap: round; }
+  #chart .fuel--own { stroke-width: 3; }
+  #chart text { paint-order: stroke; stroke: var(--surface-100); stroke-width: 4px; stroke-linejoin: round; }
+  #chart .lab { font-weight: 700; }
+  #chart .lab--petrol { fill: var(--fuel); }
+  #chart .lab--diesel { fill: var(--ink-muted); }
+  #chart .lab--ev { fill: var(--accent); font: 700 13px var(--font-display); }
+  #chart .be { font: 700 13px var(--font-sign); fill: var(--accent); }
+  #chart .you { font-weight: 700; fill: var(--ink); }
+  #chart .axis { font-weight: 700; }
+  .dash { display: inline-block; width: 18px; border-top: 2.5px dashed var(--fuel); margin-right: 8px; vertical-align: 3px; }
+  .dash--diesel { border-top: 2.5px dotted var(--ink-muted); }
+  .be-table { margin-top: var(--space-4); }
+  .be-table caption { text-align: left; padding-bottom: 8px; }
+  .be-table .sub { display: block; font-size: 12px; color: var(--ink-muted); font-weight: 400; }
+  .be-table td.good { color: var(--success); font-weight: 700; }
+  .be-table td.bad { color: var(--danger); font-weight: 700; }
+  .be-table .sub-save { display: none; font-weight: 700; }
+  .sub.good { color: var(--success); } .sub.bad { color: var(--danger); }
+  #ownl { min-width: 6ch; }
+  @media (max-width: 560px) { .be-table th:last-child, .be-table td:last-child { display: none; } .be-table .sub-save { display: block; } }
+  .be-table b { font: 700 18px/22px var(--font-sign); }
+</style>
+</head>
+<body>
+<div class="ac">
+<div class="ac-flagbar"></div>
+<div class="wrap">
+<!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/zh/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/zh/">工具</a>
+    <a href="/zh/chargers/">充电桩地图</a>
+    <a href="/zh/ev-cost/" aria-current="page">充电成本</a>
+    <a href="/zh/charging-prices/">价格档案</a>
+    <a href="/zh/charge-times/">充电时段</a>
+    <a href="/zh/recalls/">召回</a>
+    <a href="/zh/fuel-prices/">油价</a>
+  </nav>
+  <div class="ac-top__right">
+    <details class="ac-langmenu" data-langmenu><summary aria-label="语言" title="语言"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>中文</span></summary><div class="ac-langmenu__list"><a class="ac-lang" href="/ev-cost/" hreflang="en" lang="en" data-lang="en">English</a><a class="ac-lang" href="/de/ev-cost/" hreflang="de" lang="de" data-lang="de">Deutsch</a><a class="ac-lang" href="/zh/ev-cost/" hreflang="zh-Hans" lang="zh-Hans" data-lang="zh" aria-current="true">简体中文</a></div></details>
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="切换浅色或深色" title="切换浅色或深色"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<aside class="ac-apphint" data-app-hint hidden>
+  <span class="ac-apphint__text" data-app-hint-text>可以把 Allo Cars 添加到主屏幕，像 App 一样使用。</span>
+  <button type="button" class="ac-apphint__go" data-app-hint-go hidden>安装</button>
+  <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="关闭">×</button>
+</aside>
+<!-- /chrome:header -->
+
+  <h1>什么时候充电比加油<em class="ac-hl">更便宜</em>？</h1>
+  <p class="lead">选择你的电动车和你每 kWh 支付的电价。图表显示在每个电价下跑 100 公里的花费，以及与德国最热门的汽油车和柴油车相比，电价到多少时就不再省钱。</p>
+  <p class="saved">你的设置保存在这台设备上。<button type="button" class="linkbtn" id="reset">重新开始</button></p>
+
+  <div class="setup">
+    <section class="ac-card stack" aria-labelledby="h-car">
+      <h2 class="step" id="h-car"><span class="step__n">1</span>你的车</h2>
+      <select id="car" class="ac-select" aria-label="你的电动车"></select>
+      <p class="ac-caption" id="official" hidden style="margin:0"></p>
+      <div>
+        <span class="ac-param__label">驾驶方式</span>
+        <div class="ac-seg use" id="use" role="group" aria-label="驾驶方式，每 100 公里 kWh"></div>
+      </div>
+      <details class="more">
+        <summary>修改能耗和充电损耗</summary>
+        <div class="stack">
+          <div class="levels" id="levels"></div>
+          <label class="ac-param"><span class="ac-param__label">充电损耗</span><span class="ac-param__box"><input id="loss" type="number" min="0" max="40" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><span class="ac-param__hint">从插头到电池之间损失的电量。交流充电约 10 %，直流更少。</span></label>
+          <p class="ac-caption" style="margin:0">初始值是大致的实际使用估算。行车电脑上的平均值更准确。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="ac-card stack" aria-labelledby="h-price">
+      <h2 class="step" id="h-price"><span class="step__n">2</span>你的电价</h2>
+      <label class="ac-param"><span class="ac-param__label">每 kWh 价格</span><span class="ac-param__box"><input id="p" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><input id="pr" type="range" min="0" max="1" step="0.01" aria-label="电价滑块"></label>
+      <div class="ac-chips" id="pricechips"></div>
+      <p class="ac-caption" style="margin:0">在好几个地方充电？用你的平均价格，或者逐个价格试试。</p>
+    </section>
+  </div>
+
+  <section class="ac-card stack" aria-labelledby="h-cmp">
+    <h2 class="step" id="h-cmp"><span class="step__n">3</span>对比车型</h2>
+    <div>
+      <span class="ac-param__label">德国热门车型</span>
+      <div class="ac-chips" id="refs"></div>
+    </div>
+    <div class="extras">
+      <div class="subcard" role="group" aria-labelledby="h-own">
+        <h3 id="h-own">你自己的燃油车 <span class="ac-caption">可选</span></h3>
+        <p class="ac-caption">会在图表中单独显示为一条线。</p>
+        <label class="ac-param"><span class="ac-param__label">油耗</span><span class="ac-param__box"><input id="ownl" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="–"><span class="ac-param__unit">L/100 km</span></span></label>
+        <div class="ac-param"><span class="ac-param__label">燃料类型</span><div class="ac-seg" id="ownfuel" role="group" aria-label="你自己车的燃料"><button type="button" data-fuel="petrol">汽油</button><button type="button" data-fuel="diesel">柴油</button></div></div>
+      </div>
+      <div class="subcard" role="group" aria-labelledby="h-fuelp">
+        <h3 id="h-fuelp">油价</h3>
+        <p class="ac-caption">德国最新平均价。可以改成你实际支付的价格。</p>
+        <label class="ac-param"><span class="ac-param__label">汽油价格</span><span class="ac-param__box"><input id="petrol" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+        <label class="ac-param"><span class="ac-param__label">柴油价格</span><span class="ac-param__box"><input id="diesel" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="ac-card answer" aria-labelledby="h-res">
+    <h2 class="step" id="h-res"><span class="step__n step__n--res">=</span>你的结果</h2>
+    <div id="readouts" class="answer__body" aria-live="polite"></div>
+    <p class="ac-caption" style="margin:0">仅为能源成本，不含购车价格、税费、保险和保养。</p>
+  </section>
+
+  <section class="ac-card">
+    <h2 class="ac-card__title">充电从哪里开始不划算</h2>
+    <p class="ac-card__desc">蓝线是第 1 步中你的电动车：每 kWh 电价越高，跑 100 公里越贵（阴影带从经济驾驶到冬季驾驶）。每条虚线是第 3 步中的一辆燃油车。竖线是第 2 步中你的电价。蓝线与燃油车相交的地方，两者花费相同。</p>
+    <div class="ac-legend legend"><span><i style="border-color:var(--accent);border-top-width:3.5px"></i>你的车</span><span><i class="ac-legend--dash" style="border-color:var(--fuel)"></i>汽油</span><span><i class="ac-legend--dash dsl" style="border-color:var(--ink-muted)"></i>柴油</span><span id="legown" hidden><i class="ac-legend--dash" style="border-color:var(--fuel);border-top-width:3px"></i><em>你的燃油车（第 3 步）</em></span><span><b class="dot"></b>持平点</span></div>
+    <p class="ac-notice" id="norefs" style="display:none"><span>请在下方至少选择一辆对比车型。</span></p>
+    <div id="chart" class="ac-chart"></div>
+
+    <div class="ac-table-wrap">
+      <table class="ac-table be-table">
+        <caption class="ac-caption">持平电价，从高到低排列。区间涵盖你的四种驾驶方式。</caption>
+        <thead><tr><th>燃油车</th><th class="num">持平电价</th><th class="num">按你的电价，每 100 公里</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+
+  <section class="ac-aibar">
+    <span class="ac-aibar__text"><b>交给 AI 使用。</b>打开一个已填好你数字的 AI 助手，或者复制这些数字。</span>
+    <div class="ai-split">
+      <a class="ac-btn ac-btn--ai ai-split__go" id="aigo" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span id="ailabel">在 Claude 中打开</span></a>
+      <button class="ac-btn ac-btn--ai ai-split__more" type="button" id="aimore" aria-haspopup="true" aria-expanded="false" aria-controls="aimenu" aria-label="选择 AI 助手"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="ai-menu" id="aimenu" hidden>
+        <a data-ai="claude" target="_blank" rel="noopener" href="https://claude.ai/new">Claude</a>
+        <a data-ai="chatgpt" target="_blank" rel="noopener" href="https://chatgpt.com/">ChatGPT</a>
+        <a data-ai="perplexity" target="_blank" rel="noopener" href="https://www.perplexity.ai/">Perplexity</a>
+      </div>
+    </div>
+    <button class="ac-btn ac-btn--ghost" type="button" id="copyai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>复制给 AI</span></button>
+    <button class="ac-btn ac-btn--ghost" type="button" id="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>分享链接</span></button>
+  </section>
+
+  <details class="ac-source method">
+    <summary>计算方法和数据来源</summary>
+    <p class="ac-source__line" style="margin:0">公式：每 100 公里成本 = kWh/100 km × (1 + 损耗) × €/kWh。持平电价 = L/100 km × €/L ÷ (kWh/100 km × (1 + 损耗))。</p>
+    <p class="ac-source__line" style="margin:0">燃油车：2025 年德国新车登记量最多的车型（<a href="https://www.kba.de/DE/Statistik/Fahrzeuge/Neuzulassungen/neuzulassungen_node.html">KBA</a>），外加马自达 CX-30 和 CX-5，每款都取最常见的发动机。油耗是根据 <a href="https://www.spritmonitor.de/">spritmonitor.de</a> 上车主记录取整的实际平均值，高于 WLTP 数值。电动车数据是大致的实际使用估算。官方能耗是德国每辆新登记汽车申报的 WLTP 插头端能耗，按人们实际购买的版本加权平均，来自<a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b">欧洲环境署 (EEA) 新车 CO2 监测</a>（CC BY 4.0）。没有估算值的车型，四种驾驶方式分别取该数值的 0.9、1、1.22 和 1.38 倍。</p>
+    <p class="ac-source__line" style="margin:0" id="fuelsource"></p>
+    <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>仅为能源成本：不含购车价格、税费、保险和保养。你的资费、天气和驾驶方式都会影响实际成本。</span></div>
+  <p class="ac-source__line" style="margin:0"><a href="/zh/open-data/">Allo Cars 的全部数据来源</a></p>
+  </details>
+<!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
+  <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">Allo 的其他产品</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>身边的亲子出游和活动</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>婴幼儿和儿童用品召回，来自官方渠道</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>给父母的私密宝宝日志</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>在德国安顿生活</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars 是 <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a> 的产品。</p>
+  <p class="ac-country"><label for="ac-country">国家</label> <select id="ac-country" data-country><option value="de" selected>德国</option></select></p>
+  <p class="ac-install" data-install hidden>
+    <button type="button" class="ac-btn ac-btn--gold" data-install-btn>安装 App</button>
+    <span class="ac-install__how" data-install-how role="status" hidden></span>
+  </p>
+</footer>
+<nav class="ac-tabs" aria-label="Allo Cars">
+  <a href="/zh/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>工具</span></a>
+  <a href="/zh/ev-cost/" aria-current="page" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a>
+  <a href="/zh/chargers/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>充电桩地图</span></a>
+  <button type="button" class="ac-tabs__more" popovertarget="ac-more" aria-controls="ac-more" data-more-btn><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>更多</span></button>
+</nav>
+<div class="ac-sheet" id="ac-more" popover role="dialog" aria-labelledby="ac-more-h">
+  <div class="ac-sheet__head"><h2 id="ac-more-h">全部页面</h2><button type="button" class="ac-iconbtn" popovertarget="ac-more" popovertargetaction="hide" data-more-close aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <h3>充电</h3>
+  <ul>
+    <li><a href="/zh/ev-cost/" aria-current="page" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a></li>
+    <li><a href="/zh/chargers/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>充电桩地图</span></a></li>
+    <li><a href="/zh/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>价格档案</span></a></li>
+    <li><a href="/zh/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>最佳充电时段</span></a></li>
+  </ul>
+  <h3>汽车</h3>
+  <ul>
+    <li><a href="/zh/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>召回</span></a></li>
+    <li><a href="/zh/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>新车登记</span></a></li>
+    <li><a href="/zh/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>油价</span></a></li>
+  </ul>
+  <h3>数据</h3>
+  <ul>
+    <li><a href="/zh/open-data/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg><span>数据与来源</span></a></li>
+    <li><a href="/zh/open-data/#ai" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>接入 AI</span></a></li>
+  </ul>
+</div>
+<!-- /chrome:footer -->
+</div>
+</div>
+
+<script src="/assets/components/bundle.js?v=a59ccf037e"></script>
+<script src="/ev-cost/calc.js?v=01f73cec22"></script>
+<script src="/ev-cost/app.js?v=ca46d7fce7"></script>
+</body>
+</html>

@@ -10,6 +10,7 @@
 <!-- chrome:head -->
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/recalls/">
 <link rel="alternate" hreflang="de" href="https://cars.allo.land/de/recalls/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/recalls/">
 <link rel="alternate" hreflang="x-default" href="https://cars.allo.land/recalls/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -19,11 +20,11 @@
 <meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
 <script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
-<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland"},"currency":"EUR","locale":"de-DE"}]};</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
-<link rel="stylesheet" href="/assets/tokens.css?v=1b9a81cd8e">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=a66085d202">
-<script src="/assets/site.js?v=68754c3a89"></script>
+<link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=2eae6260a9">
+<script src="/assets/site.js?v=4d5b1b5049"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
   main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
@@ -83,7 +84,7 @@
     <a href="/fuel-prices/">Fuel prices</a>
   </nav>
   <div class="ac-top__right">
-    <a class="ac-lang" href="/de/recalls/" hreflang="de" lang="de" title="Auf Deutsch lesen" aria-label="Auf Deutsch lesen"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>DE</span></a>
+    <details class="ac-langmenu" data-langmenu><summary aria-label="Language" title="Language"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>EN</span></summary><div class="ac-langmenu__list"><a class="ac-lang" href="/recalls/" hreflang="en" lang="en" data-lang="en" aria-current="true">English</a><a class="ac-lang" href="/de/recalls/" hreflang="de" lang="de" data-lang="de">Deutsch</a><a class="ac-lang" href="/zh/recalls/" hreflang="zh-Hans" lang="zh-Hans" data-lang="zh">简体中文</a></div></details>
     <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Switch light or dark" title="Switch light or dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
   </div>
 </header>
@@ -203,6 +204,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/recalls/app.js?v=7387174b31"></script>
+<script src="/recalls/app.js?v=fb57379b1a"></script>
 </body>
 </html>

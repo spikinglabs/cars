@@ -2,7 +2,7 @@
 //   pages, scripts, styles and /data/ → network first; after 3 s, or offline, the copy saved last time
 //   fonts and images   → a saved copy answers at once and is refreshed in the background
 //   anything not GET, or from another site → straight to the network, never saved
-const VERSION = "v2";
+const VERSION = "v3";
 const PAGES = `pages-${VERSION}`;
 const STATIC = `static-${VERSION}`;
 const MAX_PAGES = 60;
@@ -54,7 +54,8 @@ async function networkFirst(req, url, event) {
     const hit = await cache.match(req, { ignoreSearch: true });
     if (hit) return hit;
     if (req.mode === "navigate") {
-      const home = await cache.match(url.pathname.startsWith("/de/") ? "/de/" : "/");
+      const lang = url.pathname.match(/^\/(de|zh)\//);
+      const home = await cache.match(lang ? `/${lang[1]}/` : "/");
       if (home) return home;
       return new Response(OFFLINE, { status: 503, headers: { "content-type": "text/html; charset=utf-8" } });
     }
@@ -70,4 +71,4 @@ async function trim(cache) {
 const OFFLINE = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Allo Cars</title><style>body{font:1.05rem/1.5 system-ui,sans-serif;background:#f6f5f2;color:#17191b;margin:0;padding:48px 20px;text-align:center}
 b{display:inline-block;background:#ffcc00;padding:4px 10px;border-radius:8px;margin-bottom:12px}</style></head>
-<body><b>Allo Cars</b><p>Offline. Bitte später nochmal versuchen.<br>You're offline. Please try again later.</p></body></html>`;
+<body><b>Allo Cars</b><p>Offline. Bitte später nochmal versuchen.<br>You're offline. Please try again later.<br>当前处于离线状态，请稍后再试。</p></body></html>`;

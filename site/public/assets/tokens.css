@@ -162,3 +162,11 @@
   --shadow-sm: 0 1px 2px #0000004d;
   --shadow-md: 0 6px 20px #00000080;
 }
+
+/* Simplified Chinese pages (/zh/): the Latin fonts have no Chinese letters, so name the usual
+   system fonts for them right after; Latin text and digits keep the house fonts. */
+html:lang(zh) {
+  --font-display: "Bricolage Grotesque", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-sans: "Atkinson Hyperlegible", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-sign: "Barlow Semi Condensed", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}

@@ -1,10 +1,23 @@
 /* Cheapest time to charge: today's and tomorrow's day-ahead prices from /data/electricity-prices/de/latest.json,
    turned into an estimated dynamic tariff price, with the cheapest window for the chosen charging time.
-   One script for /charge-times/ and /de/charge-times/. Link parameters: day=0|1, h=<hours>, kwh=<n>, tariff=dynamic|fixed, grid=<€/kWh net>, markup=<€/kWh net>,
+   One script for /charge-times/, /de/charge-times/ and /zh/charge-times/. Link parameters: day=0|1, h=<hours>, kwh=<n>, tariff=dynamic|fixed, grid=<€/kWh net>, markup=<€/kWh net>,
    fixed=<€/kWh incl. VAT> (old links: addon=<€/kWh net>). The tariff is kept on this device only. */
 (() => {
-  const de = document.documentElement.lang === "de";
-  const T = de ? {
+  const lang = (document.documentElement.lang || "en").slice(0, 2);
+  const de = lang === "de", zh = lang === "zh";
+  const T = zh ? {
+    locale: "zh-CN", today: "今天", tomorrow: "明天", hours: (h) => `${h} 小时`,
+    window: "最便宜的时段", avgThere: "该时段的价格", dayAvg: (p) => `全天平均 ${p}`,
+    save: (kwh) => `充 ${kwh} kWh 比全天平均省下`, chart: (d) => `${d} 的价格`,
+    waiting: "明天的价格大约在德国时间 13:00 公布。", tip: (t, p) => `${t}：${p}/kWh`,
+    collected: "更新于 ", failed: "无法加载数据：", none: "这一天还没有价格。",
+    clock: (s, e) => `${s}–${e}`,
+    fixedIs: "你的固定电价", sameAllDay: "每个时段价格都一样，所以选时间省不了钱",
+    noSave: "选时间省下的钱", dynCompare: (kwh) => `动态电价在最便宜时段的花费，附加费用按“动态”下的设置（${kwh} kWh）`,
+    noteDyn: "你的电价 = 交易所价格 + 电网费、附加费和税 + 供应商加价，再加 19 % 增值税。最便宜的时段对所有人都一样，价格本身取决于你所在的电网区域和供应商。",
+    noteFix: "固定电价全天价格相同。柱状图显示今天动态电价的大致花费（电网费和加价按“动态”下的设置），粗黑线是你的电价。",
+    notYet: "正在第一次收集电价，请几分钟后再来看看。", unavailable: "暂无数据", dot: "。",
+  } : de ? {
     locale: "de-DE", today: "Heute", tomorrow: "Morgen", hours: (h) => `${h} h`,
     window: "Günstigstes Zeitfenster", avgThere: "Preis in diesem Fenster", dayAvg: (p) => `Tagesdurchschnitt ${p}`,
     save: (kwh) => `Ersparnis für ${kwh} kWh gegenüber dem Tagesdurchschnitt`, chart: (d) => `Preis am ${d}`,
@@ -157,7 +170,7 @@
     data = await fetch(AlloSite.data("electricity-prices", "latest.json")).then((r) => { if (!r.ok) throw Object.assign(new Error(r.status), { status: r.status }); return r.json(); });
     model = data.tariff_model;
     if (!data.days[S.day]) S.day = 0;
-    $("asof").textContent = T.collected + new Date(data.observed_at).toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + ".";
+    $("asof").textContent = T.collected + new Date(data.observed_at).toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + (T.dot || ".");
     render();
     addEventListener("resize", () => { clearTimeout(window.__acRs); window.__acRs = setTimeout(render, 150); });
   }

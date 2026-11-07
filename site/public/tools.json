@@ -9,7 +9,8 @@
       "url": "https://cars.allo.land/ev-cost/",
       "spec": "https://cars.allo.land/ev-cost/spec.json",
       "description": "Cost per 100 km of an electric car at any price per kWh, and the break-even electricity price against Germany's most registered petrol and diesel cars (or your own fuel car).",
-      "url_de": "https://cars.allo.land/de/ev-cost/"
+      "url_de": "https://cars.allo.land/de/ev-cost/",
+      "url_zh": "https://cars.allo.land/zh/ev-cost/"
     },
     {
       "name": "charging_price_archive",
@@ -22,7 +23,8 @@
         "tariffs": "https://cars.allo.land/data/charging-prices/tariffs.csv",
         "sources": "https://cars.allo.land/data/charging-prices/sources.json"
       },
-      "url_de": "https://cars.allo.land/de/charging-prices/"
+      "url_de": "https://cars.allo.land/de/charging-prices/",
+      "url_zh": "https://cars.allo.land/zh/charging-prices/"
     },
     {
       "name": "car_recalls",
@@ -45,7 +47,8 @@
         "us_model": "https://cars.allo.land/data/recalls/us/models/<slug>.json",
         "stats": "https://cars.allo.land/data/recalls/eu/stats.json"
       },
-      "url_de": "https://cars.allo.land/de/recalls/"
+      "url_de": "https://cars.allo.land/de/recalls/",
+      "url_zh": "https://cars.allo.land/zh/recalls/"
     },
     {
       "name": "cheapest_charging_time",
@@ -66,7 +69,8 @@
         "daily": "https://cars.allo.land/data/electricity-prices/de/daily.csv",
         "hourly": "https://cars.allo.land/data/electricity-prices/de/hourly.csv"
       },
-      "url_de": "https://cars.allo.land/de/charge-times/"
+      "url_de": "https://cars.allo.land/de/charge-times/",
+      "url_zh": "https://cars.allo.land/zh/charge-times/"
     },
     {
       "name": "new_registrations_by_model",
@@ -84,7 +88,8 @@
         "market": "https://cars.allo.land/data/registrations/de/market.csv",
         "brands": "https://cars.allo.land/data/registrations/de/brands.json"
       },
-      "url_de": "https://cars.allo.land/de/registrations/"
+      "url_de": "https://cars.allo.land/de/registrations/",
+      "url_zh": "https://cars.allo.land/zh/registrations/"
     },
     {
       "name": "charger_map",
@@ -107,7 +112,8 @@
         "overview": "https://cars.allo.land/data/chargers/de/overview.json",
         "places": "https://cars.allo.land/data/chargers/de/places.json"
       },
-      "url_de": "https://cars.allo.land/de/chargers/"
+      "url_de": "https://cars.allo.land/de/chargers/",
+      "url_zh": "https://cars.allo.land/zh/chargers/"
     },
     {
       "name": "vehicle_catalog",
@@ -120,7 +126,8 @@
         "electric": "https://cars.allo.land/data/vehicle-catalog/de/electric.json",
         "models_eu": "https://cars.allo.land/data/vehicle-catalog/eu/models.json"
       },
-      "url_de": "https://cars.allo.land/de/open-data/#vehicle-catalog"
+      "url_de": "https://cars.allo.land/de/open-data/#vehicle-catalog",
+      "url_zh": "https://cars.allo.land/zh/open-data/#vehicle-catalog"
     },
     {
       "name": "fuel_prices",
@@ -136,7 +143,8 @@
         "weekly": "https://cars.allo.land/data/fuel-prices/weekly.csv",
         "regions": "https://cars.allo.land/data/fuel-prices/index.json"
       },
-      "url_de": "https://cars.allo.land/de/fuel-prices/"
+      "url_de": "https://cars.allo.land/de/fuel-prices/",
+      "url_zh": "https://cars.allo.land/zh/fuel-prices/"
     }
   ],
   "regions": "https://cars.allo.land/regions.json",

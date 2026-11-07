@@ -1,11 +1,51 @@
 /* EV charging cost page: pick a car, set a price, see where charging stops being cheaper than fuel.
-   One script for the English (/ev-cost/) and German (/de/ev-cost/) page; words come from T.
+   One script for the English (/ev-cost/), German (/de/ev-cost/) and Chinese (/zh/ev-cost/) page; words come from T.
    The maths is in calc.js, so tests and AI tools get the same numbers. */
 (function () {
   "use strict";
   var A = window.AlloCars, E = window.EvCost, D = E.DEFAULTS;
-  var de = A.lang === "de";
-  var T = de ? {
+  var WORDS = {};
+  WORDS.zh = {
+    levels: ["经济", "日常", "高速", "冬季"],
+    hints: ["城市和乡村道路，天气温和", "普通的一周驾驶", "匀速 120 km/h", "天冷，开暖风"],
+    fuel: { petrol: "汽油", diesel: "柴油" },
+    fuelPrice: { petrol: "汽油", diesel: "柴油" },
+    own: "你的燃油车",
+    home: "家庭电价", median: "公共充电中位数", cheap: "最便宜的 10 %", dear: "最贵的 10 %",
+    perKwh: "/kWh", per100: "/100 km", per1000: "/1,000 km",
+    costBasis: function (car, lvl, kwh) { return car + "，" + lvl + "，" + kwh + " kWh/100 km，含充电损耗"; },
+    openIn: function (n) { return "在 " + n + " 中打开"; },
+    youLine: function (p) { return "你的电价 " + p + "（第 2 步）"; }, medianLine: "公共充电中位数 ",
+    evChart: function (car) { return "你的 " + car + "（第 1 步）"; },
+    costBasis2: function (car, p, lvl, kwh, loss) { return "按 " + p + "/kWh 计算，你的 " + car + " 跑 100 公里的花费：驾驶方式“" + lvl + "”，" + kwh + " kWh/100 km，另加 " + loss + " % 充电损耗。"; },
+    verdict: function (n, all) { return n === all ? (all === 1 ? "比你对比的燃油车更便宜。" : "比你对比的全部 " + all + " 辆燃油车都便宜。") : n === 0 ? (all === 1 ? "比你对比的燃油车更贵。" : "比你对比的全部 " + all + " 辆燃油车都贵。") : "比你对比的 " + all + " 辆燃油车中的 " + n + " 辆更便宜。"; },
+    detail: function (r, fuelP, save, more) {
+      var who = r.own ? "你的燃油车（第 3 步）每 100 公里用 " : r.name + " 每 100 公里用 ";
+      return who + r.l + " 升" + T.fuel[r.fuel] + "，按 " + fuelP + "/L 计算要 " + r.costT + "。" +
+        (save ? "你每 100 公里省 " + save + "。只要电价低于 " + r.beT + "/kWh，充电就更便宜。" : "你每 100 公里多花 " + more + "。电价要低于 " + r.beT + "/kWh 才更划算。");
+    },
+    chartLabel: function (car, list) { return car + " 每 100 公里成本随电价的变化，燃油车以直线表示。持平点：" + list; },
+    saveCell: function (d) { return "省 " + d; }, moreCell: function (d) { return "贵 " + d; },
+    range: function (a, b) { return a + " 至 " + b; },
+    title: "电动车充电成本及与燃油车的持平点 (Allo Cars)",
+    claude: "请帮我比较电动车充电成本和燃油车的花费。以下是我在 Allo Cars 上的数字：\n\n",
+    in: { car: "电动车", cons: "能耗 (kWh/100 km)", use: "计算依据", price: "电价", loss: "充电损耗", fuels: "油价", live: "今天的公共即充即付充电（德国）" },
+    out: { cost: "每 100 公里成本", be: "持平对象", at: "电价" },
+    fuelIn: function (petrol, dsl) { return "汽油 " + petrol + "/L，柴油 " + dsl + "/L"; },
+    liveIn: function (m, a, b) { return "中位数 " + m + "/kWh，最便宜的 10 % " + a + "，最贵的 10 % " + b; },
+    beOut: function (be, cost) { return be + "/kWh（燃油车：" + cost + "/100 km）"; },
+    fuelSourceAdac: function (m) { return '油价：<a href="https://www.adac.de/verkehr/tanken-kraftstoff-antrieb/kraftstoffpreisentwicklung/">ADAC 德国月均价</a>，' + m + "（E10 汽油和柴油）。"; },
+    fuelSourceLive: function (when) { return '油价：欧盟委员会<a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">每周石油公报</a>中的德国周均价（CC BY 4.0），' + when + " 这一周。汽油 = Euro-Super 95。"; },
+    chargeSource: function (n, when) { return ' 公共充电价格：<a href="/zh/charging-prices/">价格档案</a>中 ' + n + " 种即充即付资费的中位数，" + when + "。"; },
+    month: function (ym) { var p = ym.split("-"); return p[0] + " 年 " + (+p[1]) + " 月"; },
+    quick: "使用实际估算值", allCars: function (n) { return "全部 " + n + " 款电动车，基于官方数据"; },
+    official: function (kwh, range, n, year) { return "官方 WLTP 数值：插头端 " + kwh + " kWh/100 km" + (range ? "（各版本 " + range + "）" : "") + "。" + year + " 年在德国新登记 " + n + " 辆。"; },
+    officialOnly: "四种驾驶方式由此估算。",
+    officialIn: "官方能耗（WLTP，插头端）",
+    officialOut: function (kwh, year) { return kwh + " kWh/100 km（EEA，" + year + " 年新车）"; },
+    locale: "zh-CN"
+  };
+  WORDS.de = {
     levels: ["Sparsam", "Normal", "Autobahn", "Winter"],
     hints: ["Stadt und Landstraße, mildes Wetter", "Eine normale Woche", "Konstant 120 km/h", "Kälte, Heizung an"],
     fuel: { petrol: "Benzin", diesel: "Diesel" },
@@ -44,7 +84,8 @@
     officialIn: "Offizieller Verbrauch (WLTP, ab Steckdose)",
     officialOut: function (kwh, year) { return kwh + " kWh/100 km (EEA, Neuwagen " + year + ")"; },
     locale: "de-DE"
-  } : {
+  };
+  WORDS.en = {
     levels: E.LEVELS, hints: E.LEVEL_HINTS,
     fuel: { petrol: "Petrol", diesel: "Diesel" },
     fuelPrice: { petrol: "Petrol", diesel: "Diesel" },
@@ -83,6 +124,7 @@
     officialOut: function (kwh, year) { return kwh + " kWh/100 km (EEA, new cars " + year + ")"; },
     locale: "en-GB"
   };
+  var T = WORDS[A.lang] || WORDS.en;
   var $ = function (id) { return document.getElementById(id); };
   var eur = function (x) { return A.money(x); };
   var HOME = 0.35;
@@ -136,8 +178,7 @@
     try { history.replaceState(null, "", location.pathname + "?" + qs + (keep ? "&country=" + encodeURIComponent(keep) : "")); } catch (e) {}
     store(qs);
     // the language switch keeps your inputs
-    var sw = document.querySelector(".ac-lang");
-    if (sw) sw.href = sw.getAttribute("href").split("?")[0] + "?" + qs;
+    document.querySelectorAll(".ac-lang").forEach(function (sw) { sw.href = sw.getAttribute("href").split("?")[0] + "?" + qs; });
   }
   var S = readState();
 

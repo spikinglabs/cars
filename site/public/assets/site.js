@@ -2,16 +2,26 @@
 (function () {
   "use strict";
   var KEY = "allo-cars-theme", root = document.documentElement;
-  var de = root.lang === "de";
-  var T = de ? {
+  var lang = (root.lang || "en").slice(0, 2);
+  var WORDS = {
+    zh: {
+      hintIos: "点按“分享”，再选“添加到主屏幕”，就能像 App 一样使用 Allo Cars。",
+      menu: "在浏览器菜单中选择“安装应用”或“添加到主屏幕”。",
+      installed: "这台设备上已经安装了 Allo Cars，可以从主屏幕或应用列表打开。"
+    },
+    de: {
     hintIos: "Teilen antippen, dann „Zum Home-Bildschirm“, um Allo Cars wie eine App zu nutzen.",
     menu: "Im Browser-Menü „App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.",
     installed: "Allo Cars ist auf diesem Gerät schon installiert. Öffne es über den Startbildschirm oder die App-Liste."
-  } : {
+    },
+    en: {
     hintIos: "Tap Share, then “Add to Home Screen”, to use Allo Cars like an app.",
     menu: "In your browser menu, choose “Install app” or “Add to Home screen”.",
     installed: "Allo Cars is already installed on this device. Open it from your home screen or app list."
+    }
   };
+  if (!WORDS[lang]) lang = "en";
+  var T = WORDS[lang];
   var local = function (k, v) { try { return v === undefined ? localStorage.getItem(k) : (localStorage.setItem(k, v), v); } catch (e) { return null; } };
 
   /* ---------- country ---------- */
@@ -46,20 +56,28 @@
   });
 
   /* ---------- language ---------- */
-  // English pages live at /, German ones under /de/. Picking a language with the switch is kept
-  // on this device; when you come back to the home page from outside the site (or open the
-  // installed app), you land in that language.
-  var LANG_KEY = "allo-cars-lang";
-  var lang = de ? "de" : "en", wantLang = local(LANG_KEY);
+  // English pages live at /, German ones under /de/, Simplified Chinese under /zh/ (LANGS in
+  // site/chrome/apply.py). Picking a language in the header menu is kept on this device; when you
+  // come back to the home page from outside the site (or open the installed app), you land in it.
+  var LANG_KEY = "allo-cars-lang", HOMES = { en: "/", de: "/de/", zh: "/zh/" };
+  var wantLang = local(LANG_KEY);
   var fromSite = false;
   try { fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
-  var home = location.pathname === "/" || location.pathname === "/index.html" || location.pathname === "/de/" || location.pathname === "/de/index.html";
-  if (home && !fromSite && (wantLang === "de" || wantLang === "en") && wantLang !== lang) {
-    location.replace((wantLang === "de" ? "/de/" : "/") + location.search + location.hash);
+  var path = location.pathname.replace(/index\.html$/, "");
+  var home = Object.keys(HOMES).some(function (k) { return HOMES[k] === path; });
+  if (home && !fromSite && HOMES[wantLang] && wantLang !== lang) {
+    location.replace(HOMES[wantLang] + location.search + location.hash);
   }
   document.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest(".ac-lang");
-    if (a) local(LANG_KEY, a.getAttribute("hreflang") === "de" ? "de" : "en");
+    if (a && HOMES[a.getAttribute("data-lang")]) local(LANG_KEY, a.getAttribute("data-lang"));
+    // close the language menu on a click anywhere else
+    var menu = document.querySelector("[data-langmenu][open]");
+    if (menu && !menu.contains(e.target)) menu.open = false;
+  });
+  document.addEventListener("keydown", function (e) {
+    var menu = document.querySelector("[data-langmenu][open]");
+    if (menu && e.key === "Escape") { menu.open = false; menu.querySelector("summary").focus(); }
   });
 
   /* ---------- light or dark ---------- */

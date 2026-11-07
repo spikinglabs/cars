@@ -39,7 +39,7 @@ Charging prices come from the Open ChargePoint Database (MobiData BW), which mer
 Data is arranged by region: https://cars.allo.land/data/<dataset>/<region>/<file>, with lowercase ISO codes (de for Germany). The list of regions, and which datasets each has, is at https://cars.allo.land/regions.json. Germany is the only region so far; the short URLs above without a region are Germany. Add ?country=<code> to any page link to pick the country.
 
 ## Pages
-Every page is also in German under /de/ (for example https://cars.allo.land/de/ev-cost/), with the same link parameters.
+Every page is also in German under /de/ (for example https://cars.allo.land/de/ev-cost/) and in Simplified Chinese under /zh/ (for example https://cars.allo.land/zh/ev-cost/), with the same link parameters.
 - [Home](https://cars.allo.land/)
 - [Charging price history](https://cars.allo.land/charging-prices/)
 - [Fuel prices](https://cars.allo.land/fuel-prices/)

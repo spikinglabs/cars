@@ -1,5 +1,5 @@
 /* Charger map: every public charger in the Bundesnetzagentur register, from /data/chargers/<region>/.
-   One script for the English (/chargers/) and German (/de/chargers/) page.
+   One script for the English (/chargers/), German (/de/chargers/) and Chinese (/zh/chargers/) page.
 
    Data (built by pipelines/chargers):
      latest.json      counts, list of cells, plug and flag bits
@@ -11,8 +11,24 @@
    only (247,card,free,public). Example: /chargers/?lat=50.94&lon=6.96&z=13&kw=150&plug=ccs */
 (() => {
   "use strict";
-  const de = document.documentElement.lang === "de";
-  const T = de ? {
+  const lang = (document.documentElement.lang || "en").slice(0, 2);
+  const de = lang === "de", zh = lang === "zh";
+  const T = zh ? {
+    locale: "zh-CN", loading: "加载中 …", failed: "无法加载数据：",
+    notYet: "正在第一次读取充电桩数据，请稍后再来。",
+    stations: "德国充电站点", fast: "50 kW 及以上", hpc: "150 kW 及以上", points: "个充电点",
+    asof: (d) => `数据截至 ${d}。`, zoomIn: "放大地图可查看单个充电桩并使用全部筛选条件。",
+    zoomList: "放大地图或搜索地点，即可列出充电桩。",
+    shown: (n) => `当前视图中有 ${n.toLocaleString("zh-CN")} 个符合条件的站点`,
+    none: "已加载区域内没有符合条件的充电桩。请放宽筛选条件或移动地图。",
+    nearDesc: (n) => `最近的 ${n} 个符合条件的站点，按直线距离。`,
+    directions: "路线", points1: (n, dc) => `${n} 个充电点${dc ? `，其中 ${dc} 个直流` : ""}`,
+    since: (y) => `${y} 年起运营`, open247: "24 小时", card: "可刷卡", free: "免费", customers: "仅限顾客", pnc: "即插即充",
+    notFound: "找不到这个地点。试试邮政编码或其他拼写（地名请用德语或英语）。",
+    locating: "正在获取你的位置 …", noLocate: "无法获取你的位置。请改为搜索地点。",
+    you: "你在这里", stationsN: (n) => `${n.toLocaleString("zh-CN")} 个站点`,
+    ask: (url, cell, f) => `我在德国给电动车找公共充电桩${f}。请使用地图 ${url} 和站点数据 ${cell}（字段名在 "fields" 中），列出附近最好的几个选择，包括功率、运营商和地址。`,
+  } : de ? {
     locale: "de-DE", loading: "Lädt …", failed: "Die Daten konnten nicht geladen werden: ",
     notYet: "Die Ladesäulen werden gerade zum ersten Mal eingelesen. Bitte später nochmal vorbeischauen.",
     stations: "Ladestandorte in Deutschland", fast: "mit 50 kW oder mehr", hpc: "mit 150 kW oder mehr", points: "Ladepunkte",
@@ -248,7 +264,7 @@
     history.replaceState(null, "", location.pathname + "?" + p.toString() + location.hash);
     const c = map.getCenter();
     const filt = [state.kw ? `${state.kw} kW+` : "", state.plug.map((k) => PLUG_NAME[k]).join("/"),
-      state.only.map((o) => ({ 247: T.open247, card: T.card, free: T.free, public: de ? "öffentlich" : "public" })[o]).join(", ")].filter(Boolean).join(", ");
+      state.only.map((o) => ({ 247: T.open247, card: T.card, free: T.free, public: de ? "öffentlich" : zh ? "非仅限顾客" : "public" })[o]).join(", ")].filter(Boolean).join(", ");
     const prompt = T.ask(ORIGIN + location.pathname + "?" + p.toString(), ORIGIN + data(`cells/${cellId(c.lat, c.lng)}.json`), filt ? ` (${filt})` : "");
     $("aigo").href = "https://claude.ai/new?q=" + encodeURIComponent(prompt);
   }

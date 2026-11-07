@@ -3,6 +3,7 @@
   "title": "EV charging cost per 100 km and break-even with fuel cars",
   "url": "https://cars.allo.land/ev-cost/",
   "url_de": "https://cars.allo.land/de/ev-cost/",
+  "url_zh": "https://cars.allo.land/zh/ev-cost/",
   "description": "What 100 km costs in an electric car at a given price per kWh, and the electricity price at which it costs the same as a petrol or diesel car. Fuel cars to compare with are Germany's most registered new models of 2025 with real-world consumption, plus an optional own car. All inputs are URL query parameters, so a filled-in link reproduces the view.",
   "formula": "ev_cost_per_100km = kwh_per_100km * (1 + loss / 100) * p; fuel_cost_per_100km = litres_per_100km * fuel_price; break_even_p = fuel_cost_per_100km / (kwh_per_100km * (1 + loss / 100))",
   "parameters": {

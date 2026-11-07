@@ -1,11 +1,12 @@
 /* Car recalls page: check a car (brand, model, year of first registration) against EU Safety Gate alerts and US
    NHTSA campaigns, what to ask before buying it, and statistics on all vehicle recalls since 2019.
-   Data: /data/recalls/eu/* and /data/recalls/us/*. One script for /recalls/ and /de/recalls/.
+   Data: /data/recalls/eu/* and /data/recalls/us/*. One script for /recalls/, /de/recalls/ and /zh/recalls/.
    Choice in the link: ?brand=<slug>&model=<name>&year=<yyyy>; the older ?model=<slug> (volvo-ex30) still works.
    The last choice is kept in this browser only. */
 (() => {
-  const de = document.documentElement.lang === "de";
-  // Safety Gate writes in English; the German page translates the recurring labels, not the hazard text.
+  const lang = (document.documentElement.lang || "en").slice(0, 2);
+  const de = lang === "de", zh = lang === "zh";
+  // Safety Gate writes in English; the German and Chinese pages translate the recurring labels, not the hazard text.
   const DE_TERMS = {
     "Passenger car": "Pkw", "Passenger car / Passenger van": "Pkw / Kleinbus", "Motorcycle": "Motorrad", "Lorry": "Lkw",
     "Truck": "Lkw", "Van": "Transporter", "Bus": "Bus", "Injuries": "Verletzungen", "Fire": "Brand", "Burns": "Verbrennungen",
@@ -13,19 +14,45 @@
     "Recall of the product from end users": "Rückruf bei Endkunden", "Recall of a product from commercial users": "Rückruf bei gewerblichen Kunden",
     "Withdrawal of the product from the market": "Rücknahme vom Markt", "Request to stop driving": "Aufforderung, nicht mehr zu fahren",
   };
-  const tr = (s) => de && s ? (DE_TERMS[s] || s.split(/(, |; )/).map((x) => DE_TERMS[x] || x).join("")) : s;
+  const ZH_TERMS = {
+    "Passenger car": "乘用车", "Passenger car / Passenger van": "乘用车 / 小型客车", "Motorcycle": "摩托车", "Lorry": "货车",
+    "Truck": "卡车", "Van": "厢式车", "Bus": "客车", "Injuries": "受伤", "Fire": "起火", "Burns": "烧伤",
+    "Electric shock": "触电", "Environment": "环境", "Chemical": "化学", "Cuts": "割伤",
+    "Recall of the product from end users": "向终端用户召回", "Recall of a product from commercial users": "向商业用户召回",
+    "Withdrawal of the product from the market": "撤出市场", "Request to stop driving": "要求停止驾驶",
+  };
+  const TERMS = de ? DE_TERMS : zh ? ZH_TERMS : null;
+  const tr = (s) => TERMS && s ? (TERMS[s] || s.split(/(, |; )/).map((x) => TERMS[x] || x).join("")) : s;
   // Every vehicle alert ends with the same legal sentence; it says nothing about the fault.
   const hazard = (s) => String(s || "").replace(/\s*The product does not comply with[^]*$/i, "").trim();
+  // [English, German, Chinese]
   const COMPONENTS = {
-    airbags_belts: ["Airbags and seat belts", "Airbags und Gurte"], brakes: ["Brakes", "Bremsen"], steering: ["Steering", "Lenkung"],
-    hv_battery: ["High-voltage battery and charging", "Hochvoltbatterie und Laden"], fuel: ["Fuel system", "Kraftstoffsystem"],
-    engine_drive: ["Engine and drivetrain", "Motor und Antrieb"], wheels_suspension: ["Wheels, tyres and suspension", "Räder, Reifen und Fahrwerk"],
-    electrical: ["Electrical system and wiring", "Elektrik und Kabel"], software_assist: ["Software, cameras and assistance systems", "Software, Kameras und Assistenten"],
-    lights_view: ["Lights, wipers and visibility", "Licht, Wischer und Sicht"], body_seats: ["Body, doors and seats", "Karosserie, Türen und Sitze"],
-    emissions: ["Emissions", "Abgase"], approval: ["Approval and paperwork", "Zulassung und Papiere"], other: ["Other", "Sonstiges"],
+    airbags_belts: ["Airbags and seat belts", "Airbags und Gurte", "安全气囊和安全带"], brakes: ["Brakes", "Bremsen", "制动系统"], steering: ["Steering", "Lenkung", "转向系统"],
+    hv_battery: ["High-voltage battery and charging", "Hochvoltbatterie und Laden", "高压电池和充电"], fuel: ["Fuel system", "Kraftstoffsystem", "燃油系统"],
+    engine_drive: ["Engine and drivetrain", "Motor und Antrieb", "发动机和传动系统"], wheels_suspension: ["Wheels, tyres and suspension", "Räder, Reifen und Fahrwerk", "车轮、轮胎和悬架"],
+    electrical: ["Electrical system and wiring", "Elektrik und Kabel", "电气系统和线束"], software_assist: ["Software, cameras and assistance systems", "Software, Kameras und Assistenten", "软件、摄像头和辅助系统"],
+    lights_view: ["Lights, wipers and visibility", "Licht, Wischer und Sicht", "灯光、雨刮和视野"], body_seats: ["Body, doors and seats", "Karosserie, Türen und Sitze", "车身、车门和座椅"],
+    emissions: ["Emissions", "Abgase", "排放"], approval: ["Approval and paperwork", "Zulassung und Papiere", "认证和文件"], other: ["Other", "Sonstiges", "其他"],
   };
-  const comp = (k) => (COMPONENTS[k] || COMPONENTS.other)[de ? 1 : 0];
-  const T = de ? {
+  const comp = (k) => (COMPONENTS[k] || COMPONENTS.other)[de ? 1 : zh ? 2 : 0];
+  const T = zh ? {
+    locale: "zh-CN", match: "可能适用的召回", us: "美国召回行动", latest: "最新通报", fire: "其中有起火风险",
+    none: "无", noEu: "2019 年以来 EU Safety Gate 中没有符合这个选择的通报。",
+    noUs: "这款车型没有 NHTSA 召回行动。", alert: "Safety Gate 通报", nhtsa: "NHTSA 记录",
+    production: "生产时间", code: "召回编号", by: "通报方", years: "车型年份", collected: "更新于 ",
+    parkOutside: "停在室外", doNotDrive: "请勿驾驶", ota: "可通过 OTA 远程修复",
+    showAll: (n) => `显示全部 ${n} 条`, failed: "无法加载数据：",
+    pickBrand: "选择品牌", allModels: (n) => `全部车型 (${n})`, anyYear: "任何年份", serious: "严重风险",
+    notYet: "正在第一次收集召回数据，请几分钟后再来看看。", unavailable: "暂无数据",
+    title: (n) => `${n} 在欧洲的召回`,
+    desc: (y) => y ? `2019 年以来 EU Safety Gate 中生产时段涉及 ${y - 1} 或 ${y} 年的通报。汽车通常在首次登记当年或前一年生产。描述为英文原文。`
+      : "2019 年以来 EU Safety Gate 中符合这个选择的全部通报。选择首次登记年份，可以缩小到对应的生产时段。描述为英文原文。",
+    inYear: "生产时段符合", noDates: "未注明生产时段", outside: (n) => `这款车型还有 ${n} 次召回涉及其他生产年份`,
+    askTitle: "买车前：该问什么", codesAsk: "请卖家证明以下召回编号已经处理：",
+    perK: "每 10 万辆新车", count: "召回次数", cars: "轿车", two: "摩托车", vans: "厢式车、卡车、客车", oth: "其他",
+    partial: "截至目前", regs: (n) => `在德国新登记 ${n} 辆`, noStats: "统计数据将在下次数据更新后显示。",
+    yourBrand: "你选的品牌", dot: "。",
+  } : de ? {
     locale: "de-DE", match: "Rückrufe, die passen können", us: "Rückrufaktionen in den USA", latest: "Neueste Meldung", fire: "davon Brandgefahr",
     none: "Keine", noEu: "Keine Meldung im EU Safety Gate seit 2019 passt zu dieser Auswahl.",
     noUs: "Keine NHTSA-Rückrufaktion für dieses Modell.", alert: "Meldung im Safety Gate", nhtsa: "Bei der NHTSA",
@@ -149,7 +176,16 @@
   }
 
   // What to ask the seller or a garage, sharpened by the kinds of recall that apply.
-  const ASK = de ? {
+  const ASK = zh ? {
+    vin: "向卖家要车架号（VIN，17 位，在行驶证即 Zulassungsbescheinigung Teil I 的 E 栏），请该品牌的授权维修站查询是否有未处理的召回和服务活动。免费，几分钟就好。",
+    book: "在保养手册或发票里找召回编号。召回维修是免费的，诚实的卖家能拿出已处理的证明。",
+    letter: "问一问是否收到过厂商或（在德国）KBA 寄来的召回信。KBA 会写信给车主，对置之不理的召回可以勒令车辆停驶。",
+    import: "车是从美国进口的？再到 NHTSA 查一下车架号。",
+    fire: "有起火风险时：问清楚在修好之前是否有临时建议（比如停在室外或只充到 80 %），以及是否已经修好。",
+    hv: "高压电池召回：问清楚是更换了电池或模组，还是只更新了软件，并要求查看电池健康度 (SoH)。",
+    airbag: "安全气囊召回：要求书面确认已经更换。有些召回建议在更换前不要驾驶。",
+    unsure: "如果没有证明，就把完成召回维修写进购车合同，作为成交条件。",
+  } : de ? {
     vin: "Frag nach der Fahrgestellnummer (FIN, 17 Zeichen, steht in der Zulassungsbescheinigung Teil I, Feld E) und lass bei einer Vertragswerkstatt der Marke offene Rückrufe und Serviceaktionen abfragen. Das ist kostenlos und dauert ein paar Minuten.",
     book: "Schau im Serviceheft oder in den Rechnungen nach den Rückrufcodes. Rückrufarbeiten sind kostenlos, ein seriöser Verkäufer hat dafür einen Nachweis.",
     letter: "Frag, ob ein Brief vom Hersteller oder vom KBA zu einem Rückruf kam. Das KBA schreibt die Halter an und kann bei ignorierten Rückrufen die Stilllegung anordnen.",
@@ -168,7 +204,10 @@
     airbag: "For airbag recalls: get the replacement confirmed in writing. Some recalls advise not to drive until then.",
     unsure: "Without proof, make the completed recall work a condition in the sales contract.",
   };
-  const LINKS = de ? [
+  const LINKS = zh ? [
+    ["https://www.kba.de/EN/Themen_en/Marktueberwachung_en/Rueckrufe_en/rueckrufe_node_en.html", "德国 KBA 的召回页面和召回数据库（英文）"],
+    ["https://www.nhtsa.gov/recalls", "NHTSA 车架号查询（美国进口车，英文）"],
+  ] : de ? [
     ["https://www.kba.de/DE/Themen/Marktueberwachung/Rueckrufe/rueckrufe_node.html", "Rückrufe beim KBA, mit der Rückrufdatenbank"],
     ["https://www.nhtsa.gov/recalls", "FIN-Abfrage der NHTSA (Autos aus den USA)"],
   ] : [
@@ -185,7 +224,7 @@
     if (has("airbags_belts")) items.push(ASK.airbag);
     items.push(ASK.import, ASK.unsure);
     const codes = [...new Set(rows.map((a) => a.recall_code).filter(Boolean))].slice(0, 20);
-    const links = [...(MAKER[brandSlug] ? [[MAKER[brandSlug], de ? "FIN-Prüfung der BMW Group" : "BMW Group VIN check"]] : []), ...LINKS];
+    const links = [...(MAKER[brandSlug] ? [[MAKER[brandSlug], de ? "FIN-Prüfung der BMW Group" : zh ? "BMW 集团车架号查询" : "BMW Group VIN check"]] : []), ...LINKS];
     $("ask").innerHTML = `<ol class="ask">${items.map((t) => `<li>${esc(t)}</li>`).join("")}</ol>`
       + (codes.length ? `<p class="ask__codes">${T.codesAsk} ${codes.map((c) => `<code>${esc(c)}</code>`).join(" ")}</p>` : "")
       + `<p class="ask__links">${links.map(([u, t]) => `<a href="${u}" rel="noopener">${esc(t)}</a>`).join(" · ")}</p>`;
@@ -304,7 +343,7 @@
   }
   const fireLine = () => {
     const f = stats.years.reduce((s, y) => s + y.fire, 0), t = stats.years.reduce((s, y) => s + y.total, 0);
-    return de ? `${Math.round(f / t * 100)} % aller Meldungen nennen Brandgefahr.` : `${Math.round(f / t * 100)}% of all alerts name a fire risk.`;
+    return de ? `${Math.round(f / t * 100)} % aller Meldungen nennen Brandgefahr.` : zh ? `${Math.round(f / t * 100)} % 的通报提到起火风险。` : `${Math.round(f / t * 100)}% of all alerts name a fire risk.`;
   };
 
   function bars(el, rows, mine) {
@@ -346,7 +385,7 @@
     $("model").addEventListener("change", (e) => { state.model = e.target.value; show(); });
     $("year").addEventListener("change", (e) => { state.year = Number(e.target.value) || 0; show(); });
     list($("newest"), latest.newest, (a) => euItem(a), T.none, 5);
-    $("asof").textContent = T.collected + new Date(latest.observed_at).toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + ".";
+    $("asof").textContent = T.collected + new Date(latest.observed_at).toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + (T.dot || ".");
     Object.assign(state, initial());
     loadStats();
     await show();

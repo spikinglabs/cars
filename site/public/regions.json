@@ -8,7 +8,8 @@
       "selectable": true,
       "name": {
         "en": "Germany",
-        "de": "Deutschland"
+        "de": "Deutschland",
+        "zh": "德国"
       },
       "currency": "EUR",
       "locale": "de-DE",
@@ -27,7 +28,8 @@
       "selectable": false,
       "name": {
         "en": "European Union",
-        "de": "Europäische Union"
+        "de": "Europäische Union",
+        "zh": "欧盟"
       },
       "currency": "EUR",
       "datasets": [
@@ -42,7 +44,8 @@
       "selectable": false,
       "name": {
         "en": "Austria",
-        "de": "Österreich"
+        "de": "Österreich",
+        "zh": "奥地利"
       },
       "currency": "EUR",
       "locale": "de-AT",
@@ -56,7 +59,8 @@
       "selectable": false,
       "name": {
         "en": "Belgium",
-        "de": "Belgien"
+        "de": "Belgien",
+        "zh": "比利时"
       },
       "currency": "EUR",
       "locale": "fr-BE",
@@ -70,7 +74,8 @@
       "selectable": false,
       "name": {
         "en": "Bulgaria",
-        "de": "Bulgarien"
+        "de": "Bulgarien",
+        "zh": "保加利亚"
       },
       "currency": "EUR",
       "locale": "bg-BG",
@@ -84,7 +89,8 @@
       "selectable": false,
       "name": {
         "en": "Cyprus",
-        "de": "Zypern"
+        "de": "Zypern",
+        "zh": "塞浦路斯"
       },
       "currency": "EUR",
       "locale": "el-CY",
@@ -98,7 +104,8 @@
       "selectable": false,
       "name": {
         "en": "Czechia",
-        "de": "Tschechien"
+        "de": "Tschechien",
+        "zh": "捷克"
       },
       "currency": "CZK",
       "locale": "cs-CZ",
@@ -112,7 +119,8 @@
       "selectable": false,
       "name": {
         "en": "Denmark",
-        "de": "Dänemark"
+        "de": "Dänemark",
+        "zh": "丹麦"
       },
       "currency": "DKK",
       "locale": "da-DK",
@@ -126,7 +134,8 @@
       "selectable": false,
       "name": {
         "en": "Estonia",
-        "de": "Estland"
+        "de": "Estland",
+        "zh": "爱沙尼亚"
       },
       "currency": "EUR",
       "locale": "et-EE",
@@ -140,7 +149,8 @@
       "selectable": false,
       "name": {
         "en": "Spain",
-        "de": "Spanien"
+        "de": "Spanien",
+        "zh": "西班牙"
       },
       "currency": "EUR",
       "locale": "es-ES",
@@ -154,7 +164,8 @@
       "selectable": false,
       "name": {
         "en": "Finland",
-        "de": "Finnland"
+        "de": "Finnland",
+        "zh": "芬兰"
       },
       "currency": "EUR",
       "locale": "fi-FI",
@@ -168,7 +179,8 @@
       "selectable": false,
       "name": {
         "en": "France",
-        "de": "Frankreich"
+        "de": "Frankreich",
+        "zh": "法国"
       },
       "currency": "EUR",
       "locale": "fr-FR",
@@ -182,7 +194,8 @@
       "selectable": false,
       "name": {
         "en": "United Kingdom",
-        "de": "Vereinigtes Königreich"
+        "de": "Vereinigtes Königreich",
+        "zh": "英国"
       },
       "currency": "GBP",
       "locale": "en-GB",
@@ -196,7 +209,8 @@
       "selectable": false,
       "name": {
         "en": "Greece",
-        "de": "Griechenland"
+        "de": "Griechenland",
+        "zh": "希腊"
       },
       "currency": "EUR",
       "locale": "el-GR",
@@ -210,7 +224,8 @@
       "selectable": false,
       "name": {
         "en": "Croatia",
-        "de": "Kroatien"
+        "de": "Kroatien",
+        "zh": "克罗地亚"
       },
       "currency": "EUR",
       "locale": "hr-HR",
@@ -224,7 +239,8 @@
       "selectable": false,
       "name": {
         "en": "Hungary",
-        "de": "Ungarn"
+        "de": "Ungarn",
+        "zh": "匈牙利"
       },
       "currency": "HUF",
       "locale": "hu-HU",
@@ -238,7 +254,8 @@
       "selectable": false,
       "name": {
         "en": "Ireland",
-        "de": "Irland"
+        "de": "Irland",
+        "zh": "爱尔兰"
       },
       "currency": "EUR",
       "locale": "en-IE",
@@ -252,7 +269,8 @@
       "selectable": false,
       "name": {
         "en": "Italy",
-        "de": "Italien"
+        "de": "Italien",
+        "zh": "意大利"
       },
       "currency": "EUR",
       "locale": "it-IT",
@@ -266,7 +284,8 @@
       "selectable": false,
       "name": {
         "en": "Lithuania",
-        "de": "Litauen"
+        "de": "Litauen",
+        "zh": "立陶宛"
       },
       "currency": "EUR",
       "locale": "lt-LT",
@@ -280,7 +299,8 @@
       "selectable": false,
       "name": {
         "en": "Luxembourg",
-        "de": "Luxemburg"
+        "de": "Luxemburg",
+        "zh": "卢森堡"
       },
       "currency": "EUR",
       "locale": "fr-LU",
@@ -294,7 +314,8 @@
       "selectable": false,
       "name": {
         "en": "Latvia",
-        "de": "Lettland"
+        "de": "Lettland",
+        "zh": "拉脱维亚"
       },
       "currency": "EUR",
       "locale": "lv-LV",
@@ -308,7 +329,8 @@
       "selectable": false,
       "name": {
         "en": "Malta",
-        "de": "Malta"
+        "de": "Malta",
+        "zh": "马耳他"
       },
       "currency": "EUR",
       "locale": "mt-MT",
@@ -322,7 +344,8 @@
       "selectable": false,
       "name": {
         "en": "Netherlands",
-        "de": "Niederlande"
+        "de": "Niederlande",
+        "zh": "荷兰"
       },
       "currency": "EUR",
       "locale": "nl-NL",
@@ -336,7 +359,8 @@
       "selectable": false,
       "name": {
         "en": "Poland",
-        "de": "Polen"
+        "de": "Polen",
+        "zh": "波兰"
       },
       "currency": "PLN",
       "locale": "pl-PL",
@@ -350,7 +374,8 @@
       "selectable": false,
       "name": {
         "en": "Portugal",
-        "de": "Portugal"
+        "de": "Portugal",
+        "zh": "葡萄牙"
       },
       "currency": "EUR",
       "locale": "pt-PT",
@@ -364,7 +389,8 @@
       "selectable": false,
       "name": {
         "en": "Romania",
-        "de": "Rumänien"
+        "de": "Rumänien",
+        "zh": "罗马尼亚"
       },
       "currency": "RON",
       "locale": "ro-RO",
@@ -378,7 +404,8 @@
       "selectable": false,
       "name": {
         "en": "Sweden",
-        "de": "Schweden"
+        "de": "Schweden",
+        "zh": "瑞典"
       },
       "currency": "SEK",
       "locale": "sv-SE",
@@ -392,7 +419,8 @@
       "selectable": false,
       "name": {
         "en": "Slovenia",
-        "de": "Slowenien"
+        "de": "Slowenien",
+        "zh": "斯洛文尼亚"
       },
       "currency": "EUR",
       "locale": "sl-SI",
@@ -406,7 +434,8 @@
       "selectable": false,
       "name": {
         "en": "Slovakia",
-        "de": "Slowakei"
+        "de": "Slowakei",
+        "zh": "斯洛伐克"
       },
       "currency": "EUR",
       "locale": "sk-SK",
@@ -420,7 +449,8 @@
       "selectable": false,
       "name": {
         "en": "United States",
-        "de": "Vereinigte Staaten"
+        "de": "Vereinigte Staaten",
+        "zh": "美国"
       },
       "currency": "USD",
       "datasets": [
