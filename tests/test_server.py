@@ -64,3 +64,46 @@ async def test_tools_and_dashboard(tmp_path):
 def test_render_escapes_script_close():
     html = render_dashboard_html({"x": "</script><script>alert(1)</script>"})
     assert "</script><script>alert" not in html
+
+
+def test_fuel_price_forecast_shapes_and_filters():
+    from car_mcp.fuel import FuelError as ToolError
+    from car_mcp.fuel import forecast as fuel_price_forecast
+
+    seen = []
+    doc = {"region": "DE", "currency": "EUR", "observed_at": "t", "method": "m",
+           "products": {"diesel": {"model": "naive", "forecast": [{"horizon": 1, "price": 2.0}]},
+                        "lpg": {"model": "ar", "forecast": []}}}
+
+    def fake(url):
+        seen.append(url)
+        return doc
+
+    out = fuel_price_forecast("DE", "diesel", fetch=fake)
+    assert seen[-1].endswith("/fuel-prices/de/forecast.json")
+    assert list(out["products"]) == ["diesel"]
+    assert out["page"].endswith("?fuel=diesel")
+    assert set(fuel_price_forecast(fetch=fake)["products"]) == {"diesel", "lpg"}
+    with pytest.raises(ToolError):
+        fuel_price_forecast("de", "euro_super_95", fetch=fake)
+    with pytest.raises(ToolError):
+        fuel_price_forecast("../x", fetch=fake)
+
+
+async def test_fuel_forecast_tool_listed(tmp_path):
+    async with Client(build_server(tmp_path / "car.db")) as c:
+        tool = next(t for t in (await c.list_tools()).tools if t.name == "get_fuel_price_forecast")
+        assert tool.annotations.open_world_hint
+
+
+async def test_fuel_forecast_tool_call(tmp_path, monkeypatch):
+    from car_mcp import fuel
+
+    monkeypatch.setattr(fuel, "_get", lambda url: {"region": "DE", "products": {"diesel": {"model": "naive"}}})
+    monkeypatch.setattr(fuel.forecast, "__defaults__", ("de", None, fuel._get))
+    async with Client(build_server(tmp_path / "car.db")) as c:
+        res = await c.call_tool("get_fuel_price_forecast", {"fuel": "diesel"})
+        assert not res.is_error
+        assert _data(res)["products"]["diesel"]["model"] == "naive"
+        res = await c.call_tool("get_fuel_price_forecast", {"fuel": "lpg"})
+        assert res.is_error

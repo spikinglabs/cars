@@ -7,12 +7,15 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 - [Charging price archive](https://cars.allo.land/charging-prices/): ad-hoc charging prices in Germany over time.
 - [Cheapest time to charge](https://cars.allo.land/charge-times/): cheapest 1 to 8 hour window to charge at home today and tomorrow, from German day-ahead exchange prices. Link parameters: day, h, addon, kwh.
 - [Car recalls](https://cars.allo.land/recalls/): official recalls per model and brand in Europe (EU Safety Gate, including every KBA recall) and the US (NHTSA). Link parameters: ?model=<slug> or ?brand=<slug>.
+- [Fuel price forecast](https://cars.allo.land/fuel-prices/): weekly petrol, diesel and LPG prices and their likely range over the next 8 weeks. Parameter: ?fuel=euro_super_95|diesel|lpg
 
 ## Data
 - [Ad-hoc EV charging prices, latest](https://cars.allo.land/data/charging-prices/latest.json): median, p10, p90 of the base energy price (EUR/kWh incl. VAT) over all published ad-hoc tariffs, overall and per data source.
 - [Daily price history](https://cars.allo.land/data/charging-prices/daily.csv): one row per day and source (date, source, tariffs, median, p10, p90, min, max). Collection started 2026-11-06.
 - [Current tariffs](https://cars.allo.land/data/charging-prices/tariffs.csv): every ad-hoc tariff with energy, time, parking and session prices.
 - [Sources and licences](https://cars.allo.land/data/charging-prices/sources.json)
+- [Weekly fuel prices](https://cars.allo.land/data/fuel-prices/weekly.csv): date, euro_super_95, diesel, lpg in EUR per litre incl. taxes, weekly since 2005 (EU Weekly Oil Bulletin, CC BY 4.0).
+- [Fuel price forecast](https://cars.allo.land/data/fuel-prices/forecast.json): next 8 weeks per fuel: price, lo80/hi80, lo95/hi95, and backtest.skill_vs_naive per horizon (0 = no better than "no change"; model "naive" means the middle line is flat). Rows: https://cars.allo.land/data/fuel-prices/forecast.csv. Other countries: /data/fuel-prices/<region>/forecast.json (list in /data/fuel-prices/index.json).
 
 - [Electricity prices today and tomorrow](https://cars.allo.land/data/electricity-prices/de/latest.json): day-ahead exchange prices for Germany in 15-minute steps, cheapest windows, estimated dynamic tariff price.
 - [Daily electricity prices since 2018](https://cars.allo.land/data/electricity-prices/de/daily.csv) and [hourly](https://cars.allo.land/data/electricity-prices/de/hourly.csv), EUR/MWh.
@@ -32,5 +35,6 @@ Every page is also in German under /de/ (for example https://cars.allo.land/de/e
 - [Charging price history](https://cars.allo.land/charging-prices/)
 - [Cheapest time to charge](https://cars.allo.land/charge-times/)
 - [Car recalls](https://cars.allo.land/recalls/)
+- [Fuel price forecast](https://cars.allo.land/fuel-prices/)
 - [Data and sources](https://cars.allo.land/open-data/)
 - [Imprint and privacy](https://cars.allo.land/legal/)

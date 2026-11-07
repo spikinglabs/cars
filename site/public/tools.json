@@ -62,6 +62,23 @@
         "hourly": "https://cars.allo.land/data/electricity-prices/de/hourly.csv"
       },
       "url_de": "https://cars.allo.land/de/charge-times/"
+    },
+    {
+      "name": "fuel_price_forecast",
+      "title": "Fuel price forecast",
+      "url": "https://cars.allo.land/fuel-prices/",
+      "description": "Weekly national average petrol (Super E5), diesel and LPG prices incl. taxes since 2005, and the likely range for the next 8 weeks (80 % and 95 %), with a backtest score against 'no change'. Germany by default; other EU countries and the EU average under /data/fuel-prices/<region>/.",
+      "parameters": {
+        "fuel": "euro_super_95 (default), diesel or lpg"
+      },
+      "data": {
+        "forecast": "https://cars.allo.land/data/fuel-prices/forecast.json",
+        "forecast_csv": "https://cars.allo.land/data/fuel-prices/forecast.csv",
+        "weekly": "https://cars.allo.land/data/fuel-prices/weekly.csv",
+        "latest": "https://cars.allo.land/data/fuel-prices/latest.json",
+        "regions": "https://cars.allo.land/data/fuel-prices/index.json"
+      },
+      "url_de": "https://cars.allo.land/de/fuel-prices/"
     }
   ],
   "regions": "https://cars.allo.land/regions.json",

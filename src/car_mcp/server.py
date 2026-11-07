@@ -20,6 +20,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
 from . import db, recalls
+from . import fuel as fuel_data
 from .garage import Garage, GarageError
 from .sample import load_sample_data
 
@@ -41,12 +42,16 @@ Guidance:
 - Money is in the configured currency (see get_settings). Distances use the configured unit.
 - If the logbook is empty and the user just wants to try things out, offer load_demo_data.
 - For "is my car recalled?" call get_recalls (official EU and US recalls, needs internet).
+- For "will petrol/diesel get cheaper", "should I fill up now", call get_fuel_price_forecast (needs internet).
 """
 
 READ = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 WRITE = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False)
 WEB = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=True)
 DELETE = ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=True, openWorldHint=False)
+
+FUELS = Literal["euro_super_95", "diesel", "lpg"]
+
 
 VehicleArg = Annotated[str | None, Field(description="Vehicle name or id. Optional when only one vehicle exists.")]
 DateArg = Annotated[str | None, Field(description="Date as YYYY-MM-DD. Defaults to today.")]
@@ -269,6 +274,22 @@ def build_server(db_path: str | Path | None = None) -> MCPServer:
             return recalls.lookup(text, limit)
         except OSError as e:
             raise ToolError(f"Could not reach cars.allo.land: {e}") from e
+
+    @mcp.tool(annotations=WEB)
+    def get_fuel_price_forecast(
+        region: Annotated[str, Field(description="Two-letter country code (de, at, fr, ...) or eu for the EU average.")] = "de",
+        fuel: Annotated[FUELS | None, Field(description="One fuel; all fuels when omitted.")] = None,
+    ) -> dict[str, Any]:
+        """National average pump prices (weekly, incl. taxes) and where they are likely to be in the next 8 weeks.
+
+        Each forecast step has a middle price and 80 % / 95 % ranges (lo80/hi80, lo95/hi95), plus a backtest:
+        skill_vs_naive per horizon (0 = no better than "the price stays where it is"). When model is "naive",
+        say plainly that no method beat "no change" and use the ranges. Online data from cars.allo.land.
+        """
+        try:
+            return fuel_data.forecast(region, fuel)
+        except fuel_data.FuelError as e:
+            raise ToolError(str(e)) from e
 
     @mcp.tool(annotations=WRITE)
     def load_demo_data() -> dict[str, Any]:

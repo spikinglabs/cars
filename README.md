@@ -17,6 +17,7 @@ assistant can use it. Your data stays in a local SQLite file.
 | Insights | `get_summary` (total cost, cost per km, consumption, trips), `get_chart_data` (chart-ready series) |
 | Dashboards | `show_dashboard` (interactive, renders inline in hosts that support [MCP Apps](https://modelcontextprotocol.io/specification/draft/extensions/apps)), `export_dashboard_html` (standalone file, works offline) |
 | Housekeeping | `list_entries`, `delete_entry`, `load_demo_data` |
+| Prices (online) | `get_fuel_price_forecast` (weekly petrol, diesel and LPG prices and the 8-week forecast from [cars.allo.land](https://cars.allo.land/fuel-prices/)) |
 
 Prompts: `monthly_report` (spend, anomalies, upcoming maintenance) and `log_receipt` (log from a receipt photo or text).
 

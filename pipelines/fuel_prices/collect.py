@@ -14,6 +14,7 @@ Bucket layout (the R2_BUCKET_ICE bucket, folder ``fuel-prices/``):
           weekly.csv   date, euro_super_95, diesel, lpg per litre incl. taxes, in the
                        region's currency (non-euro regions add *_eur columns), since 2005
           latest.json  newest week, change on the previous week, 4-week and 52-week averages
+          forecast.json, forecast.csv   next 8 weeks with 80 % / 95 % bands (see forecast.py)
       runs/YYYY/MM/DD/<ts>.json                  what each run did
 """
 
@@ -29,7 +30,7 @@ from pipelines.charging_prices.http import get_bytes
 from pipelines.charging_prices.normalize import to_csv
 from pipelines.charging_prices.storage import LocalStore, PrefixedStore, R2Store
 
-from . import oil_bulletin
+from . import forecast, oil_bulletin
 
 
 def _json(obj) -> bytes:
@@ -92,11 +93,13 @@ def run(store) -> dict:
     if "de" not in regions:
         raise ValueError(f"Germany missing from the bulletin; regions: {sorted(regions)}")
     index = {"dataset": "fuel-prices", "updated_at": now.isoformat(), "source": oil_bulletin.PAGE_URL, "regions": {}}
+    newest = max(rows[-1]["date"] for rows, _ in regions.values())
     for region, (rows, currency) in regions.items():
         summary = summarize(rows, now.isoformat(), region, currency)
         store.put(f"public/{region}/weekly.csv", to_csv(rows, oil_bulletin.fields(currency)), "text/csv")
         store.put(f"public/{region}/latest.json", _json(summary), "application/json")
-        index["regions"][region] = {"files": ["latest.json", "weekly.csv"], "currency": currency,
+        extra = forecast.write(store, region, rows, currency, now.isoformat(), newest)
+        index["regions"][region] = {"files": ["latest.json", "weekly.csv", *extra], "currency": currency,
                                     "first_week": rows[0]["date"], "latest_week": rows[-1]["date"],
                                     "updated_at": now.isoformat()}
     store.put("public/index.json", _json(index), "application/json")

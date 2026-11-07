@@ -108,6 +108,18 @@
     <p>Safety-Gate-Daten: &copy; Europäische Union, weiterverwendet nach Beschluss 2011/833/EU der Kommission. NHTSA-Daten sind als Werk der US-Regierung gemeinfrei. Ob ein bestimmtes Auto betroffen ist, hängt von seiner FIN ab.</p>
   </section>
 
+  <section class="ac-card" id="fuel-prices">
+    <span class="ac-label">Spritpreise</span>
+    <h2>Preise für Benzin, Diesel und Autogas und ihre Prognose</h2>
+    <p>Jede Woche veröffentlicht die Europäische Kommission im <a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">Weekly Oil Bulletin</a> (CC BY 4.0) die nationalen Durchschnittspreise an der Zapfsäule inklusive aller Steuern. Wir halten die ganze Reihe seit 2005 für jedes EU-Land und den EU-Schnitt bereit und ergänzen eine Prognose für 8 Wochen mit Bereichen für 80 % und 95 %. Bevor sie erscheint, wird sie an den letzten zwei Jahren gegen „keine Änderung“ geprüft; das Verfahren steht auf der <a href="/de/fuel-prices/">Spritpreis-Seite</a>.</p>
+    <ul>
+      <li><a href="/data/fuel-prices/weekly.csv"><code>/data/fuel-prices/weekly.csv</code></a>: eine Zeile pro Woche seit 2005, € pro Liter</li>
+      <li><a href="/data/fuel-prices/latest.json"><code>/data/fuel-prices/latest.json</code></a>: diese Woche, Änderung zur Vorwoche, Schnitt über 4 und 52 Wochen</li>
+      <li><a href="/data/fuel-prices/forecast.json"><code>/data/fuel-prices/forecast.json</code></a>: die nächsten 8 Wochen je Sorte mit Bereichen und Prüfergebnis; <a href="/data/fuel-prices/forecast.csv"><code>forecast.csv</code></a> enthält dasselbe als Zeilen</li>
+      <li>Andere Länder: <code>/data/fuel-prices/&lt;land&gt;/…</code>, zum Beispiel <a href="/data/fuel-prices/eu/forecast.json"><code>eu</code></a> oder <code>at</code>; die Liste steht in <a href="/data/fuel-prices/index.json"><code>index.json</code></a></li>
+    </ul>
+  </section>
+
   <section class="ac-card">
     <span class="ac-label">Rechner</span>
     <h2>Verbrauchswerte der Autos</h2>
@@ -134,7 +146,7 @@
 
 <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p class="ac-foot__links"><a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Mehr von Allo</h2>
