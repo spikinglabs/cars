@@ -72,9 +72,19 @@
   var liveFuel = null; // daily fuel prices, if the data file loads
   var nameOf = function (r) { return r.own ? T.own : r.name; };
 
-  /* ---------- state in the URL ---------- */
+  /* ---------- state in the URL, and on this device ---------- */
+  // Every setting is in the link. The last settings are also kept in this browser's local storage
+  // (never sent anywhere), so opening the page without a link picks up where you left off.
+  var SAVE_KEY = "allo-cars-ev-cost";
+  var store = function (v) { try { if (v === undefined) return localStorage.getItem(SAVE_KEY); if (v === null) localStorage.removeItem(SAVE_KEY); else localStorage.setItem(SAVE_KEY, v); } catch (e) {} return null; };
+  function source() {
+    var q = new URLSearchParams(location.search);
+    var KEYS = ["car", "lv", "use", "p", "loss", "petrol", "diesel", "refs", "own", "fl", "fp"];
+    if (KEYS.some(function (k) { return q.has(k); })) return q;
+    return new URLSearchParams(store() || "");
+  }
   function readState() {
-    var q = new URLSearchParams(location.search), s = JSON.parse(JSON.stringify(D));
+    var q = source(), s = JSON.parse(JSON.stringify(D));
     var num = function (k, max) { var v = parseFloat(q.get(k)); return isFinite(v) && v >= 0 && v <= max ? v : null; };
     if (q.get("car")) s.car = q.get("car").slice(0, 60);
     var lv = q.get("lv") ? q.get("lv").split(",").map(parseFloat) : null;
@@ -95,13 +105,17 @@
   function query() {
     var q = new URLSearchParams();
     q.set("car", S.car); q.set("lv", S.lv.join(",")); q.set("use", S.use); q.set("p", S.p); q.set("loss", S.loss);
-    q.set("petrol", S.petrol); q.set("diesel", S.diesel); q.set("refs", S.refs.join(","));
+    // fuel prices only when you set them, so the latest published prices apply otherwise
+    if (S.fuelSet) { q.set("petrol", S.petrol); q.set("diesel", S.diesel); }
+    q.set("refs", S.refs.join(","));
     if (S.own) q.set("own", S.own.l + "," + S.own.fuel);
     return q.toString();
   }
   function writeState() {
     var qs = query();
-    try { history.replaceState(null, "", location.pathname + "?" + qs); } catch (e) {}
+    var keep = new URLSearchParams(location.search).get("country");
+    try { history.replaceState(null, "", location.pathname + "?" + qs + (keep ? "&country=" + encodeURIComponent(keep) : "")); } catch (e) {}
+    store(qs);
     // the language switch keeps your inputs
     var sw = document.querySelector(".ac-lang");
     if (sw) sw.href = sw.getAttribute("href").split("?")[0] + "?" + qs;
@@ -257,15 +271,17 @@
 
     // break-even points
     var dots = rows.filter(function (r) { return r.breakEven <= xmax; }).sort(function (a, b) { return a.breakEven - b.breakEven; });
-    var lastX = -1e9, lastY = 0;
+    var last = { x: -1e9, y: 0, t: "" };
     dots.forEach(function (r) {
-      var cx = X(r.breakEven), cy = Y(r.cost);
-      // a label below-right of the dot, unless the previous one is too close: then above-left
-      var below = !(cx - lastX < 52 && Math.abs(cy - lastY) < 18);
-      lastX = below ? cx : lastX; lastY = below ? cy : lastY;
+      var cx = X(r.breakEven), cy = Y(r.cost), t = eur(r.breakEven);
       s += '<line x1="' + f(cx) + '" x2="' + f(cx) + '" y1="' + f(cy) + '" y2="' + (m.t + ih) + '" stroke="var(--chart-axis)" stroke-dasharray="1 3"/>';
       s += '<circle cx="' + f(cx) + '" cy="' + f(cy) + '" r="5" fill="var(--surface-100)" stroke="var(--accent)" stroke-width="2.5"/>';
-      s += '<text class="be" x="' + f(below ? cx + 8 : cx - 8) + '" y="' + f(below ? cy + 17 : cy - 9) + '" text-anchor="' + (below ? "start" : "end") + '">' + eur(r.breakEven) + "</text>";
+      // two cars with the same cost share one dot: label it once
+      if (t === last.t && Math.abs(cy - last.y) < 2) return;
+      // a label below-right of the dot, unless the previous one is too close: then above-left
+      var below = !(cx - last.x < 52 && Math.abs(cy - last.y) < 18);
+      s += '<text class="be" x="' + f(below ? cx + 8 : cx - 8) + '" y="' + f(below ? cy + 17 : cy - 9) + '" text-anchor="' + (below ? "start" : "end") + '">' + t + "</text>";
+      last = below ? { x: cx, y: cy, t: t } : { x: last.x, y: last.y, t: t };
     });
 
     // price markers on top
@@ -358,6 +374,7 @@
 
   $("copyai").addEventListener("click", function () { A.copy(summary(), $("copyai").querySelector("span")); });
   $("share").addEventListener("click", function () { A.copy(location.href, $("share").querySelector("span")); });
+  $("reset").addEventListener("click", function () { store(null); location.href = location.pathname; });
 
   var rt, lastW = 0;
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { var w = $("chart").clientWidth; if (w !== lastW) { lastW = w; update(); } }, 150); });
