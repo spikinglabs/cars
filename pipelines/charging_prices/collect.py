@@ -25,7 +25,9 @@ pipeline writes lives under one top-level folder, ``charging-prices/``
       derived/                               our processed tables
         tariffs/YYYY/MM/DD/<ts>.csv.gz                flat tariffs, all sources
       public/                                served at https://cars.allo.land/data/charging-prices/
-        latest.json  daily.csv  tariffs.csv  sources.json   (open-licence sources only)
+        index.json                           regions, their files and last update
+        de/                                  Germany (OCPDB covers Germany only)
+          latest.json  daily.csv  tariffs.csv  sources.json   (open-licence sources only)
       state/                                 bookkeeping between runs
         evse_status.json.gz  evse_status_day
       runs/YYYY/MM/DD/<ts>-<tier>.json       what each run did
@@ -172,6 +174,9 @@ def collect_evse_status(store, now: datetime, ts: str, log: list) -> None:
     print(f"evse_status: {entry}")
 
 
+REGION = "de"  # OCPDB covers Germany only
+
+
 def publish_prices(store, now: datetime, ts: str, sources: list[dict], tariffs: list[dict]) -> dict:
     licences = {s["uid"]: s.get("attribution_license") for s in sources}
     observed = now.isoformat()
@@ -198,21 +203,36 @@ def publish_prices(store, now: datetime, ts: str, sources: list[dict], tariffs: 
         for s in sources
     ]
     latest = {
+        "dataset": "charging-prices",
+        "region": REGION.upper(),
         "observed_at": observed,
+        "currency": "EUR",
         "unit": "EUR per kWh, incl. VAT, ad-hoc (no contract)",
+        "source": "Open ChargePoint Database (MobiData BW)",
+        "source_url": "https://api.mobidata-bw.de/ocpdb/",
+        "licence": "per source, see sources.json (only CC0 and CC BY sources are included)",
         "note": "Base energy price of each ad-hoc tariff. Only sources with an open licence are included.",
         "data_source": "Open ChargePoint Database (MobiData BW), https://api.mobidata-bw.de/ocpdb/",
         **summary,
     }
-    store.put("public/latest.json", _json(latest), "application/json")
-    store.put("public/sources.json", _json(public_sources), "application/json")
+    pub = f"public/{REGION}"
+    store.put(f"{pub}/latest.json", _json(latest), "application/json")
+    store.put(f"{pub}/sources.json", _json(public_sources), "application/json")
     store.put(
-        "public/tariffs.csv",
+        f"{pub}/tariffs.csv",
         normalize.to_csv(public_rows, normalize.TARIFF_FIELDS),
         "text/csv",
     )
-    daily_key = "public/daily.csv"
-    store.put(daily_key, normalize.upsert_daily(store.get(daily_key), now.date().isoformat(), summary), "text/csv")
+    # The history before the per-region layout lives in the flat public/daily.csv;
+    # carry it over the first time.
+    previous = store.get(f"{pub}/daily.csv") or store.get("public/daily.csv")
+    store.put(f"{pub}/daily.csv", normalize.upsert_daily(previous, now.date().isoformat(), summary), "text/csv")
+    index = {
+        "dataset": "charging-prices",
+        "updated_at": observed,
+        "regions": {REGION: {"files": ["latest.json", "daily.csv", "tariffs.csv", "sources.json"], "currency": "EUR", "updated_at": observed}},
+    }
+    store.put("public/index.json", _json(index), "application/json")
     return summary
 
 

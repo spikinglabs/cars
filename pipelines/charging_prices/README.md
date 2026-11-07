@@ -35,6 +35,8 @@ the website serves only its `public/` subfolder at `/data/<project>/`
       bnetza/register/<file>
     derived/                    processed tables (tariffs/YYYY/MM/DD/<ts>.csv.gz)
     public/                     -> cars.allo.land/data/charging-prices/
+      index.json                regions and files
+      de/                       latest.json, daily.csv, tariffs.csv, sources.json
     state/                      bookkeeping between runs
     runs/YYYY/MM/DD/            one report per run
   <other-project>/              same pattern: raw/, derived/, public/, state/, runs/
