@@ -80,6 +80,29 @@
         "brands": "https://cars.allo.land/data/registrations/de/brands.json"
       },
       "url_de": "https://cars.allo.land/de/registrations/"
+    },
+    {
+      "name": "charger_map",
+      "title": "Charger map",
+      "url": "https://cars.allo.land/chargers/",
+      "description": "Every public EV charger in Germany from the Bundesnetzagentur register on a map, filterable by power, plug and payment, with the closest locations to the map centre listed. All settings are URL query parameters.",
+      "parameters": {
+        "lat": "map centre latitude",
+        "lon": "map centre longitude",
+        "z": "zoom 5 to 18, default 6; single chargers and the closest-first list show from 11",
+        "kw": "minimum power: 0, 11, 50 or 150",
+        "plug": "comma separated, any of: type2, ccs, chademo",
+        "only": "comma separated, all must hold: 247 (open 24/7), card (pay by card), free, public (not customers only)"
+      },
+      "example": "https://cars.allo.land/chargers/?lat=50.9375&lon=6.9603&z=13&kw=150&plug=ccs",
+      "data": {
+        "latest": "https://cars.allo.land/data/chargers/de/latest.json",
+        "stations": "https://cars.allo.land/data/chargers/de/stations.csv",
+        "cell": "https://cars.allo.land/data/chargers/de/cells/<floor(lat*2)>_<floor(lon*2)>.json",
+        "overview": "https://cars.allo.land/data/chargers/de/overview.json",
+        "places": "https://cars.allo.land/data/chargers/de/places.json"
+      },
+      "url_de": "https://cars.allo.land/de/chargers/"
     }
   ],
   "regions": "https://cars.allo.land/regions.json",
