@@ -19,7 +19,8 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
-from . import db, recalls, registrations
+from . import chargers, db, recalls, registrations
+from .catalog import Catalog, CatalogError
 from . import fuel as fuel_data
 from .garage import Garage, GarageError
 from .sample import load_sample_data
@@ -44,6 +45,8 @@ Guidance:
 - For "is my car recalled?" call get_recalls (official EU and US recalls, needs internet).
 - For "what does petrol/diesel cost now" or how fuel prices moved, call get_fuel_prices (needs internet).
 - For "how many X are sold/registered in Germany" or the most popular new cars, call get_registrations (needs internet).
+- For "where can I charge near X" call find_chargers (public chargers in Germany, needs internet).
+- For a model's official consumption (kWh/100 km, L/100 km, CO2), call lookup_official_consumption (needs internet).
 """
 
 READ = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
@@ -58,8 +61,9 @@ VehicleArg = Annotated[str | None, Field(description="Vehicle name or id. Option
 DateArg = Annotated[str | None, Field(description="Date as YYYY-MM-DD. Defaults to today.")]
 
 
-def build_server(db_path: str | Path | None = None) -> MCPServer:
+def build_server(db_path: str | Path | None = None, catalog: Catalog | None = None) -> MCPServer:
     garage = Garage(db.connect(db_path))
+    catalog = catalog or Catalog()
     apps = Apps()
 
     def run(fn, *args, **kwargs):
@@ -223,6 +227,21 @@ def build_server(db_path: str | Path | None = None) -> MCPServer:
         return run(garage.summary, vehicle, months, since, until)
 
     @mcp.tool(annotations=READ)
+    def lookup_official_consumption(
+        query: Annotated[str, Field(description="Make and/or model, e.g. 'Volvo EX30', 'ID.3', 'Golf'. Empty lists the most registered models.")] = "",
+        fuel: Annotated[str | None, Field(description="electric, petrol, diesel, phev-petrol, phev-diesel, lpg, cng, hydrogen or e85")] = None,
+        region: Annotated[str, Field(description="de (new registrations in Germany) or eu (EU-27)")] = "de",
+        limit: Annotated[int, Field(description="Most models to return (1-50)")] = 10,
+    ) -> dict[str, Any]:
+        """Official WLTP consumption of a car model from the EEA CO2 monitoring of new cars: kWh/100 km at the plug
+        (charging losses included), L/100 km, CO2 g/km, power and mass, averaged over the versions registered in the
+        latest year, with the number registered. Official figures are lower than real-world use. Needs internet."""
+        try:
+            return catalog.search(query, fuel, region, limit)
+        except CatalogError as e:
+            raise ToolError(str(e)) from e
+
+    @mcp.tool(annotations=READ)
     def get_maintenance_due(vehicle: VehicleArg = None) -> dict[str, Any]:
         """Maintenance items sorted by urgency: overdue, due_soon, unknown, ok."""
         return run(garage.maintenance_due, vehicle)
@@ -304,6 +323,27 @@ def build_server(db_path: str | Path | None = None) -> MCPServer:
             text = " ".join(str(v.get(k) or "") for k in ("make", "model")).strip() or v["name"]
         try:
             return registrations.lookup(text, max(1, min(months, 100)))
+        except OSError as e:
+            raise ToolError(f"Could not reach cars.allo.land: {e}") from e
+
+    @mcp.tool(annotations=WEB)
+    def find_chargers(
+        near: Annotated[str | None, Field(description="Town or 5-digit postcode in Germany, e.g. 'Köln' or '50667'.")] = None,
+        lat: Annotated[float | None, Field(description="Latitude, instead of near.")] = None,
+        lon: Annotated[float | None, Field(description="Longitude, instead of near.")] = None,
+        radius_km: Annotated[float, Field(description="Search radius in km, 0.5 to 50.")] = 10,
+        min_kw: Annotated[float, Field(description="Minimum power in kW, e.g. 50 for fast or 150 for high-power charging.")] = 0,
+        plugs: Annotated[list[Literal["type2", "ccs", "chademo", "schuko", "mcs", "type1"]] | None, Field(description="Any of these plugs.")] = None,
+        only: Annotated[list[Literal["open_24_7", "card_payment", "free", "plug_and_charge", "no_customers_only"]] | None, Field(description="Only locations with all of these.")] = None,
+        limit: int = 10,
+    ) -> dict[str, Any]:
+        """Public EV chargers near a town, postcode or position in Germany, closest first: operator, address, maximum
+        power, charge points, plugs, payment and a directions link, plus a link to the same view on the Allo Cars map.
+        From the Bundesnetzagentur charge point register via cars.allo.land. No live availability or prices."""
+        try:
+            return chargers.lookup(near, lat, lon, radius_km=radius_km, min_kw=min_kw, plugs=plugs, only=only, limit=limit)
+        except ValueError as e:
+            raise ToolError(str(e)) from e
         except OSError as e:
             raise ToolError(f"Could not reach cars.allo.land: {e}") from e
 

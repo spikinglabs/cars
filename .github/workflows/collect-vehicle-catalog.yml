@@ -1,0 +1,44 @@
+name: Collect vehicle catalog
+
+# Official consumption per car model (EEA CO2 monitoring of new cars) into R2 (vehicle-catalog/).
+# The EEA publishes a provisional year and later the final one; a monthly run picks up the newest
+# table on its own. The raw rows are stored only when they changed.
+# Pushes that change the collector also run it, so a new version is checked against real data
+# before it is merged. It only ever writes to the vehicle-catalog/ folder.
+on:
+  schedule:
+    - cron: "17 5 3 * *"
+  workflow_dispatch:
+    inputs:
+      table:
+        description: "EEA table, for example co2cars_2025Pv31 (empty: the newest)"
+        required: false
+  push:
+    paths: ["pipelines/vehicle_catalog/**", ".github/workflows/collect-vehicle-catalog.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collect-vehicle-catalog
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      R2_BUCKET: ${{ vars.R2_BUCKET_EV }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      TABLE: ${{ inputs.table }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r pipelines/charging_prices/requirements.txt
+      - name: Check bucket variable
+        run: test -n "$R2_BUCKET" || { echo "::error::Set the R2_BUCKET_EV repository variable"; exit 1; }
+      - run: python -m pipelines.vehicle_catalog.collect --r2 "$R2_BUCKET" --prefix vehicle-catalog ${TABLE:+--table "$TABLE"}

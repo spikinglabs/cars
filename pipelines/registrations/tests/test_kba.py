@@ -6,13 +6,13 @@ from pipelines.charging_prices.storage import LocalStore
 from pipelines.registrations import collect, kba
 
 
-def workbook(month_label: str, new_layout: bool = True, volvo_ex30: int = 1058) -> bytes:
+def workbook(month_label: str, new_layout: bool = True, volvo_ex30: int = 1058, sheet: str = "FZ 10.1") -> bytes:
     """A small FZ10 workbook in the 2021+ layout (headings on the Marke row) or the 2019 one (row above)."""
     import openpyxl
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "FZ 10.1"
+    ws.title = sheet
     ws.append([None, "Fahrzeugzulassungen (FZ)"])
     groups = (["Insgesamt", "mit Dieselantrieb", "mit Hybridantrieb \n(incl. Plug-in-Hybrid)", "Plug-in-Hybridantrieb",
                "mit Elektroantrieb (BEV)", "mit Allradantrieb"] if new_layout
@@ -45,10 +45,16 @@ def workbook(month_label: str, new_layout: bool = True, volvo_ex30: int = 1058) 
         total = volvo_ex30 + 1103 + 8000 + 100
         ws.append(row("NEUZULASSUNGEN INSGESAMT", "", total, 1510, 3108, 441, volvo_ex30 + 25, 50))
     else:
+        ws.append([None, "MINI", None])  # brand name alone on its row (2020-07)
+        ws.append(row(None, "MINI", 10, 0, 0, 0, 0))
+        ws.append(row("MINI ZUSAMMEN", None, 10, 0, 0, 0, 0))
+        ws.append(row("HYUNDAI", None, 53, 0, 0, 0, 0))  # a model row that lost its name (2020-08)
+        ws.append(row("HYUNDAI ZUSAMMEN", None, 60, 0, 0, 0, 0))
+        ws.append(row("LOTUS", None, 3, 0, 0, 0, 0))  # brand without model rows
         ws.append(row("VOLVO", "XC60", 1424, 1128, 126, "-", 100))
         ws.append(row("VOLVO ZUSAMMEN", None, 1424, 1128, 126, 0, 100))
         ws.append(row("SONSTIGE", None, 50, 5, 1, 2, 0))
-        ws.append(row("NEUZULASSUNGEN INSGESAMT", None, 1474, 1133, 127, 2, 100))
+        ws.append(row("NEUZULASSUNGEN INSGESAMT", None, 1547, 1133, 127, 2, 100))
     ws.append([None, None])
     ws.append([None, "© Kraftfahrt-Bundesamt, Flensburg"])
     buf = io.BytesIO()
@@ -82,11 +88,17 @@ class Parse(unittest.TestCase):
 
     def test_old_layout_has_no_phev(self):
         d = kba.parse(workbook("Januar 2019", new_layout=False), "2019-01")
-        self.assertEqual(d["models"][0]["model"], "XC60")
-        self.assertIsNone(d["models"][0]["phev"])
-        self.assertEqual(d["models"][0]["bev"], 0)
+        self.assertEqual([(m["brand"], m["model"]) for m in d["models"]], [("MINI", "MINI"), ("VOLVO", "XC60")])
+        self.assertIsNone(d["models"][1]["phev"])
+        self.assertEqual(d["models"][1]["bev"], 0)
         self.assertEqual(d["market"]["bev"], 2)
-        self.assertEqual([b["brand"] for b in d["brands"]], ["VOLVO", "SONSTIGE"])
+        self.assertEqual({b["brand"]: b["total"] for b in d["brands"]},
+                         {"MINI": 10, "HYUNDAI": 60, "LOTUS": 3, "VOLVO": 1424, "SONSTIGE": 50})
+        self.assertEqual(sum(b["total"] for b in d["brands"]), d["market"]["total"])
+
+    def test_odd_sheet_name(self):
+        d = kba.parse(workbook("November 2020", sheet="FZ 10-November 2020  "), "2020-11")
+        self.assertEqual(d["models"][0]["model"], "EX30")
 
     def test_slug(self):
         self.assertEqual(kba.slug("MERCEDES", "GLK, GLC"), "mercedes-glk-glc")
@@ -125,13 +137,23 @@ class Collect(unittest.TestCase):
             self.assertIsNone(models["volvo-sonstige"]["rank"])
             market = store.get("public/de/market.csv").decode().splitlines()
             self.assertEqual(market[0], "month,total,diesel,hybrid,phev,bev,petrol_etc,bev_share")
-            self.assertTrue(market[1].startswith("2019-01,1474,1133,127,,2,"))
+            self.assertTrue(market[1].startswith("2019-01,1547,1133,127,,2,"))
             self.assertIn("2026-09,VW,GOLF,vw-golf,8000", store.get("public/de/monthly.csv").decode())
 
             calls.clear()
             r2 = collect.run(store, delay=0, fetch=fetch)
             self.assertEqual(calls, [kba.LIST_URL])  # nothing new, nothing downloaded
             self.assertEqual(r2["changed"], [])
+
+            # A newer parser re-parses the stored workbooks without downloading them again.
+            state = json.loads(store.get("state/months.json"))
+            state["2019-01"]["parser"] = 1
+            store.put("state/months.json", json.dumps(state).encode())
+            calls.clear()
+            r3 = collect.run(store, delay=0, fetch=fetch)
+            self.assertEqual(calls, [kba.LIST_URL])
+            self.assertEqual(r3["changed"], ["2019-01"])
+            self.assertEqual(json.loads(store.get("state/months.json"))["2019-01"]["parser"], kba.PARSER)
 
 
 if __name__ == "__main__":

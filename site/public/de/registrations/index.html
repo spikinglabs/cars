@@ -31,7 +31,13 @@
   .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 60ch; }
   .stack { display: grid; gap: var(--space-5); }
   .pick { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--space-4); }
-  .pick input { flex: 1 1 220px; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 18px/22px var(--font-display); }
+  .combo { position: relative; flex: 1 1 220px; }
+  .combo__list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; max-height: min(320px, 45vh); overflow-y: auto; background: var(--surface-100); border: 1.5px solid var(--ink); border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+  .combo__list li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 10px; min-height: 44px; box-sizing: border-box; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .combo__list li small { color: var(--ink-muted); font-weight: 400; white-space: nowrap; }
+  .combo__list li[aria-selected="true"], .combo__list li:hover { background: var(--surface-50); outline: 1.5px solid var(--ink); }
+  .combo__list li.combo__none { cursor: default; color: var(--ink-muted); outline: none; background: none; }
+  .pick input { width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 18px/22px var(--font-display); }
   .b-ev { fill: var(--car-2); }
   .b-rest { fill: var(--fuel); opacity: .55; }
   .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
@@ -54,6 +60,7 @@
   <a class="ac-appbar__brand" href="/de/">Allo <span>Cars</span></a>
   <nav class="ac-topnav" aria-label="Allo Cars">
     <a href="/de/">Tools</a>
+    <a href="/de/chargers/">Ladesäulen</a>
     <a href="/de/ev-cost/">Ladekosten</a>
     <a href="/de/charging-prices/">Preisarchiv</a>
     <a href="/de/charge-times/">Ladezeit</a>
@@ -77,8 +84,10 @@
     <div class="stack">
       <section class="ac-card">
         <form class="pick" id="pick" role="search">
-          <input id="q" type="search" list="models" autocomplete="off" placeholder="Marke und Modell, z. B. Volvo EX30" aria-label="Marke und Modell">
-          <datalist id="models"></datalist>
+          <div class="combo">
+            <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-list" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="Marke und Modell, z. B. Volvo EX30" aria-label="Marke und Modell">
+            <ul id="q-list" class="combo__list" role="listbox" aria-label="Marke und Modell" hidden></ul>
+          </div>
           <button class="ac-btn ac-btn--primary" type="submit">Zeigen</button>
         </form>
         <h2 class="ac-card__title" id="model-title">…</h2>
@@ -114,7 +123,7 @@
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p class="ac-foot__links"><a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Mehr von Allo</h2>
@@ -142,6 +151,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/registrations/app.js?v=f1cefa55c1"></script>
+<script src="/registrations/app.js?v=26b1e0e598"></script>
 </body>
 </html>

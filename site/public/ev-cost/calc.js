@@ -35,6 +35,25 @@
     ["BYD Dolphin", 14, 15.5, 19, 21.5],
     ["MG4", 14.5, 16, 19.5, 22]
   ];
+  /* The same cars in the official catalog (/data/vehicle-catalog/<region>/electric.json, built from the EEA CO2
+     monitoring of new cars), so the page can show each car's official WLTP figure next to the estimates. */
+  var OFFICIAL_IDS = {
+    "Volvo EX30": "volvo-ex30", "Tesla Model 3 RWD": "tesla-model-3", "Tesla Model Y": "tesla-model-y",
+    "VW ID.3": "vw-id-3", "VW ID.4": "vw-id-4", "VW ID.7": "vw-id-7", "Skoda Elroq": "skoda-elroq",
+    "Skoda Enyaq": "skoda-enyaq", "Cupra Born": "cupra-born", "BMW iX1": "bmw-ix1", "BMW i4": "bmw-i4",
+    "Mercedes EQA": "mercedes-benz-eqa", "Audi Q4 e-tron": "audi-q4", "Hyundai Ioniq 5": "hyundai-ioniq-5",
+    "Hyundai Ioniq 6": "hyundai-ioniq-6", "Hyundai Kona Electric": "hyundai-kona", "Kia EV3": "kia-ev3",
+    "Kia EV6": "kia-ev6", "Renault 5 E-Tech": "renault-5", "Renault Megane E-Tech": "renault-megane",
+    "Fiat 500e": "fiat-500", "Polestar 2": "polestar-2", "BYD Dolphin": "byd-dolphin", "MG4": "mg-mg4"
+  };
+  /* For any other electric car, the four levels come from its official WLTP figure (kWh/100 km at the plug).
+     Against the estimates above, a normal week at the battery is close to the WLTP figure (median ratio 1.02),
+     efficient driving about 0.9 of it, 120 km/h about 1.22 and winter about 1.38. */
+  var OFFICIAL_FACTORS = [0.9, 1, 1.22, 1.38];
+  function levelsFromOfficial(kwhPer100) {
+    return OFFICIAL_FACTORS.map(function (f) { return Math.round(kwhPer100 * f * 2) / 2; });
+  }
+
   var LEVELS = ["Efficient", "Typical", "Motorway", "Winter"];
   var LEVEL_HINTS = ["City and country roads, mild weather", "A normal week of driving", "Steady 120 km/h", "Cold weather, heating on"];
 
@@ -126,7 +145,8 @@
   }
 
   return {
-    CATALOG: CATALOG, LEVELS: LEVELS, LEVEL_HINTS: LEVEL_HINTS, FUEL_CARS: FUEL_CARS, FUELS: FUELS,
+    CATALOG: CATALOG, OFFICIAL_IDS: OFFICIAL_IDS, OFFICIAL_FACTORS: OFFICIAL_FACTORS, levelsFromOfficial: levelsFromOfficial,
+    LEVELS: LEVELS, LEVEL_HINTS: LEVEL_HINTS, FUEL_CARS: FUEL_CARS, FUELS: FUELS,
     FUEL_PRICES: FUEL_PRICES, DEFAULTS: DEFAULTS, findCar: findCar, findFuelCar: findFuelCar,
     evCost: evCost, fuelCost: fuelCost, breakEven: breakEven, fuelCars: fuelCars, compute: compute
   };

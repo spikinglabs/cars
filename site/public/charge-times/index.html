@@ -33,6 +33,11 @@
   .controls { display: grid; gap: 14px; }
   .controls .row > div > .ac-param__label { display: block; margin-bottom: 6px; }
   .controls .row { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: end; }
+  .tariff { display: grid; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .kind-note { margin: 0; max-width: 70ch; }
+  [hidden] { display: none !important; }
+  .tariff > div:first-child > .ac-param__label { display: block; margin-bottom: 6px; }
+  .fixline { stroke: var(--ink); stroke-width: 2.5; }
   .more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
   .more[open] summary { margin-bottom: 10px; }
   .bar { fill: var(--car-1); }
@@ -53,6 +58,7 @@
   <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
   <nav class="ac-topnav" aria-label="Allo Cars">
     <a href="/">Tools</a>
+    <a href="/chargers/">Charger map</a>
     <a href="/ev-cost/">Charging cost</a>
     <a href="/charging-prices/">Price archive</a>
     <a href="/charge-times/" aria-current="page">Best time</a>
@@ -71,21 +77,26 @@
 <!-- /chrome:header -->
 
     <h1>When is <span class="ac-hl">charging</span> cheapest?</h1>
-    <p class="lead">The cheapest hours to charge at home today and tomorrow, from the German power exchange. Useful with a dynamic electricity tariff, where your price follows the exchange every 15 minutes.</p>
+    <p class="lead">The cheapest hours to charge at home today and tomorrow, from the German power exchange. Timing only saves money on a dynamic tariff, where your price follows the exchange every 15 minutes. On a fixed price every hour costs the same. Enter your own tariff below; it stays on this device.</p>
 
     <div class="stack">
       <section class="ac-card controls">
+        <div class="tariff">
+          <div><span class="ac-param__label">Your electricity tariff</span><div class="ac-seg" id="kind" role="group" aria-label="Your electricity tariff"><button type="button" data-kind="dynamic">Dynamic</button><button type="button" data-kind="fixed">Fixed price</button></div></div>
+          <div class="row" id="dyn-fields">
+            <label class="ac-param"><span class="ac-param__label">Grid fee, levies and taxes</span><span class="ac-param__box"><input id="grid" type="number" min="0" max="1" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><span class="ac-param__hint">Per kWh before VAT. Depends on your grid area, often 0.12 to 0.17 €/kWh. Your bill or your supplier's price sheet shows it.</span></label>
+            <label class="ac-param"><span class="ac-param__label">Supplier markup</span><span class="ac-param__box"><input id="markup" type="number" min="0" max="1" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><span class="ac-param__hint">Per kWh before VAT, on top of the exchange price. Often 0.00 to 0.05 €/kWh.</span></label>
+          </div>
+          <div class="row" id="fix-fields" hidden>
+            <label class="ac-param"><span class="ac-param__label">Your price per kWh</span><span class="ac-param__box"><input id="fixed" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><span class="ac-param__hint">Including VAT, as on your bill.</span></label>
+          </div>
+          <p class="ac-caption kind-note" id="kind-note"></p>
+        </div>
         <div class="row">
           <div><span class="ac-param__label">Day</span><div class="ac-seg" id="day" role="group" aria-label="Day"></div></div>
           <div><span class="ac-param__label">How long you charge</span><div class="ac-seg" id="hours" role="group" aria-label="How long you charge"></div></div>
+          <label class="ac-param"><span class="ac-param__label">Energy you add</span><span class="ac-param__box"><input id="kwh" type="number" min="1" max="200" step="1" inputmode="numeric"><span class="ac-param__unit">kWh</span></span><span class="ac-param__hint">30 kWh is about half an EX30 battery.</span></label>
         </div>
-        <details class="more">
-          <summary>Your tariff</summary>
-          <div class="row">
-            <label class="ac-param"><span class="ac-param__label">Add-on per kWh, before VAT</span><span class="ac-param__box"><input id="addon" type="number" min="0" max="1" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><span class="ac-param__hint">Grid fee, levies, electricity tax and your supplier's margin. Often 0.15 to 0.22 €/kWh; your bill shows it.</span></label>
-            <label class="ac-param"><span class="ac-param__label">Energy you add</span><span class="ac-param__box"><input id="kwh" type="number" min="1" max="200" step="1" inputmode="numeric"><span class="ac-param__unit">kWh</span></span><span class="ac-param__hint">For the saving. 30 kWh is about half an EX30 battery.</span></label>
-          </div>
-        </details>
       </section>
 
       <section class="ac-card">
@@ -97,7 +108,7 @@
       <section class="ac-card">
         <h2 class="ac-card__title" id="chart-title">Price through the day</h2>
         <p class="ac-card__desc">Estimated price per kWh with your tariff, in 15-minute steps, German time</p>
-        <div class="ac-legend"><span><i style="border-color:var(--gold);border-top-width:8px"></i>Cheapest window</span><span><i style="border-color:var(--car-1);border-top-width:8px"></i>Other times</span><span class="ac-legend--dash"><i style="border-color:var(--ink-muted)"></i>Day average</span></div>
+        <div class="ac-legend"><span><i style="border-color:var(--gold);border-top-width:8px"></i>Cheapest window</span><span><i style="border-color:var(--car-1);border-top-width:8px"></i>Other times</span><span class="ac-legend--dash"><i style="border-color:var(--ink-muted)"></i>Day average</span><span class="fixline-key" hidden><i style="border-color:var(--ink);border-top-width:3px"></i>Your fixed price</span></div>
         <div class="ac-chart" id="chart"></div>
         <p class="ac-caption" id="tomorrow-note"></p>
       </section>
@@ -107,7 +118,7 @@
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p class="ac-foot__links"><a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">More from Allo</h2>
@@ -135,6 +146,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/charge-times/app.js?v=53b3229147"></script>
+<script src="/charge-times/app.js?v=e55db515ff"></script>
 </body>
 </html>

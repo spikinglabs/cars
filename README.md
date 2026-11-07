@@ -15,6 +15,7 @@ assistant can use it. Your data stays in a local SQLite file.
 | Maintenance | `log_service`, `set_maintenance_interval`, `get_maintenance_due` (by distance and/or months; sensible defaults for combustion and EV) |
 | Other costs & trips | `log_expense` (insurance, tax, parking, tolls…), `log_trip` (personal/business/commute) |
 | Insights | `get_summary` (total cost, cost per km, consumption, trips), `get_chart_data` (chart-ready series) |
+| Car data | `lookup_official_consumption` (official WLTP kWh/100 km, L/100 km and CO2 of any model sold in Germany or the EU, from the [Allo Cars vehicle catalog](https://cars.allo.land/open-data/#vehicle-catalog); needs internet) |
 | Dashboards | `show_dashboard` (interactive, renders inline in hosts that support [MCP Apps](https://modelcontextprotocol.io/specification/draft/extensions/apps)), `export_dashboard_html` (standalone file, works offline) |
 | Housekeeping | `list_entries`, `delete_entry`, `load_demo_data` |
 | Prices (online) | `get_fuel_prices` (weekly petrol, diesel and LPG prices since 2005 from [cars.allo.land](https://cars.allo.land/fuel-prices/)) |

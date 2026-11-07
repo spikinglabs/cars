@@ -107,6 +107,7 @@
   <a class="ac-appbar__brand" href="/de/">Allo <span>Cars</span></a>
   <nav class="ac-topnav" aria-label="Allo Cars">
     <a href="/de/">Tools</a>
+    <a href="/de/chargers/">Ladesäulen</a>
     <a href="/de/ev-cost/" aria-current="page">Ladekosten</a>
     <a href="/de/charging-prices/">Preisarchiv</a>
     <a href="/de/charge-times/">Ladezeit</a>
@@ -132,6 +133,7 @@
     <section class="ac-card stack" aria-labelledby="h-car">
       <h2 class="step" id="h-car"><span class="step__n">1</span>Dein Auto</h2>
       <select id="car" class="ac-select" aria-label="Dein Elektroauto"></select>
+      <p class="ac-caption" id="official" hidden style="margin:0"></p>
       <div>
         <span class="ac-param__label">Wie du fährst</span>
         <div class="ac-seg use" id="use" role="group" aria-label="Wie du fährst, kWh pro 100 km"></div>
@@ -211,14 +213,14 @@
   <details class="ac-source method">
     <summary>So wird gerechnet, und woher die Zahlen kommen</summary>
     <p class="ac-source__line" style="margin:0">Formel: Kosten pro 100 km = kWh/100 km × (1 + Verluste) × €/kWh. Gleichstand = L/100 km × €/L ÷ (kWh/100 km × (1 + Verluste)).</p>
-    <p class="ac-source__line" style="margin:0">Verbrenner: die meistzugelassenen Neuwagen-Modelle 2025 in Deutschland (<a href="https://www.kba.de/DE/Statistik/Fahrzeuge/Neuzulassungen/neuzulassungen_node.html">KBA</a>) und dazu Mazda CX-30 und CX-5, jeweils mit dem häufigsten Motor. Der Verbrauch ist ein gerundeter Praxiswert aus Fahrtenbüchern auf <a href="https://www.spritmonitor.de/">spritmonitor.de</a> und liegt über dem WLTP-Wert. Die Werte der E-Autos sind grobe Praxiswerte.</p>
+    <p class="ac-source__line" style="margin:0">Verbrenner: die meistzugelassenen Neuwagen-Modelle 2025 in Deutschland (<a href="https://www.kba.de/DE/Statistik/Fahrzeuge/Neuzulassungen/neuzulassungen_node.html">KBA</a>) und dazu Mazda CX-30 und CX-5, jeweils mit dem häufigsten Motor. Der Verbrauch ist ein gerundeter Praxiswert aus Fahrtenbüchern auf <a href="https://www.spritmonitor.de/">spritmonitor.de</a> und liegt über dem WLTP-Wert. Die Werte der E-Autos sind grobe Praxiswerte. Der offizielle Verbrauch ist der WLTP-Wert ab Steckdose, wie er für jeden in Deutschland neu zugelassenen Wagen gemeldet wird, gemittelt über die gekauften Versionen, aus dem <a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b">CO2-Monitoring der EEA</a> (CC BY 4.0). Für Autos ohne Praxiswert sind die vier Fahrweisen das 0,9-, 1-, 1,22- und 1,38-Fache davon.</p>
     <p class="ac-source__line" style="margin:0" id="fuelsource"></p>
     <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Nur Energiekosten: Kaufpreis, Steuer, Versicherung und Wartung sind nicht enthalten. Dein Tarif, das Wetter und deine Fahrweise ändern die echten Kosten.</span></div>
   <p class="ac-source__line" style="margin:0"><a href="/de/open-data/">Alle Datenquellen von Allo Cars</a></p>
   </details>
 <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p class="ac-foot__links"><a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Mehr von Allo</h2>
@@ -248,7 +250,7 @@
 </div>
 
 <script src="/assets/components/bundle.js?v=991383557a"></script>
-<script src="/ev-cost/calc.js?v=744af5d330"></script>
-<script src="/ev-cost/app.js?v=3409995854"></script>
+<script src="/ev-cost/calc.js?v=01f73cec22"></script>
+<script src="/ev-cost/app.js?v=9c7ddff215"></script>
 </body>
 </html>

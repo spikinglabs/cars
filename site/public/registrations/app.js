@@ -137,8 +137,6 @@
       fetch(AlloSite.data("registrations", "market.csv")).then((r) => r.text()).then(parseCsv),
     ]);
     models = idx.models; summary = s;
-    $("models").innerHTML = models.filter((m) => m.model !== "SONSTIGE" && m.last_12_months > 0)
-      .sort((a, b) => b.last_12_months - a.last_12_months).map((m) => `<option value="${esc(label(m))}">`).join("");
     $("asof").textContent = T.asof(month(s.month));
     $("market-line").textContent = T.marketLine(s);
     $("top-all").innerHTML = table(s.top_models, "total");
@@ -149,12 +147,50 @@
     await show(start, false);
   }
 
+  // Model picker: a combobox with our own list. A <datalist> shows suggestions as keyboard chips on
+  // Android Chrome, and picking one there neither submits nor fires "change", so it looked broken.
+  const q = $("q"), list = $("q-list");
+  let shown = [], active = -1;
+  const pickable = () => models.filter((m) => m.model !== "SONSTIGE");
+  function matches(text) {
+    const words = String(text).toLowerCase().replace("volkswagen", "vw").split(/\s+/).map(norm).filter(Boolean);
+    const all = pickable();
+    if (!words.length) return all.filter((m) => m.rank).sort((a, b) => a.rank - b.rank).slice(0, 30);
+    return all.filter((m) => { const h = norm(`${m.brand} ${m.model}`); return words.every((w) => h.includes(w)); })
+      .sort((a, b) => (b.last_12_months || 0) - (a.last_12_months || 0)).slice(0, 30);
+  }
+  function render() {
+    list.innerHTML = shown.length ? shown.map((m, i) => `<li role="option" id="q-opt-${i}" data-i="${i}" aria-selected="${i === active}">${esc(label(m))}<small>${m.last_12_months ? num(m.last_12_months) + " / 12 " + (de ? "Mon." : "mo") : (de ? "ältere Daten" : "older data")}</small></li>`).join("")
+      : `<li class="combo__none" aria-disabled="true">${esc(T.noModel)}</li>`;
+    if (active >= 0) { q.setAttribute("aria-activedescendant", `q-opt-${active}`); $(`q-opt-${active}`)?.scrollIntoView({ block: "nearest" }); }
+    else q.removeAttribute("aria-activedescendant");
+  }
+  function open(text) {
+    if (!models.length) return;
+    shown = matches(text); active = -1;
+    render(); list.hidden = false; q.setAttribute("aria-expanded", "true");
+  }
+  function close() { list.hidden = true; q.setAttribute("aria-expanded", "false"); q.removeAttribute("aria-activedescendant"); active = -1; }
+  function choose(m) { close(); q.blur(); show(m.slug, true).catch(fail); }
+  q.addEventListener("focus", () => { q.select(); open(""); });
+  q.addEventListener("input", () => open(q.value));
+  q.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (list.hidden) open(q.value);
+      if (!shown.length) return;
+      active = (active + (e.key === "ArrowDown" ? 1 : -1) + shown.length) % shown.length; render();
+    } else if (e.key === "Escape") { close(); }
+  });
+  // pointerdown + preventDefault keeps the input focused, so the tap is not lost to a blur first.
+  list.addEventListener("pointerdown", (e) => e.preventDefault());
+  list.addEventListener("click", (e) => { const li = e.target.closest("li[data-i]"); if (li) choose(shown[+li.dataset.i]); });
+  q.addEventListener("blur", () => setTimeout(close, 150));
   $("pick").addEventListener("submit", (e) => {
     e.preventDefault();
-    const m = find(models, $("q").value);
-    if (m) show(m.slug, true).catch(fail); else $("model-out").innerHTML = `<p class="ac-notice"><span>${esc(T.noModel)}</span></p>`;
+    const m = active >= 0 ? shown[active] : find(models, q.value) || matches(q.value)[0];
+    if (m) choose(m); else open(q.value);
   });
-  $("q").addEventListener("change", () => { const m = find(models, $("q").value); if (m) show(m.slug, true).catch(fail); });
   document.addEventListener("click", (e) => {
     const a = e.target.closest && e.target.closest("a[data-slug]");
     if (!a) return;
