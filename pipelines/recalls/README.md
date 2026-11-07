@@ -7,6 +7,10 @@ Daily job (`.github/workflows/collect-recalls.yml`) that collects:
   read once each; history back to 2019. Licence: reuse with attribution (Commission Decision 2011/833/EU).
 - **US NHTSA** campaigns for the followed models that are also sold in the US (public domain, no key).
 
+Each alert gets a `component` (brakes, airbags, high-voltage battery, ...) sorted from its hazard text by
+`components.py`, and `eu/stats.json` counts alerts per year, per component and per brand, with car alerts per
+100,000 new cars registered in Germany (read from `/data/registrations/de/brands.json`).
+
 Followed models are in `models.py`: the cars in the charging cost tool plus the fuel cars it compares with.
 Files are served at `https://cars.allo.land/data/recalls/eu/...` and `/data/recalls/us/...`; the layout is in
 the docstring of `collect.py`.

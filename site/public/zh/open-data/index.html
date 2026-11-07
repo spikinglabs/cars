@@ -106,9 +106,10 @@
       <li><a href="/data/recalls/eu/models.json"><code>/data/recalls/eu/models.json</code></a> 和 <code>/data/recalls/eu/models/&lt;model&gt;.json</code>：按关注车型的通报，例如 <a href="/data/recalls/eu/models/volvo-ex30.json"><code>volvo-ex30</code></a></li>
       <li><a href="/data/recalls/eu/brands.json"><code>/data/recalls/eu/brands.json</code></a> 和 <code>/data/recalls/eu/brand/&lt;brand&gt;.json</code>：按品牌的通报</li>
       <li><a href="/data/recalls/eu/recalls.csv"><code>/data/recalls/eu/recalls.csv</code></a>：2019 年以来的全部通报，每条一行</li>
+      <li><a href="/data/recalls/eu/stats.json"><code>/data/recalls/eu/stats.json</code></a>：按年份和车辆类型、按部件、按品牌统计的通报数，以及每 10 万辆德国新登记汽车对应的汽车通报数（来自我们的<a href="#registrations">新车登记数据</a>）</li>
       <li><code>/data/recalls/us/models/&lt;model&gt;.json</code>：相同车型的 NHTSA 召回行动</li>
     </ul>
-    <p>Safety Gate 数据：&copy; 欧盟，依据欧盟委员会决定 2011/833/EU 再使用。NHTSA 数据是美国政府作品，属于公有领域。某辆车是否受影响取决于它的车架号 (VIN)。</p>
+    <p>Safety Gate 数据：&copy; 欧盟，依据欧盟委员会决定 2011/833/EU 再使用。NHTSA 数据是美国政府作品，属于公有领域。某辆车是否受影响取决于它的车架号 (VIN)。Safety Gate 没有“部件”字段：我们按危险描述中最先提到的部件（制动器、安全气囊、高压电池等）给每条通报归类，结果是近似的。</p>
   </section>
 
   <section class="ac-card" id="registrations">

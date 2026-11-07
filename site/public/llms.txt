@@ -8,7 +8,7 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 - [Fuel prices](https://cars.allo.land/fuel-prices/): weekly petrol, diesel and LPG prices in Germany since 2005. Link parameters: ?fuel=euro_super_95|diesel|lpg, ?range=1y|5y|all
 - [Cheapest time to charge](https://cars.allo.land/charge-times/): cheapest 1 to 8 hour window to charge at home today and tomorrow, from German day-ahead exchange prices. Timing only pays on a dynamic tariff. Link parameters: day, h, kwh, tariff=dynamic|fixed, grid, markup, fixed.
 - [New car registrations by model](https://cars.allo.land/registrations/): monthly new registrations in Germany for every model since 2018, the top 20 and the electric share. Open a model with ?model=<slug>, e.g. ?model=volvo-ex30.
-- [Car recalls](https://cars.allo.land/recalls/): official recalls per model and brand in Europe (EU Safety Gate, including every KBA recall) and the US (NHTSA). Link parameters: ?model=<slug> or ?brand=<slug>.
+- [Car recalls and used-car check](https://cars.allo.land/recalls/): official recalls for a car in Europe (EU Safety Gate, including every KBA recall) and the US (NHTSA), narrowed to the build window of a used car, with what to ask the seller, and recall statistics by year, component and brand (per 100,000 new cars registered in Germany). Link parameters: ?brand=<slug>&model=<name>&year=<first registration year>.
 - [Charger map](https://cars.allo.land/chargers/): every public charger in Germany. Link parameters: lat, lon, z (zoom; single chargers from 11), kw (0, 11, 50, 150), plug (type2,ccs,chademo), only (247,card,free,public). Example: https://cars.allo.land/chargers/?lat=50.9375&lon=6.9603&z=13&kw=150&plug=ccs
 
 ## Data
@@ -26,6 +26,7 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 - [Car recalls in Europe, latest](https://cars.allo.land/data/recalls/eu/latest.json): counts and newest EU Safety Gate motor vehicle alerts.
 - [Recalls per model](https://cars.allo.land/data/recalls/eu/models.json): followed models with files models/<slug>.json (EU) and https://cars.allo.land/data/recalls/us/models/<slug>.json (NHTSA).
 - [Recalls per brand](https://cars.allo.land/data/recalls/eu/brands.json), files brand/<slug>.json.
+- [Recall statistics](https://cars.allo.land/data/recalls/eu/stats.json): alerts per year and vehicle type, per component (sorted from the hazard text), per brand with alerts per 100,000 new cars registered in Germany.
 - [All car recalls since 2019 (CSV)](https://cars.allo.land/data/recalls/eu/recalls.csv)
 - [New registrations, latest month](https://cars.allo.land/data/registrations/de/latest.json): all new cars by drive type, top 20 models, top 10 electric models, change on a year before.
 - [Registrations, model list](https://cars.allo.land/data/registrations/de/models.json): every model with slug, file, newest count, rank and last 12 months. One model's monthly series: https://cars.allo.land/data/registrations/de/models/<slug>.json

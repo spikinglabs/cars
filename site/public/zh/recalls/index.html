@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>汽车召回 · Allo Cars</title>
-<meta name="description" content="你的车型在欧洲和美国的召回信息，来自 EU Safety Gate（含德国 KBA）和美国 NHTSA，每天更新。">
+<title>汽车召回与二手车检查 · Allo Cars</title>
+<meta name="description" content="对照官方召回信息检查一辆车，无论新车还是二手车：选择品牌、车型和年份，查看其生产时段内的召回、要问卖家的问题，以及按原因和品牌的召回统计。数据来自 EU Safety Gate（含 KBA 的全部召回）和 NHTSA，每天更新。">
 <link rel="alternate" type="application/json" href="/data/recalls/eu/latest.json" title="欧洲最新汽车召回 (JSON)">
 <link rel="alternate" type="text/csv" href="/data/recalls/eu/recalls.csv" title="2019 年以来的全部汽车召回 (CSV)">
 <!-- chrome:head -->
@@ -31,7 +31,7 @@
   h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
   .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; }
   .stack { display: grid; gap: var(--space-5); }
-  .pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; align-items: end; }
+  .pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end; }
   .pick label { display: grid; gap: 6px; font-weight: 700; font-size: 14px; color: var(--ink-muted); }
   select.ac-select { width: 100%; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 18px/22px var(--font-display); }
   .list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
@@ -44,6 +44,27 @@
   .rc__meta { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
   .rc__tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .more { margin-top: 8px; }
+  .ask { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 72ch; }
+  .ask__codes { margin: 12px 0 0; font-size: 14px; }
+  .ask__codes code { font: 600 13px/1 var(--font-sign); background: var(--surface-200); padding: 3px 6px; border-radius: 5px; margin: 2px 2px 0 0; display: inline-block; }
+  .ask__links { margin: 12px 0 0; font-size: 14px; line-height: 22px; }
+  .st-block { display: grid; gap: 6px; }
+  .st-block + .st-block { margin-top: var(--space-5); }
+  .st-block h3 { font: 700 16px/20px var(--font-display); margin: 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 0; font-size: 13px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .bars li { display: grid; grid-template-columns: minmax(90px, 34%) 1fr auto; gap: 10px; align-items: center; font-size: 14px; line-height: 18px; }
+  .bars__track { height: 10px; background: var(--surface-200); border-radius: 0 5px 5px 0; }
+  .bars__fill { display: block; height: 100%; background: var(--ref-line-hi); border-radius: 0 5px 5px 0; }
+  .bars li.is-mine { font-weight: 700; }
+  .bars li.is-mine .bars__fill { background: var(--car-2); }
+  .bars__value { font: 600 13px/1 var(--font-sign); color: var(--ink-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  #outside:not([hidden]) { margin: 10px 0 0; }
+  #st-years text { font-size: 13px; }
+  #st-mode { margin: 6px 0 4px; }
+  .ac-card a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  .ask__links a { font-weight: 700; }
 </style>
 </head>
 <body>
@@ -74,14 +95,15 @@
 </aside>
 <!-- /chrome:header -->
 
-    <h1>你的车被<span class="ac-hl">召回</span>了吗？</h1>
-    <p class="lead">你的车型的官方召回信息，来自 EU Safety Gate（德国联邦机动车管理局 KBA 和其他欧洲主管机构都在这里通报车辆召回）以及美国 NHTSA。每天更新。</p>
+    <h1>这辆车被<span class="ac-hl">召回</span>了吗？</h1>
+    <p class="lead">适用于你正在开的车，或你准备买的二手车。选择品牌、车型和首次登记年份，查看其生产时段内的官方召回，以及买车前该问的问题。数据来自 EU Safety Gate（德国联邦机动车管理局 KBA 和其他欧洲主管机构都在这里通报车辆召回）和美国 NHTSA。每天更新。</p>
 
     <div class="stack">
       <section class="ac-card">
         <div class="pick">
-          <label>你的车型 <select id="model" class="ac-select"></select></label>
-          <label>或者整个品牌 <select id="brand" class="ac-select"><option value="">选择品牌</option></select></label>
+          <label>品牌 <select id="brand" class="ac-select"></select></label>
+          <label>车型 <select id="model" class="ac-select"></select></label>
+          <label>首次登记 <select id="year" class="ac-select"></select></label>
         </div>
       </section>
 
@@ -93,8 +115,9 @@
 
       <section class="ac-card">
         <h2 class="ac-card__title" id="eu-title">欧洲的召回</h2>
-        <p class="ac-card__desc" id="eu-desc">自 2019 年以来 EU Safety Gate 中提到这款车型的通报。召回只涉及其中列出的车辆。</p>
+        <p class="ac-card__desc" id="eu-desc">2019 年以来 EU Safety Gate 的通报。</p>
         <ul class="list" id="eu"></ul>
+        <p class="ac-caption" id="outside" hidden></p>
       </section>
 
       <section class="ac-card" id="us-card" hidden>
@@ -104,12 +127,31 @@
       </section>
 
       <section class="ac-card">
+        <h2 class="ac-card__title">买车前：该问什么</h2>
+        <p class="ac-card__desc">召回只说明哪些车可能受影响。这辆车是否受影响、是否已经修好，要看它的车架号 (VIN)。</p>
+        <div id="ask"></div>
+      </section>
+
+      <section class="ac-card" id="stats">
+        <h2 class="ac-card__title">召回数据统计</h2>
+        <p class="ac-card__desc">2019 年以来 EU Safety Gate 中的全部车辆通报。一条通报就是一次召回行动，无论涉及多少辆车。</p>
+        <div class="st-body">
+          <div class="st-block"><h3>每年召回数</h3><div id="st-years"></div></div>
+          <div class="st-block"><h3>汽车因哪些部件被召回</h3><p class="ac-caption" style="margin:0">按危险描述中最先提到的部件归类，仅供参考。</p><div id="st-comp"></div></div>
+          <div class="st-block"><h3>各品牌汽车召回</h3>
+            <p class="ac-caption" style="margin:0">每 10 万辆该品牌在德国新登记的汽车（<span id="st-regs">2019 年以来</span>，KBA）对应的欧洲汽车召回数，仅列出登记量至少 10 万辆的品牌。大品牌卖的车多，只看召回次数会让小品牌显得更好。召回覆盖整个欧洲，而登记数只来自德国，所以只能作粗略比较。</p>
+            <div class="ac-seg" id="st-mode"><button type="button" data-mode="per" aria-pressed="true">每 10 万辆新车</button><button type="button" data-mode="count" aria-pressed="false">召回次数</button></div>
+            <div id="st-brands"></div></div>
+        </div>
+      </section>
+
+      <section class="ac-card">
         <h2 class="ac-card__title">欧洲最新车辆召回</h2>
         <p class="ac-card__desc">轿车、摩托车、厢式车和卡车，所有品牌</p>
         <ul class="list" id="newest"></ul>
       </section>
 
-      <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>你自己的车是否受影响取决于它的车架号 (VIN)。请咨询经销商，或在厂商的召回页面输入车架号查询。在德国，受影响车辆的车主还会收到 KBA 的信。</span></p>
+      <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>某辆车是否受影响取决于它的车架号 (VIN)。该品牌的经销商可以免费查询。在德国，受影响车辆的车主还会收到 KBA 的信。</span></p>
       <p class="ac-caption" style="margin:0"><span id="asof"></span> 来源、许可和下载：<a href="/zh/open-data/#recalls">数据与来源</a>。</p>
     </div>
     <!-- chrome:footer -->
@@ -162,6 +204,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/recalls/app.js?v=0ba74be9bd"></script>
+<script src="/recalls/app.js?v=fb57379b1a"></script>
 </body>
 </html>

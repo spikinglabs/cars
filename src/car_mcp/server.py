@@ -43,6 +43,9 @@ Guidance:
 - Money is in the configured currency (see get_settings). Distances use the configured unit.
 - If the logbook is empty and the user just wants to try things out, offer load_demo_data.
 - For "is my car recalled?" call get_recalls (official EU and US recalls, needs internet).
+- For a used car someone is about to buy, call check_used_car with make, model and year of first registration:
+  recalls for its build window, recall codes to ask about, and questions for the seller.
+- For "which brands/parts get recalled most" call get_recall_statistics.
 - For "what does petrol/diesel cost now" or how fuel prices moved, call get_fuel_prices (needs internet).
 - For "how many X are sold/registered in Germany" or the most popular new cars, call get_registrations (needs internet).
 - For "where can I charge near X" call find_chargers (public chargers in Germany, needs internet).
@@ -292,6 +295,33 @@ def build_server(db_path: str | Path | None = None, catalog: Catalog | None = No
             text = " ".join(str(v.get(k) or "") for k in ("make", "model")).strip() or v["name"]
         try:
             return recalls.lookup(text, limit)
+        except OSError as e:
+            raise ToolError(f"Could not reach cars.allo.land: {e}") from e
+
+    @mcp.tool(annotations=WEB)
+    def check_used_car(
+        make: Annotated[str, Field(description="Brand, e.g. 'Volkswagen', or brand and model, e.g. 'VW Golf'.")],
+        model: Annotated[str | None, Field(description="Model as written by the maker, e.g. 'Golf', 'ID.4', 'X5'.")] = None,
+        year: Annotated[int | None, Field(description="Year the car was first registered (Erstzulassung).")] = None,
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        """Check a used car before buying: EU Safety Gate recalls (every KBA recall included) for the brand and model
+        whose production dates cover a car first registered in `year`, the recall codes to ask the seller about, US
+        NHTSA campaigns where available, and what to ask the seller or a garage. Data from cars.allo.land, daily."""
+        try:
+            return recalls.used_car_check(make, model, year, limit)
+        except OSError as e:
+            raise ToolError(f"Could not reach cars.allo.land: {e}") from e
+
+    @mcp.tool(annotations=WEB)
+    def get_recall_statistics(
+        brand: Annotated[str | None, Field(description="Optional brand to place in the ranking, e.g. 'Volvo'.")] = None,
+    ) -> dict[str, Any]:
+        """Vehicle recall statistics since 2019 (EU Safety Gate): alerts per year and vehicle type, car alerts per
+        component (brakes, airbags, high-voltage battery, ...), and per brand, also per 100,000 new cars registered in
+        Germany. Alerts are campaigns, not affected vehicles. Data from cars.allo.land."""
+        try:
+            return recalls.statistics(brand)
         except OSError as e:
             raise ToolError(f"Could not reach cars.allo.land: {e}") from e
 

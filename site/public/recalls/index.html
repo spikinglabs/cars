@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Car recalls · Allo Cars</title>
-<meta name="description" content="Recalls for your car model in Europe and the US, from the EU Safety Gate (including Germany's KBA) and NHTSA, updated every day.">
+<title>Car recalls and used-car check · Allo Cars</title>
+<meta name="description" content="Check a car, new or used, against official recalls: pick brand, model and year to see the recalls for its build window, what to ask the seller, and recall statistics by cause and brand. EU Safety Gate (with every KBA recall) and NHTSA, updated daily.">
 <link rel="alternate" type="application/json" href="/data/recalls/eu/latest.json" title="Latest car recalls in Europe (JSON)">
 <link rel="alternate" type="text/csv" href="/data/recalls/eu/recalls.csv" title="All car recalls since 2019 (CSV)">
 <!-- chrome:head -->
@@ -31,7 +31,7 @@
   h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
   .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; }
   .stack { display: grid; gap: var(--space-5); }
-  .pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; align-items: end; }
+  .pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end; }
   .pick label { display: grid; gap: 6px; font-weight: 700; font-size: 14px; color: var(--ink-muted); }
   select.ac-select { width: 100%; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 18px/22px var(--font-display); }
   .list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
@@ -44,6 +44,27 @@
   .rc__meta { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
   .rc__tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .more { margin-top: 8px; }
+  .ask { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 72ch; }
+  .ask__codes { margin: 12px 0 0; font-size: 14px; }
+  .ask__codes code { font: 600 13px/1 var(--font-sign); background: var(--surface-200); padding: 3px 6px; border-radius: 5px; margin: 2px 2px 0 0; display: inline-block; }
+  .ask__links { margin: 12px 0 0; font-size: 14px; line-height: 22px; }
+  .st-block { display: grid; gap: 6px; }
+  .st-block + .st-block { margin-top: var(--space-5); }
+  .st-block h3 { font: 700 16px/20px var(--font-display); margin: 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 0; font-size: 13px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .bars li { display: grid; grid-template-columns: minmax(90px, 34%) 1fr auto; gap: 10px; align-items: center; font-size: 14px; line-height: 18px; }
+  .bars__track { height: 10px; background: var(--surface-200); border-radius: 0 5px 5px 0; }
+  .bars__fill { display: block; height: 100%; background: var(--ref-line-hi); border-radius: 0 5px 5px 0; }
+  .bars li.is-mine { font-weight: 700; }
+  .bars li.is-mine .bars__fill { background: var(--car-2); }
+  .bars__value { font: 600 13px/1 var(--font-sign); color: var(--ink-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  #outside:not([hidden]) { margin: 10px 0 0; }
+  #st-years text { font-size: 13px; }
+  #st-mode { margin: 6px 0 4px; }
+  .ac-card a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  .ask__links a { font-weight: 700; }
 </style>
 </head>
 <body>
@@ -74,14 +95,15 @@
 </aside>
 <!-- /chrome:header -->
 
-    <h1>Is your car <span class="ac-hl">recalled</span>?</h1>
-    <p class="lead">Official recalls for your model, from the EU Safety Gate, where Germany's KBA and every other European authority report vehicle recalls, and from the US NHTSA. Updated every day.</p>
+    <h1>Is this car <span class="ac-hl">recalled</span>?</h1>
+    <p class="lead">For the car you drive or the used car you are about to buy. Pick the brand, model and year it was first registered to see the official recalls for its build window and what to ask before you buy. From the EU Safety Gate, where Germany's KBA and every other European authority report vehicle recalls, and the US NHTSA. Updated every day.</p>
 
     <div class="stack">
       <section class="ac-card">
         <div class="pick">
-          <label>Your model <select id="model" class="ac-select"></select></label>
-          <label>Or a whole brand <select id="brand" class="ac-select"><option value="">Choose a brand</option></select></label>
+          <label>Brand <select id="brand" class="ac-select"></select></label>
+          <label>Model <select id="model" class="ac-select"></select></label>
+          <label>First registered <select id="year" class="ac-select"></select></label>
         </div>
       </section>
 
@@ -93,8 +115,9 @@
 
       <section class="ac-card">
         <h2 class="ac-card__title" id="eu-title">Recalls in Europe</h2>
-        <p class="ac-card__desc" id="eu-desc">EU Safety Gate alerts since 2019 that name this model. A recall covers only the vehicles listed in it.</p>
+        <p class="ac-card__desc" id="eu-desc">EU Safety Gate alerts since 2019.</p>
         <ul class="list" id="eu"></ul>
+        <p class="ac-caption" id="outside" hidden></p>
       </section>
 
       <section class="ac-card" id="us-card" hidden>
@@ -104,12 +127,31 @@
       </section>
 
       <section class="ac-card">
+        <h2 class="ac-card__title">Before you buy: what to ask</h2>
+        <p class="ac-card__desc">A recall says which cars may be affected. Whether this one is, and whether it was fixed, depends on its VIN.</p>
+        <div id="ask"></div>
+      </section>
+
+      <section class="ac-card" id="stats">
+        <h2 class="ac-card__title">Recalls in numbers</h2>
+        <p class="ac-card__desc">Every vehicle alert in the EU Safety Gate since 2019. An alert is one recall campaign, however many vehicles it covers.</p>
+        <div class="st-body">
+          <div class="st-block"><h3>Recalls per year</h3><div id="st-years"></div></div>
+          <div class="st-block"><h3>What gets recalled in cars</h3><p class="ac-caption" style="margin:0">Sorted by the part the hazard text names first, so roughly.</p><div id="st-comp"></div></div>
+          <div class="st-block"><h3>Car recalls by brand</h3>
+            <p class="ac-caption" style="margin:0">Car recalls in Europe per 100,000 new cars the brand registered in Germany (<span id="st-regs">since 2019</span>, KBA), for brands with at least 100,000. Big brands sell more cars, so raw counts flatter small ones. Recalls cover all of Europe and registrations only Germany, so take it as a rough comparison.</p>
+            <div class="ac-seg" id="st-mode"><button type="button" data-mode="per" aria-pressed="true">Per 100,000 new cars</button><button type="button" data-mode="count" aria-pressed="false">Number of recalls</button></div>
+            <div id="st-brands"></div></div>
+        </div>
+      </section>
+
+      <section class="ac-card">
         <h2 class="ac-card__title">Newest vehicle recalls in Europe</h2>
         <p class="ac-card__desc">Cars, motorcycles, vans and trucks, all makes</p>
         <ul class="list" id="newest"></ul>
       </section>
 
-      <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>Whether your own car is affected depends on its VIN. Ask your dealer, or check the maker's recall page with your VIN. In Germany, owners of affected cars also get a letter from the KBA.</span></p>
+      <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>Whether a particular car is affected depends on its VIN. A dealer of the brand checks it for free. In Germany, keepers of affected cars also get a letter from the KBA.</span></p>
       <p class="ac-caption" style="margin:0"><span id="asof"></span> Sources, licences and downloads: <a href="/open-data/#recalls">Data and sources</a>.</p>
     </div>
     <!-- chrome:footer -->
@@ -162,6 +204,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/recalls/app.js?v=0ba74be9bd"></script>
+<script src="/recalls/app.js?v=fb57379b1a"></script>
 </body>
 </html>

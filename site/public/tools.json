@@ -28,12 +28,13 @@
     },
     {
       "name": "car_recalls",
-      "title": "Car recalls",
+      "title": "Car recalls and used-car check",
       "url": "https://cars.allo.land/recalls/",
-      "description": "Official recalls per car model and brand: EU Safety Gate motor vehicle alerts since 2019 (Germany's KBA reports every German vehicle recall there) and US NHTSA campaigns for the same models. Updated daily. Open a model with ?model=<slug>, a brand with ?brand=<slug>.",
+      "description": "Official recalls for a car, new or used: EU Safety Gate motor vehicle alerts since 2019 (Germany's KBA reports every German vehicle recall there) and US NHTSA campaigns. Pick brand, model and year of first registration to see the recalls whose build window covers the car, with what to ask the seller or a garage, and statistics per year, per component and per brand normalised by German new car registrations. Updated daily. Link: ?brand=<slug>&model=<name>&year=<yyyy>; the older ?model=<slug> also works.",
       "parameters": {
-        "model": "slug from https://cars.allo.land/data/recalls/eu/models.json, e.g. volvo-ex30",
-        "brand": "slug from https://cars.allo.land/data/recalls/eu/brands.json, e.g. volkswagen"
+        "brand": "slug from https://cars.allo.land/data/recalls/eu/brands.json, e.g. volkswagen",
+        "model": "model name as Safety Gate writes it, e.g. ID.4 or Golf (letters and digits only are compared), or a slug from https://cars.allo.land/data/recalls/eu/models.json such as volvo-ex30",
+        "year": "year the car was first registered, e.g. 2021; recalls whose production dates touch that year or the year before are shown"
       },
       "data": {
         "latest": "https://cars.allo.land/data/recalls/eu/latest.json",
@@ -43,7 +44,8 @@
         "brand": "https://cars.allo.land/data/recalls/eu/brand/<slug>.json",
         "recent": "https://cars.allo.land/data/recalls/eu/recent.json",
         "all": "https://cars.allo.land/data/recalls/eu/recalls.csv",
-        "us_model": "https://cars.allo.land/data/recalls/us/models/<slug>.json"
+        "us_model": "https://cars.allo.land/data/recalls/us/models/<slug>.json",
+        "stats": "https://cars.allo.land/data/recalls/eu/stats.json"
       },
       "url_de": "https://cars.allo.land/de/recalls/",
       "url_zh": "https://cars.allo.land/zh/recalls/"
