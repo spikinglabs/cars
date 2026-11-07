@@ -14,6 +14,7 @@
     home: "Haushaltsstrom", median: "Öffentlich, Median", cheap: "Günstigste 10 %", dear: "Teuerste 10 %",
     perKwh: "/kWh", per100: "/100 km", per1000: "/1.000 km",
     costBasis: function (car, lvl, kwh) { return car + ", " + lvl + ", " + kwh + " kWh/100 km inkl. Ladeverluste"; },
+    openIn: function (n) { return "In " + n + " öffnen"; },
     youLine: function (p) { return "Dein Preis " + p + " (Schritt 2)"; }, medianLine: "Median öffentlich ",
     evChart: function (car) { return "Dein " + car + " (Schritt 1)"; },
     costBasis2: function (car, p, lvl, kwh, loss) { return "So viel kostet dein " + car + " für 100 km bei " + p + "/kWh: " + "Fahrweise „" + lvl + "“, " + kwh + " kWh/100 km plus " + loss + " % Ladeverluste."; },
@@ -46,6 +47,7 @@
     home: "Home tariff", median: "Public median", cheap: "Cheapest 10 %", dear: "Dearest 10 %",
     perKwh: "/kWh", per100: "/100 km", per1000: "/1,000 km",
     costBasis: function (car, lvl, kwh) { return car + ", " + lvl.toLowerCase() + ", " + kwh + " kWh/100 km plus charging losses"; },
+    openIn: function (n) { return "Open in " + n; },
     youLine: function (p) { return "Your price " + p + " (step 2)"; }, medianLine: "Public median ",
     evChart: function (car) { return "Your " + car + " (step 1)"; },
     costBasis2: function (car, p, lvl, kwh, loss) { return "What 100 km cost in your " + car + " at " + p + "/kWh, with " + lvl.toLowerCase() + " driving: " + kwh + " kWh/100 km plus " + loss + " % charging losses."; },
@@ -340,6 +342,28 @@
     hit.addEventListener("pointerleave", function () { tip.hidden = true; xh.setAttribute("visibility", "hidden"); });
   }
 
+  /* ---------- open in an assistant ---------- */
+  // One button opens the assistant you used last (kept on this device); the arrow lists the others.
+  var AI = {
+    claude: { name: "Claude", url: "https://claude.ai/new?q=" },
+    chatgpt: { name: "ChatGPT", url: "https://chatgpt.com/?q=" },
+    perplexity: { name: "Perplexity", url: "https://www.perplexity.ai/search?q=" }
+  };
+  var AI_KEY = "allo-cars-ai";
+  var aiPick = "claude";
+  try { if (AI[localStorage.getItem(AI_KEY)]) aiPick = localStorage.getItem(AI_KEY); } catch (e) {}
+  var menu = $("aimenu"), more = $("aimore");
+  var showMenu = function (open) { menu.hidden = !open; more.setAttribute("aria-expanded", open); };
+  more.addEventListener("click", function (e) { e.stopPropagation(); showMenu(menu.hidden); if (!menu.hidden) menu.querySelector("a").focus(); });
+  menu.addEventListener("click", function (e) {
+    var a = e.target.closest("[data-ai]"); if (!a) return;
+    aiPick = a.getAttribute("data-ai");
+    try { localStorage.setItem(AI_KEY, aiPick); } catch (err) {}
+    showMenu(false); update();
+  });
+  document.addEventListener("click", function (e) { if (!menu.hidden && !e.target.closest(".ai-split")) showMenu(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !menu.hidden) { showMenu(false); more.focus(); } });
+
   /* ---------- output ---------- */
   var R;
   function update() {
@@ -379,9 +403,13 @@
     drawPriceChips();
     // the same question, filled in, for each assistant that takes one from a link
     var ask = encodeURIComponent(T.claude + summary() + "\n\n" + location.origin + location.pathname + "?" + query());
-    $("claude").href = "https://claude.ai/new?q=" + ask;
-    $("chatgpt").href = "https://chatgpt.com/?q=" + ask;
-    $("perplexity").href = "https://www.perplexity.ai/search?q=" + ask;
+    [].forEach.call($("aimenu").querySelectorAll("[data-ai]"), function (el) {
+      var k = el.getAttribute("data-ai");
+      el.href = AI[k].url + ask;
+      el.setAttribute("aria-current", k === aiPick);
+    });
+    $("aigo").href = AI[aiPick].url + ask;
+    $("ailabel").textContent = T.openIn(AI[aiPick].name);
   }
 
   function summary() {
