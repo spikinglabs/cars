@@ -2,7 +2,7 @@
 
 Builds a history of German EV charging prices (and charger status) from open data,
 because no public archive of past prices exists. Runs on GitHub Actions and stores
-everything in the Cloudflare R2 bucket named by the `R2_BUCKET_EV` repository secret.
+everything in the Cloudflare R2 bucket named by the `R2_BUCKET_EV` repository variable.
 
 ## Source
 
