@@ -16,7 +16,9 @@
         "charging-prices",
         "fuel-prices",
         "electricity-prices",
-        "registrations"
+        "registrations",
+        "chargers",
+        "vehicle-catalog"
       ]
     },
     {
@@ -30,7 +32,8 @@
       "currency": "EUR",
       "datasets": [
         "fuel-prices",
-        "recalls"
+        "recalls",
+        "vehicle-catalog"
       ]
     },
     {

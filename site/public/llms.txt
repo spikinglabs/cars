@@ -3,18 +3,21 @@
 Free car tools and open data for drivers in Germany, by Spiking Labs (part of allo.land). Tool inputs live in the URL, so a filled-in link reproduces a result. Machine-readable tool list: https://cars.allo.land/tools.json
 
 ## Tools
-- [EV charging cost vs petrol and diesel](https://cars.allo.land/ev-cost/): cost per 100 km at any price per kWh for your EV, and the break-even electricity price against popular German petrol and diesel cars. Parameters: https://cars.allo.land/ev-cost/spec.json
+- [EV charging cost vs petrol and diesel](https://cars.allo.land/ev-cost/): cost per 100 km at any price per kWh for your EV, and the break-even electricity price against popular German petrol and diesel cars. Any electric car sold in Germany can be picked by name (car=Kia EV9); levels then come from its official figure. Parameters: https://cars.allo.land/ev-cost/spec.json
 - [Charging price archive](https://cars.allo.land/charging-prices/): ad-hoc charging prices in Germany over time.
 - [Cheapest time to charge](https://cars.allo.land/charge-times/): cheapest 1 to 8 hour window to charge at home today and tomorrow, from German day-ahead exchange prices. Link parameters: day, h, addon, kwh.
 - [New car registrations by model](https://cars.allo.land/registrations/): monthly new registrations in Germany for every model since 2018, the top 20 and the electric share. Open a model with ?model=<slug>, e.g. ?model=volvo-ex30.
 - [Car recalls](https://cars.allo.land/recalls/): official recalls per model and brand in Europe (EU Safety Gate, including every KBA recall) and the US (NHTSA). Link parameters: ?model=<slug> or ?brand=<slug>.
+- [Charger map](https://cars.allo.land/chargers/): every public charger in Germany. Link parameters: lat, lon, z (zoom; single chargers from 11), kw (0, 11, 50, 150), plug (type2,ccs,chademo), only (247,card,free,public). Example: https://cars.allo.land/chargers/?lat=50.9375&lon=6.9603&z=13&kw=150&plug=ccs
 
 ## Data
 - [Ad-hoc EV charging prices, latest](https://cars.allo.land/data/charging-prices/latest.json): median, p10, p90 of the base energy price (EUR/kWh incl. VAT) over all published ad-hoc tariffs, overall and per data source.
 - [Daily price history](https://cars.allo.land/data/charging-prices/daily.csv): one row per day and source (date, source, tariffs, median, p10, p90, min, max). Collection started 2026-11-06.
 - [Current tariffs](https://cars.allo.land/data/charging-prices/tariffs.csv): every ad-hoc tariff with energy, time, parking and session prices.
 - [Sources and licences](https://cars.allo.land/data/charging-prices/sources.json)
-
+- [Public chargers, counts](https://cars.allo.land/data/chargers/de/latest.json): locations, charge points, fast (50 kW+) and high-power (150 kW+) counts overall, per federal state and per operator, plus the plug and flag bit meanings and the list of cells.
+- [Public chargers, all locations](https://cars.allo.land/data/chargers/de/stations.csv): position, max kW, charge points, DC points, plugs, operator, address, 24/7, card payment, free, customers only, year opened.
+- Public chargers in one area: https://cars.allo.land/data/chargers/de/cells/<a>_<b>.json with a = floor(lat × 2), b = floor(lon × 2), e.g. cells/101_13.json for Cologne. Rows follow "fields"; operator is an index into "operators".
 - [Electricity prices today and tomorrow](https://cars.allo.land/data/electricity-prices/de/latest.json): day-ahead exchange prices for Germany in 15-minute steps, cheapest windows, estimated dynamic tariff price.
 - [Daily electricity prices since 2018](https://cars.allo.land/data/electricity-prices/de/daily.csv) and [hourly](https://cars.allo.land/data/electricity-prices/de/hourly.csv), EUR/MWh.
 - [Car recalls in Europe, latest](https://cars.allo.land/data/recalls/eu/latest.json): counts and newest EU Safety Gate motor vehicle alerts.
@@ -24,8 +27,9 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 - [New registrations, latest month](https://cars.allo.land/data/registrations/de/latest.json): all new cars by drive type, top 20 models, top 10 electric models, change on a year before.
 - [Registrations, model list](https://cars.allo.land/data/registrations/de/models.json): every model with slug, file, newest count, rank and last 12 months. One model's monthly series: https://cars.allo.land/data/registrations/de/models/<slug>.json
 - [Registrations, every model every month](https://cars.allo.land/data/registrations/de/monthly.csv) and [market by drive type](https://cars.allo.land/data/registrations/de/market.csv). Source © Kraftfahrt-Bundesamt, Flensburg (FZ10), dl-de/by-2-0.
+- [Vehicle catalog, Germany](https://cars.allo.land/data/vehicle-catalog/de/models.json) (also [CSV](https://cars.allo.land/data/vehicle-catalog/de/models.csv), [electric only](https://cars.allo.land/data/vehicle-catalog/de/electric.json), [EU-27](https://cars.allo.land/data/vehicle-catalog/eu/models.json)): official WLTP consumption per car model and fuel type (kwh_per_100km at the plug, l_per_100km, co2_g_km, power_kw, mass_kg), registration-weighted over the versions sold, with new registrations in the year. From the EEA CO2 monitoring of new cars (CC BY 4.0), refreshed monthly. Official figures, lower than real-world use.
 
-Charging data from the Open ChargePoint Database (MobiData BW), which merges AFIR feeds published on Mobilithek. Licences per source are in sources.json.
+Charging prices come from the Open ChargePoint Database (MobiData BW), which merges AFIR feeds published on Mobilithek; licences per source are in sources.json. Chargers come from the Bundesnetzagentur Ladesäulenregister (CC BY 4.0, Bundesnetzagentur.de).
 
 ## Regions
 Data is arranged by region: https://cars.allo.land/data/<dataset>/<region>/<file>, with lowercase ISO codes (de for Germany). The list of regions, and which datasets each has, is at https://cars.allo.land/regions.json. Germany is the only region so far; the short URLs above without a region are Germany. Add ?country=<code> to any page link to pick the country.
@@ -37,5 +41,6 @@ Every page is also in German under /de/ (for example https://cars.allo.land/de/e
 - [Cheapest time to charge](https://cars.allo.land/charge-times/)
 - [Car recalls](https://cars.allo.land/recalls/)
 - [New registrations by model](https://cars.allo.land/registrations/)
+- [Charger map](https://cars.allo.land/chargers/)
 - [Data and sources](https://cars.allo.land/open-data/)
 - [Imprint and privacy](https://cars.allo.land/legal/)
