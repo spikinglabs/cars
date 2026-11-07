@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ladekosten pro 100 km fürs E-Auto · Allo Cars</title>
-<meta name="description" content="Was 100 km mit deinem E-Auto bei jedem Preis pro kWh kosten, neben anderen E-Autos und einem Benziner. Kostenlos, ohne Anmeldung, mit KI nutzbar.">
+<title>Ladekosten im Vergleich zu Benzin und Diesel · Allo Cars</title>
+<meta name="description" content="Was 100 km mit deinem E-Auto bei jedem Preis pro kWh kosten, und ab welchem Strompreis die beliebtesten Benziner und Diesel in Deutschland günstiger sind. Kostenlos, ohne Anmeldung, mit KI nutzbar.">
 <link rel="alternate" type="application/json" href="/ev-cost/spec.json" title="Tool-Beschreibung für KI (JSON)">
 <!-- chrome:head -->
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/ev-cost/">
@@ -24,18 +24,53 @@
 <script src="/assets/site.js"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px 64px; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px 64px; }
   h1 { font: 800 clamp(30px, 5vw, 44px)/1.08 var(--font-display); letter-spacing: -0.02em; margin: var(--space-5) 0 var(--space-2); }
-  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; font-size: 17px; line-height: 26px; }
-  .bench { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: flex-start; }
-  .inputs { flex: 1 1 300px; max-width: 380px; min-width: 0; display: grid; gap: var(--space-4); }
-  .results { flex: 999 1 540px; min-width: 0; display: grid; gap: var(--space-4); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 66ch; font-size: 17px; line-height: 26px; }
   .stack { display: grid; gap: 14px; }
-  select.ac-select { width: 100%; min-height: 44px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 16px/20px var(--font-sans); }
-  .chart-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
-  .bar-cell { width: 40%; }
-  .ac-bar { max-width: 100%; }
-  @media (max-width: 720px) { .inputs { max-width: none; order: 2; } .results { order: 1; } .bar-cell { display: none; } }
+  .wrap > .ac-card, .wrap > .ac-aibar, .wrap > .ac-source { margin-bottom: var(--space-4); }
+  .setup { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); align-items: start; }
+  .step { display: flex; align-items: center; gap: 10px; margin: 0; font: 700 19px/24px var(--font-display); letter-spacing: -0.01em; }
+  .step__n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: var(--gold-ink); font: 700 15px/1 var(--font-sign); flex: none; }
+  select.ac-select { width: 100%; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 18px/22px var(--font-display); }
+  .use { margin-top: 6px; }
+  .use button { display: inline-flex; gap: 6px; align-items: baseline; }
+  .use .kwh { font: 600 13px/1 var(--font-sign); opacity: .75; }
+  .more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
+  .more[open] summary { margin-bottom: 10px; }
+  .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end; }
+  .answer .ac-readouts { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+  .ac-readout__value.good { color: var(--success); }
+  .ac-readout__value.bad { color: var(--danger); }
+  .legend { margin: 10px 0 4px; }
+  .legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2.5px solid var(--accent); background: var(--surface-100); margin-right: 6px; vertical-align: -1px; }
+  .ac-legend--dash.dsl { border-top-style: dotted; }
+  #chart { margin-top: 8px; touch-action: pan-y; }
+  #chart .fuel { stroke-width: 2; stroke-dasharray: 7 5; }
+  #chart .fuel--petrol { stroke: var(--fuel); }
+  #chart .fuel--diesel { stroke: var(--ink-muted); stroke-dasharray: 2 4; stroke-linecap: round; }
+  #chart .fuel--own { stroke-width: 3; }
+  #chart text { paint-order: stroke; stroke: var(--surface-100); stroke-width: 4px; stroke-linejoin: round; }
+  #chart .lab { font-weight: 700; }
+  #chart .lab--petrol { fill: var(--fuel); }
+  #chart .lab--diesel { fill: var(--ink-muted); }
+  #chart .lab--ev { fill: var(--accent); font: 700 13px var(--font-display); }
+  #chart .be { font: 700 13px var(--font-sign); fill: var(--accent); }
+  #chart .you { font-weight: 700; fill: var(--ink); }
+  #chart .axis { font-weight: 700; }
+  .dash { display: inline-block; width: 18px; border-top: 2.5px dashed var(--fuel); margin-right: 8px; vertical-align: 3px; }
+  .dash--diesel { border-top: 2.5px dotted var(--ink-muted); }
+  .be-table { margin-top: var(--space-4); }
+  .be-table caption { text-align: left; padding-bottom: 8px; }
+  .be-table .sub { display: block; font-size: 12px; color: var(--ink-muted); font-weight: 400; }
+  .be-table td.good { color: var(--success); font-weight: 700; }
+  .be-table td.bad { color: var(--danger); font-weight: 700; }
+  .be-table .sub-save { display: none; font-weight: 700; }
+  .sub.good { color: var(--success); } .sub.bad { color: var(--danger); }
+  #ownl { min-width: 6ch; }
+  @media (max-width: 560px) { .be-table th:last-child, .be-table td:last-child { display: none; } .be-table .sub-save { display: block; } }
+  .be-table b { font: 700 18px/22px var(--font-sign); }
 </style>
 </head>
 <body>
@@ -62,61 +97,83 @@
 </aside>
 <!-- /chrome:header -->
 
-  <h1>Was kosten <em class="ac-hl">100 km</em> mit deinem Auto?</h1>
-  <p class="lead">Wähle dein Auto und deinen Preis pro kWh. Du siehst die Kosten für jede Fahrweise, neben anderen E-Autos und einem Benziner. Alle Einstellungen stehen im Link, so kannst du ihn teilen oder einer KI geben.</p>
+  <h1>Ab wann ist Laden <em class="ac-hl">günstiger</em> als Tanken?</h1>
+  <p class="lead">Wähle dein E-Auto und was du pro kWh zahlst. Die Grafik zeigt, was 100 km bei jedem Strompreis kosten, und genau den Preis, ab dem du gegenüber den beliebtesten Benzinern und Dieseln in Deutschland nichts mehr sparst.</p>
 
-  <div class="bench">
-    <aside class="inputs" aria-label="Eingaben">
-      <section class="ac-card stack">
-        <label class="ac-label" for="car">Dein Auto</label>
-        <select id="car" class="ac-select"></select>
-        <div class="stack" id="levels"></div>
-        <p class="ac-caption" style="margin:0">Die Startwerte sind grobe Praxiswerte. Die Zahlen aus deinem Bordcomputer sind besser.</p>
-      </section>
-      <section class="ac-card stack">
-        <span class="ac-label">Preis und Verluste</span>
-        <label class="ac-param"><span class="ac-param__label">Dein Strompreis</span><span class="ac-param__box"><input id="p" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><input id="pr" type="range" min="0" max="0.9" step="0.01" aria-label="Strompreis-Regler"></label>
-        <div class="ac-chips" id="pricechips"></div>
-        <label class="ac-param"><span class="ac-param__label">Ladeverluste</span><span class="ac-param__box"><input id="loss" type="number" min="0" max="40" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><span class="ac-param__hint">Energie, die zwischen Stecker und Akku verloren geht. Etwa 10 % an AC, weniger an DC.</span></label>
-      </section>
-      <section class="ac-card stack">
-        <span class="ac-label">Vergleichen mit</span>
-        <label class="ac-param"><span class="ac-param__label">Benziner verbraucht</span><span class="ac-param__box"><input id="fl" type="number" min="0" max="20" step="0.1" inputmode="decimal"><span class="ac-param__unit">L/100 km</span></span></label>
-        <label class="ac-param"><span class="ac-param__label">Benzinpreis</span><span class="ac-param__box"><input id="fp" type="number" min="0" max="4" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
-        <span class="ac-param__label">Andere E-Autos</span>
-        <div class="ac-chips" id="refs"></div>
-      </section>
-    </aside>
-
-    <main class="results">
-      <section class="ac-card">
-        <div class="ac-readouts" id="readouts" aria-live="polite"></div>
-      </section>
-
-      <section class="ac-card">
-        <div class="chart-head">
-          <div><h2 class="ac-card__title">Kosten pro 100 km nach Preis pro kWh</h2><p class="ac-card__desc" id="chartdesc">Die vier Werte deines Autos in Blau, andere Autos in Grau, Benzin gestrichelt.</p></div>
-          <div class="ac-seg" role="group" aria-label="Ansicht"><button type="button" id="v-chart" aria-pressed="true">Diagramm</button><button type="button" id="v-table" aria-pressed="false">Tabelle</button></div>
-        </div>
-        <div class="ac-legend" id="legend"></div>
-        <div id="chart"></div>
-        <div class="ac-table-wrap" id="tablewrap" hidden>
-          <table class="ac-table" id="table"><caption class="ac-caption" style="text-align:left;padding-bottom:8px">Kosten pro 100 km zu deinem Preis</caption><thead><tr><th>Auto</th><th class="num">kWh/100 km</th><th class="num">€/100 km</th><th class="bar-cell"><span class="ac-caption">Im Vergleich</span></th></tr></thead><tbody></tbody></table>
-        </div>
-      </section>
-
-      <section class="ac-aibar">
-        <span class="ac-aibar__text"><b>Mit KI nutzen.</b> Kopiere die Zahlen in einen beliebigen Assistenten, teile den Link oder öffne Claude mit dieser Seite.</span>
-        <button class="ac-btn ac-btn--ghost" type="button" id="copyai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Für KI kopieren</span></button>
-        <button class="ac-btn ac-btn--ghost" type="button" id="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Link teilen</span></button>
-        <a class="ac-btn ac-btn--ai" id="claude" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>In Claude öffnen</a>
-      </section>
-
-      <div class="ac-source">
-        <p class="ac-source__line" style="margin:0" id="source">Formel: kWh/100 km × (1 + Verluste) × €/kWh. Die Verbräuche sind grobe Praxiswerte.</p>
-        <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Schätzungen nur zum Vergleich. Dein Tarif, das Wetter und deine Fahrweise ändern die echten Kosten.</span></div>
+  <div class="setup">
+    <section class="ac-card stack" aria-labelledby="h-car">
+      <h2 class="step" id="h-car"><span class="step__n">1</span>Dein Auto</h2>
+      <select id="car" class="ac-select" aria-label="Dein Elektroauto"></select>
+      <div>
+        <span class="ac-param__label">Wie du fährst</span>
+        <div class="ac-seg use" id="use" role="group" aria-label="Wie du fährst, kWh pro 100 km"></div>
       </div>
-    </main>
+      <details class="more">
+        <summary>Verbrauch und Ladeverluste anpassen</summary>
+        <div class="stack">
+          <div class="levels" id="levels"></div>
+          <label class="ac-param"><span class="ac-param__label">Ladeverluste</span><span class="ac-param__box"><input id="loss" type="number" min="0" max="40" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><span class="ac-param__hint">Energie, die zwischen Stecker und Akku verloren geht. Etwa 10 % an AC, weniger an DC.</span></label>
+          <p class="ac-caption" style="margin:0">Die Startwerte sind grobe Praxiswerte. Der Durchschnitt aus deinem Bordcomputer ist besser.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="ac-card stack" aria-labelledby="h-price">
+      <h2 class="step" id="h-price"><span class="step__n">2</span>Was du für Strom zahlst</h2>
+      <label class="ac-param"><span class="ac-param__label">Preis pro kWh</span><span class="ac-param__box"><input id="p" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><input id="pr" type="range" min="0" max="1" step="0.01" aria-label="Regler für den Strompreis"></label>
+      <div class="ac-chips" id="pricechips"></div>
+      <p class="ac-caption" style="margin:0">Du lädst an mehreren Orten? Nimm deinen Durchschnitt oder probiere jeden Preis aus.</p>
+    </section>
+  </div>
+
+  <section class="ac-card answer" aria-label="Ergebnis">
+    <div class="ac-readouts" id="readouts" aria-live="polite"></div>
+  </section>
+
+  <section class="ac-card">
+    <h2 class="ac-card__title">Wo sich Laden nicht mehr lohnt</h2>
+    <p class="ac-card__desc">Die Kosten pro 100 km für dein Auto steigen mit dem Preis pro kWh (blaue Linie; die Fläche reicht von sparsamem Fahren bis Winter). Jede gestrichelte Linie ist ein Verbrenner. Wo sie sich kreuzen, liegt der Gleichstand.</p>
+    <div class="ac-legend legend"><span><i style="border-color:var(--accent);border-top-width:3.5px"></i>Dein Auto</span><span><i class="ac-legend--dash" style="border-color:var(--fuel)"></i>Benzin</span><span><i class="ac-legend--dash dsl" style="border-color:var(--ink-muted)"></i>Diesel</span><span><b class="dot"></b>Gleichstand</span></div>
+    <p class="ac-notice" id="norefs" style="display:none"><span>Wähle unten mindestens ein Auto zum Vergleich.</span></p>
+    <div id="chart" class="ac-chart"></div>
+
+    <div class="ac-table-wrap">
+      <table class="ac-table be-table">
+        <caption class="ac-caption">Strompreis für Gleichstand, höchster zuerst. Die Spanne deckt deine vier Fahrweisen ab.</caption>
+        <thead><tr><th>Verbrenner</th><th class="num">Gleichstand</th><th class="num">Bei deinem Preis, pro 100 km</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ac-card stack" aria-labelledby="h-cmp">
+    <h2 class="step" id="h-cmp"><span class="step__n">3</span>Vergleichen mit</h2>
+    <div>
+      <span class="ac-param__label">Die meistzugelassenen Neuwagen in Deutschland 2025</span>
+      <div class="ac-chips" id="refs"></div>
+    </div>
+    <div class="row">
+      <label class="ac-param"><span class="ac-param__label">Dein eigener Verbrenner braucht <span class="ac-caption">(optional)</span></span><span class="ac-param__box"><input id="ownl" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="–"><span class="ac-param__unit">L/100 km</span></span></label>
+      <div><span class="ac-param__label">Er tankt</span><div class="ac-seg" id="ownfuel" role="group" aria-label="Kraftstoff deines Autos"><button type="button" data-fuel="petrol">Benzin</button><button type="button" data-fuel="diesel">Diesel</button></div></div>
+    </div>
+    <div class="row">
+      <label class="ac-param"><span class="ac-param__label">Benzinpreis</span><span class="ac-param__box"><input id="petrol" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+      <label class="ac-param"><span class="ac-param__label">Dieselpreis</span><span class="ac-param__box"><input id="diesel" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+    </div>
+  </section>
+
+  <section class="ac-aibar">
+    <span class="ac-aibar__text"><b>Mit KI nutzen.</b> Kopiere die Zahlen in einen Assistenten, teile den Link oder öffne Claude mit deinen Zahlen.</span>
+    <button class="ac-btn ac-btn--ghost" type="button" id="copyai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Für KI kopieren</span></button>
+    <button class="ac-btn ac-btn--ghost" type="button" id="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Link teilen</span></button>
+    <a class="ac-btn ac-btn--ai" id="claude" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>In Claude öffnen</a>
+  </section>
+
+  <div class="ac-source">
+    <p class="ac-source__line" style="margin:0">Formel: Kosten pro 100 km = kWh/100 km × (1 + Verluste) × €/kWh. Gleichstand = L/100 km × €/L ÷ (kWh/100 km × (1 + Verluste)).</p>
+    <p class="ac-source__line" style="margin:0">Verbrenner: die meistzugelassenen Neuwagen-Modelle 2025 in Deutschland (<a href="https://www.kba.de/DE/Statistik/Fahrzeuge/Neuzulassungen/neuzulassungen_node.html">KBA</a>), jeweils mit dem häufigsten Motor. Der Verbrauch ist ein gerundeter Praxiswert aus Fahrtenbüchern auf <a href="https://www.spritmonitor.de/">spritmonitor.de</a> und liegt über dem WLTP-Wert. Die Werte der E-Autos sind grobe Praxiswerte.</p>
+    <p class="ac-source__line" style="margin:0" id="fuelsource"></p>
+    <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Nur Energiekosten: Kaufpreis, Steuer, Versicherung und Wartung sind nicht enthalten. Dein Tarif, das Wetter und deine Fahrweise ändern die echten Kosten.</span></div>
   </div>
 <!-- chrome:footer -->
 <footer class="ac-foot">

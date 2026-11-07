@@ -1,19 +1,36 @@
 {
   "name": "ev_charging_cost",
-  "title": "EV charging cost per 100 km",
+  "title": "EV charging cost per 100 km and break-even with fuel cars",
   "url": "https://cars.allo.land/ev-cost/",
-  "description": "What 100 km costs in an electric car at a given price per kWh, for four driving levels, next to other EVs and a petrol car. All inputs are URL query parameters, so a filled-in link reproduces the view.",
-  "formula": "cost_per_100km = kwh_per_100km * (1 + losses_pct / 100) * price_per_kwh; break_even_price = litres_per_100km * price_per_litre / (kwh_per_100km * (1 + losses_pct / 100))",
+  "url_de": "https://cars.allo.land/de/ev-cost/",
+  "description": "What 100 km costs in an electric car at a given price per kWh, and the electricity price at which it costs the same as a petrol or diesel car. Fuel cars to compare with are Germany's most registered new models of 2025 with real-world consumption, plus an optional own car. All inputs are URL query parameters, so a filled-in link reproduces the view.",
+  "formula": "ev_cost_per_100km = kwh_per_100km * (1 + loss / 100) * p; fuel_cost_per_100km = litres_per_100km * fuel_price; break_even_p = fuel_cost_per_100km / (kwh_per_100km * (1 + loss / 100))",
   "parameters": {
-    "car": { "type": "string", "default": "Volvo EX30", "description": "Car name. A known name also sets lv from the built-in estimates.", "examples": ["Volvo EX30", "Tesla Model Y", "VW ID.3"] },
+    "car": { "type": "string", "default": "Volvo EX30", "description": "Electric car name. A known name also sets lv from the built-in estimates.", "examples": ["Volvo EX30", "Tesla Model Y", "VW ID.3"] },
     "lv": { "type": "string", "default": "14.5,16,19.5,22", "description": "Four consumption levels in kWh/100 km, comma separated: efficient, typical, motorway 120 km/h, winter." },
+    "use": { "type": "integer", "default": 1, "description": "Which level the answer uses: 0 efficient, 1 typical, 2 motorway, 3 winter." },
     "p": { "type": "number", "default": 0.35, "unit": "EUR/kWh", "description": "Electricity price." },
     "loss": { "type": "number", "default": 10, "unit": "%", "description": "Charging losses between plug and battery." },
-    "fl": { "type": "number", "default": 6, "unit": "L/100 km", "description": "Petrol car consumption to compare with. 0 hides it." },
-    "fp": { "type": "number", "default": 1.75, "unit": "EUR/L", "description": "Petrol price." },
-    "refs": { "type": "string", "default": "Tesla Model 3 RWD,VW ID.3,Kia EV6", "description": "Other cars to show, comma separated, from the cars list." }
+    "petrol": { "type": "number", "default": 2.11, "unit": "EUR/L", "description": "Petrol price. Defaults to the latest German average (EU Weekly Oil Bulletin when available, else ADAC monthly average)." },
+    "diesel": { "type": "number", "default": 2.26, "unit": "EUR/L", "description": "Diesel price, same source as petrol." },
+    "refs": { "type": "string", "default": "golf,troc,tiguan,octavia", "description": "Fuel cars to compare with, comma separated ids.", "enum": ["golf", "troc", "tiguan", "corsa", "octavia", "passat"] },
+    "own": { "type": "string", "description": "Your own fuel car as litres_per_100km,fuel, for example 6.2,petrol or 5.5,diesel. Omit for none." }
+  },
+  "fuel_cars": {
+    "golf": "VW Golf 1.5 TSI, petrol, 6.5 L/100 km",
+    "troc": "VW T-Roc 1.5 TSI, petrol, 7.0 L/100 km",
+    "tiguan": "VW Tiguan 2.0 TDI, diesel, 6.5 L/100 km",
+    "corsa": "Opel Corsa 1.2, petrol, 5.8 L/100 km",
+    "octavia": "Skoda Octavia 2.0 TDI, diesel, 5.3 L/100 km",
+    "passat": "VW Passat 2.0 TDI, diesel, 5.8 L/100 km"
+  },
+  "sources": {
+    "fuel_car_models": "KBA new registrations 2025 by model series",
+    "fuel_car_consumption": "Real-world averages rounded from owner logs on spritmonitor.de",
+    "fuel_prices": "https://cars.allo.land/data/fuel-prices/latest.json (European Commission Weekly Oil Bulletin, CC BY 4.0); fallback ADAC monthly average October 2026",
+    "charging_prices": "https://cars.allo.land/data/charging-prices/latest.json"
   },
   "cars": "https://cars.allo.land/ev-cost/calc.js",
-  "live_prices": "https://cars.allo.land/data/charging-prices/latest.json",
-  "example": "https://cars.allo.land/ev-cost/?car=Volvo%20EX30&lv=14.5,16,19.5,22&p=0.59&loss=10&fl=6&fp=1.75&refs=Tesla%20Model%203%20RWD,Kia%20EV6"
+  "legacy_parameters": "fl (L/100 km) and fp (EUR/L) from older links become own=fl,petrol and petrol=fp.",
+  "example": "https://cars.allo.land/ev-cost/?car=Volvo%20EX30&use=1&p=0.59&loss=10&refs=golf,tiguan&own=6.2,petrol"
 }
