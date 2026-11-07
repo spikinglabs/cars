@@ -18,6 +18,7 @@
 <meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
 <script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css">
 <link rel="stylesheet" href="/assets/components/bundle.css">
@@ -189,6 +190,7 @@
     </ul>
   </nav>
   <p class="ac-maker">Allo Cars is a product by <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+  <p class="ac-country"><label for="ac-country">Country</label> <select id="ac-country" data-country><option value="de" selected>Germany</option></select></p>
   <p class="ac-install" data-install hidden>
     <button type="button" class="ac-btn ac-btn--gold" data-install-btn>Install the app</button>
     <span class="ac-install__how" data-install-how role="status" hidden></span>
