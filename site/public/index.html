@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Allo Cars · Car tools and open data for Germany</title>
+<meta name="description" content="Free car tools and open data for driving in Germany: what 100 km costs in your EV, and a daily archive of public charging prices. Works for people and their AI.">
+<link rel="alternate" type="application/json" href="/tools.json" title="Tools for AI (JSON)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/tokens.css">
+<link rel="stylesheet" href="/assets/components/bundle.css">
+<script src="/assets/site.js"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+  .hero { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; margin: 32px 0 56px; }
+  .hero__text { flex: 1 1 440px; min-width: 0; display: grid; gap: 18px; }
+  .hero h1 { margin: 0; font: 800 clamp(36px, 7vw, 60px)/1.04 var(--font-display); letter-spacing: -0.03em; }
+  .hero p { margin: 0; font-size: 18px; line-height: 28px; color: var(--ink-muted); max-width: 34em; }
+  .hero__live { flex: 1 1 360px; min-width: 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  section.block { display: grid; gap: 16px; margin-bottom: 48px; }
+  section.block h2 { margin: 0; font: 800 30px/36px var(--font-display); letter-spacing: -0.02em; }
+  .sub { margin: -8px 0 0; color: var(--ink-muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .soon { border-style: dashed; box-shadow: none; background: transparent; }
+  .spark { width: 100%; height: 90px; display: block; }
+  code { font: 600 14px/20px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface-200); padding: 2px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<div class="ac">
+<div class="ac-flagbar"></div>
+<div class="wrap">
+<!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/" aria-current="page">Tools</a>
+    <a href="/ev-cost/">Charging cost</a>
+    <a href="/charging-prices/">Price archive</a>
+    <a href="/open-data/">Data</a>
+  </nav>
+  <div class="ac-top__right">
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Switch light or dark" title="Switch light or dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<!-- /chrome:header -->
+
+<main>
+  <section class="hero">
+    <div class="hero__text">
+      <h1>Car numbers you won't find <em class="ac-hl">in a chat</em>.</h1>
+      <p>Free tools and open data for driving in Germany, built on charging prices we collect every hour. Use them yourself, or let your AI use them.</p>
+      <div class="row">
+        <a class="ac-btn ac-btn--primary" href="/ev-cost/">Work out my charging cost</a>
+        <a class="ac-btn ac-btn--ghost" href="/charging-prices/">See the price archive</a>
+      </div>
+    </div>
+    <div class="hero__live">
+      <a class="ac-card" href="/charging-prices/" style="display:grid;gap:10px;color:inherit;text-decoration:none">
+        <span class="ac-label">Public ad-hoc charging in Germany, today</span>
+        <div class="ac-readout" id="live"><span class="ac-readout__value">…<small>/kWh</small></span><span class="ac-readout__basis">Loading the latest prices</span></div>
+        <svg class="spark" id="spark" viewBox="0 0 400 90" preserveAspectRatio="none" role="img" aria-label="Median price per day"></svg>
+        <span class="ac-caption" id="liveasof">Median of every published ad-hoc tariff, € per kWh incl. VAT.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="tools-h">
+    <h2 id="tools-h">Tools</h2>
+    <p class="sub">Each tool is one page. Every setting stays in the link, so you can share it or hand it to an AI.</p>
+    <div class="grid">
+      <a class="ac-toolcard" href="/ev-cost/">
+        <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 L200 30" stroke="var(--car-1)" stroke-width="2" fill="none"/><path d="M0 70 L200 18" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M0 70 L200 6" stroke="var(--car-4)" stroke-width="2" fill="none"/><path d="M0 34 H200" stroke="var(--fuel)" stroke-width="2" stroke-dasharray="6 5" fill="none"/></svg></div>
+        <h3 class="ac-toolcard__title">EV charging cost</h3>
+        <p class="ac-toolcard__desc">What 100 km costs in your electric car at any price per kWh, next to other EVs and a petrol car.</p>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Calculator</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+      </a>
+      <a class="ac-toolcard" href="/charging-prices/">
+        <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 44 L25 42 L50 46 L75 38 L100 38 L125 30 L150 32 L175 24 L200 22" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M0 30 L200 12 L200 34 L0 56 Z" fill="var(--car-1)" opacity=".3"/></svg></div>
+        <h3 class="ac-toolcard__title">Charging price archive</h3>
+        <p class="ac-toolcard__desc">Ad-hoc charging prices across Germany, collected every hour, with downloads for every day.</p>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Open data</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="next-h">
+    <h2 id="next-h">Coming next</h2>
+    <p class="sub">Things an AI can only tell you by reading them from us.</p>
+    <div class="grid">
+      <div class="ac-card soon"><h3 class="ac-card__title">Charge while they play</h3><p class="ac-card__desc" style="margin:4px 0 8px">Family outings from Allo Outings with a public charger a short walk away, and the range you'll have when you leave.</p><span class="ac-tag">With Allo Outings</span></div>
+      <div class="ac-card soon"><h3 class="ac-card__title">Real winter range</h3><p class="ac-card__desc" style="margin:4px 0 8px">Consumption by temperature and speed for each model, reported by owners.</p><span class="ac-tag">From drivers</span></div>
+      <div class="ac-card soon"><h3 class="ac-card__title">Reminders that run themselves</h3><p class="ac-card__desc" style="margin:4px 0 8px">One calendar feed for TÜV, tyre changes, the THG-Quote deadline and price drops.</p><span class="ac-tag">Calendar feed</span></div>
+    </div>
+  </section>
+
+  <section class="ac-aibar" id="ai" style="padding:20px;gap:14px;margin-bottom:8px">
+    <div style="flex:1 1 360px;min-width:0;display:grid;gap:6px">
+      <span style="font:800 22px/28px var(--font-display);color:var(--ink)">Built for your AI too</span>
+      <span class="ac-aibar__text" style="flex:none">Every tool has a "Copy for AI" button and a link that reproduces your exact view. Assistants can read <code>/tools.json</code> and <code>/llms.txt</code> to find the tools and the data files.</span>
+    </div>
+    <a class="ac-btn ac-btn--ghost" href="/open-data/#ai">How it works</a>
+    <a class="ac-btn ac-btn--ai" href="/tools.json"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>tools.json</a>
+  </section>
+</main>
+
+<!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">More from Allo</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>Family outings and events around you</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>Recalls of baby and kids' products, from official sources</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>A private baby log for parents</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>Settle into life in Germany</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars is a product by <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+</footer>
+<!-- /chrome:footer -->
+</div>
+</div>
+<script>
+(function () {
+  var eur = function (v) { return v == null ? "–" : "€" + v.toFixed(2); };
+  Promise.all([
+    fetch("/data/charging-prices/latest.json").then(function (r) { return r.json(); }),
+    fetch("/data/charging-prices/daily.csv").then(function (r) { return r.ok ? r.text() : ""; }).catch(function () { return ""; })
+  ]).then(function (res) {
+    var j = res[0], o = j.overall || {};
+    document.getElementById("live").innerHTML = '<span class="ac-readout__value">' + eur(o.median) + '<small>/kWh</small></span><span class="ac-readout__basis">Median of ' + (o.tariffs || "all") + " tariffs · cheapest 10 % " + eur(o.p10) + " · dearest 10 % " + eur(o.p90) + "</span>";
+    var when = new Date(j.observed_at);
+    if (!isNaN(when)) document.getElementById("liveasof").textContent = "Median of every published ad-hoc tariff, € per kWh incl. VAT. Collected " + when.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + ".";
+    var rows = res[1].trim().split("\n"), head = rows.shift() || "", k = head.split(",");
+    var pts = rows.map(function (l) { var v = l.split(","), o2 = {}; k.forEach(function (n, i) { o2[n] = v[i]; }); return o2; }).filter(function (r) { return r.source === "ALL"; }).map(function (r) { return +r.median; });
+    if (pts.length < 2) { document.getElementById("spark").style.display = "none"; return; }
+    var lo = Math.min.apply(null, pts) - 0.02, hi = Math.max.apply(null, pts) + 0.02;
+    var d = pts.map(function (v, i) { return (i ? "L" : "M") + (i * 400 / (pts.length - 1)).toFixed(1) + " " + (84 - (v - lo) / (hi - lo) * 78).toFixed(1); }).join(" ");
+    document.getElementById("spark").innerHTML = '<path d="' + d + '" fill="none" stroke="var(--car-2)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>';
+  }).catch(function () {
+    document.getElementById("live").innerHTML = '<span class="ac-readout__value" style="font-size:28px;line-height:32px">See the archive</span><span class="ac-readout__basis">The latest prices could not be loaded just now.</span>';
+    document.getElementById("spark").style.display = "none";
+  });
+})();
+</script>
+</body>
+</html>
