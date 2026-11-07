@@ -125,10 +125,23 @@
     <p>Source: © Kraftfahrt-Bundesamt, Flensburg, under the <a href="https://www.govdata.de/dl-de/by-2-0">Data licence Germany, attribution, version 2.0</a>. When you reuse the data, credit the KBA the same way.</p>
   </section>
 
+  <section class="ac-card" id="vehicle-catalog">
+    <span class="ac-label">Vehicle catalog</span>
+    <h2>Official consumption of every new car model</h2>
+    <p>Every new car registered in the EU is reported with its type-approval (WLTP) figures. The <a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b">European Environment Agency</a> publishes them each year under Regulation (EU) 2019/631. Once a month we turn the newest year into one row per model and fuel type: official kWh per 100 km (electric energy at the plug, so charging losses are included), litres per 100 km, CO2, power and mass, averaged over the versions people actually bought, with how many were registered. The figures are official, not real-world: real driving uses more, most of all on the motorway and in winter.</p>
+    <p>Free to download, no key and no sign-up:</p>
+    <ul>
+      <li><a href="/data/vehicle-catalog/de/models.json"><code>/data/vehicle-catalog/de/models.json</code></a> and <a href="/data/vehicle-catalog/de/models.csv"><code>models.csv</code></a>: every model with at least 20 new registrations in Germany, petrol, diesel, plug-in hybrid and electric</li>
+      <li><a href="/data/vehicle-catalog/de/electric.json"><code>/data/vehicle-catalog/de/electric.json</code></a>: electric models only, compact</li>
+      <li><a href="/data/vehicle-catalog/eu/models.json"><code>/data/vehicle-catalog/eu/models.json</code></a>: the same for all of the EU-27</li>
+    </ul>
+    <p>Licence CC BY 4.0: credit the European Environment Agency. The provisional year can still change until the EEA publishes the final data.</p>
+  </section>
+
   <section class="ac-card">
     <span class="ac-label">Calculators</span>
     <h2>Car consumption figures</h2>
-    <p>The EV charging cost tool starts each car with rough real-world consumption for four ways of driving: efficient, typical, motorway at 120 km/h, and winter. They are our estimates for comparison, not manufacturer figures. Change them to what your trip computer shows. The formula is open: kWh per 100 km × (1 + charging losses) × price per kWh. The code is in <a href="/ev-cost/calc.js?v=744af5d330"><code>/ev-cost/calc.js</code></a>.</p>
+    <p>The EV charging cost tool starts each car with rough real-world consumption for four ways of driving: efficient, typical, motorway at 120 km/h, and winter. They are our estimates for comparison, not manufacturer figures. Every other electric car sold in Germany is in the list too, with the four levels estimated from its official figure (0.9, 1, 1.22 and 1.38 times WLTP, which matches our estimates on average). Change them to what your trip computer shows. The formula is open: kWh per 100 km × (1 + charging losses) × price per kWh. The code is in <a href="/ev-cost/calc.js?v=01f73cec22"><code>/ev-cost/calc.js</code></a>.</p>
   </section>
 
   <section class="ac-card" id="ai">

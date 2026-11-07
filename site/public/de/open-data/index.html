@@ -125,10 +125,23 @@
     <p>Quelle: © Kraftfahrt-Bundesamt, Flensburg, unter der <a href="https://www.govdata.de/dl-de/by-2-0">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>. Wer die Daten weiterverwendet, nennt das KBA genauso.</p>
   </section>
 
+  <section class="ac-card" id="vehicle-catalog">
+    <span class="ac-label">Fahrzeugkatalog</span>
+    <h2>Offizieller Verbrauch jedes Neuwagen-Modells</h2>
+    <p>Jeder in der EU neu zugelassene Wagen wird mit seinen Typgenehmigungswerten (WLTP) gemeldet. Die <a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b">Europäische Umweltagentur</a> veröffentlicht sie jedes Jahr nach Verordnung (EU) 2019/631. Einmal im Monat machen wir aus dem neuesten Jahr eine Zeile pro Modell und Antrieb: offizielle kWh pro 100 km (Strom ab Steckdose, Ladeverluste also inklusive), Liter pro 100 km, CO2, Leistung und Gewicht, gemittelt über die Versionen, die wirklich gekauft wurden, und wie viele zugelassen wurden. Das sind Normwerte, keine Praxiswerte: Im Alltag braucht ein Auto mehr, vor allem auf der Autobahn und im Winter.</p>
+    <p>Kostenlos, ohne Schlüssel und ohne Anmeldung:</p>
+    <ul>
+      <li><a href="/data/vehicle-catalog/de/models.json"><code>/data/vehicle-catalog/de/models.json</code></a> und <a href="/data/vehicle-catalog/de/models.csv"><code>models.csv</code></a>: jedes Modell mit mindestens 20 Neuzulassungen in Deutschland, Benzin, Diesel, Plug-in-Hybrid und elektrisch</li>
+      <li><a href="/data/vehicle-catalog/de/electric.json"><code>/data/vehicle-catalog/de/electric.json</code></a>: nur Elektroautos, kompakt</li>
+      <li><a href="/data/vehicle-catalog/eu/models.json"><code>/data/vehicle-catalog/eu/models.json</code></a>: dasselbe für die ganze EU-27</li>
+    </ul>
+    <p>Lizenz CC BY 4.0: Quelle Europäische Umweltagentur nennen. Das vorläufige Jahr kann sich noch ändern, bis die EEA die endgültigen Daten veröffentlicht.</p>
+  </section>
+
   <section class="ac-card">
     <span class="ac-label">Rechner</span>
     <h2>Verbrauchswerte der Autos</h2>
-    <p>Der Ladekosten-Rechner startet jedes Auto mit groben Praxisverbräuchen für vier Fahrweisen: sparsam, normal, Autobahn mit 120 km/h und Winter. Das sind unsere Schätzungen zum Vergleich, keine Herstellerangaben. Trag ein, was dein Bordcomputer zeigt. Die Formel ist offen: kWh pro 100 km × (1 + Ladeverluste) × Preis pro kWh. Der Code steht in <a href="/ev-cost/calc.js?v=744af5d330"><code>/ev-cost/calc.js</code></a>.</p>
+    <p>Der Ladekosten-Rechner startet jedes Auto mit groben Praxisverbräuchen für vier Fahrweisen: sparsam, normal, Autobahn mit 120 km/h und Winter. Das sind unsere Schätzungen zum Vergleich, keine Herstellerangaben. Alle anderen in Deutschland verkauften Elektroautos stehen auch in der Liste, mit vier Fahrweisen geschätzt aus dem offiziellen Wert (das 0,9-, 1-, 1,22- und 1,38-Fache des WLTP-Werts, was im Mittel zu unseren Schätzungen passt). Trag ein, was dein Bordcomputer zeigt. Die Formel ist offen: kWh pro 100 km × (1 + Ladeverluste) × Preis pro kWh. Der Code steht in <a href="/ev-cost/calc.js?v=01f73cec22"><code>/ev-cost/calc.js</code></a>.</p>
   </section>
 
   <section class="ac-card" id="ai">

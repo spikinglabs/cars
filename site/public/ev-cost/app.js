@@ -38,6 +38,11 @@
     fuelSourceLive: function (when) { return 'Spritpreise: Wochendurchschnitt für Deutschland aus dem <a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">Weekly Oil Bulletin</a> der Europäischen Kommission (CC BY 4.0), Woche vom ' + when + ". Super = Euro-Super 95."; },
     chargeSource: function (n, when) { return ' Öffentliche Ladepreise: Median von ' + n + ' Ad-hoc-Tarifen aus dem <a href="/de/charging-prices/">Preisarchiv</a>, ' + when + "."; },
     month: function (ym) { var p = ym.split("-"); return ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"][+p[1] - 1] + " " + p[0]; },
+    quick: "Mit Praxiswerten", allCars: function (n) { return "Alle " + n + " Elektroautos, aus dem offiziellen Verbrauch"; },
+    official: function (kwh, range, n, year) { return "Offizieller WLTP-Verbrauch: " + kwh + " kWh/100 km ab Steckdose" + (range ? " (Versionen " + range + ")" : "") + ". " + n + " Neuzulassungen in Deutschland " + year + "."; },
+    officialOnly: " Die vier Fahrweisen sind daraus geschätzt.",
+    officialIn: "Offizieller Verbrauch (WLTP, ab Steckdose)",
+    officialOut: function (kwh, year) { return kwh + " kWh/100 km (EEA, Neuwagen " + year + ")"; },
     locale: "de-DE"
   } : {
     levels: E.LEVELS, hints: E.LEVEL_HINTS,
@@ -71,6 +76,11 @@
     fuelSourceLive: function (when) { return 'Fuel prices: German weekly average from the European Commission <a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">Weekly Oil Bulletin</a> (CC BY 4.0), week of ' + when + ". Petrol = Euro-super 95."; },
     chargeSource: function (n, when) { return ' Public charging prices: median of ' + n + ' ad-hoc tariffs from the <a href="/charging-prices/">price archive</a>, ' + when + "."; },
     month: function (ym) { var p = ym.split("-"); return ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][+p[1] - 1] + " " + p[0]; },
+    quick: "With real-world estimates", allCars: function (n) { return "All " + n + " electric cars, from official figures"; },
+    official: function (kwh, range, n, year) { return "Official WLTP figure: " + kwh + " kWh/100 km at the plug" + (range ? " (versions " + range + ")" : "") + ". " + n + " registered new in Germany in " + year + "."; },
+    officialOnly: " The four driving levels are estimated from it.",
+    officialIn: "Official consumption (WLTP, at the plug)",
+    officialOut: function (kwh, year) { return kwh + " kWh/100 km (EEA, new cars " + year + ")"; },
     locale: "en-GB"
   };
   var $ = function (id) { return document.getElementById(id); };
@@ -78,6 +88,7 @@
   var HOME = 0.35;
   var live = null;     // public charging prices, if the data file loads
   var liveFuel = null; // daily fuel prices, if the data file loads
+  var official = null; // official consumption per electric model, if the catalog loads: { byId, byName, year, list }
   var nameOf = function (r) { return r.own ? T.own : r.name; };
 
   /* ---------- state in the URL, and on this device ---------- */
@@ -96,7 +107,7 @@
     var num = function (k, max) { var v = parseFloat(q.get(k)); return isFinite(v) && v >= 0 && v <= max ? v : null; };
     if (q.get("car")) s.car = q.get("car").slice(0, 60);
     var lv = q.get("lv") ? q.get("lv").split(",").map(parseFloat) : null;
-    if (lv && lv.length === 4 && lv.every(function (v) { return isFinite(v) && v > 0 && v < 100; })) s.lv = lv;
+    if (lv && lv.length === 4 && lv.every(function (v) { return isFinite(v) && v > 0 && v < 100; })) { s.lv = lv; s.lvSet = true; }
     else if (E.findCar(s.car)) s.lv = E.findCar(s.car).slice(1);
     var u = num("use", 3); if (u != null) s.use = Math.round(u);
     [["p", 3], ["loss", 50], ["petrol", 5], ["diesel", 5]].forEach(function (k) { var v = num(k[0], k[1]); if (v != null) s[k[0]] = v; });
@@ -132,14 +143,43 @@
 
   /* ---------- 1. your car ---------- */
   var carSel = $("car");
-  carSel.innerHTML = E.CATALOG.map(function (c) { return '<option value="' + A.esc(c[0]) + '">' + A.esc(c[0]) + "</option>"; }).join("") +
-    (E.findCar(S.car) ? "" : '<option value="' + A.esc(S.car) + '">' + A.esc(S.car) + "</option>");
-  carSel.value = S.car;
+  // Built-in cars come with hand-made real-world estimates. Once the official catalog loads, every other
+  // electric car registered in Germany joins the list, with levels estimated from its WLTP figure.
+  function officialFor(name) {
+    if (!official) return null;
+    return official.byId[E.OFFICIAL_IDS[name]] || official.byName[name] || null;
+  }
+  function drawCars() {
+    var opt = function (n) { return '<option value="' + A.esc(n) + '">' + A.esc(n) + "</option>"; };
+    var quick = E.CATALOG.map(function (c) { return c[0]; });
+    var rest = official ? official.list.filter(function (m) { return !official.builtin[m.id]; }).map(function (m) { return m.name; }) : [];
+    var known = quick.indexOf(S.car) >= 0 || rest.indexOf(S.car) >= 0;
+    carSel.innerHTML = rest.length
+      ? '<optgroup label="' + A.esc(T.quick) + '">' + quick.map(opt).join("") + "</optgroup>" +
+        '<optgroup label="' + A.esc(T.allCars(rest.length)) + '">' + rest.map(opt).join("") + "</optgroup>" + (known ? "" : opt(S.car))
+      : quick.map(opt).join("") + (known ? "" : opt(S.car));
+    carSel.value = S.car;
+    drawOfficial();
+  }
+  function drawOfficial() {
+    var el = $("official"), o = officialFor(S.car);
+    if (!o) { el.hidden = true; return; }
+    var range = o.min != null && o.max != null && o.max - o.min >= 0.2 ? T.range(A.num(o.min), A.num(o.max)) : "";
+    el.textContent = T.official(A.num(o.kwh), range, o.n.toLocaleString(T.locale), official.year) + (E.findCar(S.car) ? "" : T.officialOnly);
+    el.hidden = false;
+  }
+  function setCar(name, keepLevels) {
+    var c = E.findCar(name), o = officialFor(name);
+    S.car = name;
+    if (!keepLevels) {
+      if (c) S.lv = c.slice(1);
+      else if (o) S.lv = E.levelsFromOfficial(o.kwh);
+    }
+  }
+  drawCars();
   carSel.addEventListener("change", function () {
-    var c = E.findCar(carSel.value);
-    S.car = carSel.value;
-    if (c) S.lv = c.slice(1);
-    drawUse(); drawLevels(); update();
+    setCar(carSel.value); S.lvSet = false;
+    drawOfficial(); drawUse(); drawLevels(); update();
   });
 
   function drawUse() {
@@ -415,6 +455,8 @@
   function summary() {
     var inputs = {};
     inputs[T.in.car] = S.car;
+    var o = officialFor(S.car);
+    if (o) inputs[T.officialIn] = T.officialOut(A.num(o.kwh), official.year);
     inputs[T.in.cons] = T.levels.map(function (n, i) { return n + " " + A.num(S.lv[i]); }).join(", ");
     inputs[T.in.use] = T.levels[S.use];
     inputs[T.in.price] = eur(S.p) + "/kWh";
@@ -451,6 +493,23 @@
     if (!o || o.median == null) return;
     live = { median: o.median, p10: o.p10, p90: o.p90, n: o.tariffs || "", when: fmtDate(j.observed_at) };
     sources(); update();
+  }).catch(function () {});
+
+  // Official consumption of every electric model registered in Germany (EEA CO2 monitoring of new cars).
+  fetch(AlloSite.data("vehicle-catalog", "electric.json")).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    if (!j || !Array.isArray(j.models) || !j.models.length) return;
+    var o = { byId: {}, byName: {}, builtin: {}, year: j.year, list: [] };
+    j.models.forEach(function (m) {
+      var e = { id: m[0], name: m[1], kwh: m[2], min: m[3], max: m[4], n: m[5] };
+      if (!(e.kwh > 3 && e.kwh < 60)) return;
+      o.byId[e.id] = e; o.byName[e.name] = e; o.list.push(e);
+    });
+    Object.keys(E.OFFICIAL_IDS).forEach(function (n) { o.builtin[E.OFFICIAL_IDS[n]] = true; });
+    o.list.sort(function (a, b) { return a.name.localeCompare(b.name, T.locale); });
+    official = o;
+    // a link to a car that only the catalog knows gets its levels now, unless the link set them
+    if (!E.findCar(S.car) && o.byName[S.car] && !S.lvSet) { setCar(S.car); drawUse(); drawLevels(); }
+    drawCars(); update();
   }).catch(function () {});
 
   // Live pump prices (EU Weekly Oil Bulletin, national weekly average incl. taxes), when the fuel
