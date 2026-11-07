@@ -17,7 +17,8 @@
   /* ---------- country ---------- */
   // The regions people can pick come from /regions.json, written into every page head by
   // site/chrome/apply.py. The choice is ?country=<code> in the link, else the one saved on this
-  // device, else the default. Tools ask AlloCars.data() for data URLs, so they follow the choice.
+  // device, else the default. Tools ask AlloSite.data() for data URLs, so they follow the choice.
+  // (AlloSite, not AlloCars: the component bundle owns window.AlloCars.)
   var REGION_KEY = "allo-cars-country";
   var R = window.__acRegions || { default: "de", regions: [{ code: "de", name: { en: "Germany", de: "Deutschland" }, currency: "EUR", locale: "de-DE" }] };
   var known = function (c) { return R.regions.some(function (r) { return r.code === c; }); };
@@ -25,11 +26,11 @@
   if (known(asked)) local(REGION_KEY, asked);
   var region = known(asked) ? asked : known(local(REGION_KEY)) ? local(REGION_KEY) : R.default;
   root.setAttribute("data-country", region);
-  window.AlloCars = {
+  window.AlloSite = {
     region: region,
     regions: R.regions,
     info: function () { return R.regions.filter(function (r) { return r.code === region; })[0]; },
-    // AlloCars.data("charging-prices", "latest.json") -> "/data/charging-prices/de/latest.json"
+    // AlloSite.data("charging-prices", "latest.json") -> "/data/charging-prices/de/latest.json"
     data: function (dataset, file) { return "/data/" + dataset + "/" + region + "/" + file; }
   };
   document.addEventListener("change", function (e) {

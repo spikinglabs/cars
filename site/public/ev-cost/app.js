@@ -372,7 +372,7 @@
   drawUse(); drawLevels(); drawRefs(); drawOwnFuel(); sources(); update();
 
   // Live public charging prices from the price archive; the page works without them.
-  fetch("/data/charging-prices/latest.json").then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+  fetch(AlloSite.data("charging-prices", "latest.json")).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
     var o = j && j.overall;
     if (!o || o.median == null) return;
     live = { median: o.median, p10: o.p10, p90: o.p90, n: o.tariffs || "", when: fmtDate(j.observed_at) };
@@ -381,7 +381,7 @@
 
   // Live pump prices (EU Weekly Oil Bulletin, national weekly average incl. taxes), when the fuel
   // collector has published them; otherwise the ADAC monthly average from calc.js stays.
-  fetch("/data/fuel-prices/latest.json").then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+  fetch(AlloSite.data("fuel-prices", "latest.json")).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
     var pr = j && j.products || {};
     var pick = function (k) { var v = pr[k] && pr[k].eur_per_litre; return v > 0.5 && v < 5 ? v : null; };
     var petrol = pick("euro_super_95"), dsl = pick("diesel");
