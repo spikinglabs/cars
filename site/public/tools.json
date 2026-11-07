@@ -23,6 +23,27 @@
         "sources": "https://cars.allo.land/data/charging-prices/sources.json"
       },
       "url_de": "https://cars.allo.land/de/charging-prices/"
+    },
+    {
+      "name": "car_recalls",
+      "title": "Car recalls",
+      "url": "https://cars.allo.land/recalls/",
+      "description": "Official recalls per car model and brand: EU Safety Gate motor vehicle alerts since 2019 (Germany's KBA reports every German vehicle recall there) and US NHTSA campaigns for the same models. Updated daily. Open a model with ?model=<slug>, a brand with ?brand=<slug>.",
+      "parameters": {
+        "model": "slug from https://cars.allo.land/data/recalls/eu/models.json, e.g. volvo-ex30",
+        "brand": "slug from https://cars.allo.land/data/recalls/eu/brands.json, e.g. volkswagen"
+      },
+      "data": {
+        "latest": "https://cars.allo.land/data/recalls/eu/latest.json",
+        "models": "https://cars.allo.land/data/recalls/eu/models.json",
+        "model": "https://cars.allo.land/data/recalls/eu/models/<slug>.json",
+        "brands": "https://cars.allo.land/data/recalls/eu/brands.json",
+        "brand": "https://cars.allo.land/data/recalls/eu/brand/<slug>.json",
+        "recent": "https://cars.allo.land/data/recalls/eu/recent.json",
+        "all": "https://cars.allo.land/data/recalls/eu/recalls.csv",
+        "us_model": "https://cars.allo.land/data/recalls/us/models/<slug>.json"
+      },
+      "url_de": "https://cars.allo.land/de/recalls/"
     }
   ],
   "regions": "https://cars.allo.land/regions.json",

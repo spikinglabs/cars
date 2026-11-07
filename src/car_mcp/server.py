@@ -19,7 +19,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
-from . import db
+from . import db, recalls
 from .garage import Garage, GarageError
 from .sample import load_sample_data
 
@@ -40,10 +40,12 @@ Guidance:
   export_dashboard_html and present the returned HTML as an artifact, or build your own chart from get_chart_data.
 - Money is in the configured currency (see get_settings). Distances use the configured unit.
 - If the logbook is empty and the user just wants to try things out, offer load_demo_data.
+- For "is my car recalled?" call get_recalls (official EU and US recalls, needs internet).
 """
 
 READ = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 WRITE = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False)
+WEB = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=True)
 DELETE = ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=True, openWorldHint=False)
 
 VehicleArg = Annotated[str | None, Field(description="Vehicle name or id. Optional when only one vehicle exists.")]
@@ -249,6 +251,24 @@ def build_server(db_path: str | Path | None = None) -> MCPServer:
         if include_html:
             res["html"] = html
         return res
+
+    @mcp.tool(annotations=WEB)
+    def get_recalls(
+        vehicle: VehicleArg = None,
+        model: Annotated[str | None, Field(description="Make and model, e.g. 'Volvo EX30', or a brand. Overrides vehicle.")] = None,
+        limit: int = 10,
+    ) -> dict[str, Any]:
+        """Official recalls for a car model (or a whole brand): EU Safety Gate alerts since 2019, which include every
+        German KBA recall, and US NHTSA campaigns. Uses the vehicle's make and model from the logbook when no model
+        is given. Data from cars.allo.land, refreshed daily."""
+        text = model
+        if not text:
+            v = run(garage.get_vehicle, vehicle)
+            text = " ".join(str(v.get(k) or "") for k in ("make", "model")).strip() or v["name"]
+        try:
+            return recalls.lookup(text, limit)
+        except OSError as e:
+            raise ToolError(f"Could not reach cars.allo.land: {e}") from e
 
     @mcp.tool(annotations=WRITE)
     def load_demo_data() -> dict[str, Any]:

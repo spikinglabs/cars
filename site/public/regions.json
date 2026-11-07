@@ -27,7 +27,8 @@
       },
       "currency": "EUR",
       "datasets": [
-        "fuel-prices"
+        "fuel-prices",
+        "recalls"
       ]
     },
     {
@@ -406,6 +407,19 @@
       "locale": "sk-SK",
       "datasets": [
         "fuel-prices"
+      ]
+    },
+    {
+      "code": "us",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "United States",
+        "de": "Vereinigte Staaten"
+      },
+      "currency": "USD",
+      "datasets": [
+        "recalls"
       ]
     }
   ]
