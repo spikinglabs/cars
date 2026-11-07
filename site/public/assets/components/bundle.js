@@ -3,19 +3,22 @@
 (function () {
   "use strict";
   var NS = "http://www.w3.org/2000/svg";
+  /* Pages say their language on <html lang>: German pages get German number formats and words. */
+  var DE = document.documentElement.lang === "de";
+  var WORDS = DE ? { inputs: "Eingaben", results: "Ergebnisse", link: "Link", copied: "Kopiert" } : { inputs: "Inputs", results: "Results", link: "Link", copied: "Copied" };
 
   function money(x, opts) {
     opts = opts || {};
     if (x == null || isNaN(x)) return "–";
     var d = opts.digits != null ? opts.digits : Math.abs(x) >= 100 ? 0 : 2;
     try {
-      return new Intl.NumberFormat(opts.locale || "en-DE", { style: "currency", currency: opts.currency || "EUR", minimumFractionDigits: d, maximumFractionDigits: d }).format(x);
+      return new Intl.NumberFormat(opts.locale || (DE ? "de-DE" : "en-DE"), { style: "currency", currency: opts.currency || "EUR", minimumFractionDigits: d, maximumFractionDigits: d }).format(x);
     } catch (e) { return x.toFixed(d) + " " + (opts.currency || "EUR"); }
   }
   function num(x, d) {
     if (x == null || isNaN(x)) return "–";
     d = d == null ? 1 : d;
-    return Number(x).toLocaleString("en-GB", { minimumFractionDigits: d, maximumFractionDigits: d });
+    return Number(x).toLocaleString(DE ? "de-DE" : "en-GB", { minimumFractionDigits: d, maximumFractionDigits: d });
   }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
@@ -43,15 +46,15 @@
 
   /* A short plain-text block a person can paste into any assistant. */
   function aiSummary(title, inputs, results) {
-    var lines = [title, "", "Inputs:"];
+    var lines = [title, "", WORDS.inputs + ":"];
     Object.keys(inputs).forEach(function (k) { lines.push("- " + k + ": " + inputs[k]); });
-    lines.push("", "Results:");
+    lines.push("", WORDS.results + ":");
     Object.keys(results).forEach(function (k) { lines.push("- " + k + ": " + results[k]); });
-    lines.push("", "Link: " + location.href);
+    lines.push("", WORDS.link + ": " + location.href);
     return lines.join("\n");
   }
   function copy(text, btn) {
-    var done = function () { if (btn) { var t = btn.textContent; btn.textContent = "Copied"; setTimeout(function () { btn.textContent = t; }, 1400); } };
+    var done = function () { if (btn) { var t = btn.textContent; btn.textContent = WORDS.copied; setTimeout(function () { btn.textContent = t; }, 1400); } };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () {});
   }
 
@@ -118,5 +121,5 @@
     return consumptionKwh * (1 + (lossesPct || 0) / 100) * pricePerKwh;
   }
 
-  window.AlloCars = { money: money, num: num, esc: esc, readState: readState, writeState: writeState, aiSummary: aiSummary, copy: copy, lineChart: lineChart, costPer100km: costPer100km };
+  window.AlloCars = { lang: DE ? "de" : "en", money: money, num: num, esc: esc, readState: readState, writeState: writeState, aiSummary: aiSummary, copy: copy, lineChart: lineChart, costPer100km: costPer100km };
 })();

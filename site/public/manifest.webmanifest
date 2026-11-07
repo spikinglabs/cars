@@ -1,0 +1,28 @@
+{
+ "id": "/",
+ "name": "Allo Cars",
+ "short_name": "Allo Cars",
+ "description": "Car tools and open data for Germany: what 100 km costs in your EV, and public charging prices over time.",
+ "lang": "en",
+ "start_url": "/",
+ "scope": "/",
+ "display": "standalone",
+ "background_color": "#f6f5f2",
+ "theme_color": "#ffcc00",
+ "categories": ["utilities", "travel", "navigation"],
+ "icons": [
+  { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+  { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+  { "src": "/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+  { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+  { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+ ],
+ "related_applications": [
+  { "platform": "webapp", "url": "https://cars.allo.land/manifest.webmanifest" },
+  { "platform": "webapp", "url": "https://cars.allo.land/de/manifest.webmanifest" }
+ ],
+ "shortcuts": [
+  { "name": "Charging cost", "url": "/ev-cost/", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+  { "name": "Price archive", "url": "/charging-prices/", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+ ]
+}

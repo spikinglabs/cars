@@ -1,14 +1,94 @@
-/* Allo Cars site behaviour shared by every page: the light/dark switch. */
+/* Allo Cars site behaviour shared by every page: the light/dark switch and installing the site as an app. */
 (function () {
   "use strict";
   var KEY = "allo-cars-theme", root = document.documentElement;
-  try { var saved = localStorage.getItem(KEY); if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved); } catch (e) {}
+  var de = root.lang === "de";
+  var T = de ? {
+    hintIos: "Teilen antippen, dann „Zum Home-Bildschirm“, um Allo Cars wie eine App zu nutzen.",
+    menu: "Im Browser-Menü „App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.",
+    installed: "Allo Cars ist auf diesem Gerät schon installiert. Öffne es über den Startbildschirm oder die App-Liste."
+  } : {
+    hintIos: "Tap Share, then “Add to Home Screen”, to use Allo Cars like an app.",
+    menu: "In your browser menu, choose “Install app” or “Add to Home screen”.",
+    installed: "Allo Cars is already installed on this device. Open it from your home screen or app list."
+  };
+  var local = function (k, v) { try { return v === undefined ? localStorage.getItem(k) : (localStorage.setItem(k, v), v); } catch (e) { return null; } };
+
+  /* ---------- light or dark ---------- */
+  var saved = local(KEY);
+  if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("[data-theme-flip]");
     if (!b) return;
     var dark = root.getAttribute("data-theme") ? root.getAttribute("data-theme") === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     var next = dark ? "light" : "dark";
     root.setAttribute("data-theme", next);
-    try { localStorage.setItem(KEY, next); } catch (e2) {}
+    local(KEY, next);
+  });
+
+  /* ---------- install as an app ---------- */
+  // The service worker makes the site installable and keeps pages you opened readable offline.
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var $ = function (s) { return document.querySelector(s); };
+    var standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+    var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    var box = $("[data-install]"), btn = $("[data-install-btn]"), how = $("[data-install-how]");
+    var hint = $("[data-app-hint]"), hintGo = $("[data-app-hint-go]");
+    var prompt = null;
+
+    // On phones, a quiet line under the header says the site works as an app. It waits until the
+    // second page you open, and once dismissed (or installed) it stays away on this device.
+    var HINT = "allo-cars-app-hint";
+    var phone = matchMedia("(pointer: coarse) and (max-width: 899px)").matches;
+    var views = Number(local(HINT) || 0);
+    var wanted = phone && !standalone && local(HINT) !== "off" && !isNaN(views);
+    if (wanted) local(HINT, String(views + 1));
+    var closeHint = function () { if (hint) hint.hidden = true; local(HINT, "off"); };
+    if (hint && wanted && views >= 1) {
+      if (ios) $("[data-app-hint-text]").textContent = T.hintIos;
+      hint.hidden = false;
+    }
+    if (hint) hint.querySelector("[data-app-hint-x]").addEventListener("click", closeHint);
+
+    // Chrome, Edge and Android offer an install dialog we can open from our own buttons. The early
+    // listener in the page head keeps the offer, because Chrome may make it before this runs.
+    var take = function () { prompt = window.__acInstall || prompt; window.__acInstall = null; if (prompt && hintGo) hintGo.hidden = false; };
+    var install = function () {
+      if (!prompt) return;
+      var ev = prompt; prompt = null;
+      ev.prompt();
+      ev.userChoice.then(function (c) {
+        if (hintGo) hintGo.hidden = true;
+        if (c && c.outcome === "accepted") { closeHint(); if (box) box.hidden = true; }
+      }, function () {});
+    };
+    take();
+    addEventListener("ac:installable", take);
+    if (hintGo) hintGo.addEventListener("click", install);
+
+    // The footer button is always there outside the installed app, even after the hint was dismissed.
+    // Where the browser has no install dialog (Safari, Firefox), it says how instead.
+    var say = function (text) { if (how) { how.textContent = text; how.hidden = false; } };
+    if (!standalone && box) box.hidden = false;
+    if (btn) btn.addEventListener("click", function () {
+      var go = function () { if (prompt) install(); else say(ios ? T.hintIos : T.menu); };
+      if (prompt || ios) return go();
+      var t = setTimeout(go, 1500);
+      addEventListener("ac:installable", function () { clearTimeout(t); go(); }, { once: true });
+    });
+    // Chrome makes no install offer while the app is already installed: say so, and where to open it.
+    if (!standalone && navigator.getInstalledRelatedApps) {
+      navigator.getInstalledRelatedApps().then(function (apps) {
+        if (!apps.length) return;
+        closeHint();
+        if (btn) btn.hidden = true;
+        say(T.installed);
+      }).catch(function () {});
+    }
+    addEventListener("appinstalled", function () { if (box) box.hidden = true; closeHint(); });
   });
 })();
