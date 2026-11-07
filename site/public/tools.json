@@ -49,12 +49,15 @@
       "name": "cheapest_charging_time",
       "title": "Cheapest time to charge",
       "url": "https://cars.allo.land/charge-times/",
-      "description": "Cheapest 1 to 8 hour window to charge at home in Germany today and tomorrow, from day-ahead exchange prices (SMARD), as an estimated dynamic tariff price. Link parameters: day=0 (today) or 1 (tomorrow), h=hours (1,2,3,4,6,8), addon=EUR/kWh before VAT on top of the exchange price, kwh=energy added.",
+      "description": "Cheapest 1 to 8 hour window to charge at home in Germany today and tomorrow, from day-ahead exchange prices (SMARD). Timing only saves money on a dynamic tariff; on a fixed price every hour costs the same. Link parameters: day=0 (today) or 1 (tomorrow), h=hours (1,2,3,4,6,8), kwh=energy added, tariff=dynamic|fixed, grid=grid fee, levies and taxes in EUR/kWh before VAT, markup=supplier markup in EUR/kWh before VAT, fixed=fixed price in EUR/kWh incl. VAT.",
       "parameters": {
         "day": "0 or 1",
         "h": "1, 2, 3, 4, 6 or 8",
-        "addon": "EUR/kWh before VAT, default 0.18",
-        "kwh": "kWh added, default 30"
+        "kwh": "kWh added, default 30",
+        "tariff": "dynamic (default) or fixed",
+        "grid": "EUR/kWh before VAT, default 0.14",
+        "markup": "EUR/kWh before VAT, default 0.04",
+        "fixed": "EUR/kWh incl. VAT, default 0.35"
       },
       "data": {
         "latest": "https://cars.allo.land/data/electricity-prices/de/latest.json",
