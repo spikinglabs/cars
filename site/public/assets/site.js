@@ -139,4 +139,26 @@
     }
     addEventListener("appinstalled", function () { if (box) box.hidden = true; closeHint(); });
   });
+
+  /* ---------- "More" sheet on phones ---------- */
+  // The sheet is a native popover, so the browser opens and closes it. This closes it after a tap on a
+  // link to the page already shown (e.g. #ai on the data page), and opens it in browsers without popover.
+  document.addEventListener("DOMContentLoaded", function () {
+    var sheet = document.getElementById("ac-more");
+    if (!sheet) return;
+    var native = typeof sheet.showPopover === "function";
+    var btn = document.querySelector("[data-more-btn]");
+    var sync = function (open) { if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false"); };
+    var hide = function () { if (native) { try { sheet.hidePopover(); } catch (e) {} } else { sheet.classList.remove("is-open"); sync(false); } };
+    sync(false);
+    if (native) sheet.addEventListener("toggle", function (e) { sync(e.newState === "open"); });
+    sheet.addEventListener("click", function (e) { if (e.target.closest && e.target.closest("a")) hide(); });
+    if (native) return;
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest && e.target.closest("[popovertarget='ac-more']");
+      if (t) { var open = !sheet.classList.contains("is-open") && !t.hasAttribute("data-more-close"); sheet.classList.toggle("is-open", open); sync(open); }
+      else if (sheet.classList.contains("is-open") && !sheet.contains(e.target)) hide();
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") hide(); });
+  });
 })();

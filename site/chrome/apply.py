@@ -113,7 +113,11 @@ def render(part: str, url: str) -> str:
         home = "/de/" if lang == "de" else "/"
         cur = home if not segs else f"{home}{segs[0]}/"
         # mark the current section in the top nav and the bottom tabs
-        html = re.sub(rf'(<a href="{re.escape(cur)}")(\s+data-tab)', r'\1 aria-current="page"\2', html)
+        html, on_tab = re.subn(rf'(<a href="{re.escape(cur)}")(\s+data-tab)', r'\1 aria-current="page"\2', html)
+        # pages without a tab of their own live in the "More" sheet: mark them there and light up "More"
+        html, in_sheet = re.subn(rf'(<a href="{re.escape(cur)}")(\s+data-more)', r'\1 aria-current="page"\2', html)
+        if in_sheet and not on_tab:
+            html = html.replace("data-more-btn>", "data-more-btn data-current>", 1)
         if part == "header":
             html = html.replace(f'<a href="{cur}">', f'<a href="{cur}" aria-current="page">', 1)
     return html
