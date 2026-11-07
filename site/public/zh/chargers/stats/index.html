@@ -24,7 +24,7 @@
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
-<link rel="stylesheet" href="/chargers/stats/stats.css?v=8763c6f1cb">
+<link rel="stylesheet" href="/chargers/stats/stats.css?v=5001b2bf41">
 <script src="/assets/site.js?v=4d5b1b5049"></script>
 </head>
 <body>
@@ -61,6 +61,19 @@
     <p class="crumbs"><a href="/zh/chargers/">← 充电桩地图</a></p>
 
     <div class="stack">
+      <section class="ac-card" id="ranking">
+        <h2 class="ac-card__title">哪里的充电桩最多？</h2>
+        <p class="ac-card__desc" id="rankdesc"></p>
+        <div class="rank-controls">
+          <div class="ac-seg" id="rank" role="group" aria-label="地区"></div>
+          <div class="ac-seg" id="by" role="group" aria-label="排序依据"></div>
+          <label class="rank-filter"><span class="ac-param__label">在排名中查找</span><input id="q" type="search" autocomplete="off"></label>
+        </div>
+        <div class="ac-table-wrap rank-wrap" id="table"></div>
+        <p class="ac-caption rank-count" id="rankcount"></p>
+        <p class="ac-caption" id="bevnote"></p>
+      </section>
+
       <section class="ac-card picker" id="picker">
         <h2 class="ac-card__title" id="pk-title"></h2>
         <p class="ac-card__desc" id="pk-desc"></p>
@@ -77,19 +90,6 @@
         <div class="ac-readouts" id="readouts">
           <div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">加载中</div></div>
         </div>
-      </section>
-
-      <section class="ac-card" id="ranking">
-        <h2 class="ac-card__title">哪里的充电桩最多？</h2>
-        <p class="ac-card__desc" id="rankdesc"></p>
-        <div class="rank-controls">
-          <div class="ac-seg" id="rank" role="group" aria-label="地区"></div>
-          <div class="ac-seg" id="by" role="group" aria-label="排序依据"></div>
-          <label class="rank-filter"><span class="ac-param__label">筛选</span><input id="q" type="search" autocomplete="off"></label>
-        </div>
-        <div class="ac-table-wrap" id="table"></div>
-        <p><button type="button" class="ac-btn ac-btn--ghost" id="more" hidden></button></p>
-        <p class="ac-caption" id="bevnote"></p>
       </section>
 
       <section class="ac-card">
@@ -179,6 +179,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/chargers/stats/app.js?v=8ed69ca594"></script>
+<script src="/chargers/stats/app.js?v=197e97acff"></script>
 </body>
 </html>

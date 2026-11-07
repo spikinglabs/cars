@@ -63,3 +63,8 @@ h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -
 .addarea { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .addarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .rank tr.is-mine td { background: var(--gold-bg); }
+.rank-wrap { max-height: 560px; overflow: auto; border-bottom: 1px solid var(--border); }
+.rank-wrap thead th { position: sticky; top: 0; background: var(--surface-100, var(--surface-50)); z-index: 1; }
+.rank-count { margin: 6px 0 0; }
+.rank td, .rank th { padding: 8px 8px; }
+.rank th { white-space: normal; vertical-align: bottom; }

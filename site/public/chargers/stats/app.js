@@ -40,7 +40,7 @@
     bevNote: "电动车 = 纯电动乘用车（KBA 车辆保有量，1 月 1 日）。只有县级市和县才有电动车数据。",
     filter: "筛选", filterPh: "例如 Köln", showAll: (n) => `显示全部 ${n} 个`, showLess: "收起", noMatch: "没有匹配的地区。",
     ops: (n) => `${n} 个快充`, people: (n) => `${n} 居民`,
-    pkTitle: "选择城市或地区", pkDesc: "选择一个或多个城市、县或联邦州，下方所有数字都会只统计它们（合计）。不选则显示全德国。",
+    pkTitle: "查看城市详情", pkDesc: "上面的排名始终包含所有地区。在这里选择一个或多个城市、县或联邦州，下方的详情（功率、插头、增长、运营商）就只统计它们（合计）。不选则显示全德国。", count: (n, all) => n === all ? `共 ${all} 个` : `${all} 个中的 ${n} 个`,
     pkPh: "输入城市、县或州名", pkNone: "没有找到这个地方。只列出 5 万居民以上的城市；更小的地方请选择所在的县。",
     kind: { town: "城市", district: "县", state: "联邦州" }, remove: (n) => `移除 ${n}`, clear: "清除全部",
     scopeAll: "全德国", together: "合计", germany: "德国", add: (n) => `把 ${n} 加入选择`,
@@ -71,7 +71,7 @@
     bevNote: "E-Autos = reine Elektro-Pkw (KBA-Bestand am 1. Januar). E-Autos gibt es nur je Kreis, daher bei Städten nur für kreisfreie Städte.",
     filter: "Filtern", filterPh: "z. B. Köln", showAll: (n) => `Alle ${n} zeigen`, showLess: "Weniger zeigen", noMatch: "Kein passendes Gebiet.",
     ops: (n) => `${n} Schnelllader`, people: (n) => `${n} Einwohner`,
-    pkTitle: "Städte oder Gebiete wählen", pkDesc: "Wähle eine oder mehrere Städte, Kreise oder Bundesländer: Alle Zahlen unten gelten dann nur für sie, zusammengerechnet. Leer lassen für ganz Deutschland.",
+    pkTitle: "Details für deine Städte", pkDesc: "Das Ranking oben zeigt immer alle Gebiete. Wähle hier eine oder mehrere Städte, Kreise oder Bundesländer, dann gelten die Details darunter (Leistung, Stecker, Ausbau, Betreiber) nur für sie, zusammengerechnet. Leer lassen für ganz Deutschland.", count: (n, all) => n === all ? `alle ${all}` : `${n} von ${all}`,
     pkPh: "Stadt, Kreis oder Land eingeben", pkNone: "Nicht gefunden. Städte gibt es ab 50.000 Einwohnern; für kleinere Orte den Kreis wählen.",
     kind: { town: "Stadt", district: "Kreis", state: "Land" }, remove: (n) => `${n} entfernen`, clear: "Alle entfernen",
     scopeAll: "Ganz Deutschland", together: "Zusammen", germany: "Deutschland", add: (n) => `${n} zur Auswahl hinzufügen`,
@@ -102,7 +102,7 @@
     bevNote: "EVs = battery electric cars (KBA stock on 1 January). Car figures exist per district only, so among cities only for cities that are their own district.",
     filter: "Filter", filterPh: "e.g. Köln", showAll: (n) => `Show all ${n}`, showLess: "Show fewer", noMatch: "No matching area.",
     ops: (n) => `${n} fast`, people: (n) => `${n} people`,
-    pkTitle: "Pick cities or areas", pkDesc: "Choose one or more cities, districts or states, and every number below covers just them, added together. Leave it empty for all of Germany.",
+    pkTitle: "Details for your cities", pkDesc: "The ranking above always lists every place. Pick one or more cities, districts or states here and the details below (power, plugs, growth, operators) cover just them, added together. Leave it empty for all of Germany.", count: (n, all) => n === all ? `all ${all}` : `${n} of ${all}`,
     pkPh: "Type a city, district or state", pkNone: "Not found. Cities are listed from 50,000 people; for a smaller place pick its district.",
     kind: { town: "City", district: "District", state: "State" }, remove: (n) => `Remove ${n}`, clear: "Clear all",
     scopeAll: "All of Germany", together: "Together", germany: "Germany", add: (n) => `Add ${n} to your choice`,
@@ -116,14 +116,12 @@
   const num = (n, d = 0) => n == null ? "–" : Number(n).toLocaleString(T.locale, { minimumFractionDigits: d, maximumFractionDigits: d });
   const data = (file) => (window.AlloSite ? AlloSite.data("chargers", file) : "/data/chargers/de/" + file);
   const SVGNS = 'xmlns="http://www.w3.org/2000/svg"';
-  const TOP = 20;
 
   const params = new URLSearchParams(location.search);
   const state = {
     rank: ["towns", "districts", "states"].includes(params.get("rank")) ? params.get("rank") : "towns",
     by: ["per100k", "points", "fast", "bev", "kw"].includes(params.get("by")) ? params.get("by") : "per100k",
     q: params.get("q") || "",
-    all: false,
     areas: (params.get("areas") || "").split(",").map((x) => x.trim()).filter((x) => /^\d{2}(\d{3}(\d{7})?)?$/.test(x)),
   };
   let S = null, A = null, V = null, areasLoading = null;
@@ -220,8 +218,6 @@
     const ranked = all.map((r, i) => ({ ...r, pos: i + 1 }));
     const q = state.q.trim().toLowerCase();
     let shown = q ? ranked.filter((r) => (r.label + " " + (r.district || "") + " " + (r.state || "")).toLowerCase().includes(q)) : ranked;
-    const more = !q && shown.length > TOP;
-    if (more && !state.all) shown = shown.slice(0, TOP);
     const c = T.col, area = state.rank !== "states";
     const head = `<tr><th class="num">#</th><th>${c.name}</th>${area ? `<th>${c.state}</th>` : ""}<th class="num">${c.points}</th>`
       + `<th class="num">${c.per100k}</th><th class="num">${c.fast100k}</th><th class="num">${c.bev}</th><th class="num">${c.kw}</th></tr>`;
@@ -239,8 +235,7 @@
     $("table").innerHTML = shown.length
       ? `<table class="ac-table rank" data-hl="${metricCol + 1}"><thead>${head}</thead><tbody>${body}</tbody></table>`
       : `<p class="ac-caption">${esc(T.noMatch)}</p>`;
-    $("more").hidden = !more;
-    $("more").textContent = state.all ? T.showLess : T.showAll(num(ranked.length));
+    $("rankcount").textContent = T.count(num(shown.length), num(ranked.length));
     syncUrl();
   }
 
@@ -392,12 +387,11 @@
   function controls() {
     $("by").innerHTML = Object.entries(T.by).map(([k, l]) => `<button type="button" data-by="${k}">${esc(l)}</button>`).join("");
     $("rank").innerHTML = Object.entries(T.rank).map(([k, l]) => `<button type="button" data-rank="${k}">${esc(l)}</button>`).join("");
-    $("rank").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { state.rank = b.dataset.rank; state.all = false; ranking(); } });
+    $("rank").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { state.rank = b.dataset.rank; ranking(); } });
     $("by").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { state.by = b.dataset.by; ranking(); } });
     $("q").placeholder = T.filterPh;
     $("q").value = state.q;
     $("q").addEventListener("input", () => { state.q = $("q").value; ranking(); });
-    $("more").addEventListener("click", () => { state.all = !state.all; ranking(); });
     $("bevnote").textContent = T.bevNote;
   }
 
