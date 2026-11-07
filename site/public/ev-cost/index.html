@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EV charging cost per 100 km · Allo Cars</title>
+<meta name="description" content="What 100 km costs in your electric car at any price per kWh, next to other EVs and a petrol car. Free, no sign-up, works with AI.">
+<link rel="alternate" type="application/json" href="/ev-cost/spec.json" title="Tool description for AI (JSON)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/tokens.css">
+<link rel="stylesheet" href="/assets/components/bundle.css">
+<script src="/assets/site.js"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { font: 800 clamp(30px, 5vw, 44px)/1.08 var(--font-display); letter-spacing: -0.02em; margin: var(--space-5) 0 var(--space-2); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; font-size: 17px; line-height: 26px; }
+  .bench { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: flex-start; }
+  .inputs { flex: 1 1 300px; max-width: 380px; min-width: 0; display: grid; gap: var(--space-4); }
+  .results { flex: 999 1 540px; min-width: 0; display: grid; gap: var(--space-4); }
+  .stack { display: grid; gap: 14px; }
+  select.ac-select { width: 100%; min-height: 44px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 16px/20px var(--font-sans); }
+  .chart-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+  .bar-cell { width: 40%; }
+  .ac-bar { max-width: 100%; }
+  @media (max-width: 720px) { .inputs { max-width: none; order: 2; } .results { order: 1; } .bar-cell { display: none; } }
+</style>
+</head>
+<body>
+<div class="ac">
+<div class="ac-flagbar"></div>
+<div class="wrap">
+<!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/">Tools</a>
+    <a href="/ev-cost/" aria-current="page">Charging cost</a>
+    <a href="/charging-prices/">Price archive</a>
+    <a href="/open-data/">Data</a>
+  </nav>
+  <div class="ac-top__right">
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Switch light or dark" title="Switch light or dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<!-- /chrome:header -->
+
+  <h1>What does <em class="ac-hl">100 km</em> cost in your car?</h1>
+  <p class="lead">Set your car and your price per kWh. You see the cost at each way of driving, next to other electric cars and a petrol car. Every setting stays in the link, so you can share it or hand it to an AI.</p>
+
+  <div class="bench">
+    <aside class="inputs" aria-label="Inputs">
+      <section class="ac-card stack">
+        <label class="ac-label" for="car">Your car</label>
+        <select id="car" class="ac-select"></select>
+        <div class="stack" id="levels"></div>
+        <p class="ac-caption" style="margin:0">Starting values are rough real-world estimates. Your trip computer's numbers are better.</p>
+      </section>
+      <section class="ac-card stack">
+        <span class="ac-label">Price and losses</span>
+        <label class="ac-param"><span class="ac-param__label">Your electricity price</span><span class="ac-param__box"><input id="p" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><input id="pr" type="range" min="0" max="0.9" step="0.01" aria-label="Electricity price slider"></label>
+        <div class="ac-chips" id="pricechips"></div>
+        <label class="ac-param"><span class="ac-param__label">Charging losses</span><span class="ac-param__box"><input id="loss" type="number" min="0" max="40" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><span class="ac-param__hint">Energy lost between the plug and the battery. About 10 % on AC, less on DC.</span></label>
+      </section>
+      <section class="ac-card stack">
+        <span class="ac-label">Compare with</span>
+        <label class="ac-param"><span class="ac-param__label">Petrol car uses</span><span class="ac-param__box"><input id="fl" type="number" min="0" max="20" step="0.1" inputmode="decimal"><span class="ac-param__unit">L/100 km</span></span></label>
+        <label class="ac-param"><span class="ac-param__label">Petrol price</span><span class="ac-param__box"><input id="fp" type="number" min="0" max="4" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+        <span class="ac-param__label">Other electric cars</span>
+        <div class="ac-chips" id="refs"></div>
+      </section>
+    </aside>
+
+    <main class="results">
+      <section class="ac-card">
+        <div class="ac-readouts" id="readouts" aria-live="polite"></div>
+      </section>
+
+      <section class="ac-card">
+        <div class="chart-head">
+          <div><h2 class="ac-card__title">Cost per 100 km by price per kWh</h2><p class="ac-card__desc" id="chartdesc">Your car's four levels in blue, other cars in grey, petrol dashed.</p></div>
+          <div class="ac-seg" role="group" aria-label="View"><button type="button" id="v-chart" aria-pressed="true">Chart</button><button type="button" id="v-table" aria-pressed="false">Table</button></div>
+        </div>
+        <div class="ac-legend" id="legend"></div>
+        <div id="chart"></div>
+        <div class="ac-table-wrap" id="tablewrap" hidden>
+          <table class="ac-table" id="table"><caption class="ac-caption" style="text-align:left;padding-bottom:8px">Cost per 100 km at your price</caption><thead><tr><th>Car</th><th class="num">kWh/100 km</th><th class="num">€/100 km</th><th class="bar-cell"><span class="ac-caption">Compared</span></th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <section class="ac-aibar">
+        <span class="ac-aibar__text"><b>Use this with AI.</b> Copy the numbers into any assistant, share the link, or open Claude with this page attached.</span>
+        <button class="ac-btn ac-btn--ghost" type="button" id="copyai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Copy for AI</span></button>
+        <button class="ac-btn ac-btn--ghost" type="button" id="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Share link</span></button>
+        <a class="ac-btn ac-btn--ai" id="claude" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Open in Claude</a>
+      </section>
+
+      <div class="ac-source">
+        <p class="ac-source__line" style="margin:0" id="source">Formula: kWh/100 km × (1 + losses) × €/kWh. Consumption figures are rough real-world estimates.</p>
+        <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Estimates for comparison only. Your tariff, the weather and how you drive change the real cost.</span></div>
+      </div>
+    </main>
+  </div>
+<!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">More from Allo</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>Family outings and events around you</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>Recalls of baby and kids' products, from official sources</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>A private baby log for parents</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>Settle into life in Germany</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars is a product by <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+</footer>
+<!-- /chrome:footer -->
+</div>
+</div>
+
+<script src="/assets/components/bundle.js"></script>
+<script src="/ev-cost/calc.js"></script>
+<script>
+(function () {
+  "use strict";
+  var A = window.AlloCars, E = window.EvCost, D = E.DEFAULTS;
+  var $ = function (id) { return document.getElementById(id); };
+  var eur = function (x) { return A.money(x); };
+  var XMAX = 0.9;
+  var live = null; // latest public charging prices, if the data file loads
+
+  /* ---------- state in the URL ---------- */
+  function readState() {
+    var q = new URLSearchParams(location.search), s = JSON.parse(JSON.stringify(D));
+    var num = function (k) { var v = parseFloat(q.get(k)); return isFinite(v) && v >= 0 ? v : null; };
+    if (q.get("car")) s.car = q.get("car").slice(0, 60);
+    if (q.get("lv")) { var lv = q.get("lv").split(",").map(parseFloat); if (lv.length === 4 && lv.every(function (v) { return isFinite(v) && v >= 0 && v < 100; })) s.lv = lv; }
+    else if (q.get("car") && E.findCar(s.car)) s.lv = E.findCar(s.car).slice(1);
+    ["p", "loss", "fl", "fp"].forEach(function (k) { var v = num(k); if (v != null) s[k] = v; });
+    if (q.has("refs")) s.refs = q.get("refs").split(",").filter(function (n) { return E.findCar(n); });
+    return s;
+  }
+  function writeState() {
+    var q = new URLSearchParams();
+    q.set("car", S.car); q.set("lv", S.lv.join(",")); q.set("p", S.p); q.set("loss", S.loss);
+    q.set("fl", S.fl); q.set("fp", S.fp); q.set("refs", S.refs.join(","));
+    try { history.replaceState(null, "", location.pathname + "?" + q.toString()); } catch (e) {}
+  }
+  var S = readState();
+
+  /* ---------- inputs ---------- */
+  var carSel = $("car");
+  carSel.innerHTML = E.CATALOG.map(function (c) { return '<option value="' + A.esc(c[0]) + '">' + A.esc(c[0]) + "</option>"; }).join("") +
+    (E.findCar(S.car) ? "" : '<option value="' + A.esc(S.car) + '">' + A.esc(S.car) + "</option>");
+  carSel.value = S.car;
+  carSel.addEventListener("change", function () {
+    var prev = S.car, c = E.findCar(carSel.value);
+    S.car = carSel.value;
+    if (c) S.lv = c.slice(1);
+    // keep the car you came from on the chart as a reference
+    if (E.findCar(prev) && S.refs.indexOf(prev) < 0) S.refs.unshift(prev);
+    S.refs = S.refs.filter(function (n) { return n !== S.car; });
+    drawLevels(); drawRefs(); update();
+  });
+
+  function drawLevels() {
+    $("levels").innerHTML = E.LEVELS.map(function (name, i) {
+      return '<label class="ac-param"><span class="ac-param__label"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--car-' + (i + 1) + ');margin-right:8px"></span>' + name + '</span>' +
+        '<span class="ac-param__box"><input data-lv="' + i + '" type="number" min="0" max="60" step="0.1" inputmode="decimal" value="' + S.lv[i] + '"><span class="ac-param__unit">kWh/100 km</span></span>' +
+        '<span class="ac-param__hint">' + E.LEVEL_HINTS[i] + "</span></label>";
+    }).join("");
+  }
+  $("levels").addEventListener("input", function (e) {
+    var i = e.target.getAttribute("data-lv"); if (i == null) return;
+    var v = parseFloat(e.target.value); if (isFinite(v) && v >= 0) { S.lv[+i] = v; update(); }
+  });
+
+  function drawRefs() {
+    $("refs").innerHTML = E.CATALOG.filter(function (c) { return c[0] !== S.car; }).map(function (c) {
+      return '<button type="button" class="ac-chip" data-ref="' + A.esc(c[0]) + '" aria-pressed="' + (S.refs.indexOf(c[0]) >= 0) + '">' + A.esc(c[0]) + "</button>";
+    }).join("");
+  }
+  $("refs").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-ref]"); if (!b) return;
+    var n = b.getAttribute("data-ref"), i = S.refs.indexOf(n);
+    if (i >= 0) S.refs.splice(i, 1); else S.refs.push(n);
+    b.setAttribute("aria-pressed", i < 0); update();
+  });
+
+  function bindNum(id, key, rangeId) {
+    var el = $(id); el.value = S[key];
+    el.addEventListener("input", function () { var v = parseFloat(el.value); if (isFinite(v) && v >= 0) { S[key] = v; if (rangeId) $(rangeId).value = v; update(); } });
+    if (rangeId) { var r = $(rangeId); r.value = S[key]; r.addEventListener("input", function () { S[key] = parseFloat(r.value); el.value = S[key]; update(); }); }
+  }
+  bindNum("p", "p", "pr"); bindNum("loss", "loss"); bindNum("fl", "fl"); bindNum("fp", "fp");
+
+  function drawPriceChips() {
+    var chips = [{ n: "Home tariff", p: 0.35 }];
+    if (live) {
+      chips.push({ n: "Public median", p: live.median }, { n: "Cheapest 10 %", p: live.p10 }, { n: "Dearest 10 %", p: live.p90 });
+    }
+    $("pricechips").innerHTML = chips.map(function (c) {
+      return '<button type="button" class="ac-chip" data-p="' + c.p + '">' + c.n + " " + eur(c.p) + "</button>";
+    }).join("");
+  }
+  $("pricechips").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-p]"); if (!b) return;
+    S.p = Math.round(parseFloat(b.getAttribute("data-p")) * 100) / 100; $("p").value = S.p; $("pr").value = S.p; update();
+  });
+
+  /* ---------- view toggle ---------- */
+  function setView(table) {
+    $("v-chart").setAttribute("aria-pressed", !table); $("v-table").setAttribute("aria-pressed", table);
+    $("chart").hidden = table; $("legend").hidden = table; $("tablewrap").hidden = !table;
+  }
+  $("v-chart").addEventListener("click", function () { setView(false); });
+  $("v-table").addEventListener("click", function () { setView(true); });
+
+  /* ---------- output ---------- */
+  var R;
+  function update() {
+    writeState();
+    R = E.compute(S);
+    var typical = S.lv[1];
+    var html = '<div class="ac-readout"><span class="ac-readout__value">' + eur(R.costTypical) + '<small>/100 km</small></span><span class="ac-readout__basis">' + A.esc(S.car) + " at " + A.num(typical) + " kWh/100 km, " + eur(S.p) + "/kWh, " + A.num(S.loss, 0) + " % losses</span></div>";
+    if (R.breakEven != null) html += '<div class="ac-readout ac-readout--md"><span class="ac-readout__value">' + eur(R.breakEven) + '<small>/kWh</small></span><span class="ac-readout__basis">Same cost as petrol at ' + A.num(S.fl) + " L and " + eur(S.fp) + "/L</span></div>";
+    html += '<div class="ac-readout ac-readout--md"><span class="ac-readout__value">' + A.money(R.per1000, { digits: 0 }) + '<small>/1,000 km</small></span><span class="ac-readout__basis">Typical driving, same price</span></div>';
+    $("readouts").innerHTML = html;
+
+    // chart
+    var series = [], pts = function (kwh) { var a = []; for (var x = 0; x <= XMAX + 1e-9; x += 0.01) a.push([x, E.evCost(kwh, x, S.loss)]); return a; };
+    S.refs.forEach(function (n) { var c = E.findCar(n); if (c && n !== S.car) series.push({ name: n, label: n, color: "var(--ref-line)", width: 1.5, points: pts(c[2]) }); });
+    E.LEVELS.forEach(function (name, i) { if (S.lv[i] > 0) series.push({ name: name + " " + A.num(S.lv[i]), label: "You, " + name.toLowerCase(), color: "var(--car-" + (i + 1) + ")", width: i === 1 ? 3 : 2, points: pts(S.lv[i]) }); });
+    var ymax = Math.max(10, Math.max.apply(null, series.map(function (s) { return s.points[s.points.length - 1][1]; }).concat([R.fuel || 0])));
+    ymax = Math.ceil(ymax / 5) * 5;
+    var yt = []; for (var y = 0; y <= ymax; y += 5) yt.push(y);
+    var vlines = [{ x: S.p, label: "You " + eur(S.p) }];
+    if (live && Math.abs(live.median - S.p) > 0.03) vlines.push({ x: live.median, label: "Public median " + eur(live.median) });
+    var wide = $("chart").clientWidth > 520;
+    A.lineChart($("chart"), {
+      label: "Cost per 100 km for " + S.car + " and other cars by electricity price",
+      height: wide ? 320 : 260, directLabels: wide,
+      x: { min: 0, max: XMAX, ticks: [0, 0.2, 0.4, 0.6, 0.8], format: function (v) { return eur(v); } },
+      y: { min: 0, max: ymax, ticks: yt, format: function (v) { return "€" + Math.round(v); } },
+      series: series,
+      hlines: R.fuel != null ? [{ y: R.fuel, label: "Petrol " + A.num(S.fl) + " L at " + eur(S.fp) }] : [],
+      vlines: vlines
+    });
+    var leg = E.LEVELS.map(function (n, i) { return '<span><i style="border-color:var(--car-' + (i + 1) + ')"></i>' + n + " " + A.num(S.lv[i]) + "</span>"; });
+    if (S.refs.length) leg.push('<span><i style="border-color:var(--ref-line);border-top-width:1.5px"></i>Other cars</span>');
+    if (R.fuel != null) leg.push('<span><i class="ac-legend--dash" style="border-color:var(--fuel)"></i>Petrol</span>');
+    $("legend").innerHTML = leg.join("");
+
+    // table
+    var maxc = Math.max.apply(null, R.rows.map(function (r) { return r.cost; }));
+    document.querySelector("#table tbody").innerHTML = R.rows.map(function (r) {
+      var cls = r.kind === "mine" ? "ac-bar ac-bar--mine" : r.kind === "fuel" ? "ac-bar ac-bar--fuel" : "ac-bar";
+      return '<tr' + (r.kind === "mine" && r.level === 1 ? ' class="is-mine"' : "") + "><td>" + A.esc(r.name) + '</td><td class="num">' + (r.kwh == null ? "–" : A.num(r.kwh)) + '</td><td class="num">' + eur(r.cost) + '</td><td class="bar-cell"><span class="' + cls + '" style="width:' + (r.cost / maxc * 100).toFixed(1) + '%"></span></td></tr>';
+    }).join("");
+
+    $("claude").href = "https://claude.ai/new?q=" + encodeURIComponent("Help me understand my EV charging costs. Here are my numbers from Allo Cars:\n\n" + summary());
+  }
+
+  function summary() {
+    var inputs = { "Car": S.car, "Consumption (kWh/100 km)": E.LEVELS.map(function (n, i) { return n.toLowerCase() + " " + S.lv[i]; }).join(", "), "Electricity price": eur(S.p) + "/kWh", "Charging losses": S.loss + " %", "Petrol car": S.fl + " L/100 km at " + eur(S.fp) + "/L" };
+    var results = {};
+    R.rows.forEach(function (r) { results[r.name] = eur(r.cost) + " per 100 km"; });
+    if (R.breakEven != null) results["Break-even electricity price vs petrol"] = eur(R.breakEven) + "/kWh";
+    if (live) inputs["Public ad-hoc charging today (Germany)"] = "median " + eur(live.median) + "/kWh, cheapest 10 % " + eur(live.p10) + ", dearest 10 % " + eur(live.p90);
+    return A.aiSummary("EV charging cost per 100 km (Allo Cars)", inputs, results);
+  }
+
+  $("copyai").addEventListener("click", function () { A.copy(summary(), $("copyai").querySelector("span")); });
+  $("share").addEventListener("click", function () { A.copy(location.href, $("share").querySelector("span")); });
+
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(update, 150); });
+
+  drawLevels(); drawRefs(); drawPriceChips(); update();
+
+  // Live public prices from the charging price archive; the page works without them.
+  fetch("/data/charging-prices/latest.json").then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    var o = j && j.overall;
+    if (!o || o.median == null) return;
+    live = { median: o.median, p10: o.p10, p90: o.p90, at: j.observed_at };
+    drawPriceChips(); update();
+    var when = new Date(live.at);
+    $("source").innerHTML = "Formula: kWh/100 km × (1 + losses) × €/kWh. Consumption figures are rough real-world estimates. Public prices: median of " + (o.tariffs || "all") + ' ad-hoc tariffs from the <a href="/charging-prices/">Allo Cars price archive</a>, collected ' + when.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) + ".";
+  }).catch(function () {});
+})();
+</script>
+</body>
+</html>

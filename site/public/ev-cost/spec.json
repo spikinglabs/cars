@@ -1,0 +1,19 @@
+{
+  "name": "ev_charging_cost",
+  "title": "EV charging cost per 100 km",
+  "url": "https://cars.allo.land/ev-cost/",
+  "description": "What 100 km costs in an electric car at a given price per kWh, for four driving levels, next to other EVs and a petrol car. All inputs are URL query parameters, so a filled-in link reproduces the view.",
+  "formula": "cost_per_100km = kwh_per_100km * (1 + losses_pct / 100) * price_per_kwh; break_even_price = litres_per_100km * price_per_litre / (kwh_per_100km * (1 + losses_pct / 100))",
+  "parameters": {
+    "car": { "type": "string", "default": "Volvo EX30", "description": "Car name. A known name also sets lv from the built-in estimates.", "examples": ["Volvo EX30", "Tesla Model Y", "VW ID.3"] },
+    "lv": { "type": "string", "default": "14.5,16,19.5,22", "description": "Four consumption levels in kWh/100 km, comma separated: efficient, typical, motorway 120 km/h, winter." },
+    "p": { "type": "number", "default": 0.35, "unit": "EUR/kWh", "description": "Electricity price." },
+    "loss": { "type": "number", "default": 10, "unit": "%", "description": "Charging losses between plug and battery." },
+    "fl": { "type": "number", "default": 6, "unit": "L/100 km", "description": "Petrol car consumption to compare with. 0 hides it." },
+    "fp": { "type": "number", "default": 1.75, "unit": "EUR/L", "description": "Petrol price." },
+    "refs": { "type": "string", "default": "Tesla Model 3 RWD,VW ID.3,Kia EV6", "description": "Other cars to show, comma separated, from the cars list." }
+  },
+  "cars": "https://cars.allo.land/ev-cost/calc.js",
+  "live_prices": "https://cars.allo.land/data/charging-prices/latest.json",
+  "example": "https://cars.allo.land/ev-cost/?car=Volvo%20EX30&lv=14.5,16,19.5,22&p=0.59&loss=10&fl=6&fp=1.75&refs=Tesla%20Model%203%20RWD,Kia%20EV6"
+}
