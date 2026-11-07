@@ -54,6 +54,10 @@
   {
    "platform": "webapp",
    "url": "https://cars.allo.land/de/manifest.webmanifest"
+  },
+  {
+   "platform": "webapp",
+   "url": "https://cars.allo.land/zh/manifest.webmanifest"
   }
  ],
  "shortcuts": [

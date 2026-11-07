@@ -1,8 +1,15 @@
 /* Charging price archive page: today's readouts and the daily chart, from /data/charging-prices/.
-   One script for the English (/charging-prices/) and German (/de/charging-prices/) page. */
+   One script for the English (/charging-prices/), German (/de/charging-prices/) and Chinese (/zh/charging-prices/) page. */
 (() => {
-  const de = document.documentElement.lang === "de";
-  const T = de ? {
+  const lang = (document.documentElement.lang || "en").slice(0, 2);
+  const de = lang === "de", zh = lang === "zh";
+  const T = zh ? {
+    locale: "zh-CN", noData: "暂无数据。", chart: "每日即充即付充电价格中位数",
+    tip: (p) => `${p.date}：中位数 ${eur(p.median)}，P10 ${eur(p.p10)}，P90 ${eur(p.p90)}，${p.tariffs} 种资费`,
+    collected: "采集于 ", median: (n) => `${n} 种即充即付资费的中位数`,
+    cheap: "最便宜的 10 % 支付这个价格或更低", dear: "最贵的 10 % 支付这个价格或更高",
+    failed: "无法加载数据：", dot: "。",
+  } : de ? {
     locale: "de-DE", noData: "Noch keine Daten.", chart: "Median-Preis fürs Ad-hoc-Laden pro Tag",
     tip: (p) => `${p.date}: Median ${eur(p.median)}, P10 ${eur(p.p10)}, P90 ${eur(p.p90)}, ${p.tariffs} Tarife`,
     collected: "erfasst am ", median: (n) => `Median von ${n} Ad-hoc-Tarifen`,
@@ -15,7 +22,7 @@
     cheap: "Cheapest 10 % pay this or less", dear: "Dearest 10 % pay this or more",
     failed: "Could not load data: ",
   };
-  const eur = (v) => v == null ? "–" : new Intl.NumberFormat(de ? "de-DE" : "en-DE", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(v);
+  const eur = (v) => v == null ? "–" : new Intl.NumberFormat(de ? "de-DE" : zh ? "zh-CN" : "en-DE", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(v);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
   function parseCsv(text) {
@@ -55,7 +62,7 @@
     ]);
     const o = latest.overall || {};
     const when = new Date(latest.observed_at);
-    document.getElementById("asof").textContent = T.collected + when.toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + ".";
+    document.getElementById("asof").textContent = T.collected + when.toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + (T.dot || ".");
     document.getElementById("readouts").innerHTML = `
       <div class="ac-readout"><div class="ac-readout__value">${eur(o.median)}<small>/kWh</small></div><div class="ac-readout__basis">${T.median(o.tariffs ?? "–")}</div></div>
       <div class="ac-readout ac-readout--md"><div class="ac-readout__value">${eur(o.p10)}<small>/kWh</small></div><div class="ac-readout__basis">${T.cheap}</div></div>

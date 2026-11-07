@@ -1,10 +1,21 @@
 /* New car registrations page: one model's monthly registrations, this month's top models and the
    electric share of the market, from /data/registrations/ (KBA FZ10).
-   One script for the English (/registrations/) and German (/de/registrations/) page.
+   One script for the English (/registrations/), German (/de/registrations/) and Chinese (/zh/registrations/) page.
    The chosen model is ?model=<slug> in the link, else the one picked last on this device. */
 (() => {
-  const de = document.documentElement.lang === "de";
-  const T = de ? {
+  const lang = (document.documentElement.lang || "en").slice(0, 2);
+  const de = lang === "de", zh = lang === "zh";
+  const T = zh ? {
+    locale: "zh-CN", months: (n) => `${n} 个月`, failed: "无法加载数据：",
+    latest: (m) => `${m}新车登记`, rank: (r, n) => r ? `在 ${n} 款车型中排名第 ${r}` : "未进入排名",
+    year: "过去 12 个月", bev: "其中纯电动 (BEV)", bevNone: "没有登记纯电动版本",
+    noModel: "没有找到车型。请输入品牌和车型，例如“Volvo EX30”。",
+    chartModel: (m) => `每月新车登记量：${m}`, tipModel: (r) => `${month(r.month)}：新登记 ${num(r.total)} 辆，其中纯电动 ${num(r.bev)} 辆`,
+    chartShare: "电动车在全部新车中的占比", tipShare: (r) => `${month(r.month)}：纯电动占 ${pct(r.bev_share)}，${num(r.total)} 辆中有 ${num(r.bev)} 辆`,
+    other: "其他", change: (c) => c == null ? "新" : `${c > 0 ? "+" : ""}${c.toLocaleString("zh-CN")} %`,
+    marketLine: (s) => `${month(s.month)}共有 ${num(s.market.total)} 辆新乘用车登记，其中 ${pct(s.market.share_pct.bev)} 为纯电动。`,
+    asof: (m) => `最新月份：${m}。`,
+  } : de ? {
     locale: "de-DE", months: (n) => `${n} Monate`, failed: "Die Daten konnten nicht geladen werden: ",
     latest: (m) => `Neuzulassungen im ${m}`, rank: (r, n) => r ? `Platz ${r} von ${n} Modellen` : "nicht in der Rangliste",
     year: "In den letzten 12 Monaten", bev: "Davon elektrisch (BEV)", bevNone: "Keine Elektroversion zugelassen",
@@ -160,7 +171,7 @@
       .sort((a, b) => (b.last_12_months || 0) - (a.last_12_months || 0)).slice(0, 30);
   }
   function render() {
-    list.innerHTML = shown.length ? shown.map((m, i) => `<li role="option" id="q-opt-${i}" data-i="${i}" aria-selected="${i === active}">${esc(label(m))}<small>${m.last_12_months ? num(m.last_12_months) + " / 12 " + (de ? "Mon." : "mo") : (de ? "ältere Daten" : "older data")}</small></li>`).join("")
+    list.innerHTML = shown.length ? shown.map((m, i) => `<li role="option" id="q-opt-${i}" data-i="${i}" aria-selected="${i === active}">${esc(label(m))}<small>${m.last_12_months ? num(m.last_12_months) + " / 12 " + (de ? "Mon." : zh ? "个月" : "mo") : (de ? "ältere Daten" : zh ? "较早数据" : "older data")}</small></li>`).join("")
       : `<li class="combo__none" aria-disabled="true">${esc(T.noModel)}</li>`;
     if (active >= 0) { q.setAttribute("aria-activedescendant", `q-opt-${active}`); $(`q-opt-${active}`)?.scrollIntoView({ block: "nearest" }); }
     else q.removeAttribute("aria-activedescendant");

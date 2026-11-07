@@ -3,22 +3,28 @@
 (function () {
   "use strict";
   var NS = "http://www.w3.org/2000/svg";
-  /* Pages say their language on <html lang>: German pages get German number formats and words. */
-  var DE = document.documentElement.lang === "de";
-  var WORDS = DE ? { inputs: "Eingaben", results: "Ergebnisse", link: "Link", copied: "Kopiert" } : { inputs: "Inputs", results: "Results", link: "Link", copied: "Copied" };
+  /* Pages say their language on <html lang> (en, de, zh-Hans): number formats and words follow it. */
+  var LANG = (document.documentElement.lang || "en").slice(0, 2);
+  if (LANG !== "de" && LANG !== "zh") LANG = "en";
+  var LOCALE = { en: "en-GB", de: "de-DE", zh: "zh-CN" }[LANG];
+  var WORDS = {
+    en: { inputs: "Inputs", results: "Results", link: "Link", copied: "Copied" },
+    de: { inputs: "Eingaben", results: "Ergebnisse", link: "Link", copied: "Kopiert" },
+    zh: { inputs: "输入", results: "结果", link: "链接", copied: "已复制" }
+  }[LANG];
 
   function money(x, opts) {
     opts = opts || {};
     if (x == null || isNaN(x)) return "–";
     var d = opts.digits != null ? opts.digits : Math.abs(x) >= 100 ? 0 : 2;
     try {
-      return new Intl.NumberFormat(opts.locale || (DE ? "de-DE" : "en-DE"), { style: "currency", currency: opts.currency || "EUR", minimumFractionDigits: d, maximumFractionDigits: d }).format(x);
+      return new Intl.NumberFormat(opts.locale || (LANG === "en" ? "en-DE" : LOCALE), { style: "currency", currency: opts.currency || "EUR", minimumFractionDigits: d, maximumFractionDigits: d }).format(x);
     } catch (e) { return x.toFixed(d) + " " + (opts.currency || "EUR"); }
   }
   function num(x, d) {
     if (x == null || isNaN(x)) return "–";
     d = d == null ? 1 : d;
-    return Number(x).toLocaleString(DE ? "de-DE" : "en-GB", { minimumFractionDigits: d, maximumFractionDigits: d });
+    return Number(x).toLocaleString(LOCALE, { minimumFractionDigits: d, maximumFractionDigits: d });
   }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
@@ -121,5 +127,5 @@
     return consumptionKwh * (1 + (lossesPct || 0) / 100) * pricePerKwh;
   }
 
-  window.AlloCars = { lang: DE ? "de" : "en", money: money, num: num, esc: esc, readState: readState, writeState: writeState, aiSummary: aiSummary, copy: copy, lineChart: lineChart, costPer100km: costPer100km };
+  window.AlloCars = { lang: LANG, locale: LOCALE, money: money, num: num, esc: esc, readState: readState, writeState: writeState, aiSummary: aiSummary, copy: copy, lineChart: lineChart, costPer100km: costPer100km };
 })();

@@ -19,7 +19,8 @@
  ],
  "related_applications": [
   { "platform": "webapp", "url": "https://cars.allo.land/manifest.webmanifest" },
-  { "platform": "webapp", "url": "https://cars.allo.land/de/manifest.webmanifest" }
+  { "platform": "webapp", "url": "https://cars.allo.land/de/manifest.webmanifest" },
+  { "platform": "webapp", "url": "https://cars.allo.land/zh/manifest.webmanifest" }
  ],
  "shortcuts": [
   { "name": "Charging cost", "url": "/ev-cost/", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数据与来源 · Allo Cars</title>
+<meta name="description" content="Allo Cars 的数字从哪里来、可以下载哪些开放数据文件，以及如何让 AI 助手使用这些工具。">
+<!-- chrome:head -->
+<link rel="alternate" hreflang="en" href="https://cars.allo.land/open-data/">
+<link rel="alternate" hreflang="de" href="https://cars.allo.land/de/open-data/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/open-data/">
+<link rel="alternate" hreflang="x-default" href="https://cars.allo.land/open-data/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/zh/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Allo Cars">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
+<!-- /chrome:head -->
+<link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=2eae6260a9">
+<script src="/assets/site.js?v=4d5b1b5049"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+  h1 { font: 800 clamp(30px, 5vw, 44px)/1.08 var(--font-display); letter-spacing: -0.02em; margin: 28px 0 8px; }
+  .lead { color: var(--ink-muted); font-size: 17px; line-height: 26px; margin: 0 0 24px; }
+  main { display: grid; gap: 16px; }
+  .ac-card h2 { font: 800 22px/28px var(--font-display); margin: 0 0 6px; }
+  .ac-card p, .ac-card li { font-size: 15px; line-height: 23px; }
+  .ac-card p { margin: 0 0 10px; }
+  .ac-card ul { margin: 0 0 10px; padding-left: 1.2em; }
+  code { font: 600 13px/20px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface-200); padding: 1px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<div class="ac">
+<div class="ac-flagbar"></div>
+<div class="wrap">
+<!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/zh/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/zh/">工具</a>
+    <a href="/zh/chargers/">充电桩地图</a>
+    <a href="/zh/ev-cost/">充电成本</a>
+    <a href="/zh/charging-prices/">价格档案</a>
+    <a href="/zh/charge-times/">充电时段</a>
+    <a href="/zh/recalls/">召回</a>
+    <a href="/zh/fuel-prices/">油价</a>
+  </nav>
+  <div class="ac-top__right">
+    <details class="ac-langmenu" data-langmenu><summary aria-label="语言" title="语言"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>中文</span></summary><div class="ac-langmenu__list"><a class="ac-lang" href="/open-data/" hreflang="en" lang="en" data-lang="en">English</a><a class="ac-lang" href="/de/open-data/" hreflang="de" lang="de" data-lang="de">Deutsch</a><a class="ac-lang" href="/zh/open-data/" hreflang="zh-Hans" lang="zh-Hans" data-lang="zh" aria-current="true">简体中文</a></div></details>
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="切换浅色或深色" title="切换浅色或深色"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<aside class="ac-apphint" data-app-hint hidden>
+  <span class="ac-apphint__text" data-app-hint-text>可以把 Allo Cars 添加到主屏幕，像 App 一样使用。</span>
+  <button type="button" class="ac-apphint__go" data-app-hint-go hidden>安装</button>
+  <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="关闭">×</button>
+</aside>
+<!-- /chrome:header -->
+
+<h1>数据与<em class="ac-hl">来源</em></h1>
+<p class="lead">Allo Cars 的数字从哪里来、可以下载什么，以及 AI 助手如何使用这些工具。</p>
+
+<main>
+  <section class="ac-card" id="charging-prices">
+    <span class="ac-label">充电价格</span>
+    <h2>公共即充即付充电价格</h2>
+    <p>我们每小时从 MobiData BW 运营的 <a href="https://api.mobidata-bw.de/ocpdb/">Open ChargePoint Database</a> 读取德国公共充电桩已公布的即充即付资费（无需签约直接付款）。该数据库汇总了运营商在 <a href="https://mobilithek.info">Mobilithek</a> 上发布的 AFIR 价格数据。我们只保留开放许可的来源，并保存每一次采集，档案会自己不断增长。更早的价格没有公开档案，所以我们的数据从 2026 年 11 月 6 日开始。</p>
+    <p>免费下载，无需密钥，无需注册：</p>
+    <ul>
+      <li><a href="/data/charging-prices/latest.json"><code>/data/charging-prices/latest.json</code></a>：今天的中位数、第 10 和第 90 百分位，总体及按来源</li>
+      <li><a href="/data/charging-prices/daily.csv"><code>/data/charging-prices/daily.csv</code></a>：每天每个来源一行</li>
+      <li><a href="/data/charging-prices/tariffs.csv"><code>/data/charging-prices/tariffs.csv</code></a>：当前所有即充即付资费，含电量、时长、停车和单次费用</li>
+      <li><a href="/data/charging-prices/sources.json"><code>/data/charging-prices/sources.json</code></a>：来源及其许可</li>
+    </ul>
+    <p>价格是各即充即付资费的基础电价。单次费用和占位费见 <code>tariffs.csv</code>。签约价格通常更低。</p>
+    <p>再次使用这些数据时，请注明 <code>sources.json</code> 中列出的来源和许可。</p>
+  </section>
+
+  <section class="ac-card" id="electricity-prices">
+    <span class="ac-label">电价</span>
+    <h2>日前电价</h2>
+    <p>每天下午我们会多次从德国联邦网络管理局的能源市场门户 <a href="https://www.smard.de/">SMARD</a> 读取德国电力交易所（DE-LU 竞价区）的日前价格。自 2025 年 10 月起价格以 15 分钟为一档；明天的价格大约在 13:00 公布。我们的历史数据可追溯到 2018 年 10 月。</p>
+    <p>动态电价下你支付的价格 = 交易所价格 + 固定附加费用（电网费、附加费、电力税、供应商利润）+ 19 % 增值税。我们默认附加费用为不含税 0.18 €/kWh；你可以在页面上填入自己的数值。</p>
+    <ul>
+      <li><a href="/data/electricity-prices/de/latest.json"><code>/data/electricity-prices/de/latest.json</code></a>：今天和明天每 15 分钟的价格，以及最便宜的 1 至 8 小时时段</li>
+      <li><a href="/data/electricity-prices/de/daily.csv"><code>/data/electricity-prices/de/daily.csv</code></a>：2018 年以来每天一行，单位 €/MWh</li>
+      <li><a href="/data/electricity-prices/de/hourly.csv"><code>/data/electricity-prices/de/hourly.csv</code></a>：2018 年以来每小时，单位 €/MWh</li>
+    </ul>
+    <p>来源：Bundesnetzagentur | SMARD.de，许可 <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>。</p>
+  </section>
+
+  <section class="ac-card" id="recalls">
+    <span class="ac-label">召回</span>
+    <h2>汽车召回</h2>
+    <p>我们每天读取 <a href="https://ec.europa.eu/safety-gate-alerts/screen/webReport">EU Safety Gate</a> 的每周报告，保存 2019 年以来“机动车”类别下的全部通报：轿车、摩托车、厢式车、卡车和电动滑板车。德国联邦机动车管理局 (KBA) 在这里通报德国的每一起车辆召回，其他欧盟国家、挪威、冰岛、列支敦士登和北爱尔兰也是如此。对于我们工具中同样在美国销售的车型，我们还加入了<a href="https://www.nhtsa.gov/recalls">美国国家公路交通安全管理局 (NHTSA)</a> 的召回行动。</p>
+    <p>免费下载，无需密钥，无需注册：</p>
+    <ul>
+      <li><a href="/data/recalls/eu/latest.json"><code>/data/recalls/eu/latest.json</code></a>：统计数字和最新通报</li>
+      <li><a href="/data/recalls/eu/models.json"><code>/data/recalls/eu/models.json</code></a> 和 <code>/data/recalls/eu/models/&lt;model&gt;.json</code>：按关注车型的通报，例如 <a href="/data/recalls/eu/models/volvo-ex30.json"><code>volvo-ex30</code></a></li>
+      <li><a href="/data/recalls/eu/brands.json"><code>/data/recalls/eu/brands.json</code></a> 和 <code>/data/recalls/eu/brand/&lt;brand&gt;.json</code>：按品牌的通报</li>
+      <li><a href="/data/recalls/eu/recalls.csv"><code>/data/recalls/eu/recalls.csv</code></a>：2019 年以来的全部通报，每条一行</li>
+      <li><code>/data/recalls/us/models/&lt;model&gt;.json</code>：相同车型的 NHTSA 召回行动</li>
+    </ul>
+    <p>Safety Gate 数据：&copy; 欧盟，依据欧盟委员会决定 2011/833/EU 再使用。NHTSA 数据是美国政府作品，属于公有领域。某辆车是否受影响取决于它的车架号 (VIN)。</p>
+  </section>
+
+  <section class="ac-card" id="registrations">
+    <span class="ac-label">新车登记</span>
+    <h2>各车型新车</h2>
+    <p>德国联邦机动车管理局 <a href="https://www.kba.de/DE/Statistik/Produktkatalog/produkte/Fahrzeuge/fz10/fz10_gentab.html">Kraftfahrt-Bundesamt</a> (KBA) 每月公布各品牌、各车系新登记的乘用车数量（统计表 FZ10）。每张月度表格一发布（大约在月末一周后），我们就会读取，并保存 2018 年 12 月以来的每个月。</p>
+    <p>免费下载，无需密钥，无需注册：</p>
+    <ul>
+      <li><a href="/data/registrations/de/latest.json"><code>/data/registrations/de/latest.json</code></a>：最新月份：按驱动类型的全部新车、前 20 名车型和前 10 名电动车型，以及同比变化</li>
+      <li><a href="/data/registrations/de/models.json"><code>/data/registrations/de/models.json</code></a>：曾经出现过的所有车型，含文件名、最新数量、排名和过去 12 个月数据</li>
+      <li><code>/data/registrations/de/models/&lt;slug&gt;.json</code>：单个车型的每月数据，例如 <a href="/data/registrations/de/models/volvo-ex30.json"><code>volvo-ex30.json</code></a></li>
+      <li><a href="/data/registrations/de/monthly.csv"><code>/data/registrations/de/monthly.csv</code></a>：所有车型、所有月份（month、brand、model、slug、total、diesel、hybrid、phev、bev）</li>
+      <li><a href="/data/registrations/de/market.csv"><code>/data/registrations/de/market.csv</code></a>：每月按驱动类型的全部新车及电动车占比</li>
+      <li><a href="/data/registrations/de/brands.json"><code>/data/registrations/de/brands.json</code></a>：每个品牌每月的总数和电动车数</li>
+    </ul>
+    <p>数量为当月新登记数。<code>hybrid</code> 包括插电混动，2021 年起插电混动另有 <code>phev</code> 一列。<code>bev</code> 仅指纯电动。车型名称沿用 KBA 的写法；<code>SONSTIGE</code> 表示该品牌的其他车型。</p>
+    <p>来源：© Kraftfahrt-Bundesamt, Flensburg，依据<a href="https://www.govdata.de/dl-de/by-2-0">德国数据许可证——署名 2.0 版</a>。再次使用数据时，请以同样方式注明 KBA。</p>
+  </section>
+
+  <section class="ac-card" id="chargers">
+    <span class="ac-label">充电桩地图</span>
+    <h2>公共充电点</h2>
+    <p><a href="/zh/chargers/">充电桩地图</a>显示的是德国联邦网络管理局 (Bundesnetzagentur) 的 <a href="https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/E-Mobilitaet/start.html">Ladesäulenregister</a>，即德国公共充电点的官方名录。它每年发布几次；我们每天检查，一有新文件就重建地图。只有完成该机构申报的运营商才会被收录，所以实际充电桩数量更多。同一地点（约 10 米以内）的设备显示为一个站点，功率取其中最高的充电点。约 200 个坐标与其邮政编码相距很远的站点暂不显示，直到名录修正为止。</p>
+    <p>许可：<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>，署名“Bundesnetzagentur.de”。免费下载，无需密钥，无需注册：</p>
+    <ul>
+      <li><a href="/data/chargers/de/latest.json"><code>/data/chargers/de/latest.json</code></a>：总体、各联邦州和各运营商的统计数字，地图网格列表，以及名录日期</li>
+      <li><a href="/data/chargers/de/stations.csv"><code>/data/chargers/de/stations.csv</code></a>：每个站点的位置、功率、充电点、插头、运营商、地址和支付方式</li>
+      <li><code>/data/chargers/de/cells/&lt;id&gt;.json</code>：一个 0.5 × 0.5 度方格内的站点，id = floor(lat × 2)_floor(lon × 2)，例如科隆附近的 <a href="/data/chargers/de/cells/101_13.json"><code>101_13</code></a></li>
+      <li><a href="/data/chargers/de/overview.json"><code>/data/chargers/de/overview.json</code></a> 和 <a href="/data/chargers/de/places.json"><code>places.json</code></a>：0.1 度网格上的统计数字，以及邮政编码区和城镇的中心点</li>
+    </ul>
+    <p>地图图块 © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> 贡献者，由 OpenStreetMap 基金会提供。地图使用 <a href="https://leafletjs.com/">Leaflet</a>（BSD-2-Clause），从本站加载。</p>
+  </section>
+
+  <section class="ac-card" id="vehicle-catalog">
+    <span class="ac-label">车型目录</span>
+    <h2>每款新车的官方能耗</h2>
+    <p>欧盟每辆新登记汽车都会申报其型式认证 (WLTP) 数据。<a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b">欧洲环境署</a>依据法规 (EU) 2019/631 每年公布这些数据。我们每月把最新年份整理成每个车型和燃料类型一行：官方每 100 公里 kWh（插头端电量，已包含充电损耗）、每 100 公里升数、CO2、功率和质量，按人们实际购买的版本加权平均，并附登记数量。这些是官方数值，而非实际使用值：真实驾驶的能耗更高，高速和冬季尤其如此。</p>
+    <p>免费下载，无需密钥，无需注册：</p>
+    <ul>
+      <li><a href="/data/vehicle-catalog/de/models.json"><code>/data/vehicle-catalog/de/models.json</code></a> and <a href="/data/vehicle-catalog/de/models.csv"><code>models.csv</code></a>：在德国至少有 20 辆新登记的所有车型，包括汽油、柴油、插电混动和纯电动</li>
+      <li><a href="/data/vehicle-catalog/de/electric.json"><code>/data/vehicle-catalog/de/electric.json</code></a>：仅电动车型，精简版</li>
+      <li><a href="/data/vehicle-catalog/eu/models.json"><code>/data/vehicle-catalog/eu/models.json</code></a>：欧盟 27 国的同类数据</li>
+    </ul>
+    <p>许可 CC BY 4.0：请注明欧洲环境署。在 EEA 公布最终数据之前，临时年份的数据仍可能变化。</p>
+  </section>
+
+  <section class="ac-card" id="fuel-prices">
+    <span class="ac-label">油价</span>
+    <h2>汽油、柴油和液化石油气价格</h2>
+    <p>欧盟委员会每周在<a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">每周石油公报</a>（CC BY 4.0）中公布各国含全部税费的平均零售油价。我们保存了每个欧盟国家及欧盟平均值自 2005 年以来的完整序列。图表见<a href="/zh/fuel-prices/">油价页面</a>。</p>
+    <ul>
+      <li><a href="/data/fuel-prices/weekly.csv"><code>/data/fuel-prices/weekly.csv</code></a>：2005 年以来每周一行，每升欧元</li>
+      <li><a href="/data/fuel-prices/latest.json"><code>/data/fuel-prices/latest.json</code></a>：本周价格、与上周相比的变化、4 周和 52 周平均</li>
+      <li>其他国家：<code>/data/fuel-prices/&lt;country&gt;/…</code>，例如 <a href="/data/fuel-prices/eu/latest.json"><code>eu</code></a> 或 <code>at</code>；列表见 <a href="/data/fuel-prices/index.json"><code>index.json</code></a></li>
+    </ul>
+  </section>
+
+  <section class="ac-card">
+    <span class="ac-label">计算器</span>
+    <h2>汽车能耗数据</h2>
+    <p>电动车充电成本工具为每辆车预设了四种驾驶方式的大致实际能耗：经济、日常、120 km/h 高速和冬季。这些是我们用于比较的估算值，不是厂商数据。在德国销售的其他所有电动车也都在列表中，四种驾驶方式由其官方数值估算（WLTP 的 0.9、1、1.22 和 1.38 倍，平均而言与我们的估算一致）。你可以改成行车电脑上显示的数值。公式是公开的：每 100 公里 kWh × (1 + 充电损耗) × 每 kWh 电价。代码在 <a href="/ev-cost/calc.js?v=01f73cec22"><code>/ev-cost/calc.js</code></a>。</p>
+  </section>
+
+  <section class="ac-card" id="ai">
+    <span class="ac-label">给 AI 助手</span>
+    <h2>通过 AI 使用 Allo Cars</h2>
+    <ul>
+      <li><b>复制给 AI。</b>每个工具都有一个按钮，可以把你的输入、结果和链接复制成纯文本，粘贴到任何 AI 助手中。</li>
+      <li><b>带着输入的链接。</b>工具的设置都保存在网址里，例如 <a href="/zh/ev-cost/?car=Volvo%20EX30&amp;lv=14.5,16,19.5,22&amp;p=0.35&amp;loss=10&amp;fl=6&amp;fp=1.75"><code>/ev-cost/?car=Volvo EX30&amp;p=0.35</code></a>。AI 助手可以构造这样的链接，打开已经填好的工具。</li>
+      <li><b>机器可读的列表。</b><a href="/tools.json"><code>/tools.json</code></a> 描述了每个工具及其参数，<a href="/llms.txt"><code>/llms.txt</code></a> 列出了所有页面和数据文件。</li>
+    </ul>
+    <p>我们计划推出一个连接器，让 Claude 直接运行这些工具。每个页面也有英文版（<a href="https://cars.allo.land/"><code>/</code></a>）和德文版（<a href="/de/"><code>/de/</code></a>），链接参数相同。</p>
+  </section>
+
+  <section class="ac-card">
+    <span class="ac-label">隐私</span>
+    <h2>我们保存了你的哪些信息</h2>
+    <p>什么都没有。没有账号，没有 Cookie，也没有跟踪。你的输入只留在页面和它的链接里。你的浏览器只会保存你的浅色或深色选择，以及你是否关闭了安装提示。详情见<a href="/zh/legal/">隐私声明</a>。</p>
+  </section>
+</main>
+
+<!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
+  <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">Allo 的其他产品</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>身边的亲子出游和活动</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>婴幼儿和儿童用品召回，来自官方渠道</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>给父母的私密宝宝日志</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>在德国安顿生活</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars 是 <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a> 的产品。</p>
+  <p class="ac-country"><label for="ac-country">国家</label> <select id="ac-country" data-country><option value="de" selected>德国</option></select></p>
+  <p class="ac-install" data-install hidden>
+    <button type="button" class="ac-btn ac-btn--gold" data-install-btn>安装 App</button>
+    <span class="ac-install__how" data-install-how role="status" hidden></span>
+  </p>
+</footer>
+<nav class="ac-tabs" aria-label="Allo Cars">
+  <a href="/zh/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>工具</span></a>
+  <a href="/zh/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a>
+  <a href="/zh/chargers/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>充电桩地图</span></a>
+  <button type="button" class="ac-tabs__more" popovertarget="ac-more" aria-controls="ac-more" data-more-btn data-current><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>更多</span></button>
+</nav>
+<div class="ac-sheet" id="ac-more" popover role="dialog" aria-labelledby="ac-more-h">
+  <div class="ac-sheet__head"><h2 id="ac-more-h">全部页面</h2><button type="button" class="ac-iconbtn" popovertarget="ac-more" popovertargetaction="hide" data-more-close aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <h3>充电</h3>
+  <ul>
+    <li><a href="/zh/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a></li>
+    <li><a href="/zh/chargers/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>充电桩地图</span></a></li>
+    <li><a href="/zh/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>价格档案</span></a></li>
+    <li><a href="/zh/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>最佳充电时段</span></a></li>
+  </ul>
+  <h3>汽车</h3>
+  <ul>
+    <li><a href="/zh/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>召回</span></a></li>
+    <li><a href="/zh/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>新车登记</span></a></li>
+    <li><a href="/zh/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>油价</span></a></li>
+  </ul>
+  <h3>数据</h3>
+  <ul>
+    <li><a href="/zh/open-data/" aria-current="page" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg><span>数据与来源</span></a></li>
+    <li><a href="/zh/open-data/#ai" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>接入 AI</span></a></li>
+  </ul>
+</div>
+<!-- /chrome:footer -->
+</div>
+</div>
+</body>
+</html>

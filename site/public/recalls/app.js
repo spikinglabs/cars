@@ -1,9 +1,10 @@
 /* Car recalls page: EU Safety Gate alerts for a model or a brand, US NHTSA campaigns for the model, newest alerts.
-   Data: /data/recalls/eu/* and /data/recalls/us/*. One script for /recalls/ and /de/recalls/.
+   Data: /data/recalls/eu/* and /data/recalls/us/*. One script for /recalls/, /de/recalls/ and /zh/recalls/.
    Choice in the link: ?model=<slug> or ?brand=<slug>. The last choice is kept in this browser only. */
 (() => {
-  const de = document.documentElement.lang === "de";
-  // Safety Gate writes in English; the German page translates the recurring labels, not the hazard text.
+  const lang = (document.documentElement.lang || "en").slice(0, 2);
+  const de = lang === "de", zh = lang === "zh";
+  // Safety Gate writes in English; the German and Chinese pages translate the recurring labels, not the hazard text.
   const DE_TERMS = {
     "Passenger car": "Pkw", "Passenger car / Passenger van": "Pkw / Kleinbus", "Motorcycle": "Motorrad", "Lorry": "Lkw",
     "Truck": "Lkw", "Van": "Transporter", "Bus": "Bus", "Injuries": "Verletzungen", "Fire": "Brand", "Burns": "Verbrennungen",
@@ -11,10 +12,30 @@
     "Recall of the product from end users": "Rückruf bei Endkunden", "Recall of a product from commercial users": "Rückruf bei gewerblichen Kunden",
     "Withdrawal of the product from the market": "Rücknahme vom Markt",
   };
-  const tr = (s) => de && s ? (DE_TERMS[s] || s.split(", ").map((x) => DE_TERMS[x] || x).join(", ")) : s;
+  const ZH_TERMS = {
+    "Passenger car": "乘用车", "Passenger car / Passenger van": "乘用车 / 小型客车", "Motorcycle": "摩托车", "Lorry": "货车",
+    "Truck": "卡车", "Van": "厢式车", "Bus": "客车", "Injuries": "受伤", "Fire": "起火", "Burns": "烧伤",
+    "Electric shock": "触电", "Environment": "环境", "Chemical": "化学", "Cuts": "割伤",
+    "Recall of the product from end users": "向终端用户召回", "Recall of a product from commercial users": "向商业用户召回",
+    "Withdrawal of the product from the market": "撤出市场",
+  };
+  const TERMS = de ? DE_TERMS : zh ? ZH_TERMS : null;
+  const tr = (s) => TERMS && s ? (TERMS[s] || s.split(", ").map((x) => TERMS[x] || x).join(", ")) : s;
   // Every vehicle alert ends with the same legal sentence; it says nothing about the fault.
   const hazard = (s) => String(s || "").replace(/\s*The product does not comply with[^]*$/i, "").trim();
-  const T = de ? {
+  const T = zh ? {
+    locale: "zh-CN", eu: "欧洲通报", us: "美国召回行动", latest: "最新通报",
+    none: "无", noEu: "自 2019 年以来，EU Safety Gate 没有提到这款车型的通报。",
+    noUs: "这款车型没有 NHTSA 召回行动。", brandTitle: (b) => `${b} 在欧洲的召回`,
+    modelTitle: (m) => `${m} 在欧洲的召回`, alert: "Safety Gate 通报", nhtsa: "NHTSA 记录",
+    production: "生产时间", code: "召回编号", by: "通报方", years: "车型年份", remedy: "补救措施",
+    parkOutside: "停在室外", doNotDrive: "请勿驾驶", ota: "可通过 OTA 远程修复", collected: "更新于 ",
+    showAll: (n) => `显示全部 ${n} 条`, failed: "无法加载数据：",
+    pickBrand: "选择品牌", serious: "严重风险",
+    notYet: "正在第一次收集召回数据，请几分钟后再来看看。", unavailable: "暂无数据",
+    modelDesc: "自 2019 年以来 EU Safety Gate 中提到这款车型的通报。召回只涉及其中列出的车辆。描述为英文原文。",
+    brandDesc: "自 2019 年以来该品牌在 EU Safety Gate 中的全部通报，包括摩托车和商用车。描述为英文原文。", dot: "。",
+  } : de ? {
     locale: "de-DE", eu: "Meldungen in Europa", us: "Rückrufaktionen in den USA", latest: "Neueste Meldung",
     none: "Keine", noEu: "Seit 2019 keine Meldung im EU Safety Gate, die dieses Modell nennt.",
     noUs: "Keine NHTSA-Rückrufaktion für dieses Modell.", brandTitle: (b) => `Rückrufe von ${b} in Europa`,
@@ -141,7 +162,7 @@
     $("model").addEventListener("change", (e) => e.target.value && show("model", e.target.value));
     $("brand").addEventListener("change", (e) => e.target.value && show("brand", e.target.value));
     list($("newest"), latest.newest, (a) => euItem(a, true), T.none, 5);
-    $("asof").textContent = T.collected + new Date(latest.observed_at).toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + ".";
+    $("asof").textContent = T.collected + new Date(latest.observed_at).toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + (T.dot || ".");
     await show(...initial());
   }
   load().catch((e) => {

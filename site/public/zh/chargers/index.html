@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>充电桩地图 · Allo Cars</title>
+<meta name="description" content="一张地图看遍德国所有公共电动车充电桩：按功率、插头和支付方式筛选，搜索城镇或邮政编码，找到最近的快充桩。">
+<link rel="alternate" type="application/json" href="/data/chargers/de/latest.json" title="充电桩统计 (JSON)">
+<link rel="alternate" type="text/csv" href="/data/chargers/de/stations.csv" title="全部充电站 (CSV)">
+<!-- chrome:head -->
+<link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/">
+<link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/">
+<link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/zh/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Allo Cars">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
+<!-- /chrome:head -->
+<link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=2eae6260a9">
+<link rel="stylesheet" href="/assets/vendor/leaflet/leaflet.css?v=a783710282">
+<link rel="stylesheet" href="/chargers/map.css?v=9d31b512fe">
+<script src="/assets/site.js?v=4d5b1b5049"></script>
+</head>
+<body>
+<div class="ac">
+  <div class="ac-flagbar"></div>
+  <main>
+    <!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/zh/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/zh/">工具</a>
+    <a href="/zh/chargers/" aria-current="page">充电桩地图</a>
+    <a href="/zh/ev-cost/">充电成本</a>
+    <a href="/zh/charging-prices/">价格档案</a>
+    <a href="/zh/charge-times/">充电时段</a>
+    <a href="/zh/recalls/">召回</a>
+    <a href="/zh/fuel-prices/">油价</a>
+  </nav>
+  <div class="ac-top__right">
+    <details class="ac-langmenu" data-langmenu><summary aria-label="语言" title="语言"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>中文</span></summary><div class="ac-langmenu__list"><a class="ac-lang" href="/chargers/" hreflang="en" lang="en" data-lang="en">English</a><a class="ac-lang" href="/de/chargers/" hreflang="de" lang="de" data-lang="de">Deutsch</a><a class="ac-lang" href="/zh/chargers/" hreflang="zh-Hans" lang="zh-Hans" data-lang="zh" aria-current="true">简体中文</a></div></details>
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="切换浅色或深色" title="切换浅色或深色"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<aside class="ac-apphint" data-app-hint hidden>
+  <span class="ac-apphint__text" data-app-hint-text>可以把 Allo Cars 添加到主屏幕，像 App 一样使用。</span>
+  <button type="button" class="ac-apphint__go" data-app-hint-go hidden>安装</button>
+  <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="关闭">×</button>
+</aside>
+<!-- /chrome:header -->
+
+    <h1>附近哪里可以<span class="ac-hl">充电</span>？</h1>
+    <p class="lead">德国所有已登记的公共充电桩都在这张地图上。选好你需要的功率和插头，然后搜索城镇或使用你的位置。</p>
+
+    <div class="stack">
+      <section class="ac-card controls" aria-label="查找充电桩">
+        <form class="find" id="find" role="search" autocomplete="off">
+          <label class="ac-param__label" for="q">城镇或邮政编码</label>
+          <div class="find__row">
+            <div class="find__box">
+              <input id="q" name="q" type="search" placeholder="例如 Köln 或 50667" aria-autocomplete="list" aria-controls="sugg" aria-expanded="false">
+              <ul class="sugg" id="sugg" role="listbox" hidden></ul>
+            </div>
+            <button class="ac-btn ac-btn--primary" type="submit">显示</button>
+            <button class="ac-btn ac-btn--ghost" type="button" id="locate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="8"/></svg><span>我附近</span></button>
+          </div>
+          <p class="find__msg" id="findmsg" role="status" hidden></p>
+        </form>
+        <div class="filters">
+          <div><span class="ac-param__label">最低功率</span>
+            <div class="ac-seg" id="kw" role="group" aria-label="最低功率">
+              <button type="button" data-kw="0">不限</button><button type="button" data-kw="11">11 kW</button><button type="button" data-kw="50">50 kW</button><button type="button" data-kw="150">150 kW</button>
+            </div>
+          </div>
+          <div><span class="ac-param__label">插头</span>
+            <div class="ac-chips" id="plug" role="group" aria-label="插头">
+              <button type="button" class="ac-chip" data-plug="type2">Type 2 (欧标交流)</button><button type="button" class="ac-chip" data-plug="ccs">CCS</button><button type="button" class="ac-chip" data-plug="chademo">CHAdeMO</button>
+            </div>
+          </div>
+          <div><span class="ac-param__label">仅显示</span>
+            <div class="ac-chips" id="only" role="group" aria-label="仅显示">
+              <button type="button" class="ac-chip" data-only="247">24 小时开放</button><button type="button" class="ac-chip" data-only="card">可刷卡</button><button type="button" class="ac-chip" data-only="free">免费</button><button type="button" class="ac-chip" data-only="public">排除仅限顾客</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ac-card mapcard">
+        <div class="map" id="map" role="region" aria-label="充电桩地图"></div>
+        <div class="maplegend">
+          <span><i class="sw sw--ac"></i>49 kW 以下</span><span><i class="sw sw--fast"></i>50 至 149 kW</span><span><i class="sw sw--hpc"></i>150 kW 及以上</span>
+          <span class="maplegend__hint" id="maphint"></span>
+        </div>
+      </section>
+
+      <section class="ac-card">
+        <h2 class="ac-card__title" id="neartitle">离地图中心最近</h2>
+        <p class="ac-card__desc" id="neardesc">放大地图或搜索地点，即可列出充电桩。</p>
+        <ol class="near" id="near"></ol>
+      </section>
+
+      <section class="ac-card">
+        <div class="ac-readouts" id="readouts">
+          <div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">加载中</div></div>
+        </div>
+      </section>
+
+      <section class="ac-aibar">
+        <span class="ac-aibar__text"><b>交给 AI 使用。</b>链接会保留地图位置和筛选条件，AI 助手可以打开同样的视图。每个区域的站点数据都是普通 JSON。</span>
+        <a class="ac-btn ac-btn--ai" id="aigo" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>在 Claude 中打开</span></a>
+      </section>
+
+      <p class="ac-caption" style="margin:0">向德国联邦网络管理局 (Bundesnetzagentur) 申报的充电点，<span id="asof"></span> 尚未完成申报的运营商不在其中，所以实际充电桩比显示的更多。地图 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 贡献者。来源、许可和下载：<a href="/zh/open-data/#chargers">数据与来源</a>。</p>
+    </div>
+    <!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
+  <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">Allo 的其他产品</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>身边的亲子出游和活动</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>婴幼儿和儿童用品召回，来自官方渠道</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>给父母的私密宝宝日志</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>在德国安顿生活</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars 是 <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a> 的产品。</p>
+  <p class="ac-country"><label for="ac-country">国家</label> <select id="ac-country" data-country><option value="de" selected>德国</option></select></p>
+  <p class="ac-install" data-install hidden>
+    <button type="button" class="ac-btn ac-btn--gold" data-install-btn>安装 App</button>
+    <span class="ac-install__how" data-install-how role="status" hidden></span>
+  </p>
+</footer>
+<nav class="ac-tabs" aria-label="Allo Cars">
+  <a href="/zh/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>工具</span></a>
+  <a href="/zh/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a>
+  <a href="/zh/chargers/" aria-current="page" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>充电桩地图</span></a>
+  <button type="button" class="ac-tabs__more" popovertarget="ac-more" aria-controls="ac-more" data-more-btn><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>更多</span></button>
+</nav>
+<div class="ac-sheet" id="ac-more" popover role="dialog" aria-labelledby="ac-more-h">
+  <div class="ac-sheet__head"><h2 id="ac-more-h">全部页面</h2><button type="button" class="ac-iconbtn" popovertarget="ac-more" popovertargetaction="hide" data-more-close aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <h3>充电</h3>
+  <ul>
+    <li><a href="/zh/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a></li>
+    <li><a href="/zh/chargers/" aria-current="page" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>充电桩地图</span></a></li>
+    <li><a href="/zh/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>价格档案</span></a></li>
+    <li><a href="/zh/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>最佳充电时段</span></a></li>
+  </ul>
+  <h3>汽车</h3>
+  <ul>
+    <li><a href="/zh/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>召回</span></a></li>
+    <li><a href="/zh/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>新车登记</span></a></li>
+    <li><a href="/zh/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>油价</span></a></li>
+  </ul>
+  <h3>数据</h3>
+  <ul>
+    <li><a href="/zh/open-data/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg><span>数据与来源</span></a></li>
+    <li><a href="/zh/open-data/#ai" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>接入 AI</span></a></li>
+  </ul>
+</div>
+<!-- /chrome:footer -->
+  </main>
+</div>
+<script src="/assets/vendor/leaflet/leaflet.js?v=db49d009c8"></script>
+<script src="/chargers/app.js?v=484d6a3255"></script>
+</body>
+</html>
