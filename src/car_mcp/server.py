@@ -19,7 +19,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
-from . import db, recalls
+from . import db, recalls, registrations
 from . import fuel as fuel_data
 from .garage import Garage, GarageError
 from .sample import load_sample_data
@@ -43,6 +43,7 @@ Guidance:
 - If the logbook is empty and the user just wants to try things out, offer load_demo_data.
 - For "is my car recalled?" call get_recalls (official EU and US recalls, needs internet).
 - For "will petrol/diesel get cheaper", "should I fill up now", call get_fuel_price_forecast (needs internet).
+- For "how many X are sold/registered in Germany" or the most popular new cars, call get_registrations (needs internet).
 """
 
 READ = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
@@ -290,6 +291,24 @@ def build_server(db_path: str | Path | None = None) -> MCPServer:
             return fuel_data.forecast(region, fuel)
         except fuel_data.FuelError as e:
             raise ToolError(str(e)) from e
+
+    @mcp.tool(annotations=WEB)
+    def get_registrations(
+        model: Annotated[str | None, Field(description="Make and model, e.g. 'Volvo EX30' or 'VW Golf'. Leave out for this month's top models.")] = None,
+        vehicle: Annotated[str | None, Field(description="A logbook vehicle to look up instead of a model name.")] = None,
+        months: Annotated[int, Field(description="How many recent months to return, 1-100.")] = 12,
+    ) -> dict[str, Any]:
+        """Monthly new car registrations in Germany (official KBA figures since Dec 2018): one model's monthly
+        counts with electric and plug-in hybrid splits and its rank, or, with no model, the latest month's market
+        by drive type and the top 20 and top 10 electric models. Data from cars.allo.land, updated monthly."""
+        text = model
+        if not text and vehicle:
+            v = run(garage.get_vehicle, vehicle)
+            text = " ".join(str(v.get(k) or "") for k in ("make", "model")).strip() or v["name"]
+        try:
+            return registrations.lookup(text, max(1, min(months, 100)))
+        except OSError as e:
+            raise ToolError(f"Could not reach cars.allo.land: {e}") from e
 
     @mcp.tool(annotations=WRITE)
     def load_demo_data() -> dict[str, Any]:

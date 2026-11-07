@@ -108,6 +108,23 @@
     <p>Safety-Gate-Daten: &copy; Europäische Union, weiterverwendet nach Beschluss 2011/833/EU der Kommission. NHTSA-Daten sind als Werk der US-Regierung gemeinfrei. Ob ein bestimmtes Auto betroffen ist, hängt von seiner FIN ab.</p>
   </section>
 
+  <section class="ac-card" id="registrations">
+    <span class="ac-label">Zulassungen</span>
+    <h2>Neuwagen nach Modell</h2>
+    <p>Das <a href="https://www.kba.de/DE/Statistik/Produktkatalog/produkte/Fahrzeuge/fz10/fz10_gentab.html">Kraftfahrt-Bundesamt</a> (KBA) veröffentlicht jeden Monat, wie viele Pkw jeder Marke und Modellreihe neu zugelassen wurden (Statistik FZ10). Wir lesen jede Monatstabelle, sobald sie erscheint, etwa eine Woche nach Monatsende, und behalten jeden Monat seit Dezember 2018.</p>
+    <p>Kostenlos herunterladen, ohne Schlüssel und ohne Anmeldung:</p>
+    <ul>
+      <li><a href="/data/registrations/de/latest.json"><code>/data/registrations/de/latest.json</code></a>: der neueste Monat: alle Neuwagen nach Antrieb, die 20 häufigsten und die 10 häufigsten Elektromodelle, mit Veränderung zum Vorjahr</li>
+      <li><a href="/data/registrations/de/models.json"><code>/data/registrations/de/models.json</code></a>: jedes je gelistete Modell mit Datei, neuester Zahl, Rang und letzten 12 Monaten</li>
+      <li><code>/data/registrations/de/models/&lt;slug&gt;.json</code>: ein Modell pro Monat, zum Beispiel <a href="/data/registrations/de/models/volvo-ex30.json"><code>volvo-ex30.json</code></a></li>
+      <li><a href="/data/registrations/de/monthly.csv"><code>/data/registrations/de/monthly.csv</code></a>: jedes Modell, jeder Monat (month, brand, model, slug, total, diesel, hybrid, phev, bev)</li>
+      <li><a href="/data/registrations/de/market.csv"><code>/data/registrations/de/market.csv</code></a>: alle Neuwagen pro Monat nach Antrieb und der Elektroanteil</li>
+      <li><a href="/data/registrations/de/brands.json"><code>/data/registrations/de/brands.json</code></a>: jede Marke pro Monat, gesamt und elektrisch</li>
+    </ul>
+    <p>Gezählt werden Neuzulassungen im Monat. <code>hybrid</code> enthält Plug-in-Hybride, die seit 2021 eine eigene Spalte <code>phev</code> haben. <code>bev</code> sind nur batterieelektrische Autos. Modellnamen wie beim KBA; <code>SONSTIGE</code> sind die übrigen Modelle einer Marke.</p>
+    <p>Quelle: © Kraftfahrt-Bundesamt, Flensburg, unter der <a href="https://www.govdata.de/dl-de/by-2-0">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>. Wer die Daten weiterverwendet, nennt das KBA genauso.</p>
+  </section>
+
   <section class="ac-card" id="fuel-prices">
     <span class="ac-label">Spritpreise</span>
     <h2>Preise für Benzin, Diesel und Autogas und ihre Prognose</h2>

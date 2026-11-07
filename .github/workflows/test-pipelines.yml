@@ -23,4 +23,5 @@ jobs:
       - run: python -m unittest discover -s pipelines/fuel_prices/tests -t . -v
       - run: python -m unittest discover -s pipelines/recalls/tests -t . -v
       - run: python -m unittest discover -s pipelines/electricity_prices/tests -t . -v
+      - run: python -m unittest discover -s pipelines/registrations/tests -t . -v
       - run: python -m unittest discover -s pipelines/price_forecast/tests -t . -v

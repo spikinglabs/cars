@@ -11,12 +11,12 @@ import urllib.request
 USER_AGENT = "spikinglabs-cars-collector/0.1 (+https://github.com/spikinglabs/cars)"
 
 
-def get_bytes(url: str, *, timeout: float = 120, retries: int = 4) -> bytes:
+def get_bytes(url: str, *, timeout: float = 120, retries: int = 4, user_agent: str = USER_AGENT) -> bytes:
     """GET a URL and return the decoded body, retrying on network errors and 5xx/429."""
     delay = 2.0
     for attempt in range(retries + 1):
         req = urllib.request.Request(
-            url, headers={"User-Agent": USER_AGENT, "Accept-Encoding": "gzip"}
+            url, headers={"User-Agent": user_agent, "Accept-Encoding": "gzip"}
         )
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:

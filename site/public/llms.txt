@@ -5,9 +5,10 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 ## Tools
 - [EV charging cost vs petrol and diesel](https://cars.allo.land/ev-cost/): cost per 100 km at any price per kWh for your EV, and the break-even electricity price against popular German petrol and diesel cars. Parameters: https://cars.allo.land/ev-cost/spec.json
 - [Charging price archive](https://cars.allo.land/charging-prices/): ad-hoc charging prices in Germany over time.
-- [Cheapest time to charge](https://cars.allo.land/charge-times/): cheapest 1 to 8 hour window to charge at home today and tomorrow, from German day-ahead exchange prices. Link parameters: day, h, addon, kwh.
-- [Car recalls](https://cars.allo.land/recalls/): official recalls per model and brand in Europe (EU Safety Gate, including every KBA recall) and the US (NHTSA). Link parameters: ?model=<slug> or ?brand=<slug>.
 - [Fuel price forecast](https://cars.allo.land/fuel-prices/): weekly petrol, diesel and LPG prices and their likely range over the next 8 weeks. Parameter: ?fuel=euro_super_95|diesel|lpg
+- [Cheapest time to charge](https://cars.allo.land/charge-times/): cheapest 1 to 8 hour window to charge at home today and tomorrow, from German day-ahead exchange prices. Link parameters: day, h, addon, kwh.
+- [New car registrations by model](https://cars.allo.land/registrations/): monthly new registrations in Germany for every model since 2018, the top 20 and the electric share. Open a model with ?model=<slug>, e.g. ?model=volvo-ex30.
+- [Car recalls](https://cars.allo.land/recalls/): official recalls per model and brand in Europe (EU Safety Gate, including every KBA recall) and the US (NHTSA). Link parameters: ?model=<slug> or ?brand=<slug>.
 
 ## Data
 - [Ad-hoc EV charging prices, latest](https://cars.allo.land/data/charging-prices/latest.json): median, p10, p90 of the base energy price (EUR/kWh incl. VAT) over all published ad-hoc tariffs, overall and per data source.
@@ -23,6 +24,9 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 - [Recalls per model](https://cars.allo.land/data/recalls/eu/models.json): followed models with files models/<slug>.json (EU) and https://cars.allo.land/data/recalls/us/models/<slug>.json (NHTSA).
 - [Recalls per brand](https://cars.allo.land/data/recalls/eu/brands.json), files brand/<slug>.json.
 - [All car recalls since 2019 (CSV)](https://cars.allo.land/data/recalls/eu/recalls.csv)
+- [New registrations, latest month](https://cars.allo.land/data/registrations/de/latest.json): all new cars by drive type, top 20 models, top 10 electric models, change on a year before.
+- [Registrations, model list](https://cars.allo.land/data/registrations/de/models.json): every model with slug, file, newest count, rank and last 12 months. One model's monthly series: https://cars.allo.land/data/registrations/de/models/<slug>.json
+- [Registrations, every model every month](https://cars.allo.land/data/registrations/de/monthly.csv) and [market by drive type](https://cars.allo.land/data/registrations/de/market.csv). Source © Kraftfahrt-Bundesamt, Flensburg (FZ10), dl-de/by-2-0.
 
 Charging data from the Open ChargePoint Database (MobiData BW), which merges AFIR feeds published on Mobilithek. Licences per source are in sources.json.
 
@@ -35,6 +39,6 @@ Every page is also in German under /de/ (for example https://cars.allo.land/de/e
 - [Charging price history](https://cars.allo.land/charging-prices/)
 - [Cheapest time to charge](https://cars.allo.land/charge-times/)
 - [Car recalls](https://cars.allo.land/recalls/)
-- [Fuel price forecast](https://cars.allo.land/fuel-prices/)
+- [New registrations by model](https://cars.allo.land/registrations/)
 - [Data and sources](https://cars.allo.land/open-data/)
 - [Imprint and privacy](https://cars.allo.land/legal/)

@@ -15,7 +15,8 @@
       "datasets": [
         "charging-prices",
         "fuel-prices",
-        "electricity-prices"
+        "electricity-prices",
+        "registrations"
       ]
     },
     {
