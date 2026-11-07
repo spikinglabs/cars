@@ -1,0 +1,26 @@
+{
+  "site": "Allo Cars",
+  "url": "https://cars.allo.land/",
+  "description": "Free car tools and open data for driving in Germany, by Spiking Labs. Every tool is a static page whose inputs live in the URL.",
+  "tools": [
+    {
+      "name": "ev_charging_cost",
+      "title": "EV charging cost per 100 km",
+      "url": "https://cars.allo.land/ev-cost/",
+      "spec": "https://cars.allo.land/ev-cost/spec.json",
+      "description": "Cost per 100 km of an electric car at any price per kWh, for four driving levels, next to other EVs and a petrol car, with the break-even electricity price."
+    },
+    {
+      "name": "charging_price_archive",
+      "title": "Charging price archive",
+      "url": "https://cars.allo.land/charging-prices/",
+      "description": "Ad-hoc public charging prices in Germany collected every hour: median, 10th and 90th percentile per day and per source.",
+      "data": {
+        "latest": "https://cars.allo.land/data/charging-prices/latest.json",
+        "daily": "https://cars.allo.land/data/charging-prices/daily.csv",
+        "tariffs": "https://cars.allo.land/data/charging-prices/tariffs.csv",
+        "sources": "https://cars.allo.land/data/charging-prices/sources.json"
+      }
+    }
+  ]
+}

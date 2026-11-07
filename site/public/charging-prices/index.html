@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charging price archive · Allo Cars</title>
+<meta name="description" content="Ad-hoc EV charging prices in Germany over time, from open AFIR data.">
+<link rel="alternate" type="application/json" href="/data/charging-prices/latest.json" title="Latest prices (JSON)">
+<link rel="alternate" type="text/csv" href="/data/charging-prices/daily.csv" title="Daily history (CSV)">
+<link rel="stylesheet" href="/assets/tokens.css">
+<link rel="stylesheet" href="/assets/components/bundle.css">
+<script src="/assets/site.js"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 60ch; }
+  .stack { display: grid; gap: var(--space-5); }
+  .band { fill: var(--car-1); opacity: .35; }
+  .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
+  .dot { fill: var(--car-2); }
+  .grid { stroke: var(--chart-grid); }
+</style>
+</head>
+<body>
+<div class="ac">
+  <div class="ac-flagbar"></div>
+  <main>
+    <!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/">Tools</a>
+    <a href="/ev-cost/">Charging cost</a>
+    <a href="/charging-prices/" aria-current="page">Price archive</a>
+    <a href="/open-data/">Data</a>
+  </nav>
+  <div class="ac-top__right">
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Switch light or dark" title="Switch light or dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<!-- /chrome:header -->
+
+    <h1>What does <span class="ac-hl">ad-hoc charging</span> cost in Germany?</h1>
+    <p class="lead">Every published ad-hoc tariff (pay without a contract), collected every hour since 6 Nov 2026. Prices are € per kWh including VAT.</p>
+
+    <div class="stack">
+      <section class="ac-card">
+        <div class="ac-readouts" id="readouts">
+          <div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">Loading</div></div>
+        </div>
+      </section>
+
+      <section class="ac-card">
+        <h2 class="ac-card__title">Median ad-hoc price per day</h2>
+        <p class="ac-card__desc">All open-licence sources together</p>
+        <div class="ac-legend"><span><i style="border-color:var(--car-2)"></i>Median</span><span><i style="border-color:var(--car-1);border-top-width:8px;opacity:.5"></i>10th to 90th percentile</span></div>
+        <div class="ac-chart" id="chart"></div>
+        <p class="ac-caption">No open archive of earlier prices exists, so the series starts with our first collection.</p>
+      </section>
+
+      <section class="ac-card">
+        <h2 class="ac-card__title">By data source</h2>
+        <p class="ac-card__desc">Each source is a feed merged into the Open ChargePoint Database</p>
+        <div class="ac-table-wrap">
+          <table class="ac-table" id="sources">
+            <thead><tr><th>Source</th><th class="num">Tariffs</th><th class="num">Median</th><th class="num">P10</th><th class="num">P90</th><th>Licence</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="ac-source">
+        <p class="ac-source__line" style="margin:0">
+          Data: <a href="https://api.mobidata-bw.de/ocpdb/">Open ChargePoint Database (MobiData BW)</a>, which merges operator AFIR feeds from <a href="https://mobilithek.info">Mobilithek</a>. Only sources with an open licence are shown. <span id="asof"></span>
+          Download: <a href="/data/charging-prices/latest.json">latest.json</a> · <a href="/data/charging-prices/daily.csv">daily.csv</a> · <a href="/data/charging-prices/tariffs.csv">tariffs.csv</a> · <a href="/data/charging-prices/sources.json">sources.json</a>
+        </p>
+        <div class="ac-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Base energy price of each tariff. Session fees and blocking fees are in tariffs.csv. Contract prices are usually lower.</span></div>
+      </div>
+    </div>
+    <!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">More from Allo</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>Family outings and events around you</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>Recalls of baby and kids' products, from official sources</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>A private baby log for parents</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>Settle into life in Germany</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars is a product by <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+</footer>
+<!-- /chrome:footer -->
+  </main>
+</div>
+<script>
+const eur = (v) => v == null ? "–" : "€" + v.toFixed(2);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function parseCsv(text) {
+  const [head, ...lines] = text.trim().split("\n");
+  const keys = head.split(",");
+  return lines.map((l) => Object.fromEntries(l.split(",").map((v, i) => [keys[i], isNaN(+v) || v === "" ? v : +v])));
+}
+
+function chart(rows) {
+  const pts = rows.filter((r) => r.source === "ALL");
+  if (!pts.length) return '<p class="ac-caption">No data yet.</p>';
+  const W = 860, H = 280, L = 48, R = 16, T = 12, B = 30;
+  const lo = Math.min(...pts.map((p) => p.p10)), hi = Math.max(...pts.map((p) => p.p90));
+  const y0 = Math.floor(lo * 10) / 10, y1 = Math.ceil(hi * 10) / 10 || 1;
+  const x = (i) => L + (pts.length === 1 ? (W - L - R) / 2 : (i * (W - L - R)) / (pts.length - 1));
+  const y = (v) => T + (1 - (v - y0) / (y1 - y0 || 1)) * (H - T - B);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Median ad-hoc charging price per day">`;
+  for (let v = y0; v <= y1 + 1e-9; v += 0.1) {
+    s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">€${v.toFixed(2)}</text>`;
+  }
+  const band = pts.map((p, i) => `${x(i)},${y(p.p90)}`).concat(pts.map((p, i) => `${x(i)},${y(p.p10)}`).reverse());
+  if (pts.length > 1) s += `<polygon class="band" points="${band.join(" ")}"/>`;
+  else s += `<line x1="${x(0)}" x2="${x(0)}" y1="${y(pts[0].p90)}" y2="${y(pts[0].p10)}" stroke="var(--car-1)" stroke-width="8" stroke-linecap="round" opacity=".6"/>`;
+  s += `<polyline class="line" points="${pts.map((p, i) => `${x(i)},${y(p.median)}`).join(" ")}"/>`;
+  pts.forEach((p, i) => { s += `<circle class="dot" cx="${x(i)}" cy="${y(p.median)}" r="3.5"><title>${p.date}: median ${eur(p.median)}, P10 ${eur(p.p10)}, P90 ${eur(p.p90)}, ${p.tariffs} tariffs</title></circle>`; });
+  const last = pts[pts.length - 1];
+  s += `<text x="${Math.min(x(pts.length - 1) + 8, W - R)}" y="${y(last.median) - 8}" text-anchor="${pts.length > 1 ? "end" : "start"}" style="fill:var(--ink);font-weight:700">${eur(last.median)}</text>`;
+  const step = Math.max(1, Math.ceil(pts.length / 8));
+  pts.forEach((p, i) => { if (i % step === 0 || i === pts.length - 1) s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${p.date.slice(8)}.${p.date.slice(5, 7)}.</text>`; });
+  return s + "</svg>";
+}
+
+async function load() {
+  const [latest, daily, sources] = await Promise.all([
+    fetch("/data/charging-prices/latest.json").then((r) => r.json()),
+    fetch("/data/charging-prices/daily.csv").then((r) => r.text()).then(parseCsv),
+    fetch("/data/charging-prices/sources.json").then((r) => r.json()),
+  ]);
+  const o = latest.overall || {};
+  const when = new Date(latest.observed_at);
+  document.getElementById("asof").textContent = "Collected " + when.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + ".";
+  document.getElementById("readouts").innerHTML = `
+    <div class="ac-readout"><div class="ac-readout__value">${eur(o.median)}<small>/kWh</small></div><div class="ac-readout__basis">Median of ${o.tariffs ?? "–"} ad-hoc tariffs</div></div>
+    <div class="ac-readout ac-readout--md"><div class="ac-readout__value">${eur(o.p10)}<small>/kWh</small></div><div class="ac-readout__basis">Cheapest 10 % pay this or less</div></div>
+    <div class="ac-readout ac-readout--md"><div class="ac-readout__value">${eur(o.p90)}<small>/kWh</small></div><div class="ac-readout__basis">Dearest 10 % pay this or more</div></div>`;
+  document.getElementById("chart").innerHTML = chart(daily);
+  const names = Object.fromEntries(sources.map((s) => [s.uid, s]));
+  document.querySelector("#sources tbody").innerHTML = Object.entries(latest.by_source || {})
+    .sort((a, b) => b[1].tariffs - a[1].tariffs)
+    .map(([uid, st]) => {
+      const src = names[uid] || {};
+      const lic = src.licence_url ? `<a href="${esc(src.licence_url)}">${esc(src.licence)}</a>` : esc(src.licence);
+      return `<tr><td>${esc(src.name || uid)}</td><td class="num">${st.tariffs}</td><td class="num">${eur(st.median)}</td><td class="num">${eur(st.p10)}</td><td class="num">${eur(st.p90)}</td><td>${lic}</td></tr>`;
+    }).join("");
+}
+load().catch((e) => { document.getElementById("chart").innerHTML = `<p class="ac-caption">Could not load data: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
