@@ -301,6 +301,11 @@
         return { brand: src.get("brand"), model: norm(src.get("model")), year: Number(src.get("year")) || 0 };
       }
     }
+    const G = window.AlloGarage, a = G && G.active(); // the car picked in My cars
+    if (a && a.make) {
+      const slug = G.recallBrand(a.make);
+      if (brands.some((b) => b.slug === slug)) return { brand: slug, model: G.recallModel(a.make, a.model), year: a.year || 0 };
+    }
     try { // the car picked in the charging cost tool
       const car = new URLSearchParams(localStorage.getItem("allo-cars-ev-cost") || "").get("car");
       const m = car && followed.find((x) => car.toLowerCase().startsWith(x.model.toLowerCase()));

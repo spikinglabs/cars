@@ -3,6 +3,7 @@
 Free car tools and open data for drivers in Germany, by Spiking Labs (part of allo.land). Tool inputs live in the URL, so a filled-in link reproduces a result. Machine-readable tool list: https://cars.allo.land/tools.json
 
 ## Tools
+- [My cars](https://cars.allo.land/cars/): one page per car model joining official consumption, cost per 100 km at today's prices, recalls matching the first registration year and German registrations. Link parameters: ?car=<vehicle catalog id, e.g. vw-golf-diesel>&year=<first registration year>. People keep several cars on their own device.
 - [EV charging cost vs petrol and diesel](https://cars.allo.land/ev-cost/): cost per 100 km at any price per kWh for your EV, and the break-even electricity price against popular German petrol and diesel cars. Any electric car sold in Germany can be picked by name (car=Kia EV9); levels then come from its official figure. Parameters: https://cars.allo.land/ev-cost/spec.json
 - [Charging price archive](https://cars.allo.land/charging-prices/): ad-hoc charging prices in Germany over time.
 - [Fuel prices](https://cars.allo.land/fuel-prices/): weekly petrol, diesel and LPG prices in Germany since 2005. Link parameters: ?fuel=euro_super_95|diesel|lpg, ?range=1y|5y|all
@@ -41,6 +42,7 @@ Data is arranged by region: https://cars.allo.land/data/<dataset>/<region>/<file
 ## Pages
 Every page is also in German under /de/ (for example https://cars.allo.land/de/ev-cost/) and in Simplified Chinese under /zh/ (for example https://cars.allo.land/zh/ev-cost/), with the same link parameters.
 - [Home](https://cars.allo.land/)
+- [My cars](https://cars.allo.land/cars/)
 - [Charging price history](https://cars.allo.land/charging-prices/)
 - [Fuel prices](https://cars.allo.land/fuel-prices/)
 - [Cheapest time to charge](https://cars.allo.land/charge-times/)

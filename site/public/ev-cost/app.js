@@ -142,7 +142,18 @@
     var q = new URLSearchParams(location.search);
     var KEYS = ["car", "lv", "use", "p", "loss", "petrol", "diesel", "refs", "own", "fl", "fp"];
     if (KEYS.some(function (k) { return q.has(k); })) return q;
-    return new URLSearchParams(store() || "");
+    var saved = new URLSearchParams(store() || "");
+    // Without a link, follow "My cars" (assets/garage.js): the car picked there, with its own
+    // consumption if one is set, and the first fuel car there as the one to compare with.
+    var G = window.AlloGarage, a = G && G.active();
+    if (a && a.fuel === "electric" && a.name && a.name !== saved.get("car")) {
+      saved.set("car", a.name);
+      if (a.cons) saved.set("lv", [0.9, 1, 1.22, 1.38].map(function (k) { return (a.cons * k).toFixed(1); }).join(","));
+      else saved.delete("lv");
+    }
+    var f = G && G.list().filter(function (c) { return (c.fuel === "petrol" || c.fuel === "diesel") && c.cons; })[0];
+    if (f && !saved.get("own")) saved.set("own", f.cons + "," + f.fuel);
+    return saved;
   }
   function readState() {
     var q = source(), s = JSON.parse(JSON.stringify(D));

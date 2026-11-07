@@ -51,6 +51,7 @@
   <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
   <nav class="ac-topnav" aria-label="Allo Cars">
     <a href="/" aria-current="page">Tools</a>
+    <a href="/cars/">My cars</a>
     <a href="/chargers/">Charger map</a>
     <a href="/ev-cost/">Charging cost</a>
     <a href="/charging-prices/">Price archive</a>
@@ -94,6 +95,12 @@
     <h2 id="tools-h">Tools</h2>
     <p class="sub">Each tool is one page. Every setting stays in the link, so you can share it or hand it to an AI.</p>
     <div class="grid">
+      <a class="ac-toolcard" href="/cars/">
+        <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M30 56V44l10-20h44l10 20v12M22 56h80v8H22z" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M110 56V46l8-16h36l8 16v10M104 56h64v8h-64z" stroke="var(--car-1)" stroke-width="2.5" fill="none"/></svg></div>
+        <h3 class="ac-toolcard__title">My cars</h3>
+        <p class="ac-toolcard__desc">All your cars in one place: what 100 km costs today, official consumption, recalls for the build year and registrations.</p>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Your garage</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+      </a>
       <a class="ac-toolcard" href="/ev-cost/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 L200 30" stroke="var(--car-1)" stroke-width="2" fill="none"/><path d="M0 70 L200 18" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M0 70 L200 6" stroke="var(--car-4)" stroke-width="2" fill="none"/><path d="M0 34 H200" stroke="var(--fuel)" stroke-width="2" stroke-dasharray="6 5" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">EV charging cost</h3>
@@ -161,7 +168,7 @@
 
 <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p class="ac-foot__links"><a href="/cars/">My cars</a> · <a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">More from Allo</h2>
@@ -196,6 +203,7 @@
   </ul>
   <h3>Cars</h3>
   <ul>
+    <li><a href="/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>My cars</span></a></li>
     <li><a href="/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Recalls</span></a></li>
     <li><a href="/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>New registrations</span></a></li>
     <li><a href="/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>Fuel prices</span></a></li>
