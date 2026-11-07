@@ -129,6 +129,24 @@
       "url_zh": "https://cars.allo.land/zh/chargers/"
     },
     {
+      "name": "charger_stats",
+      "title": "Charging stations in numbers",
+      "url": "https://cars.allo.land/chargers/stats/",
+      "description": "Statistics of the public EV charge points in Germany: rankings of towns (50,000+ people), districts and federal states by charge points, per 100,000 people, fast points per 100,000, battery electric cars per charge point and kW per electric car; charge points by power class, plug and year; top operators. Ranking settings are URL query parameters.",
+      "parameters": {
+        "rank": "towns (default), districts or states",
+        "by": "per100k (default), points, fast (fast points per 100,000), bev (electric cars per point, lowest first) or kw (kW per electric car)",
+        "q": "text filter on the ranking, e.g. a town or state name"
+      },
+      "example": "https://cars.allo.land/chargers/stats/?rank=districts&by=bev&q=bayern",
+      "data": {
+        "stats": "https://cars.allo.land/data/chargers/de/stats.json",
+        "districts": "https://cars.allo.land/data/chargers/de/districts.csv"
+      },
+      "url_de": "https://cars.allo.land/de/chargers/stats/",
+      "url_zh": "https://cars.allo.land/zh/chargers/stats/"
+    },
+    {
       "name": "vehicle_catalog",
       "title": "Official consumption per car model",
       "url": "https://cars.allo.land/open-data/#vehicle-catalog",

@@ -1,0 +1,46 @@
+body { margin: 0; background: var(--surface-50); }
+main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
+h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
+.lead { color: var(--ink-muted); margin: 0 0 var(--space-2); max-width: 62ch; }
+.crumbs { margin: 0 0 var(--space-5); font-weight: 700; font-size: 14px; }
+.stack { display: grid; gap: var(--space-5); }
+.ac-readouts { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.ac-readout .sub, .rank .sub { display: block; color: var(--ink-muted); font-size: 12px; line-height: 16px; font-weight: 400; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 0; font-size: 13px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.ac-chart text { font-size: 13px; fill: var(--ink-muted); }
+.bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.bars li { display: grid; grid-template-columns: minmax(110px, 36%) 1fr auto; gap: 10px; align-items: center; font-size: 14px; line-height: 18px; }
+.bars__label { overflow: hidden; text-overflow: ellipsis; }
+.bars__track { height: 10px; background: var(--surface-200); border-radius: 0 5px 5px 0; }
+.bars__fill { display: block; height: 100%; background: var(--ref-line-hi); border-radius: 0 5px 5px 0; }
+.bars__fill.is-fast { background: var(--car-2); }
+.bars__value { font: 600 13px/1 var(--font-sign); color: var(--ink-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rank-controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; margin: 4px 0 12px; }
+.rank-filter { display: grid; gap: 4px; }
+.rank-filter input { min-height: 40px; padding: 0 10px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 600 15px/20px var(--font-sans); width: 180px; }
+.rank td.name { white-space: normal; min-width: 130px; font-weight: 700; }
+.rank td.name .ac-tag { margin-left: 4px; font-weight: 600; }
+.rank[data-hl="3"] :is(td, th):nth-child(3), .rank[data-hl="4"] :is(td, th):nth-child(4),
+.rank[data-hl="5"] :is(td, th):nth-child(5), .rank[data-hl="6"] :is(td, th):nth-child(6),
+.rank[data-hl="7"] :is(td, th):nth-child(7), .rank[data-hl="8"] :is(td, th):nth-child(8) { background: var(--surface-200); font-weight: 700; color: var(--ink); }
+#more:not([hidden]) { margin-top: 4px; }
+@media (max-width: 720px) {
+  .bars li { grid-template-columns: 1fr auto; }
+  .bars__track { grid-column: 1 / -1; order: 3; }
+  .rank-filter input { width: 100%; }
+  .rank-filter { flex: 1 1 100%; }
+}
+@media (max-width: 720px) {
+  /* on a phone show rank, name and the column the ranking is sorted by */
+  .rank :is(td, th):nth-child(n+3) { display: none; }
+  .rank[data-hl="3"] :is(td, th):nth-child(3), .rank[data-hl="4"] :is(td, th):nth-child(4),
+  .rank[data-hl="5"] :is(td, th):nth-child(5), .rank[data-hl="6"] :is(td, th):nth-child(6),
+  .rank[data-hl="7"] :is(td, th):nth-child(7), .rank[data-hl="8"] :is(td, th):nth-child(8) { display: table-cell; }
+  .rank td, .rank th { padding: 8px 6px; }
+  .rank td.name { min-width: 0; }
+}
+@media (max-width: 720px) {
+  .ac-readouts { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+  .ac-readout__value { font-size: 34px; line-height: 38px; }
+}

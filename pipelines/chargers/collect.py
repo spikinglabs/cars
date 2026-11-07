@@ -19,6 +19,8 @@ Bucket layout (the R2_BUCKET_EV bucket, folder ``chargers/``):
           cells/<id>.json         stations in each 0.5 degree cell (see build.py)
           places.json             postcode and town centres for search
           stations.csv            every station in one table
+          stats.json              statistics: by state, district and town, power classes, plugs, years (see stats.py)
+          districts.csv           charge points per district with population and electric cars
       state/source.json           which register file the public data was built from
       runs/YYYY/MM/DD/<ts>.json   what each run did
 """
@@ -35,10 +37,12 @@ from pipelines.charging_prices import bnetza
 from pipelines.charging_prices.http import get_bytes
 from pipelines.charging_prices.storage import LocalStore, PrefixedStore, R2Store
 
-from . import build, register
+from . import build, register, stats
 
 REGION = "de"
-FILES = ["latest.json", "overview.json", "places.json", "stations.csv", "cells/<id>.json"]
+FILES = ["latest.json", "overview.json", "places.json", "stations.csv", "cells/<id>.json", "stats.json", "districts.csv"]
+# Raise when the files built from one register change, so the next run rebuilds even without a new register.
+BUILD_VERSION = 2
 
 
 def _json(obj, pretty: bool = True) -> bytes:
@@ -70,6 +74,11 @@ def publish(store, data: bytes, name: str, source_url: str, now: datetime) -> di
     store.put(f"{pub}/overview.json", _json(build.overview(sts), pretty=False), "application/json")
     store.put(f"{pub}/places.json", _json(build.places(sts), pretty=False), "application/json")
     store.put(f"{pub}/stations.csv", build.stations_csv(sts), "text/csv")
+    st = stats.stats_json(rows, meta, stats.load_reference(), now.isoformat(), source_url, bnetza.DOWNLOAD_PAGE)
+    if st["unmatched_districts"]:
+        print(f"chargers: devices with an unknown district: {st['unmatched_districts']}")
+    store.put(f"{pub}/stats.json", _json(st, pretty=False), "application/json")
+    store.put(f"{pub}/districts.csv", stats.districts_csv(st), "text/csv")
     updated = meta.get("updated") or meta.get("file_date")
     latest = {
         "dataset": "chargers",
@@ -112,14 +121,15 @@ def run(store, *, local_file: str | None = None, force: bool = False) -> dict:
         url = newest(bnetza.list_register_files())
         name = bnetza.filename(url)
         previous = store.get("state/source.json")
-        if previous and json.loads(previous).get("file") == name and not force:
+        prev = json.loads(previous) if previous else {}
+        if prev.get("file") == name and prev.get("build_version", 1) >= BUILD_VERSION and not force:
             report.update(ok=True, built=False, reason=f"{name} already published")
             print(report["reason"])
             store.put(f"runs/{now:%Y/%m/%d}/{ts}.json", _json(report), "application/json")
             return report
         data = get_bytes(url, timeout=300)
     result = publish(store, data, name, url, now)
-    store.put("state/source.json", _json({"file": name, "url": url, "built_at": now.isoformat(), **result}), "application/json")
+    store.put("state/source.json", _json({"file": name, "url": url, "built_at": now.isoformat(), "build_version": BUILD_VERSION, **result}), "application/json")
     report.update(ok=True, built=True, **result)
     print(f"chargers: {result}")
     store.put(f"runs/{now:%Y/%m/%d}/{ts}.json", _json(report), "application/json")
