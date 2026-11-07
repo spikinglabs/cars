@@ -10,6 +10,12 @@
 .ac-num { font-variant-numeric: tabular-nums; }
 .ac :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 6px; }
 
+/* Text links: ink text with a sign-gold underline, like Allo Outings, so they read in light and dark.
+   :where() keeps this at element weight, so any component's own link style (buttons, tabs, menus) wins. */
+:where(.ac) a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; border-radius: 3px; transition: background-color 120ms, color 120ms; }
+:where(.ac) a:hover { background: var(--gold); color: var(--gold-ink); text-decoration-color: var(--gold-ink); }
+:where(.ac) a:hover code { background: transparent; color: inherit; }
+
 /* ---------- Button ---------- */
 .ac-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-4);
   border-radius: var(--radius-sm); border: 1.5px solid transparent; font: 700 15px/20px var(--font-sans); cursor: pointer; text-decoration: none;
@@ -162,7 +168,7 @@
 @media (max-width: 640px) { .ac-topnav { order: 3; width: 100%; overflow-x: auto; flex-wrap: nowrap; margin: 0 -4px; } .ac-topnav a { padding: 8px 12px; } }
 .ac-foot { border-top: 1px solid var(--border); color: var(--ink-muted); margin-top: 48px; padding: 16px 0 32px; font-size: 13px; line-height: 20px; }
 .ac-foot p { margin: 0 0 10px; }
-.ac-foot a { color: inherit; }
+.ac-foot a { color: inherit; text-decoration-color: currentColor; text-decoration-thickness: 1px; }
 .ac-foot__links a { font-weight: 700; white-space: nowrap; }
 .ac-family { margin: 16px 0 12px; }
 .ac-family h2 { color: var(--ink-muted); margin: 0 0 8px; font: 700 14px/20px var(--font-sans); }
@@ -309,7 +315,7 @@
 @media (max-width: 640px) { .ac-topnav { order: 3; width: 100%; overflow-x: auto; flex-wrap: nowrap; margin: 0 -4px; } .ac-topnav a { padding: 8px 12px; } }
 .ac-foot { border-top: 1px solid var(--border); color: var(--ink-muted); margin-top: 48px; padding: 16px 0 32px; font-size: 13px; line-height: 20px; }
 .ac-foot p { margin: 0 0 10px; }
-.ac-foot a { color: inherit; }
+.ac-foot a { color: inherit; text-decoration-color: currentColor; text-decoration-thickness: 1px; }
 .ac-foot__links a { font-weight: 700; white-space: nowrap; }
 .ac-family { margin: 16px 0 12px; }
 .ac-family h2 { color: var(--ink-muted); margin: 0 0 8px; font: 700 14px/20px var(--font-sans); }
