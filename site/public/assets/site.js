@@ -1,4 +1,4 @@
-/* Allo Cars site behaviour shared by every page: the country, the light/dark switch and installing the site as an app. */
+/* Allo Cars site behaviour shared by every page: the country, the language, the light/dark switch and installing the site as an app. */
 (function () {
   "use strict";
   var KEY = "allo-cars-theme", root = document.documentElement;
@@ -43,6 +43,23 @@
   document.addEventListener("DOMContentLoaded", function () {
     var pick = document.querySelector("[data-country]");
     if (pick) pick.value = region;
+  });
+
+  /* ---------- language ---------- */
+  // English pages live at /, German ones under /de/. Picking a language with the switch is kept
+  // on this device; when you come back to the home page from outside the site (or open the
+  // installed app), you land in that language.
+  var LANG_KEY = "allo-cars-lang";
+  var lang = de ? "de" : "en", wantLang = local(LANG_KEY);
+  var fromSite = false;
+  try { fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
+  var home = location.pathname === "/" || location.pathname === "/index.html" || location.pathname === "/de/" || location.pathname === "/de/index.html";
+  if (home && !fromSite && (wantLang === "de" || wantLang === "en") && wantLang !== lang) {
+    location.replace((wantLang === "de" ? "/de/" : "/") + location.search + location.hash);
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest(".ac-lang");
+    if (a) local(LANG_KEY, a.getAttribute("hreflang") === "de" ? "de" : "en");
   });
 
   /* ---------- light or dark ---------- */
