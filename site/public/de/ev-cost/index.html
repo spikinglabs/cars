@@ -43,6 +43,17 @@
   .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end; }
   .answer .ac-readouts { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
   .ac-readout__value.good { color: var(--success); }
+  .answer, .answer__body { display: grid; gap: 14px; }
+  .step__n--res { background: var(--ink); color: var(--surface-100); }
+  .verdict { border-top: 1px solid var(--border); padding-top: 14px; display: grid; gap: 6px; }
+  .verdict p { margin: 0; max-width: 70ch; }
+  .verdict__head { font: 700 18px/24px var(--font-display); }
+  .verdict__head.good { color: var(--success); } .verdict__head.bad { color: var(--danger); }
+  .verdict__detail { color: var(--ink-muted); font-size: 15px; line-height: 22px; }
+  #chart .tick { stroke: var(--chart-axis); fill: none; }
+  #chart .lab--own { font-style: italic; }
+  .be-table td:first-child { white-space: normal; }
+  .be-table { width: 100%; }
   .ac-readout__value.bad { color: var(--danger); }
   .legend { margin: 10px 0 4px; }
   .legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2.5px solid var(--accent); background: var(--surface-100); margin-right: 6px; vertical-align: -1px; }
@@ -127,26 +138,6 @@
     </section>
   </div>
 
-  <section class="ac-card answer" aria-label="Ergebnis">
-    <div class="ac-readouts" id="readouts" aria-live="polite"></div>
-  </section>
-
-  <section class="ac-card">
-    <h2 class="ac-card__title">Wo sich Laden nicht mehr lohnt</h2>
-    <p class="ac-card__desc">Die Kosten pro 100 km für dein Auto steigen mit dem Preis pro kWh (blaue Linie; die Fläche reicht von sparsamem Fahren bis Winter). Jede gestrichelte Linie ist ein Verbrenner. Wo sie sich kreuzen, liegt der Gleichstand.</p>
-    <div class="ac-legend legend"><span><i style="border-color:var(--accent);border-top-width:3.5px"></i>Dein Auto</span><span><i class="ac-legend--dash" style="border-color:var(--fuel)"></i>Benzin</span><span><i class="ac-legend--dash dsl" style="border-color:var(--ink-muted)"></i>Diesel</span><span><b class="dot"></b>Gleichstand</span></div>
-    <p class="ac-notice" id="norefs" style="display:none"><span>Wähle unten mindestens ein Auto zum Vergleich.</span></p>
-    <div id="chart" class="ac-chart"></div>
-
-    <div class="ac-table-wrap">
-      <table class="ac-table be-table">
-        <caption class="ac-caption">Strompreis für Gleichstand, höchster zuerst. Die Spanne deckt deine vier Fahrweisen ab.</caption>
-        <thead><tr><th>Verbrenner</th><th class="num">Gleichstand</th><th class="num">Bei deinem Preis, pro 100 km</th></tr></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-  </section>
-
   <section class="ac-card stack" aria-labelledby="h-cmp">
     <h2 class="step" id="h-cmp"><span class="step__n">3</span>Vergleichen mit</h2>
     <div>
@@ -163,12 +154,36 @@
     </div>
   </section>
 
+  <section class="ac-card answer" aria-labelledby="h-res">
+    <h2 class="step" id="h-res"><span class="step__n step__n--res">=</span>Dein Ergebnis</h2>
+    <div id="readouts" class="answer__body" aria-live="polite"></div>
+  </section>
+
+  <section class="ac-card">
+    <h2 class="ac-card__title">Wo sich Laden nicht mehr lohnt</h2>
+    <p class="ac-card__desc">Die blaue Linie ist dein E-Auto aus Schritt 1: Je teurer der Strom, desto mehr kosten 100 km (die Fläche reicht von sparsamem Fahren bis Winter). Jede gestrichelte Linie ist ein Verbrenner aus Schritt 3. Die senkrechte Linie ist dein Strompreis aus Schritt 2. Wo die blaue Linie einen Verbrenner kreuzt, kostet beides gleich viel.</p>
+    <div class="ac-legend legend"><span><i style="border-color:var(--accent);border-top-width:3.5px"></i>Dein Auto</span><span><i class="ac-legend--dash" style="border-color:var(--fuel)"></i>Benzin</span><span><i class="ac-legend--dash dsl" style="border-color:var(--ink-muted)"></i>Diesel</span><span id="legown" hidden><i class="ac-legend--dash" style="border-color:var(--fuel);border-top-width:3px"></i><em>Dein Verbrenner (Schritt 3)</em></span><span><b class="dot"></b>Gleichstand</span></div>
+    <p class="ac-notice" id="norefs" style="display:none"><span>Wähle unten mindestens ein Auto zum Vergleich.</span></p>
+    <div id="chart" class="ac-chart"></div>
+
+    <div class="ac-table-wrap">
+      <table class="ac-table be-table">
+        <caption class="ac-caption">Strompreis für Gleichstand, höchster zuerst. Die Spanne deckt deine vier Fahrweisen ab.</caption>
+        <thead><tr><th>Verbrenner</th><th class="num">Gleichstand</th><th class="num">Bei deinem Preis, pro 100 km</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+
   <section class="ac-aibar">
-    <span class="ac-aibar__text"><b>Mit KI nutzen.</b> Kopiere die Zahlen in einen Assistenten, teile den Link oder öffne Claude mit deinen Zahlen.</span>
+    <span class="ac-aibar__text"><b>Mit KI nutzen.</b> Kopiere die Zahlen in einen Assistenten, teile den Link oder öffne einen Assistenten, in dem deine Zahlen schon stehen.</span>
     <button class="ac-btn ac-btn--ghost" type="button" id="copyai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Für KI kopieren</span></button>
     <button class="ac-btn ac-btn--ghost" type="button" id="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Link teilen</span></button>
     <button class="ac-btn ac-btn--quiet" type="button" id="reset"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg><span>Neu beginnen</span></button>
     <a class="ac-btn ac-btn--ai" id="claude" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>In Claude öffnen</a>
+    <a class="ac-btn ac-btn--ghost" id="chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener">In ChatGPT öffnen</a>
+    <a class="ac-btn ac-btn--ghost" id="perplexity" href="https://www.perplexity.ai/" target="_blank" rel="noopener">In Perplexity öffnen</a>
   </section>
 
   <div class="ac-source">
@@ -208,6 +223,6 @@
 
 <script src="/assets/components/bundle.js?v=991383557a"></script>
 <script src="/ev-cost/calc.js?v=744af5d330"></script>
-<script src="/ev-cost/app.js?v=207a9e1b3e"></script>
+<script src="/ev-cost/app.js?v=a923f5fc8a"></script>
 </body>
 </html>
