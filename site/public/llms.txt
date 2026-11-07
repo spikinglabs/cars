@@ -5,6 +5,7 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 ## Tools
 - [EV charging cost vs petrol and diesel](https://cars.allo.land/ev-cost/): cost per 100 km at any price per kWh for your EV, and the break-even electricity price against popular German petrol and diesel cars. Any electric car sold in Germany can be picked by name (car=Kia EV9); levels then come from its official figure. Parameters: https://cars.allo.land/ev-cost/spec.json
 - [Charging price archive](https://cars.allo.land/charging-prices/): ad-hoc charging prices in Germany over time.
+- [Fuel prices](https://cars.allo.land/fuel-prices/): weekly petrol, diesel and LPG prices in Germany since 2005. Link parameters: ?fuel=euro_super_95|diesel|lpg, ?range=1y|5y|all
 - [Cheapest time to charge](https://cars.allo.land/charge-times/): cheapest 1 to 8 hour window to charge at home today and tomorrow, from German day-ahead exchange prices. Timing only pays on a dynamic tariff. Link parameters: day, h, kwh, tariff=dynamic|fixed, grid, markup, fixed.
 - [New car registrations by model](https://cars.allo.land/registrations/): monthly new registrations in Germany for every model since 2018, the top 20 and the electric share. Open a model with ?model=<slug>, e.g. ?model=volvo-ex30.
 - [Car recalls](https://cars.allo.land/recalls/): official recalls per model and brand in Europe (EU Safety Gate, including every KBA recall) and the US (NHTSA). Link parameters: ?model=<slug> or ?brand=<slug>.
@@ -15,6 +16,8 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 - [Daily price history](https://cars.allo.land/data/charging-prices/daily.csv): one row per day and source (date, source, tariffs, median, p10, p90, min, max). Collection started 2026-11-06.
 - [Current tariffs](https://cars.allo.land/data/charging-prices/tariffs.csv): every ad-hoc tariff with energy, time, parking and session prices.
 - [Sources and licences](https://cars.allo.land/data/charging-prices/sources.json)
+- [Weekly fuel prices](https://cars.allo.land/data/fuel-prices/weekly.csv): date, euro_super_95, diesel, lpg in EUR per litre incl. taxes, weekly since 2005 (EU Weekly Oil Bulletin, CC BY 4.0).
+- [Fuel prices, latest week](https://cars.allo.land/data/fuel-prices/latest.json): this week per fuel, change on last week, 4- and 52-week averages. Other countries: /data/fuel-prices/<region>/ (list in /data/fuel-prices/index.json).
 - [Public chargers, counts](https://cars.allo.land/data/chargers/de/latest.json): locations, charge points, fast (50 kW+) and high-power (150 kW+) counts overall, per federal state and per operator, plus the plug and flag bit meanings and the list of cells.
 - [Public chargers, all locations](https://cars.allo.land/data/chargers/de/stations.csv): position, max kW, charge points, DC points, plugs, operator, address, 24/7, card payment, free, customers only, year opened.
 - Public chargers in one area: https://cars.allo.land/data/chargers/de/cells/<a>_<b>.json with a = floor(lat × 2), b = floor(lon × 2), e.g. cells/101_13.json for Cologne. Rows follow "fields"; operator is an index into "operators".
@@ -38,6 +41,7 @@ Data is arranged by region: https://cars.allo.land/data/<dataset>/<region>/<file
 Every page is also in German under /de/ (for example https://cars.allo.land/de/ev-cost/), with the same link parameters.
 - [Home](https://cars.allo.land/)
 - [Charging price history](https://cars.allo.land/charging-prices/)
+- [Fuel prices](https://cars.allo.land/fuel-prices/)
 - [Cheapest time to charge](https://cars.allo.land/charge-times/)
 - [Car recalls](https://cars.allo.land/recalls/)
 - [New registrations by model](https://cars.allo.land/registrations/)

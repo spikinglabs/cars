@@ -64,3 +64,46 @@ async def test_tools_and_dashboard(tmp_path):
 def test_render_escapes_script_close():
     html = render_dashboard_html({"x": "</script><script>alert(1)</script>"})
     assert "</script><script>alert" not in html
+
+
+
+LATEST = {"region": "DE", "currency": "EUR", "week": "2026-11-02",
+          "products": {"euro_super_95": {"eur_per_litre": 2.128}, "diesel": {"eur_per_litre": 2.282}, "lpg": {}}}
+WEEKLY = b"date,euro_super_95,diesel,lpg\n2026-10-26,2.167,2.298,1.13\n2026-11-02,2.128,2.282,\n"
+
+
+def _fake(seen):
+    def fetch(url):
+        seen.append(url)
+        return json.dumps(LATEST).encode() if url.endswith(".json") else WEEKLY
+    return fetch
+
+
+def test_fuel_prices_shapes_and_filters():
+    from car_mcp.fuel import FuelError, prices
+
+    seen = []
+    out = prices("DE", "diesel", 1, fetch=_fake(seen))
+    assert seen[0].endswith("/fuel-prices/de/latest.json") and seen[1].endswith("/fuel-prices/de/weekly.csv")
+    assert list(out["products"]) == ["diesel"]
+    assert out["history"] == [{"week": "2026-11-02", "diesel": 2.282}]
+    assert out["page"].endswith("?fuel=diesel")
+    full = prices(fetch=_fake([]))
+    assert set(full["products"]) == {"euro_super_95", "diesel", "lpg"}
+    assert full["history"][-1]["lpg"] is None and len(full["history"]) == 2
+    with pytest.raises(FuelError):
+        prices("de", "kerosene", fetch=_fake([]))
+    with pytest.raises(FuelError):
+        prices("../x", fetch=_fake([]))
+
+
+async def test_fuel_prices_tool_call(tmp_path, monkeypatch):
+    from car_mcp import fuel
+
+    monkeypatch.setattr(fuel.prices, "__defaults__", ("de", None, 12, _fake([])))
+    async with Client(build_server(tmp_path / "car.db")) as c:
+        tool = next(t for t in (await c.list_tools()).tools if t.name == "get_fuel_prices")
+        assert tool.annotations.open_world_hint
+        res = await c.call_tool("get_fuel_prices", {"fuel": "diesel", "weeks": 2})
+        assert not res.is_error
+        assert _data(res)["products"]["diesel"]["eur_per_litre"] == 2.282

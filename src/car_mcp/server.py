@@ -21,6 +21,7 @@ from mcp.types import ToolAnnotations
 
 from . import chargers, db, recalls, registrations
 from .catalog import Catalog, CatalogError
+from . import fuel as fuel_data
 from .garage import Garage, GarageError
 from .sample import load_sample_data
 
@@ -42,6 +43,7 @@ Guidance:
 - Money is in the configured currency (see get_settings). Distances use the configured unit.
 - If the logbook is empty and the user just wants to try things out, offer load_demo_data.
 - For "is my car recalled?" call get_recalls (official EU and US recalls, needs internet).
+- For "what does petrol/diesel cost now" or how fuel prices moved, call get_fuel_prices (needs internet).
 - For "how many X are sold/registered in Germany" or the most popular new cars, call get_registrations (needs internet).
 - For "where can I charge near X" call find_chargers (public chargers in Germany, needs internet).
 - For a model's official consumption (kWh/100 km, L/100 km, CO2), call lookup_official_consumption (needs internet).
@@ -51,6 +53,9 @@ READ = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=
 WRITE = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False)
 WEB = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=True)
 DELETE = ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=True, openWorldHint=False)
+
+FUELS = Literal["euro_super_95", "diesel", "lpg"]
+
 
 VehicleArg = Annotated[str | None, Field(description="Vehicle name or id. Optional when only one vehicle exists.")]
 DateArg = Annotated[str | None, Field(description="Date as YYYY-MM-DD. Defaults to today.")]
@@ -289,6 +294,19 @@ def build_server(db_path: str | Path | None = None, catalog: Catalog | None = No
             return recalls.lookup(text, limit)
         except OSError as e:
             raise ToolError(f"Could not reach cars.allo.land: {e}") from e
+
+    @mcp.tool(annotations=WEB)
+    def get_fuel_prices(
+        region: Annotated[str, Field(description="Two-letter country code (de, at, fr, ...) or eu for the EU average.")] = "de",
+        fuel: Annotated[FUELS | None, Field(description="One fuel; all fuels when omitted.")] = None,
+        weeks: Annotated[int, Field(description="How many recent weeks of history to return (1-1200, data since 2005).")] = 12,
+    ) -> dict[str, Any]:
+        """National average pump prices per litre incl. all taxes (EU Weekly Oil Bulletin): this week's price, the
+        change on last week, 4- and 52-week averages, and recent weekly history. Data from cars.allo.land."""
+        try:
+            return fuel_data.prices(region, fuel, weeks)
+        except fuel_data.FuelError as e:
+            raise ToolError(str(e)) from e
 
     @mcp.tool(annotations=WEB)
     def get_registrations(

@@ -153,6 +153,17 @@
     <p>Licence CC BY 4.0: credit the European Environment Agency. The provisional year can still change until the EEA publishes the final data.</p>
   </section>
 
+  <section class="ac-card" id="fuel-prices">
+    <span class="ac-label">Fuel prices</span>
+    <h2>Petrol, diesel and LPG prices</h2>
+    <p>Every week the European Commission publishes national average pump prices, including all taxes, in the <a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">Weekly Oil Bulletin</a> (CC BY 4.0). We keep the full series since 2005 for every EU country and the EU average,. The chart is on the <a href="/fuel-prices/">fuel price page</a>.</p>
+    <ul>
+      <li><a href="/data/fuel-prices/weekly.csv"><code>/data/fuel-prices/weekly.csv</code></a>: one row per week since 2005, € per litre</li>
+      <li><a href="/data/fuel-prices/latest.json"><code>/data/fuel-prices/latest.json</code></a>: this week, the change on last week, 4- and 52-week averages</li>
+      <li>Other countries: <code>/data/fuel-prices/&lt;country&gt;/…</code>, for example <a href="/data/fuel-prices/eu/latest.json"><code>eu</code></a> or <code>at</code>; the list is in <a href="/data/fuel-prices/index.json"><code>index.json</code></a></li>
+    </ul>
+  </section>
+
   <section class="ac-card">
     <span class="ac-label">Calculators</span>
     <h2>Car consumption figures</h2>
@@ -179,7 +190,7 @@
 
 <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p class="ac-foot__links"><a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">More from Allo</h2>
