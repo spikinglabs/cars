@@ -103,6 +103,19 @@
         "places": "https://cars.allo.land/data/chargers/de/places.json"
       },
       "url_de": "https://cars.allo.land/de/chargers/"
+    },
+    {
+      "name": "vehicle_catalog",
+      "title": "Official consumption per car model",
+      "url": "https://cars.allo.land/open-data/#vehicle-catalog",
+      "description": "Official WLTP consumption (kWh/100 km at the plug, L/100 km), CO2, power and mass for every car model and fuel type newly registered in Germany or the EU-27, averaged over the versions sold, with registration counts. From the EEA CO2 monitoring of new cars, refreshed monthly.",
+      "data": {
+        "models": "https://cars.allo.land/data/vehicle-catalog/de/models.json",
+        "models_csv": "https://cars.allo.land/data/vehicle-catalog/de/models.csv",
+        "electric": "https://cars.allo.land/data/vehicle-catalog/de/electric.json",
+        "models_eu": "https://cars.allo.land/data/vehicle-catalog/eu/models.json"
+      },
+      "url_de": "https://cars.allo.land/de/open-data/#vehicle-catalog"
     }
   ],
   "regions": "https://cars.allo.land/regions.json",

@@ -20,6 +20,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
 from . import chargers, db, recalls, registrations
+from .catalog import Catalog, CatalogError
 from .garage import Garage, GarageError
 from .sample import load_sample_data
 
@@ -43,6 +44,7 @@ Guidance:
 - For "is my car recalled?" call get_recalls (official EU and US recalls, needs internet).
 - For "how many X are sold/registered in Germany" or the most popular new cars, call get_registrations (needs internet).
 - For "where can I charge near X" call find_chargers (public chargers in Germany, needs internet).
+- For a model's official consumption (kWh/100 km, L/100 km, CO2), call lookup_official_consumption (needs internet).
 """
 
 READ = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
@@ -54,8 +56,9 @@ VehicleArg = Annotated[str | None, Field(description="Vehicle name or id. Option
 DateArg = Annotated[str | None, Field(description="Date as YYYY-MM-DD. Defaults to today.")]
 
 
-def build_server(db_path: str | Path | None = None) -> MCPServer:
+def build_server(db_path: str | Path | None = None, catalog: Catalog | None = None) -> MCPServer:
     garage = Garage(db.connect(db_path))
+    catalog = catalog or Catalog()
     apps = Apps()
 
     def run(fn, *args, **kwargs):
@@ -217,6 +220,21 @@ def build_server(db_path: str | Path | None = None) -> MCPServer:
     ) -> dict[str, Any]:
         """Costs, distance, cost per km/mi, average consumption and trip totals for a period."""
         return run(garage.summary, vehicle, months, since, until)
+
+    @mcp.tool(annotations=READ)
+    def lookup_official_consumption(
+        query: Annotated[str, Field(description="Make and/or model, e.g. 'Volvo EX30', 'ID.3', 'Golf'. Empty lists the most registered models.")] = "",
+        fuel: Annotated[str | None, Field(description="electric, petrol, diesel, phev-petrol, phev-diesel, lpg, cng, hydrogen or e85")] = None,
+        region: Annotated[str, Field(description="de (new registrations in Germany) or eu (EU-27)")] = "de",
+        limit: Annotated[int, Field(description="Most models to return (1-50)")] = 10,
+    ) -> dict[str, Any]:
+        """Official WLTP consumption of a car model from the EEA CO2 monitoring of new cars: kWh/100 km at the plug
+        (charging losses included), L/100 km, CO2 g/km, power and mass, averaged over the versions registered in the
+        latest year, with the number registered. Official figures are lower than real-world use. Needs internet."""
+        try:
+            return catalog.search(query, fuel, region, limit)
+        except CatalogError as e:
+            raise ToolError(str(e)) from e
 
     @mcp.tool(annotations=READ)
     def get_maintenance_due(vehicle: VehicleArg = None) -> dict[str, Any]:
