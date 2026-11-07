@@ -23,6 +23,7 @@
     parkOutside: "Draußen parken", doNotDrive: "Nicht fahren", ota: "Per Software-Update", collected: "Stand: ",
     showAll: (n) => `Alle ${n} zeigen`, failed: "Die Daten konnten nicht geladen werden: ",
     pickBrand: "Marke wählen", serious: "Ernstes Risiko",
+    notYet: "Die Rückrufdaten werden gerade zum ersten Mal gesammelt. Schau in ein paar Minuten wieder vorbei.", unavailable: "Noch keine Daten",
     modelDesc: "Meldungen im EU Safety Gate seit 2019, die dieses Modell nennen. Ein Rückruf gilt nur für die darin genannten Fahrzeuge. Die Beschreibung kommt im englischen Original.",
     brandDesc: "Alle Meldungen dieser Marke im EU Safety Gate seit 2019, auch Motorräder und Nutzfahrzeuge. Die Beschreibung kommt im englischen Original.",
   } : {
@@ -34,6 +35,7 @@
     parkOutside: "Park outside", doNotDrive: "Do not drive", ota: "Over-the-air fix", collected: "Updated ",
     showAll: (n) => `Show all ${n}`, failed: "Could not load data: ",
     pickBrand: "Choose a brand", serious: "Serious risk",
+    notYet: "Recall data is being collected for the first time. Check back in a few minutes.", unavailable: "No data yet",
     modelDesc: "EU Safety Gate alerts since 2019 that name this model. A recall covers only the vehicles listed in it.",
     brandDesc: "Every EU Safety Gate alert for this brand since 2019, including motorcycles and commercial vehicles.",
   };
@@ -41,7 +43,7 @@
   const KEY = "allo-cars-recalls";
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const day = (iso) => iso ? new Date(iso + "T12:00:00Z").toLocaleDateString(T.locale, { day: "numeric", month: "short", year: "numeric" }) : "–";
-  const get = (path) => fetch(BASE + path).then((r) => { if (!r.ok) throw new Error(`${path}: ${r.status}`); return r.json(); });
+  const get = (path) => fetch(BASE + path).then((r) => { if (!r.ok) throw Object.assign(new Error(`${path}: ${r.status}`), { status: r.status }); return r.json(); });
   const local = (v) => { try { return v === undefined ? localStorage.getItem(KEY) : localStorage.setItem(KEY, v); } catch (e) { return null; } };
   const $ = (id) => document.getElementById(id);
   const country = (code) => { try { return new Intl.DisplayNames([T.locale], { type: "region" }).of(code); } catch (e) { return code; } };
@@ -142,5 +144,12 @@
     $("asof").textContent = T.collected + new Date(latest.observed_at).toLocaleString(T.locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + ".";
     await show(...initial());
   }
-  load().catch((e) => { $("eu").innerHTML = `<li class="ac-caption">${T.failed}${esc(e.message)}</li>`; });
+  load().catch((e) => {
+    // Before the first collection (or if the files are briefly missing) say so, instead of a raw error.
+    const msg = e.status === 404 ? T.notYet : T.failed + e.message;
+    $("readouts").innerHTML = `<div class="ac-readout ac-readout--md"><div class="ac-readout__value">${T.unavailable}</div><div class="ac-readout__basis">${esc(msg)}</div></div>`;
+    $("eu").innerHTML = $("newest").innerHTML = "";
+    ["model", "brand"].forEach((id) => { $(id).disabled = true; });
+    $("model").innerHTML = `<option>${T.unavailable}</option>`;
+  });
 })();

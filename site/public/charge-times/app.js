@@ -10,6 +10,7 @@
     waiting: "Die Preise für morgen erscheinen gegen 13 Uhr.", tip: (t, p) => `${t} Uhr: ${p}/kWh`,
     collected: "Stand: ", failed: "Die Daten konnten nicht geladen werden: ", none: "Für diesen Tag gibt es noch keine Preise.",
     clock: (s, e) => `${s}–${e}`,
+    notYet: "Die Strompreise werden gerade zum ersten Mal gesammelt. Schau in ein paar Minuten wieder vorbei.", unavailable: "Noch keine Daten",
   } : {
     locale: "en-GB", today: "Today", tomorrow: "Tomorrow", hours: (h) => `${h} h`,
     window: "Cheapest window", avgThere: "Price in that window", dayAvg: (p) => `Day average ${p}`,
@@ -17,6 +18,7 @@
     waiting: "Tomorrow's prices appear around 13:00 German time.", tip: (t, p) => `${t}: ${p}/kWh`,
     collected: "Updated ", failed: "Could not load data: ", none: "No prices for this day yet.",
     clock: (s, e) => `${s}–${e}`,
+    notYet: "Electricity prices are being collected for the first time. Check back in a few minutes.", unavailable: "No data yet",
   };
   const HOURS = [1, 2, 3, 4, 6, 8];
   const KEY = "allo-cars-charge-times";
@@ -114,7 +116,7 @@
 
   async function load() {
     read();
-    data = await fetch(AlloSite.data("electricity-prices", "latest.json")).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    data = await fetch(AlloSite.data("electricity-prices", "latest.json")).then((r) => { if (!r.ok) throw Object.assign(new Error(r.status), { status: r.status }); return r.json(); });
     model = data.tariff_model;
     if (!new URLSearchParams(location.search).has("addon") && !local()) S.addon = model.addon_eur_kwh_net;
     if (!data.days[S.day]) S.day = 0;
@@ -123,5 +125,9 @@
     render();
     addEventListener("resize", () => { clearTimeout(window.__acRs); window.__acRs = setTimeout(render, 150); });
   }
-  load().catch((e) => { $("chart").innerHTML = `<p class="ac-caption">${T.failed}${esc(e.message)}</p>`; });
+  load().catch((e) => {
+    const msg = e.status === 404 ? T.notYet : T.failed + e.message;
+    $("readouts").innerHTML = `<div class="ac-readout ac-readout--md"><div class="ac-readout__value">${T.unavailable}</div><div class="ac-readout__basis">${esc(msg)}</div></div>`;
+    $("chart").innerHTML = "";
+  });
 })();
