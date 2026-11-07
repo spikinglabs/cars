@@ -1,0 +1,15 @@
+{
+  "about": "Regions Allo Cars has data for. Public data lives at /data/<dataset>/<region>/<file>; selectable regions appear in the country selector at the bottom of every page and can be set by link with ?country=<code>.",
+  "default": "de",
+  "regions": [
+    {
+      "code": "de",
+      "level": "country",
+      "selectable": true,
+      "name": { "en": "Germany", "de": "Deutschland" },
+      "currency": "EUR",
+      "locale": "de-DE",
+      "datasets": ["charging-prices", "fuel-prices"]
+    }
+  ]
+}
