@@ -24,8 +24,6 @@ import re
 import sys
 from pathlib import Path
 
-import openpyxl
-
 TOWN_MIN = 50_000
 OUT = Path(__file__).parent / "reference" / "districts.json"
 
@@ -38,6 +36,8 @@ STATES = {
 
 
 def _rows(path: str, sheet: str | int):
+    import openpyxl
+
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
     ws = wb[sheet] if isinstance(sheet, str) else wb[wb.sheetnames[sheet]]
     rows = [list(r) for r in ws.iter_rows(values_only=True)]

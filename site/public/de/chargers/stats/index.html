@@ -24,7 +24,7 @@
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
-<link rel="stylesheet" href="/chargers/stats/stats.css?v=4c4eea4524">
+<link rel="stylesheet" href="/chargers/stats/stats.css?v=8763c6f1cb">
 <script src="/assets/site.js?v=4d5b1b5049"></script>
 </head>
 <body>
@@ -61,7 +61,19 @@
     <p class="crumbs"><a href="/de/chargers/">← Ladesäulenkarte</a></p>
 
     <div class="stack">
+      <section class="ac-card picker" id="picker">
+        <h2 class="ac-card__title" id="pk-title"></h2>
+        <p class="ac-card__desc" id="pk-desc"></p>
+        <div class="pk-chips" id="pk-chips"></div>
+        <div class="pk-box">
+          <input id="pk-q" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="pk-sugg" aria-expanded="false" aria-labelledby="pk-title">
+          <ul class="pk-sugg" id="pk-sugg" role="listbox" hidden></ul>
+        </div>
+        <div id="pk-compare"></div>
+      </section>
+
       <section class="ac-card">
+        <p class="scope" data-scope></p>
         <div class="ac-readouts" id="readouts">
           <div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">Lädt</div></div>
         </div>
@@ -83,24 +95,28 @@
       <section class="ac-card">
         <h2 class="ac-card__title">Wie schnell?</h2>
         <p class="ac-card__desc">Ladepunkte nach Nennleistung. Die meisten sind AC-Ladepunkte zum Laden beim Parken; ab 50 kW (blau) lädt man unterwegs schnell nach.</p>
+        <p class="scope" data-scope></p>
         <div id="power"></div>
       </section>
 
       <section class="ac-card">
         <h2 class="ac-card__title">Welche Stecker?</h2>
         <p class="ac-card__desc">Ladepunkte mit dem jeweiligen Stecker. Ein Ladepunkt mit zwei Steckern zählt bei beiden. Blau = DC-Schnellladen.</p>
+        <p class="scope" data-scope></p>
         <div id="plugs"></div>
       </section>
 
       <section class="ac-card">
         <h2 class="ac-card__title">Ausbau nach Jahren</h2>
         <p class="ac-card__desc">Ladepunkte, die im jeweiligen Jahr in Betrieb gingen.</p>
+        <p class="scope" data-scope></p>
         <div id="years"></div>
       </section>
 
       <section class="ac-card">
         <h2 class="ac-card__title">Größte Betreiber</h2>
         <p class="ac-card__desc">Nach Ladepunkten, so wie sie im Register stehen.</p>
+        <p class="scope" data-scope></p>
         <div id="ops"></div>
       </section>
 
@@ -163,6 +179,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/chargers/stats/app.js?v=64286965ef"></script>
+<script src="/chargers/stats/app.js?v=8ed69ca594"></script>
 </body>
 </html>

@@ -6,7 +6,12 @@
      rank   towns | districts | states   which ranking table to show (default towns)
      by     per100k | points | fast | bev | kw   what to rank by (default per100k)
      q      text filter on the ranking, e.g. q=köln
-   Example: /chargers/stats/?rank=districts&by=bev&q=münchen */
+     areas  places whose numbers the page shows instead of all of Germany, comma separated regional keys:
+            state = 2 digits (09 Bayern), district = 5 digits (05315 Köln), town = 12 digits (053150000000 Köln)
+   Example: /chargers/stats/?rank=districts&by=bev&q=münchen
+   Example: /chargers/stats/?areas=053150000000,053140000000 (Köln and Bonn together)
+
+   Per-place power classes, plugs, years and operators come from areas.json, loaded when a place is picked. */
 (() => {
   "use strict";
   const lang = (document.documentElement.lang || "en").slice(0, 2);
@@ -34,7 +39,13 @@
     },
     bevNote: "电动车 = 纯电动乘用车（KBA 车辆保有量，1 月 1 日）。只有县级市和县才有电动车数据。",
     filter: "筛选", filterPh: "例如 Köln", showAll: (n) => `显示全部 ${n} 个`, showLess: "收起", noMatch: "没有匹配的地区。",
-    ops: (n) => `${n} 个快充`, people: (n) => `${n} 居民`, city: "县级市",
+    ops: (n) => `${n} 个快充`, people: (n) => `${n} 居民`,
+    pkTitle: "选择城市或地区", pkDesc: "选择一个或多个城市、县或联邦州，下方所有数字都会只统计它们（合计）。不选则显示全德国。",
+    pkPh: "输入城市、县或州名", pkNone: "没有找到这个地方。只列出 5 万居民以上的城市；更小的地方请选择所在的县。",
+    kind: { town: "城市", district: "县", state: "联邦州" }, remove: (n) => `移除 ${n}`, clear: "清除全部",
+    scopeAll: "全德国", together: "合计", germany: "德国", add: (n) => `把 ${n} 加入选择`,
+    loadingAreas: "正在加载地区数据 …",
+    askAreas: (names, url, data) => `请根据 ${url} 和数据 ${data}（地区 id 见 URL 中的 areas），比较 ${names} 的公共充电桩：数量、相对居民和电动车、快充、功率和插头类型、主要运营商。`, city: "县级市",
     ask: (url, data) => `请根据 ${url} 和数据 ${data}，告诉我德国公共充电桩的情况：哪些城市和县的充电点最多、相对居民和电动车数量最多或最少，以及快充的分布。`,
   } : de ? {
     locale: "de-DE", failed: "Die Daten konnten nicht geladen werden: ", notYet: "Die Statistik wird gerade zum ersten Mal berechnet. Bitte später nochmal vorbeischauen.",
@@ -59,7 +70,13 @@
     },
     bevNote: "E-Autos = reine Elektro-Pkw (KBA-Bestand am 1. Januar). E-Autos gibt es nur je Kreis, daher bei Städten nur für kreisfreie Städte.",
     filter: "Filtern", filterPh: "z. B. Köln", showAll: (n) => `Alle ${n} zeigen`, showLess: "Weniger zeigen", noMatch: "Kein passendes Gebiet.",
-    ops: (n) => `${n} Schnelllader`, people: (n) => `${n} Einwohner`, city: "kreisfrei",
+    ops: (n) => `${n} Schnelllader`, people: (n) => `${n} Einwohner`,
+    pkTitle: "Städte oder Gebiete wählen", pkDesc: "Wähle eine oder mehrere Städte, Kreise oder Bundesländer: Alle Zahlen unten gelten dann nur für sie, zusammengerechnet. Leer lassen für ganz Deutschland.",
+    pkPh: "Stadt, Kreis oder Land eingeben", pkNone: "Nicht gefunden. Städte gibt es ab 50.000 Einwohnern; für kleinere Orte den Kreis wählen.",
+    kind: { town: "Stadt", district: "Kreis", state: "Land" }, remove: (n) => `${n} entfernen`, clear: "Alle entfernen",
+    scopeAll: "Ganz Deutschland", together: "Zusammen", germany: "Deutschland", add: (n) => `${n} zur Auswahl hinzufügen`,
+    loadingAreas: "Gebiete werden geladen …",
+    askAreas: (names, url, data) => `Bitte nutze ${url} und die Daten ${data} (die Gebiets-IDs stehen im URL-Parameter areas) und vergleiche die öffentlichen Ladesäulen in ${names}: Anzahl, je Einwohner und je E-Auto, Schnelllader, Leistung und Stecker, wichtigste Betreiber.`, city: "kreisfrei",
     ask: (url, data) => `Bitte nutze ${url} und die Daten ${data} und erzähl mir, wie es um öffentliche Ladesäulen in Deutschland steht: welche Städte und Kreise die meisten Ladepunkte haben, je Einwohner und je E-Auto am besten und am schlechtesten versorgt sind, und wo die Schnelllader stehen.`,
   } : {
     locale: "en-GB", failed: "Could not load data: ", notYet: "The statistics are being built for the first time. Please check back later.",
@@ -84,7 +101,13 @@
     },
     bevNote: "EVs = battery electric cars (KBA stock on 1 January). Car figures exist per district only, so among cities only for cities that are their own district.",
     filter: "Filter", filterPh: "e.g. Köln", showAll: (n) => `Show all ${n}`, showLess: "Show fewer", noMatch: "No matching area.",
-    ops: (n) => `${n} fast`, people: (n) => `${n} people`, city: "city district",
+    ops: (n) => `${n} fast`, people: (n) => `${n} people`,
+    pkTitle: "Pick cities or areas", pkDesc: "Choose one or more cities, districts or states, and every number below covers just them, added together. Leave it empty for all of Germany.",
+    pkPh: "Type a city, district or state", pkNone: "Not found. Cities are listed from 50,000 people; for a smaller place pick its district.",
+    kind: { town: "City", district: "District", state: "State" }, remove: (n) => `Remove ${n}`, clear: "Clear all",
+    scopeAll: "All of Germany", together: "Together", germany: "Germany", add: (n) => `Add ${n} to your choice`,
+    loadingAreas: "Loading areas …",
+    askAreas: (names, url, data) => `Please use ${url} and the data ${data} (area ids are in the areas URL parameter) to compare public EV charging in ${names}: number of charge points, per resident and per electric car, fast chargers, power and plugs, and the main operators.`, city: "city district",
     ask: (url, data) => `Please use ${url} and the data ${data} to tell me about public EV charging in Germany: which cities and districts have the most charge points, which are best and worst served per resident and per electric car, and where the fast chargers are.`,
   };
 
@@ -101,8 +124,9 @@
     by: ["per100k", "points", "fast", "bev", "kw"].includes(params.get("by")) ? params.get("by") : "per100k",
     q: params.get("q") || "",
     all: false,
+    areas: (params.get("areas") || "").split(",").map((x) => x.trim()).filter((x) => /^\d{2}(\d{3}(\d{7})?)?$/.test(x)),
   };
-  let S = null;
+  let S = null, A = null, V = null, areasLoading = null;
 
   async function getJson(url) {
     const r = await fetch(url);
@@ -118,7 +142,7 @@
   }
 
   function readouts() {
-    const t = S.totals;
+    const t = V.totals;
     const box = (v, label, sub) => `<div class="ac-readout"><div class="ac-readout__value">${v}</div><div class="ac-readout__basis">${label}<br><span class="sub">${sub}</span></div></div>`;
     $("readouts").innerHTML = [
       box(num(t.points), T.points, T.pointsSub(num(t.devices))),
@@ -130,9 +154,9 @@
   }
 
   function years() {
-    const ys = S.by_year.filter((y) => y.year >= 2010);
-    const W = 760, H = 280, L = 52, B = 26, max = Math.max(...ys.map((y) => y.points_added));
-    const step = Math.pow(10, Math.floor(Math.log10(max))) / 2;
+    const ys = V.by_year.filter((y) => y.year >= 2010);
+    const W = 760, H = 280, L = 52, B = 26, max = Math.max(1, ...ys.map((y) => y.points_added));
+    const step = Math.max(1, Math.pow(10, Math.floor(Math.log10(max))) / 2);
     const top = Math.ceil(max / step) * step;
     const bw = (W - L) / ys.length, sy = (v) => H - B - (v / top) * (H - B - 10);
     let svg = "";
@@ -154,23 +178,23 @@
   }
 
   function power() {
-    const total = S.power_classes.reduce((s, c) => s + c.points, 0);
-    bars($("power"), S.power_classes.map((c) => ({
+    const total = V.power_classes.reduce((s, c) => s + c.points, 0) || 1;
+    bars($("power"), V.power_classes.map((c) => ({
       label: T.classes[c.class], v: c.points, cls: c.min_kw >= 50 ? "is-fast" : "",
       text: `${num(c.points)} · ${T.share(num(c.points / total * 100))}`,
     })));
   }
 
   function plugs() {
-    const total = S.totals.points;
-    bars($("plugs"), S.connectors.filter((c) => c.points > 0).sort((a, b) => b.points - a.points).map((c) => ({
+    const total = V.totals.points || 1;
+    bars($("plugs"), V.connectors.filter((c) => c.points > 0).sort((a, b) => b.points - a.points).map((c) => ({
       label: T.plugs[c.connector] || c.connector, v: c.points, cls: ["ccs", "chademo", "mcs"].includes(c.connector) ? "is-fast" : "",
       text: `${num(c.points)} · ${T.share(num(c.points / total * 100, c.points / total < 0.01 ? 1 : 0))}`,
     })));
   }
 
   function operators() {
-    bars($("ops"), S.top_operators.slice(0, 15).map((o) => ({ label: o.operator, v: o.points, text: `${num(o.points)} · ${T.ops(num(o.fast_points))}` })));
+    bars($("ops"), V.top_operators.slice(0, 15).map((o) => ({ label: o.operator, v: o.points, text: `${num(o.points)} · ${T.ops(num(o.fast_points))}` })));
   }
 
   /* ---------- ranking ---------- */
@@ -184,7 +208,7 @@
   function rows() {
     const list = state.rank === "towns" ? S.towns : state.rank === "districts" ? S.districts : S.states;
     const f = METRIC[state.by];
-    return list.filter((r) => f(r) != null).map((r) => ({ ...r, label: r.name || r.state }))
+    return list.filter((r) => f(r) != null).map((r) => ({ ...r, label: r.name || r.state, id: r.ars }))
       .sort((a, b) => ASC[state.by] ? f(a) - f(b) : f(b) - f(a));
   }
 
@@ -206,7 +230,9 @@
       const tags = r.city || r.city_district ? ` <span class="ac-tag">${esc(T.city)}</span>` : "";
       const where = state.rank === "towns" && r.district && !r.city_district ? r.district + " · " : "";
       const sub = r.population ? `<span class="sub">${esc(where + T.people(num(r.population)))}</span>` : "";
-      return `<tr><td class="num">${r.pos}</td><td class="name">${esc(r.label)}${state.rank === "districts" ? tags : ""}${sub}</td>${area ? `<td>${esc(r.state)}</td>` : ""}`
+      const mine = state.areas.includes(r.id);
+      const name = r.id && !mine ? `<button type="button" class="addarea" data-add="${esc(r.id)}" title="${esc(T.add(r.label))}">${esc(r.label)}</button>` : esc(r.label);
+      return `<tr${mine ? ' class="is-mine"' : ""}><td class="num">${r.pos}</td><td class="name">${name}${state.rank === "districts" ? tags : ""}${sub}</td>${area ? `<td>${esc(r.state)}</td>` : ""}`
         + `<td class="num">${num(r.points)}</td><td class="num">${num(r.points_per_100k)}</td><td class="num">${num(r.fast_per_100k)}</td>`
         + `<td class="num">${num(r.bev_per_point, 1)}</td><td class="num">${num(r.kw_per_bev, 1)}</td></tr>`;
     }).join("");
@@ -223,10 +249,144 @@
     if (state.rank !== "towns") p.set("rank", state.rank);
     if (state.by !== "per100k") p.set("by", state.by);
     if (state.q) p.set("q", state.q);
-    const qs = p.toString();
+    if (state.areas.length) p.set("areas", state.areas.join(","));
+    const qs = p.toString().replace(/%2C/g, ",");
     history.replaceState(null, "", location.pathname + (qs ? "?" + qs : ""));
     const url = location.origin + location.pathname + (qs ? "?" + qs : "");
-    $("aigo").href = "https://claude.ai/new?q=" + encodeURIComponent(T.ask(url, location.origin + data("stats.json")));
+    const names = A ? state.areas.map((id) => A[id] && A[id].name).filter(Boolean) : [];
+    $("aigo").href = "https://claude.ai/new?q=" + encodeURIComponent(names.length
+      ? T.askAreas(names.join(", "), url, location.origin + data("areas.json"))
+      : T.ask(url, location.origin + data("stats.json")));
+  }
+
+  /* ---------- picked places ---------- */
+  function wholeView() {
+    return { totals: S.totals, power_classes: S.power_classes, connectors: S.connectors, by_year: S.by_year, top_operators: S.top_operators };
+  }
+
+  // Add up the picked places. A place inside another picked place (a town in a picked district) is counted once.
+  function combine(ids) {
+    let list = ids.map((id) => A[id]).filter(Boolean);
+    list = list.filter((a) => !list.some((b) => b !== a && a.id.startsWith(b.id)));
+    const sum = (f) => list.reduce((s, a) => s + (f(a) || 0), 0);
+    const t = {};
+    for (const k of ["points", "fast_points", "ultra_points", "dc_points", "devices", "power_kw", "population"]) t[k] = sum((a) => a[k]);
+    t.bev = list.length && list.every((a) => a.bev != null) ? sum((a) => a.bev) : null;
+    ratios(t);
+    const years = {};
+    for (const a of list) for (const [y, v] of Object.entries(a.years)) { years[y] = years[y] || [0, 0]; years[y][0] += v[0]; years[y][1] += v[1]; }
+    let cum = 0;
+    const by_year = Object.keys(years).sort().map((y) => ({ year: +y, points_added: years[y][0], fast_points_added: years[y][1], points_total: (cum += years[y][0]) }));
+    const ops = new Map();
+    for (const a of list) for (const [o, n, f] of a.operators) { const x = ops.get(o) || [0, 0]; x[0] += n; x[1] += f; ops.set(o, x); }
+    return {
+      totals: t, by_year,
+      power_classes: S.power_classes.map((c, i) => ({ ...c, points: sum((a) => a.classes[i]) })),
+      connectors: S.connectors.map((c, i) => ({ ...c, points: sum((a) => a.plugs[i]) })),
+      top_operators: [...ops].map(([operator, [points, fast_points]]) => ({ operator, points, fast_points })).sort((a, b) => b.points - a.points),
+    };
+  }
+  function ratios(t) {
+    t.points_per_100k = t.population ? t.points / t.population * 1e5 : null;
+    t.fast_per_100k = t.population ? t.fast_points / t.population * 1e5 : null;
+    t.bev_per_point = t.bev && t.points ? t.bev / t.points : null;
+    t.kw_per_bev = t.bev ? t.power_kw / t.bev : null;
+    return t;
+  }
+
+  function loadAreas() {
+    if (!areasLoading) {
+      areasLoading = getJson(data("areas.json")).then((a) => {
+        A = {};
+        for (const x of a.areas) A[x.id] = { ...x, key: fold(x.name) };
+        state.areas = state.areas.filter((id) => A[id]);
+        return A;
+      }).catch((e) => { areasLoading = null; throw e; });
+    }
+    return areasLoading;
+  }
+  const fold = (s) => String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ß/g, "ss");
+
+  function refresh() {
+    V = state.areas.length && A ? combine(state.areas) : wholeView();
+    const names = A ? state.areas.map((id) => A[id].name) : [];
+    const scope = names.length ? names.join(" + ") : T.scopeAll;
+    for (const el of document.querySelectorAll("[data-scope]")) el.textContent = scope;
+    chips(); compare();
+    readouts(); years(); power(); plugs(); operators();
+    if (S) ranking(); else syncUrl();
+  }
+
+  function chips() {
+    const el = $("pk-chips");
+    if (!A || !state.areas.length) { el.innerHTML = ""; return; }
+    el.innerHTML = state.areas.map((id) => `<button type="button" class="ac-chip pk-chip" aria-pressed="true" data-remove="${esc(id)}" aria-label="${esc(T.remove(A[id].name))}">${esc(A[id].name)} <span aria-hidden="true">×</span></button>`).join("")
+      + (state.areas.length > 1 ? `<button type="button" class="ac-btn ac-btn--quiet pk-clear" data-clear>${esc(T.clear)}</button>` : "");
+  }
+
+  function compare() {
+    const el = $("pk-compare");
+    if (!A || !state.areas.length) { el.innerHTML = ""; return; }
+    const c = T.col;
+    const row = (label, t, cls) => `<tr${cls ? ` class="${cls}"` : ""}><td class="name">${esc(label)}</td><td class="num">${num(t.points)}</td><td class="num">${num(t.points_per_100k)}</td>`
+      + `<td class="num">${num(t.fast_per_100k)}</td><td class="num">${num(t.bev_per_point, 1)}</td><td class="num">${num(t.kw_per_bev, 1)}</td></tr>`;
+    const rows = state.areas.map((id) => { const a = A[id]; return row(`${a.name} · ${T.kind[a.kind]}`, ratios({ ...a })); });
+    if (state.areas.length > 1) rows.push(row(T.together, V.totals, "pk-sum"));
+    rows.push(row(T.germany, S.totals, "pk-ref"));
+    el.innerHTML = `<div class="ac-table-wrap"><table class="ac-table pk-table"><thead><tr><th>${c.name}</th><th class="num">${c.points}</th><th class="num">${c.per100k}</th>`
+      + `<th class="num">${c.fast100k}</th><th class="num">${c.bev}</th><th class="num">${c.kw}</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+  }
+
+  function suggest() {
+    const q = fold($("pk-q").value.trim()), box = $("pk-sugg");
+    if (!q || !A) { box.hidden = true; $("pk-q").setAttribute("aria-expanded", "false"); return; }
+    const order = { town: 0, district: 1, state: 2 };
+    const hits = Object.values(A).filter((a) => a.key.includes(q) && !state.areas.includes(a.id))
+      .sort((a, b) => (b.key.startsWith(q) - a.key.startsWith(q)) || (order[a.kind] - order[b.kind]) || (b.population - a.population))
+      .slice(0, 8);
+    box.innerHTML = hits.length
+      ? hits.map((a, i) => `<li role="option" id="pk-o${i}" data-id="${esc(a.id)}"${i === 0 ? ' aria-selected="true"' : ""}><b>${esc(a.name)}</b> <span>${esc(T.kind[a.kind])}${a.kind !== "state" ? " · " + esc(a.state) : ""}</span></li>`).join("")
+      : `<li class="none">${esc(T.pkNone)}</li>`;
+    box.hidden = false;
+    $("pk-q").setAttribute("aria-expanded", "true");
+  }
+  function pick(id) {
+    if (id && !state.areas.includes(id)) state.areas.push(id);
+    $("pk-q").value = "";
+    $("pk-sugg").hidden = true;
+    refresh();
+  }
+
+  function picker() {
+    $("pk-title").textContent = T.pkTitle;
+    $("pk-desc").textContent = T.pkDesc;
+    $("pk-q").placeholder = T.pkPh;
+    $("pk-q").addEventListener("focus", () => loadAreas().then(suggest).catch(() => {}));
+    $("pk-q").addEventListener("input", () => { if (A) suggest(); else loadAreas().then(suggest).catch(() => {}); });
+    $("pk-q").addEventListener("keydown", (e) => {
+      const opts = [...$("pk-sugg").querySelectorAll("li[data-id]")];
+      const cur = opts.findIndex((o) => o.getAttribute("aria-selected") === "true");
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (!opts.length) return;
+        const next = (cur + (e.key === "ArrowDown" ? 1 : -1) + opts.length) % opts.length;
+        opts.forEach((o, i) => o.setAttribute("aria-selected", String(i === next)));
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (cur >= 0) pick(opts[cur].dataset.id);
+      } else if (e.key === "Escape") { $("pk-sugg").hidden = true; }
+    });
+    $("pk-sugg").addEventListener("mousedown", (e) => { const li = e.target.closest("li[data-id]"); if (li) { e.preventDefault(); pick(li.dataset.id); } });
+    $("pk-q").addEventListener("blur", () => setTimeout(() => { $("pk-sugg").hidden = true; }, 150));
+    $("pk-chips").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-remove]");
+      if (b) { state.areas = state.areas.filter((x) => x !== b.dataset.remove); refresh(); }
+      if (e.target.closest("[data-clear]")) { state.areas = []; refresh(); }
+    });
+    $("table").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-add]");
+      if (b) loadAreas().then(() => { pick(b.dataset.add); $("picker").scrollIntoView({ behavior: "smooth", block: "start" }); });
+    });
   }
 
   function controls() {
@@ -242,12 +402,18 @@
   }
 
   controls();
+  picker();
   syncUrl();
   getJson(data("stats.json")).then((s) => {
     S = s;
     const when = new Date(s.observed_at + "T12:00:00Z").toLocaleDateString(T.locale, { day: "numeric", month: "long", year: "numeric" });
     $("asof").textContent = T.asof(when);
+    V = wholeView();
     readouts(); years(); power(); plugs(); operators(); ranking();
+    if (state.areas.length) {
+      $("pk-compare").innerHTML = `<p class="ac-caption">${esc(T.loadingAreas)}</p>`;
+      loadAreas().then(refresh).catch((e) => { $("pk-compare").innerHTML = `<p class="ac-caption">${esc(T.failed + e.message)}</p>`; });
+    }
   }).catch((e) => {
     $("readouts").innerHTML = `<p class="ac-caption" style="margin:0">${esc(e.status === 404 ? T.notYet : T.failed + e.message)}</p>`;
   });

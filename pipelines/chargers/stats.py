@@ -24,6 +24,9 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from .build import _num, postcode, year_of
+from .districts import STATES
+
+STATE_CODE = {name: code for code, name in STATES.items()}
 
 REFERENCE = Path(__file__).parent / "reference" / "districts.json"
 
@@ -46,6 +49,7 @@ CONNECTORS = {
     "type1": ("typ 1",),
 }
 AFIR_KW_PER_BEV = 1.3
+AREA_OPERATORS = 8  # operators kept per area in areas.json
 FAST, ULTRA = 50, 150
 
 # Register district names that do not match the population table by name.
@@ -173,6 +177,8 @@ def compute(rows: list[dict], ref: dict) -> dict:
     years = defaultdict(lambda: [0, 0])
     ops = defaultdict(_new)
     unmatched = Counter()
+    detail: dict[str, dict] = defaultdict(lambda: {"classes": Counter(), "plugs": Counter(), "years": defaultdict(lambda: [0, 0]),
+                                                   "ops": Counter(), "ops_fast": Counter()})
 
     for r in rows:
         pts = point_list(r)
@@ -183,6 +189,7 @@ def compute(rows: list[dict], ref: dict) -> dict:
         _add(by_state[state or "?"], dev_kw, pts)
         ars = match(r.get("Kreis/kreisfreie Stadt") or "", state)
         town_name = (r.get("Ort") or "").strip()
+        t = None
         if ars:
             _add(by_district[ars], dev_kw, pts)
             t = find_town(towns_by_district.get(ars, {}), town_name)
@@ -202,9 +209,24 @@ def compute(rows: list[dict], ref: dict) -> dict:
             for c in connectors_of(p["plug"]):
                 plugs[c] += 1
         y = year_of(r.get("Inbetriebnahmedatum"))
+        n_fast = sum(1 for p in pts if p["kw"] >= FAST)
         if y:
             years[y][0] += len(pts)
-            years[y][1] += sum(1 for p in pts if p["kw"] >= FAST)
+            years[y][1] += n_fast
+        # the same breakdowns per state, district and town, for the area picker (areas.json)
+        keys = [STATE_CODE.get(state)] + ([ars, t["ars"] if t else None] if ars else [])
+        for key in filter(None, keys):
+            dt = detail[key]
+            for p in pts:
+                dt["classes"][power_class(p["kw"])] += 1
+                for c in connectors_of(p["plug"]):
+                    dt["plugs"][c] += 1
+            if y and 1990 <= y <= 2100:
+                dt["years"][y][0] += len(pts)
+                dt["years"][y][1] += n_fast
+            if op:
+                dt["ops"][op] += len(pts)
+                dt["ops_fast"][op] += n_fast
 
     pop_total = sum(d["population"] for d in districts.values())
     bev_total = sum(d["bev"] or 0 for d in districts.values())
@@ -245,14 +267,32 @@ def compute(rows: list[dict], ref: dict) -> dict:
                           "points": acc["points"], "fast_points": acc["fast_points"], "ultra_points": acc["ultra_points"]}
                          for (p, a), acc in by_place.items()), key=lambda x: -x["points"])
 
+    def area(key: str, kind: str, base: dict) -> dict:
+        dt = detail.get(key)
+        keep = ("name", "state", "district", "city", "city_district", "points", "fast_points", "ultra_points", "dc_points",
+                "devices", "power_kw", "population", "bev")
+        out = {"id": key, "kind": kind, **{k: base[k] for k in keep if k in base}}
+        out["classes"] = [dt["classes"][k] if dt else 0 for k, _, _ in POWER_CLASSES]
+        out["plugs"] = [dt["plugs"][k] if dt else 0 for k in CONNECTORS]
+        out["years"] = {str(y): v for y, v in sorted(dt["years"].items())} if dt else {}
+        out["operators"] = [[o, n, dt["ops_fast"][o]] for o, n in dt["ops"].most_common(AREA_OPERATORS)] if dt else []
+        return out
+
+    areas = [area(STATE_CODE[s["state"]], "state", {**s, "name": s["state"]})
+             for s in (({"state": s, **_ratios(a, state_ref[s]["population"] or None, state_ref[s]["bev"] or None)})
+                       for s, a in by_state.items()) if s["state"] in STATE_CODE]
+    areas += [area(d["ars"], "district", d) for d in district_rows]
+    areas += [area(t["ars"], "town", t) for t in town_rows]
+
     return {
+        "_areas": areas,
         "totals": {**_ratios(total, pop_total, bev_total), "operators": len(op_rows), "places": len(by_place),
                    "districts_with_points": sum(1 for x in district_rows if x["points"])},
         "power_classes": [{"class": k, "min_kw": lo, "max_kw_below": hi, "points": classes[k]} for k, lo, hi in POWER_CLASSES],
         "connectors": [{"connector": k, "points": plugs[k]} for k in CONNECTORS],
         "by_year": year_rows,
         "states": sorted((
-            {"state": s, **_ratios(a, state_ref[s]["population"] or None, state_ref[s]["bev"] or None)}
+            {"state": s, "ars": STATE_CODE.get(s), **_ratios(a, state_ref[s]["population"] or None, state_ref[s]["bev"] or None)}
             for s, a in by_state.items()), key=lambda x: -x["points"]),
         "districts": district_rows,
         "towns": town_rows,
@@ -262,8 +302,10 @@ def compute(rows: list[dict], ref: dict) -> dict:
     }
 
 
-def stats_json(rows: list[dict], meta: dict, ref: dict, now_iso: str, source_url: str, page_url: str) -> dict:
-    body = compute(rows, ref)
+def stats_json(rows: list[dict], meta: dict, ref: dict, now_iso: str, source_url: str, page_url: str,
+               body: dict | None = None) -> dict:
+    body = dict(body or compute(rows, ref))
+    body.pop("_areas", None)
     return {
         "dataset": "chargers",
         "file": "stats",
@@ -291,6 +333,20 @@ def stats_json(rows: list[dict], meta: dict, ref: dict, now_iso: str, source_url
         },
         "afir_kw_per_bev": AFIR_KW_PER_BEV,
         **body,
+    }
+
+
+def areas_json(areas: list[dict], meta: dict, now_iso: str) -> dict:
+    """Power classes, plugs, years and top operators for every state, district and town, so the page can
+    add up any choice of places. Ids: state = 2-digit, district = 5-digit, town = 12-digit regional key (ARS)."""
+    return {
+        "dataset": "chargers", "file": "areas", "region": "DE",
+        "observed_at": meta.get("updated") or meta.get("file_date"), "built_at": now_iso,
+        "classes": [k for k, _, _ in POWER_CLASSES], "plugs": list(CONNECTORS),
+        "note": "classes and plugs are counts of charge points in the order of the lists above; years maps year to "
+                "[charge points, fast charge points]; operators are the top ones there as [name, charge points, fast points]. "
+                "A town lies inside its district, a district inside its state (the id starts with the parent's id).",
+        "areas": areas,
     }
 
 

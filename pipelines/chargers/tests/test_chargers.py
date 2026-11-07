@@ -131,6 +131,12 @@ class StatsTest(unittest.TestCase):
         self.assertEqual((plugs["type2_socket"], plugs["ccs"], plugs["chademo"]), (3, 1, 0))
         self.assertEqual(s["by_year"][0]["points_total"], 4)
         self.assertIn("ars,name,state", stats.districts_csv(s).decode())
+        body = stats.compute(self.rows(), self.REF)
+        areas = {a["id"]: a for a in stats.areas_json(body["_areas"], {}, "now")["areas"]}
+        self.assertEqual(areas["05"]["points"], 4)  # state code of Nordrhein-Westfalen
+        self.assertEqual(areas["053150000000"]["classes"], [0, 2, 0, 0, 0, 1])
+        self.assertEqual(areas["053620004004"]["operators"], [["A", 1, 0]])
+        self.assertEqual(areas["05315"]["years"], {"2021": [3, 1]})
 
     def test_district_matcher(self):
         from pipelines.chargers import stats

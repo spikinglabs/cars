@@ -20,6 +20,7 @@ Bucket layout (the R2_BUCKET_EV bucket, folder ``chargers/``):
           places.json             postcode and town centres for search
           stations.csv            every station in one table
           stats.json              statistics: by state, district and town, power classes, plugs, years (see stats.py)
+          areas.json              power, plugs, years, operators for every state, district and town (area picker)
           districts.csv           charge points per district with population and electric cars
       state/source.json           which register file the public data was built from
       runs/YYYY/MM/DD/<ts>.json   what each run did
@@ -40,9 +41,9 @@ from pipelines.charging_prices.storage import LocalStore, PrefixedStore, R2Store
 from . import build, register, stats
 
 REGION = "de"
-FILES = ["latest.json", "overview.json", "places.json", "stations.csv", "cells/<id>.json", "stats.json", "districts.csv"]
+FILES = ["latest.json", "overview.json", "places.json", "stations.csv", "cells/<id>.json", "stats.json", "areas.json", "districts.csv"]
 # Raise when the files built from one register change, so the next run rebuilds even without a new register.
-BUILD_VERSION = 2
+BUILD_VERSION = 3
 
 
 def _json(obj, pretty: bool = True) -> bytes:
@@ -74,7 +75,10 @@ def publish(store, data: bytes, name: str, source_url: str, now: datetime) -> di
     store.put(f"{pub}/overview.json", _json(build.overview(sts), pretty=False), "application/json")
     store.put(f"{pub}/places.json", _json(build.places(sts), pretty=False), "application/json")
     store.put(f"{pub}/stations.csv", build.stations_csv(sts), "text/csv")
-    st = stats.stats_json(rows, meta, stats.load_reference(), now.isoformat(), source_url, bnetza.DOWNLOAD_PAGE)
+    ref = stats.load_reference()
+    body = stats.compute(rows, ref)
+    st = stats.stats_json(rows, meta, ref, now.isoformat(), source_url, bnetza.DOWNLOAD_PAGE, body=body)
+    store.put(f"{pub}/areas.json", _json(stats.areas_json(body["_areas"], meta, now.isoformat()), pretty=False), "application/json")
     if st["unmatched_districts"]:
         print(f"chargers: devices with an unknown district: {st['unmatched_districts']}")
     store.put(f"{pub}/stats.json", _json(st, pretty=False), "application/json")

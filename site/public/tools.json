@@ -136,12 +136,14 @@
       "parameters": {
         "rank": "towns (default), districts or states",
         "by": "per100k (default), points, fast (fast points per 100,000), bev (electric cars per point, lowest first) or kw (kW per electric car)",
-        "q": "text filter on the ranking, e.g. a town or state name"
+        "q": "text filter on the ranking, e.g. a town or state name",
+        "areas": "comma separated regional keys of places whose numbers replace the German totals (added together): state 2 digits (09), district 5 digits (05315), town 12 digits (053150000000); ids are in areas.json"
       },
       "example": "https://cars.allo.land/chargers/stats/?rank=districts&by=bev&q=bayern",
       "data": {
         "stats": "https://cars.allo.land/data/chargers/de/stats.json",
-        "districts": "https://cars.allo.land/data/chargers/de/districts.csv"
+        "districts": "https://cars.allo.land/data/chargers/de/districts.csv",
+        "areas": "https://cars.allo.land/data/chargers/de/areas.json"
       },
       "url_de": "https://cars.allo.land/de/chargers/stats/",
       "url_zh": "https://cars.allo.land/zh/chargers/stats/"

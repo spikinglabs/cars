@@ -44,3 +44,22 @@ h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -
   .ac-readouts { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
   .ac-readout__value { font-size: 34px; line-height: 38px; }
 }
+.scope { margin: 0 0 10px; font: 700 12px/16px var(--font-sign); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); }
+.scope:empty { display: none; }
+.pk-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 10px; }
+.pk-chips:empty { display: none; }
+.pk-chip span { margin-left: 4px; font-weight: 800; }
+.pk-box { position: relative; max-width: 420px; }
+.pk-box input { width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 600 16px/20px var(--font-sans); }
+.pk-sugg { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; background: var(--surface-50); border: 1.5px solid var(--ink); border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgb(0 0 0 / 0.15); }
+.pk-sugg li { padding: 9px 10px; border-radius: 6px; cursor: pointer; font-size: 15px; line-height: 20px; }
+.pk-sugg li span { color: var(--ink-muted); font-size: 13px; }
+.pk-sugg li[aria-selected="true"], .pk-sugg li[data-id]:hover { background: var(--surface-200); }
+.pk-sugg li.none { cursor: default; color: var(--ink-muted); font-size: 14px; }
+#pk-compare:not(:empty) { margin-top: 14px; }
+.pk-table td.name { white-space: normal; font-weight: 700; min-width: 120px; }
+.pk-table tr.pk-sum td { border-top: 2px solid var(--ink); font-weight: 700; }
+.pk-table tr.pk-ref td { color: var(--ink-muted); }
+.addarea { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.addarea:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.rank tr.is-mine td { background: var(--gold-bg); }
