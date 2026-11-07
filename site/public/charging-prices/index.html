@@ -58,24 +58,7 @@
         <p class="ac-caption">No open archive of earlier prices exists, so the series starts with our first collection.</p>
       </section>
 
-      <section class="ac-card">
-        <h2 class="ac-card__title">By data source</h2>
-        <p class="ac-card__desc">Each source is a feed merged into the Open ChargePoint Database</p>
-        <div class="ac-table-wrap">
-          <table class="ac-table" id="sources">
-            <thead><tr><th>Source</th><th class="num">Tariffs</th><th class="num">Median</th><th class="num">P10</th><th class="num">P90</th><th>Licence</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </section>
-
-      <div class="ac-source">
-        <p class="ac-source__line" style="margin:0">
-          Data: <a href="https://api.mobidata-bw.de/ocpdb/">Open ChargePoint Database (MobiData BW)</a>, which merges operator AFIR feeds from <a href="https://mobilithek.info">Mobilithek</a>. Only sources with an open licence are shown. <span id="asof"></span>
-          Download: <a href="/data/charging-prices/latest.json">latest.json</a> · <a href="/data/charging-prices/daily.csv">daily.csv</a> · <a href="/data/charging-prices/tariffs.csv">tariffs.csv</a> · <a href="/data/charging-prices/sources.json">sources.json</a>
-        </p>
-        <div class="ac-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Base energy price of each tariff. Session fees and blocking fees are in tariffs.csv. Contract prices are usually lower.</span></div>
-      </div>
+      <p class="ac-caption" style="margin:0">Base energy price of each ad-hoc tariff, <span id="asof"></span> Sources, licences and downloads: <a href="/open-data/#charging-prices">Data and sources</a>.</p>
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
@@ -130,27 +113,18 @@ function chart(rows) {
 }
 
 async function load() {
-  const [latest, daily, sources] = await Promise.all([
+  const [latest, daily] = await Promise.all([
     fetch("/data/charging-prices/latest.json").then((r) => r.json()),
     fetch("/data/charging-prices/daily.csv").then((r) => r.text()).then(parseCsv),
-    fetch("/data/charging-prices/sources.json").then((r) => r.json()),
   ]);
   const o = latest.overall || {};
   const when = new Date(latest.observed_at);
-  document.getElementById("asof").textContent = "Collected " + when.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + ".";
+  document.getElementById("asof").textContent = "collected " + when.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + ".";
   document.getElementById("readouts").innerHTML = `
     <div class="ac-readout"><div class="ac-readout__value">${eur(o.median)}<small>/kWh</small></div><div class="ac-readout__basis">Median of ${o.tariffs ?? "–"} ad-hoc tariffs</div></div>
     <div class="ac-readout ac-readout--md"><div class="ac-readout__value">${eur(o.p10)}<small>/kWh</small></div><div class="ac-readout__basis">Cheapest 10 % pay this or less</div></div>
     <div class="ac-readout ac-readout--md"><div class="ac-readout__value">${eur(o.p90)}<small>/kWh</small></div><div class="ac-readout__basis">Dearest 10 % pay this or more</div></div>`;
   document.getElementById("chart").innerHTML = chart(daily);
-  const names = Object.fromEntries(sources.map((s) => [s.uid, s]));
-  document.querySelector("#sources tbody").innerHTML = Object.entries(latest.by_source || {})
-    .sort((a, b) => b[1].tariffs - a[1].tariffs)
-    .map(([uid, st]) => {
-      const src = names[uid] || {};
-      const lic = src.licence_url ? `<a href="${esc(src.licence_url)}">${esc(src.licence)}</a>` : esc(src.licence);
-      return `<tr><td>${esc(src.name || uid)}</td><td class="num">${st.tariffs}</td><td class="num">${eur(st.median)}</td><td class="num">${eur(st.p10)}</td><td class="num">${eur(st.p90)}</td><td>${lic}</td></tr>`;
-    }).join("");
 }
 load().catch((e) => { document.getElementById("chart").innerHTML = `<p class="ac-caption">Could not load data: ${esc(e.message)}</p>`; });
 </script>
