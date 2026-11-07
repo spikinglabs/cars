@@ -54,6 +54,19 @@
   #chart .lab--own { font-style: italic; }
   .be-table td:first-child { white-space: normal; }
   .be-table { width: 100%; }
+  .saved { margin: calc(-1 * var(--space-3)) 0 var(--space-5); font-size: 13px; color: var(--ink-muted); }
+  .linkbtn { background: none; border: 0; padding: 0; font: inherit; color: var(--ink); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .ai-split { position: relative; display: inline-flex; }
+  .ai-split__go { border-radius: var(--radius-pill) 0 0 var(--radius-pill); }
+  .ai-split__more { border-radius: 0 var(--radius-pill) var(--radius-pill) 0; padding: 0 10px; margin-left: 1px; }
+  .ai-split__more svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+  .ai-menu { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 5; min-width: 170px; display: grid; padding: 6px; background: var(--surface-100); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); }
+  .ai-menu[hidden] { display: none; }
+  .ai-menu a { padding: 10px 12px; border-radius: var(--radius-xs); color: var(--ink); text-decoration: none; font-weight: 700; }
+  .ai-menu a:hover, .ai-menu a:focus-visible { background: var(--surface-200); }
+  .ai-menu a[aria-current="true"]::after { content: " ✓"; color: var(--accent); }
+  .method summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--ink-muted); padding: 4px 0; }
+  .method[open] { gap: var(--space-2); }
   .ac-readout__value.bad { color: var(--danger); }
   .legend { margin: 10px 0 4px; }
   .legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2.5px solid var(--accent); background: var(--surface-100); margin-right: 6px; vertical-align: -1px; }
@@ -111,6 +124,7 @@
 
   <h1>Ab wann ist Laden <em class="ac-hl">günstiger</em> als Tanken?</h1>
   <p class="lead">Wähle dein E-Auto und was du pro kWh zahlst. Die Grafik zeigt, was 100 km bei jedem Strompreis kosten, und genau den Preis, ab dem du gegenüber den beliebtesten Benzinern und Dieseln in Deutschland nichts mehr sparst.</p>
+  <p class="saved">Deine Einstellungen bleiben auf diesem Gerät gespeichert. <button type="button" class="linkbtn" id="reset">Neu beginnen</button></p>
 
   <div class="setup">
     <section class="ac-card stack" aria-labelledby="h-car">
@@ -157,6 +171,7 @@
   <section class="ac-card answer" aria-labelledby="h-res">
     <h2 class="step" id="h-res"><span class="step__n step__n--res">=</span>Dein Ergebnis</h2>
     <div id="readouts" class="answer__body" aria-live="polite"></div>
+    <p class="ac-caption" style="margin:0">Nur Energiekosten, ohne Kaufpreis, Steuer, Versicherung und Wartung.</p>
   </section>
 
   <section class="ac-card">
@@ -177,21 +192,28 @@
 
 
   <section class="ac-aibar">
-    <span class="ac-aibar__text"><b>Mit KI nutzen.</b> Kopiere die Zahlen in einen Assistenten, teile den Link oder öffne einen Assistenten, in dem deine Zahlen schon stehen.</span>
+    <span class="ac-aibar__text"><b>Mit KI nutzen.</b> Öffne einen Assistenten, in dem deine Zahlen schon stehen, oder kopiere sie.</span>
+    <div class="ai-split">
+      <a class="ac-btn ac-btn--ai ai-split__go" id="aigo" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span id="ailabel">In Claude öffnen</span></a>
+      <button class="ac-btn ac-btn--ai ai-split__more" type="button" id="aimore" aria-haspopup="true" aria-expanded="false" aria-controls="aimenu" aria-label="Assistent wählen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="ai-menu" id="aimenu" hidden>
+        <a data-ai="claude" target="_blank" rel="noopener" href="https://claude.ai/new">Claude</a>
+        <a data-ai="chatgpt" target="_blank" rel="noopener" href="https://chatgpt.com/">ChatGPT</a>
+        <a data-ai="perplexity" target="_blank" rel="noopener" href="https://www.perplexity.ai/">Perplexity</a>
+      </div>
+    </div>
     <button class="ac-btn ac-btn--ghost" type="button" id="copyai"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Für KI kopieren</span></button>
     <button class="ac-btn ac-btn--ghost" type="button" id="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Link teilen</span></button>
-    <button class="ac-btn ac-btn--quiet" type="button" id="reset"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg><span>Neu beginnen</span></button>
-    <a class="ac-btn ac-btn--ai" id="claude" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>In Claude öffnen</a>
-    <a class="ac-btn ac-btn--ghost" id="chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener">In ChatGPT öffnen</a>
-    <a class="ac-btn ac-btn--ghost" id="perplexity" href="https://www.perplexity.ai/" target="_blank" rel="noopener">In Perplexity öffnen</a>
   </section>
 
-  <div class="ac-source">
+  <details class="ac-source method">
+    <summary>So wird gerechnet, und woher die Zahlen kommen</summary>
     <p class="ac-source__line" style="margin:0">Formel: Kosten pro 100 km = kWh/100 km × (1 + Verluste) × €/kWh. Gleichstand = L/100 km × €/L ÷ (kWh/100 km × (1 + Verluste)).</p>
     <p class="ac-source__line" style="margin:0">Verbrenner: die meistzugelassenen Neuwagen-Modelle 2025 in Deutschland (<a href="https://www.kba.de/DE/Statistik/Fahrzeuge/Neuzulassungen/neuzulassungen_node.html">KBA</a>) und dazu Mazda CX-30 und CX-5, jeweils mit dem häufigsten Motor. Der Verbrauch ist ein gerundeter Praxiswert aus Fahrtenbüchern auf <a href="https://www.spritmonitor.de/">spritmonitor.de</a> und liegt über dem WLTP-Wert. Die Werte der E-Autos sind grobe Praxiswerte.</p>
     <p class="ac-source__line" style="margin:0" id="fuelsource"></p>
     <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Nur Energiekosten: Kaufpreis, Steuer, Versicherung und Wartung sind nicht enthalten. Dein Tarif, das Wetter und deine Fahrweise ändern die echten Kosten.</span></div>
-  </div>
+  <p class="ac-source__line" style="margin:0"><a href="/de/open-data/">Alle Datenquellen von Allo Cars</a></p>
+  </details>
 <!-- chrome:footer -->
 <footer class="ac-foot">
   <p class="ac-foot__links"><a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
@@ -223,6 +245,6 @@
 
 <script src="/assets/components/bundle.js?v=991383557a"></script>
 <script src="/ev-cost/calc.js?v=744af5d330"></script>
-<script src="/ev-cost/app.js?v=a923f5fc8a"></script>
+<script src="/ev-cost/app.js?v=3409995854"></script>
 </body>
 </html>
