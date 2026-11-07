@@ -6,10 +6,407 @@
       "code": "de",
       "level": "country",
       "selectable": true,
-      "name": { "en": "Germany", "de": "Deutschland" },
+      "name": {
+        "en": "Germany",
+        "de": "Deutschland"
+      },
       "currency": "EUR",
       "locale": "de-DE",
-      "datasets": ["charging-prices", "fuel-prices"]
+      "datasets": [
+        "charging-prices",
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "eu",
+      "level": "union",
+      "selectable": false,
+      "name": {
+        "en": "European Union",
+        "de": "Europäische Union"
+      },
+      "currency": "EUR",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "at",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Austria",
+        "de": "Österreich"
+      },
+      "currency": "EUR",
+      "locale": "de-AT",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "be",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Belgium",
+        "de": "Belgien"
+      },
+      "currency": "EUR",
+      "locale": "fr-BE",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "bg",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Bulgaria",
+        "de": "Bulgarien"
+      },
+      "currency": "EUR",
+      "locale": "bg-BG",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "cy",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Cyprus",
+        "de": "Zypern"
+      },
+      "currency": "EUR",
+      "locale": "el-CY",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "cz",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Czechia",
+        "de": "Tschechien"
+      },
+      "currency": "CZK",
+      "locale": "cs-CZ",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "dk",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Denmark",
+        "de": "Dänemark"
+      },
+      "currency": "DKK",
+      "locale": "da-DK",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "ee",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Estonia",
+        "de": "Estland"
+      },
+      "currency": "EUR",
+      "locale": "et-EE",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "es",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Spain",
+        "de": "Spanien"
+      },
+      "currency": "EUR",
+      "locale": "es-ES",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "fi",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Finland",
+        "de": "Finnland"
+      },
+      "currency": "EUR",
+      "locale": "fi-FI",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "fr",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "France",
+        "de": "Frankreich"
+      },
+      "currency": "EUR",
+      "locale": "fr-FR",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "gb",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "United Kingdom",
+        "de": "Vereinigtes Königreich"
+      },
+      "currency": "GBP",
+      "locale": "en-GB",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "gr",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Greece",
+        "de": "Griechenland"
+      },
+      "currency": "EUR",
+      "locale": "el-GR",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "hr",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Croatia",
+        "de": "Kroatien"
+      },
+      "currency": "EUR",
+      "locale": "hr-HR",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "hu",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Hungary",
+        "de": "Ungarn"
+      },
+      "currency": "HUF",
+      "locale": "hu-HU",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "ie",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Ireland",
+        "de": "Irland"
+      },
+      "currency": "EUR",
+      "locale": "en-IE",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "it",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Italy",
+        "de": "Italien"
+      },
+      "currency": "EUR",
+      "locale": "it-IT",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "lt",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Lithuania",
+        "de": "Litauen"
+      },
+      "currency": "EUR",
+      "locale": "lt-LT",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "lu",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Luxembourg",
+        "de": "Luxemburg"
+      },
+      "currency": "EUR",
+      "locale": "fr-LU",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "lv",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Latvia",
+        "de": "Lettland"
+      },
+      "currency": "EUR",
+      "locale": "lv-LV",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "mt",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Malta",
+        "de": "Malta"
+      },
+      "currency": "EUR",
+      "locale": "mt-MT",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "nl",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Netherlands",
+        "de": "Niederlande"
+      },
+      "currency": "EUR",
+      "locale": "nl-NL",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "pl",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Poland",
+        "de": "Polen"
+      },
+      "currency": "PLN",
+      "locale": "pl-PL",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "pt",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Portugal",
+        "de": "Portugal"
+      },
+      "currency": "EUR",
+      "locale": "pt-PT",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "ro",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Romania",
+        "de": "Rumänien"
+      },
+      "currency": "RON",
+      "locale": "ro-RO",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "se",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Sweden",
+        "de": "Schweden"
+      },
+      "currency": "SEK",
+      "locale": "sv-SE",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "si",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Slovenia",
+        "de": "Slowenien"
+      },
+      "currency": "EUR",
+      "locale": "sl-SI",
+      "datasets": [
+        "fuel-prices"
+      ]
+    },
+    {
+      "code": "sk",
+      "level": "country",
+      "selectable": false,
+      "name": {
+        "en": "Slovakia",
+        "de": "Slowakei"
+      },
+      "currency": "EUR",
+      "locale": "sk-SK",
+      "datasets": [
+        "fuel-prices"
+      ]
     }
   ]
 }
