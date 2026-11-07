@@ -1,0 +1,35 @@
+name: Collect electricity prices
+
+# German day-ahead exchange prices from SMARD (Bundesnetzagentur) into R2 (electricity-prices/ in the
+# shared EV bucket), for the cheapest time to charge at home. Tomorrow's prices are published around
+# 13:00 German time, so the job runs every hour in the afternoon and once after midnight.
+on:
+  schedule:
+    - cron: "25 0,11,12,13,14,15,16 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collect-electricity-prices
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      R2_BUCKET: ${{ vars.R2_BUCKET_EV }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r pipelines/charging_prices/requirements.txt
+      - name: Check bucket variable
+        run: test -n "$R2_BUCKET" || { echo "::error::Set the R2_BUCKET_EV repository variable"; exit 1; }
+      - run: python -m pipelines.electricity_prices.collect --r2 "$R2_BUCKET" --prefix electricity-prices

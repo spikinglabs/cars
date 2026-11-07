@@ -46,6 +46,7 @@
     <a href="/de/">Tools</a>
     <a href="/de/ev-cost/">Ladekosten</a>
     <a href="/de/charging-prices/">Preisarchiv</a>
+    <a href="/de/charge-times/">Ladezeit</a>
     <a href="/de/recalls/">Rückrufe</a>
   </nav>
   <div class="ac-top__right">
@@ -77,6 +78,19 @@
     </ul>
     <p>Die Preise sind der Grundpreis für die Energie jedes Ad-hoc-Tarifs. Sitzungs- und Blockiergebühren stehen in <code>tariffs.csv</code>. Mit Vertrag ist Laden meist günstiger.</p>
     <p>Wenn du die Daten weiterverwendest, nenne die Quellen und Lizenzen aus <code>sources.json</code>.</p>
+  </section>
+
+  <section class="ac-card" id="electricity-prices">
+    <span class="ac-label">Strompreise</span>
+    <h2>Day-Ahead-Strompreise</h2>
+    <p>Mehrmals jeden Nachmittag lesen wir die Day-Ahead-Preise der Strombörse für Deutschland (Gebotszone DE-LU) bei <a href="https://www.smard.de/">SMARD</a>, dem Strommarktportal der Bundesnetzagentur. Seit Oktober 2025 kommen sie in 15-Minuten-Schritten; die Preise für morgen erscheinen gegen 13 Uhr. Unsere Reihe reicht bis Oktober 2018 zurück.</p>
+    <p>Mit einem dynamischen Tarif zahlst du den Börsenpreis plus einen festen Aufschlag (Netzentgelt, Umlagen, Stromsteuer, Marge des Anbieters) plus 19 % MwSt. Wir nehmen 0,18 €/kWh ohne MwSt. an; deinen eigenen Wert trägst du auf der Seite ein.</p>
+    <ul>
+      <li><a href="/data/electricity-prices/de/latest.json"><code>/data/electricity-prices/de/latest.json</code></a>: heute und morgen in 15-Minuten-Schritten, mit den günstigsten Zeitfenstern von 1 bis 8 Stunden</li>
+      <li><a href="/data/electricity-prices/de/daily.csv"><code>/data/electricity-prices/de/daily.csv</code></a>: eine Zeile pro Tag seit 2018, in €/MWh</li>
+      <li><a href="/data/electricity-prices/de/hourly.csv"><code>/data/electricity-prices/de/hourly.csv</code></a>: jede Stunde seit 2018, in €/MWh</li>
+    </ul>
+    <p>Quelle: Bundesnetzagentur | SMARD.de, Lizenz <a href="https://creativecommons.org/licenses/by/4.0/deed.de">CC BY 4.0</a>.</p>
   </section>
 
   <section class="ac-card" id="recalls">
@@ -120,7 +134,7 @@
 
 <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p class="ac-foot__links"><a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Mehr von Allo</h2>
@@ -142,6 +156,7 @@
   <a href="/de/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Tools</span></a>
   <a href="/de/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Ladekosten</span></a>
   <a href="/de/charging-prices/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>Preisarchiv</span></a>
+  <a href="/de/charge-times/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Ladezeit</span></a>
   <a href="/de/recalls/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Rückrufe</span></a>
 </nav>
 <!-- /chrome:footer -->
