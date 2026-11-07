@@ -13,4 +13,4 @@ bucket_name = "spikinglabs-car-ev"
 # same layout: fuel-prices/public/ is served at /data/fuel-prices/.
 [[r2_buckets]]
 binding = "ICE"
-bucket_name = "spikikinglabs-cars-ice"
+bucket_name = "spikinglabs-cars-ice"

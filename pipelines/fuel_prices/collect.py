@@ -1,9 +1,9 @@
 """Collect German fuel prices.
 
     python -m pipelines.fuel_prices.collect --local ./out
-    python -m pipelines.fuel_prices.collect --r2 spikikinglabs-cars-ice
+    python -m pipelines.fuel_prices.collect --r2 spikinglabs-cars-ice
 
-Bucket layout (bucket spikikinglabs-cars-ice, folder ``fuel-prices/``):
+Bucket layout (bucket spikinglabs-cars-ice, folder ``fuel-prices/``):
 
     fuel-prices/
       raw/eu-oil-bulletin/YYYY/MM/DD/<ts>.xlsx   history workbook, stored only when it changed

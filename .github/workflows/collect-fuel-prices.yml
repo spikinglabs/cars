@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      R2_BUCKET: ${{ vars.R2_BUCKET_ICE || 'spikikinglabs-cars-ice' }}
+      R2_BUCKET: ${{ vars.R2_BUCKET_ICE || 'spikinglabs-cars-ice' }}
       R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
       R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

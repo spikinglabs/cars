@@ -6,7 +6,7 @@ German petrol, diesel and LPG prices, weekly since January 2005, from the
 including all taxes, in EUR per litre.
 
 Runs daily via `.github/workflows/collect-fuel-prices.yml` and writes to the
-R2 bucket `spikikinglabs-cars-ice` (repo variable `R2_BUCKET_ICE` overrides it) under `fuel-prices/` (layout at the top of `collect.py`). Public files:
+R2 bucket `spikinglabs-cars-ice` (repo variable `R2_BUCKET_ICE` overrides it) under `fuel-prices/` (layout at the top of `collect.py`). Public files:
 
 - `https://cars.allo.land/data/fuel-prices/latest.json`: newest week, change on the previous week, 4- and 52-week averages
 - `https://cars.allo.land/data/fuel-prices/weekly.csv`: `date,euro_super_95,diesel,lpg`
