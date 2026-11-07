@@ -41,6 +41,12 @@
   .more[open] summary { margin-bottom: 10px; }
   .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
   .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end; }
+  .extras { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 6px; }
+  .subcard { display: grid; gap: 14px; align-content: start; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-50); }
+  .subcard h3 { margin: 0; font: 700 16px/20px var(--font-display); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .subcard h3 .ac-caption { font-weight: 400; }
+  .subcard > p { margin: -8px 0 0; }
+  .subcard .ac-param__label { font-size: 14px; }
   .answer .ac-readouts { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
   .ac-readout__value.good { color: var(--success); }
   .answer, .answer__body { display: grid; gap: 14px; }
@@ -163,13 +169,19 @@
       <span class="ac-param__label">Beliebte Autos in Deutschland</span>
       <div class="ac-chips" id="refs"></div>
     </div>
-    <div class="row">
-      <label class="ac-param"><span class="ac-param__label">Dein eigener Verbrenner braucht <span class="ac-caption">(optional)</span></span><span class="ac-param__box"><input id="ownl" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="–"><span class="ac-param__unit">L/100 km</span></span></label>
-      <div><span class="ac-param__label">Er tankt</span><div class="ac-seg" id="ownfuel" role="group" aria-label="Kraftstoff deines Autos"><button type="button" data-fuel="petrol">Benzin</button><button type="button" data-fuel="diesel">Diesel</button></div></div>
-    </div>
-    <div class="row">
-      <label class="ac-param"><span class="ac-param__label">Benzinpreis</span><span class="ac-param__box"><input id="petrol" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
-      <label class="ac-param"><span class="ac-param__label">Dieselpreis</span><span class="ac-param__box"><input id="diesel" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+    <div class="extras">
+      <div class="subcard" role="group" aria-labelledby="h-own">
+        <h3 id="h-own">Dein eigener Verbrenner <span class="ac-caption">optional</span></h3>
+        <p class="ac-caption">Erscheint als eigene Linie im Diagramm.</p>
+        <label class="ac-param"><span class="ac-param__label">Er braucht</span><span class="ac-param__box"><input id="ownl" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="–"><span class="ac-param__unit">L/100 km</span></span></label>
+        <div class="ac-param"><span class="ac-param__label">Er tankt</span><div class="ac-seg" id="ownfuel" role="group" aria-label="Kraftstoff deines Autos"><button type="button" data-fuel="petrol">Benzin</button><button type="button" data-fuel="diesel">Diesel</button></div></div>
+      </div>
+      <div class="subcard" role="group" aria-labelledby="h-fuelp">
+        <h3 id="h-fuelp">Spritpreise</h3>
+        <p class="ac-caption">Aktueller Durchschnitt in Deutschland. Trag ein, was du zahlst.</p>
+        <label class="ac-param"><span class="ac-param__label">Benzinpreis</span><span class="ac-param__box"><input id="petrol" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+        <label class="ac-param"><span class="ac-param__label">Dieselpreis</span><span class="ac-param__box"><input id="diesel" type="number" min="0" max="5" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/L</span></span></label>
+      </div>
     </div>
   </section>
 
