@@ -1,0 +1,24 @@
+name: Test site
+
+on:
+  pull_request:
+    paths: ["site/**", ".github/workflows/test-site.yml"]
+  push:
+    branches: [main]
+    paths: ["site/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Calculator tests
+        run: node --test site/tests/calc.test.js
+      - name: Shared header and footer are up to date
+        run: python3 site/chrome/apply.py --check

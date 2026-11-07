@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data and sources · Allo Cars</title>
+<meta name="description" content="Where Allo Cars gets its numbers, the open data files you can download, and how to use the tools from an AI assistant.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/tokens.css">
+<link rel="stylesheet" href="/assets/components/bundle.css">
+<script src="/assets/site.js"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+  h1 { font: 800 clamp(30px, 5vw, 44px)/1.08 var(--font-display); letter-spacing: -0.02em; margin: 28px 0 8px; }
+  .lead { color: var(--ink-muted); font-size: 17px; line-height: 26px; margin: 0 0 24px; }
+  main { display: grid; gap: 16px; }
+  .ac-card h2 { font: 800 22px/28px var(--font-display); margin: 0 0 6px; }
+  .ac-card p, .ac-card li { font-size: 15px; line-height: 23px; }
+  .ac-card p { margin: 0 0 10px; }
+  .ac-card ul { margin: 0 0 10px; padding-left: 1.2em; }
+  code { font: 600 13px/20px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface-200); padding: 1px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<div class="ac">
+<div class="ac-flagbar"></div>
+<div class="wrap">
+<!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/">Tools</a>
+    <a href="/ev-cost/">Charging cost</a>
+    <a href="/charging-prices/">Price archive</a>
+  </nav>
+  <div class="ac-top__right">
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Switch light or dark" title="Switch light or dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<!-- /chrome:header -->
+
+<h1>Data and <em class="ac-hl">sources</em></h1>
+<p class="lead">Where Allo Cars gets its numbers, what you can download, and how an AI assistant can use the tools.</p>
+
+<main>
+  <section class="ac-card">
+    <span class="ac-label">Charging prices</span>
+    <h2>Public ad-hoc charging prices</h2>
+    <p>Every hour we read the published ad-hoc tariffs (pay without a contract) of public chargers in Germany from the <a href="https://api.mobidata-bw.de/ocpdb/">Open ChargePoint Database</a> run by MobiData BW. It merges the AFIR price feeds that operators publish on <a href="https://mobilithek.info">Mobilithek</a>. We keep only sources with an open licence, and we keep every collection, so the archive grows by itself. No open archive of earlier prices exists, so our series starts on 6 Nov 2026.</p>
+    <p>Free to download, no key and no sign-up:</p>
+    <ul>
+      <li><a href="/data/charging-prices/latest.json"><code>/data/charging-prices/latest.json</code></a>: today's median, 10th and 90th percentile, overall and per source</li>
+      <li><a href="/data/charging-prices/daily.csv"><code>/data/charging-prices/daily.csv</code></a>: one row per day and source</li>
+      <li><a href="/data/charging-prices/tariffs.csv"><code>/data/charging-prices/tariffs.csv</code></a>: every current ad-hoc tariff with energy, time, parking and session prices</li>
+      <li><a href="/data/charging-prices/sources.json"><code>/data/charging-prices/sources.json</code></a>: sources and their licences</li>
+    </ul>
+    <p>When you reuse the data, credit the sources and licences listed in <code>sources.json</code>.</p>
+  </section>
+
+  <section class="ac-card">
+    <span class="ac-label">Calculators</span>
+    <h2>Car consumption figures</h2>
+    <p>The EV charging cost tool starts each car with rough real-world consumption for four ways of driving: efficient, typical, motorway at 120 km/h, and winter. They are our estimates for comparison, not manufacturer figures. Change them to what your trip computer shows. The formula is open: kWh per 100 km × (1 + charging losses) × price per kWh. The code is in <a href="/ev-cost/calc.js"><code>/ev-cost/calc.js</code></a>.</p>
+  </section>
+
+  <section class="ac-card" id="ai">
+    <span class="ac-label">For AI assistants</span>
+    <h2>Use Allo Cars from an AI</h2>
+    <ul>
+      <li><b>Copy for AI.</b> Every tool has a button that copies your inputs, the results and the link as plain text you can paste into any assistant.</li>
+      <li><b>Links that carry the inputs.</b> A tool's settings live in its address, for example <a href="/ev-cost/?car=Volvo%20EX30&amp;lv=14.5,16,19.5,22&amp;p=0.35&amp;loss=10&amp;fl=6&amp;fp=1.75"><code>/ev-cost/?car=Volvo EX30&amp;p=0.35</code></a>. An assistant can build such a link to open the tool already filled in.</li>
+      <li><b>Machine-readable lists.</b> <a href="/tools.json"><code>/tools.json</code></a> describes each tool and its parameters, and <a href="/llms.txt"><code>/llms.txt</code></a> lists the pages and data files.</li>
+    </ul>
+    <p>A connector that lets Claude run the tools directly is planned.</p>
+  </section>
+
+  <section class="ac-card">
+    <span class="ac-label">Privacy</span>
+    <h2>What we keep about you</h2>
+    <p>Nothing. There is no account, no cookie and no tracking. Your inputs stay in the page and its link. The only thing stored in your browser is your light or dark choice. Details are in the <a href="/legal/">privacy notice</a>.</p>
+  </section>
+</main>
+
+<!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">More from Allo</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>Family outings and events around you</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>Recalls of baby and kids' products, from official sources</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>A private baby log for parents</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>Settle into life in Germany</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars is a product by <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+</footer>
+<!-- /chrome:footer -->
+</div>
+</div>
+</body>
+</html>
