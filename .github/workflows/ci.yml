@@ -14,5 +14,5 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python }}
-      - run: uv venv && uv pip install -e . pytest
+      - run: uv venv && uv pip install -e . pytest -r pipelines/fuel_prices/requirements.txt
       - run: .venv/bin/pytest -q

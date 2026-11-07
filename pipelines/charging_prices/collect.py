@@ -1,7 +1,7 @@
 """Collect charging data snapshots.
 
     python -m pipelines.charging_prices.collect --tier hourly --local ./out
-    python -m pipelines.charging_prices.collect --tier daily --r2 spikinglabs-car-ev --prefix charging-prices
+    python -m pipelines.charging_prices.collect --tier daily --r2 <bucket> --prefix charging-prices
 
 Tiers:
     hourly  prices (stored only when changed) + charger status changes
