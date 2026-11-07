@@ -1,0 +1,36 @@
+name: Collect car registrations
+
+# Monthly new car registrations by brand and model from the KBA (FZ10) into R2
+# (registrations/). The KBA publishes a new month about a week after it ends; a daily
+# check finds it soon after. Only new or revised months are downloaded, 30 s apart as the
+# KBA's robots.txt asks, so the first run (every month since Dec 2018) takes about 50 minutes.
+on:
+  schedule:
+    - cron: "17 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collect-registrations
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      R2_BUCKET: ${{ vars.R2_BUCKET_EV }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r pipelines/charging_prices/requirements.txt -r pipelines/registrations/requirements.txt
+      - name: Check bucket variable
+        run: test -n "$R2_BUCKET" || { echo "::error::Set the R2_BUCKET_EV repository variable"; exit 1; }
+      - run: python -m pipelines.registrations.collect --r2 "$R2_BUCKET" --prefix registrations

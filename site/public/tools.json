@@ -23,6 +23,24 @@
         "sources": "https://cars.allo.land/data/charging-prices/sources.json"
       },
       "url_de": "https://cars.allo.land/de/charging-prices/"
+    },
+    {
+      "name": "new_registrations_by_model",
+      "title": "New car registrations by model",
+      "url": "https://cars.allo.land/registrations/",
+      "description": "Monthly new passenger car registrations in Germany for every brand and model since December 2018 (KBA FZ10), with electric and plug-in hybrid counts, this month's top 20 and the electric share of the market. Open a model with ?model=<slug>, slugs are in models.json.",
+      "parameters": {
+        "model": "model slug from models.json, e.g. volvo-ex30"
+      },
+      "data": {
+        "latest": "https://cars.allo.land/data/registrations/de/latest.json",
+        "models": "https://cars.allo.land/data/registrations/de/models.json",
+        "model": "https://cars.allo.land/data/registrations/de/models/<slug>.json",
+        "monthly": "https://cars.allo.land/data/registrations/de/monthly.csv",
+        "market": "https://cars.allo.land/data/registrations/de/market.csv",
+        "brands": "https://cars.allo.land/data/registrations/de/brands.json"
+      },
+      "url_de": "https://cars.allo.land/de/registrations/"
     }
   ],
   "regions": "https://cars.allo.land/regions.json",

@@ -5,12 +5,16 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 ## Tools
 - [EV charging cost vs petrol and diesel](https://cars.allo.land/ev-cost/): cost per 100 km at any price per kWh for your EV, and the break-even electricity price against popular German petrol and diesel cars. Parameters: https://cars.allo.land/ev-cost/spec.json
 - [Charging price archive](https://cars.allo.land/charging-prices/): ad-hoc charging prices in Germany over time.
+- [New car registrations by model](https://cars.allo.land/registrations/): monthly new registrations in Germany for every model since 2018, the top 20 and the electric share. Open a model with ?model=<slug>, e.g. ?model=volvo-ex30.
 
 ## Data
 - [Ad-hoc EV charging prices, latest](https://cars.allo.land/data/charging-prices/latest.json): median, p10, p90 of the base energy price (EUR/kWh incl. VAT) over all published ad-hoc tariffs, overall and per data source.
 - [Daily price history](https://cars.allo.land/data/charging-prices/daily.csv): one row per day and source (date, source, tariffs, median, p10, p90, min, max). Collection started 2026-11-06.
 - [Current tariffs](https://cars.allo.land/data/charging-prices/tariffs.csv): every ad-hoc tariff with energy, time, parking and session prices.
 - [Sources and licences](https://cars.allo.land/data/charging-prices/sources.json)
+- [New registrations, latest month](https://cars.allo.land/data/registrations/de/latest.json): all new cars by drive type, top 20 models, top 10 electric models, change on a year before.
+- [Registrations, model list](https://cars.allo.land/data/registrations/de/models.json): every model with slug, file, newest count, rank and last 12 months. One model's monthly series: https://cars.allo.land/data/registrations/de/models/<slug>.json
+- [Registrations, every model every month](https://cars.allo.land/data/registrations/de/monthly.csv) and [market by drive type](https://cars.allo.land/data/registrations/de/market.csv). Source © Kraftfahrt-Bundesamt, Flensburg (FZ10), dl-de/by-2-0.
 
 Data from the Open ChargePoint Database (MobiData BW), which merges AFIR feeds published on Mobilithek. Licences per source are in sources.json.
 
@@ -21,5 +25,6 @@ Data is arranged by region: https://cars.allo.land/data/<dataset>/<region>/<file
 Every page is also in German under /de/ (for example https://cars.allo.land/de/ev-cost/), with the same link parameters.
 - [Home](https://cars.allo.land/)
 - [Charging price history](https://cars.allo.land/charging-prices/)
+- [New registrations by model](https://cars.allo.land/registrations/)
 - [Data and sources](https://cars.allo.land/open-data/)
 - [Imprint and privacy](https://cars.allo.land/legal/)
