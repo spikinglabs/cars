@@ -1,25 +1,44 @@
 name: Deploy site
 
-# Deploys site/ to the Cloudflare Pages project "alloland-cars" (cars.allo.land).
+# Deploys site/ to the Cloudflare Pages project "alloland-cars".
+# - push to main  -> production (cars.allo.land)
+# - pull request  -> preview at https://pr-<number>.alloland-cars.pages.dev,
+#                    linked in a comment on the PR (updated on every push)
+# Previews read the same R2 data as production (read-only). Pages free tier
+# allows 500 deploys a month, plenty for this.
 on:
   push:
     branches: [main]
+    paths: ["site/**", ".github/workflows/deploy-site.yml"]
+  pull_request:
     paths: ["site/**", ".github/workflows/deploy-site.yml"]
   workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
-  group: deploy-site
+  group: deploy-site-${{ github.event.pull_request.number || 'main' }}
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Fork PRs get no secrets, so they can't deploy.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
+      - name: Pick branch
+        id: target
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "branch=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=main" >> "$GITHUB_OUTPUT"
+          fi
       - name: Create Pages project if missing
+        if: github.event_name != 'pull_request'
         uses: cloudflare/wrangler-action@v3
         continue-on-error: true
         with:
@@ -27,9 +46,31 @@ jobs:
           accountId: ${{ secrets.R2_ACCOUNT_ID }}
           command: pages project create alloland-cars --production-branch main
       - name: Deploy
+        id: deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.R2_ACCOUNT_ID }}
           workingDirectory: site
-          command: pages deploy public --project-name alloland-cars --branch main
+          command: pages deploy public --project-name alloland-cars --branch ${{ steps.target.outputs.branch }} --commit-hash ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Comment preview URL on the PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ALIAS: https://${{ steps.target.outputs.branch }}.alloland-cars.pages.dev
+          DEPLOY_URL: ${{ steps.deploy.outputs.deployment-url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          marker='<!-- site-preview -->'
+          body="$marker
+          **Site preview:** $ALIAS
+
+          This commit only: ${DEPLOY_URL:-n/a} (${SHA:0:7}). The preview reads the same R2 data as production."
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -f body="$body" > /dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$PR/comments" -f body="$body" > /dev/null
+          fi
