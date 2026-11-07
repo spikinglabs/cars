@@ -8,3 +8,9 @@ compatibility_date = "2026-10-01"
 [[r2_buckets]]
 binding = "DATA"
 bucket_name = "spikinglabs-car-ev"
+
+# Petrol/diesel ("ICE") data from .github/workflows/collect-fuel-prices.yml,
+# same layout: fuel-prices/public/ is served at /data/fuel-prices/.
+[[r2_buckets]]
+binding = "ICE"
+bucket_name = "spikikinglabs-cars-ice"
