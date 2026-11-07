@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rückrufe für Autos · Allo Cars</title>
-<meta name="description" content="Rückrufe für dein Automodell in Europa und den USA, aus dem EU Safety Gate (mit allen Rückrufen des KBA) und von der NHTSA, täglich aktualisiert.">
+<title>Rückrufe und Gebrauchtwagen-Check · Allo Cars</title>
+<meta name="description" content="Prüf ein Auto, neu oder gebraucht, auf offizielle Rückrufe: Marke, Modell und Jahr wählen, die Rückrufe für den Bauzeitraum sehen, was du den Verkäufer fragen solltest, und Rückruf-Statistiken nach Ursache und Marke. EU Safety Gate (mit allen KBA-Rückrufen) und NHTSA, täglich aktualisiert.">
 <link rel="alternate" type="application/json" href="/data/recalls/eu/latest.json" title="Neueste Rückrufe in Europa (JSON)">
 <link rel="alternate" type="text/csv" href="/data/recalls/eu/recalls.csv" title="Alle Rückrufe seit 2019 (CSV)">
 <!-- chrome:head -->
@@ -30,7 +30,7 @@
   h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
   .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; }
   .stack { display: grid; gap: var(--space-5); }
-  .pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; align-items: end; }
+  .pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end; }
   .pick label { display: grid; gap: 6px; font-weight: 700; font-size: 14px; color: var(--ink-muted); }
   select.ac-select { width: 100%; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 18px/22px var(--font-display); }
   .list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
@@ -43,6 +43,27 @@
   .rc__meta { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
   .rc__tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .more { margin-top: 8px; }
+  .ask { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 72ch; }
+  .ask__codes { margin: 12px 0 0; font-size: 14px; }
+  .ask__codes code { font: 600 13px/1 var(--font-sign); background: var(--surface-200); padding: 3px 6px; border-radius: 5px; margin: 2px 2px 0 0; display: inline-block; }
+  .ask__links { margin: 12px 0 0; font-size: 14px; line-height: 22px; }
+  .st-block { display: grid; gap: 6px; }
+  .st-block + .st-block { margin-top: var(--space-5); }
+  .st-block h3 { font: 700 16px/20px var(--font-display); margin: 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 0; font-size: 13px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .bars li { display: grid; grid-template-columns: minmax(90px, 34%) 1fr auto; gap: 10px; align-items: center; font-size: 14px; line-height: 18px; }
+  .bars__track { height: 10px; background: var(--surface-200); border-radius: 0 5px 5px 0; }
+  .bars__fill { display: block; height: 100%; background: var(--ref-line-hi); border-radius: 0 5px 5px 0; }
+  .bars li.is-mine { font-weight: 700; }
+  .bars li.is-mine .bars__fill { background: var(--car-2); }
+  .bars__value { font: 600 13px/1 var(--font-sign); color: var(--ink-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  #outside:not([hidden]) { margin: 10px 0 0; }
+  #st-years text { font-size: 13px; }
+  #st-mode { margin: 6px 0 4px; }
+  .ac-card a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  .ask__links a { font-weight: 700; }
 </style>
 </head>
 <body>
@@ -73,14 +94,15 @@
 </aside>
 <!-- /chrome:header -->
 
-    <h1>Wird dein Auto <span class="ac-hl">zurückgerufen</span>?</h1>
-    <p class="lead">Offizielle Rückrufe für dein Modell, aus dem EU Safety Gate, an das das KBA und alle anderen europäischen Behörden Fahrzeugrückrufe melden, und von der US-Behörde NHTSA. Täglich aktualisiert.</p>
+    <h1>Wird dieses Auto <span class="ac-hl">zurückgerufen</span>?</h1>
+    <p class="lead">Für dein eigenes Auto oder den Gebrauchten, den du kaufen willst. Wähl Marke, Modell und Jahr der Erstzulassung und sieh die offiziellen Rückrufe für den Bauzeitraum, dazu was du vor dem Kauf fragen solltest. Aus dem EU Safety Gate, an das das KBA und alle anderen europäischen Behörden Fahrzeugrückrufe melden, und von der US-Behörde NHTSA. Täglich aktualisiert.</p>
 
     <div class="stack">
       <section class="ac-card">
         <div class="pick">
-          <label>Dein Modell <select id="model" class="ac-select"></select></label>
-          <label>Oder eine ganze Marke <select id="brand" class="ac-select"><option value="">Marke wählen</option></select></label>
+          <label>Marke <select id="brand" class="ac-select"></select></label>
+          <label>Modell <select id="model" class="ac-select"></select></label>
+          <label>Erstzulassung <select id="year" class="ac-select"></select></label>
         </div>
       </section>
 
@@ -92,8 +114,9 @@
 
       <section class="ac-card">
         <h2 class="ac-card__title" id="eu-title">Rückrufe in Europa</h2>
-        <p class="ac-card__desc" id="eu-desc">Meldungen im EU Safety Gate seit 2019, die dieses Modell nennen. Ein Rückruf gilt nur für die darin genannten Fahrzeuge.</p>
+        <p class="ac-card__desc" id="eu-desc">Meldungen im EU Safety Gate seit 2019.</p>
         <ul class="list" id="eu"></ul>
+        <p class="ac-caption" id="outside" hidden></p>
       </section>
 
       <section class="ac-card" id="us-card" hidden>
@@ -103,12 +126,31 @@
       </section>
 
       <section class="ac-card">
+        <h2 class="ac-card__title">Vor dem Kauf: das solltest du fragen</h2>
+        <p class="ac-card__desc">Ein Rückruf sagt, welche Autos betroffen sein können. Ob es dieses ist und ob es repariert wurde, hängt an der Fahrgestellnummer.</p>
+        <div id="ask"></div>
+      </section>
+
+      <section class="ac-card" id="stats">
+        <h2 class="ac-card__title">Rückrufe in Zahlen</h2>
+        <p class="ac-card__desc">Alle Fahrzeugmeldungen im EU Safety Gate seit 2019. Eine Meldung ist eine Rückrufaktion, egal wie viele Fahrzeuge sie betrifft.</p>
+        <div class="st-body">
+          <div class="st-block"><h3>Rückrufe pro Jahr</h3><div id="st-years"></div></div>
+          <div class="st-block"><h3>Was bei Autos zurückgerufen wird</h3><p class="ac-caption" style="margin:0">Sortiert nach dem Teil, das die Gefahrenbeschreibung zuerst nennt, also ungefähr.</p><div id="st-comp"></div></div>
+          <div class="st-block"><h3>Pkw-Rückrufe nach Marke</h3>
+            <p class="ac-caption" style="margin:0">Pkw-Rückrufe in Europa je 100.000 Neuwagen, die die Marke in Deutschland zugelassen hat (<span id="st-regs">seit 2019</span>, KBA), für Marken mit mindestens 100.000. Große Marken verkaufen mehr Autos, reine Zahlen schmeicheln also kleinen. Rückrufe gelten für ganz Europa, die Zulassungen nur für Deutschland: ein grober Vergleich.</p>
+            <div class="ac-seg" id="st-mode"><button type="button" data-mode="per" aria-pressed="true">Je 100.000 Neuwagen</button><button type="button" data-mode="count" aria-pressed="false">Anzahl Rückrufe</button></div>
+            <div id="st-brands"></div></div>
+        </div>
+      </section>
+
+      <section class="ac-card">
         <h2 class="ac-card__title">Neueste Fahrzeugrückrufe in Europa</h2>
         <p class="ac-card__desc">Autos, Motorräder, Transporter und Lkw aller Marken</p>
         <ul class="list" id="newest"></ul>
       </section>
 
-      <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>Ob dein eigenes Auto betroffen ist, hängt von der Fahrgestellnummer (FIN) ab. Frag deine Werkstatt oder prüfe die FIN auf der Rückrufseite des Herstellers. In Deutschland schreibt das KBA Halter betroffener Autos außerdem an.</span></p>
+      <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>Ob ein bestimmtes Auto betroffen ist, hängt von der Fahrgestellnummer (FIN) ab. Eine Vertragswerkstatt der Marke prüft sie kostenlos. In Deutschland schreibt das KBA Halter betroffener Autos außerdem an.</span></p>
       <p class="ac-caption" style="margin:0"><span id="asof"></span> Quellen, Lizenzen und Downloads: <a href="/de/open-data/#recalls">Daten und Quellen</a>.</p>
     </div>
     <!-- chrome:footer -->
@@ -161,6 +203,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/recalls/app.js?v=c882197cd5"></script>
+<script src="/recalls/app.js?v=7387174b31"></script>
 </body>
 </html>

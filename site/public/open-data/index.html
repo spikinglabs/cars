@@ -105,9 +105,10 @@
       <li><a href="/data/recalls/eu/models.json"><code>/data/recalls/eu/models.json</code></a> and <code>/data/recalls/eu/models/&lt;model&gt;.json</code>: alerts per followed model, for example <a href="/data/recalls/eu/models/volvo-ex30.json"><code>volvo-ex30</code></a></li>
       <li><a href="/data/recalls/eu/brands.json"><code>/data/recalls/eu/brands.json</code></a> and <code>/data/recalls/eu/brand/&lt;brand&gt;.json</code>: alerts per brand</li>
       <li><a href="/data/recalls/eu/recalls.csv"><code>/data/recalls/eu/recalls.csv</code></a>: every alert since 2019, one row each</li>
+      <li><a href="/data/recalls/eu/stats.json"><code>/data/recalls/eu/stats.json</code></a>: alerts per year and vehicle type, per component and per brand, with car alerts per 100,000 new cars registered in Germany (from our <a href="#registrations">registrations data</a>)</li>
       <li><code>/data/recalls/us/models/&lt;model&gt;.json</code>: NHTSA campaigns for the same models</li>
     </ul>
-    <p>Safety Gate data: &copy; European Union, reused under Commission Decision 2011/833/EU. NHTSA data is a US government work in the public domain. Whether a particular car is affected depends on its VIN.</p>
+    <p>Safety Gate data: &copy; European Union, reused under Commission Decision 2011/833/EU. NHTSA data is a US government work in the public domain. Whether a particular car is affected depends on its VIN. Safety Gate has no component field: we sort each alert by the part its hazard text names first (brakes, airbags, high-voltage battery and so on), which is approximate.</p>
   </section>
 
   <section class="ac-card" id="registrations">
