@@ -3,8 +3,17 @@ name = "alloland-cars"
 pages_build_output_dir = "public"
 compatibility_date = "2026-10-01"
 
+# Bucket names are kept out of the repo: deploy-site.yml fills the
+# __R2_BUCKET_*__ placeholders from the R2_BUCKET_EV / R2_BUCKET_ICE repository variables.
+
 # Data collected by .github/workflows/collect-charging-data.yml.
 # Shared bucket: one top-level folder per project; only <project>/public/ is served
 [[r2_buckets]]
 binding = "DATA"
-bucket_name = "spikinglabs-car-ev"
+bucket_name = "__R2_BUCKET_EV__"
+
+# Petrol/diesel ("ICE") data from .github/workflows/collect-fuel-prices.yml,
+# same layout: fuel-prices/public/ is served at /data/fuel-prices/.
+[[r2_buckets]]
+binding = "ICE"
+bucket_name = "__R2_BUCKET_ICE__"
