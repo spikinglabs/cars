@@ -7,4 +7,4 @@ compatibility_date = "2026-10-01"
 # Shared bucket: one top-level folder per project; only <project>/public/ is served
 [[r2_buckets]]
 binding = "DATA"
-bucket_name = "spikinglabs-cars"
+bucket_name = "spikinglabs-car-ev"
