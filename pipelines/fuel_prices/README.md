@@ -25,11 +25,3 @@ and access to its archive. That could be added later as a second source.
 python -m pipelines.fuel_prices.collect --local ./out
 python -m unittest discover -s pipelines/fuel_prices/tests -t .
 ```
-
-## Forecast
-
-Each run also writes `public/<region>/forecast.json` and `forecast.csv`: the next 8 weeks per fuel with 80 % and
-95 % ranges. `pipelines/price_forecast` scores three forecasters (no change, drift, AR(4) on weekly changes) on rolling
-origins over the last two years and publishes the best only if it beats "no change" by at least 2 % mean absolute
-error. The ranges are quantiles of that forecaster's own backtest errors. Pure Python, about 0.05 s per series.
-Regions whose series stopped (gb) get no forecast. Page: `/fuel-prices/`.

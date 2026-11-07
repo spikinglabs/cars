@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fuel price forecast · Allo Cars</title>
-<meta name="description" content="Weekly petrol, diesel and LPG prices in Germany and where they are likely to be in the next 8 weeks, with an honest track record.">
-<link rel="alternate" type="application/json" href="/data/fuel-prices/forecast.json" title="Forecast (JSON)">
+<title>Fuel prices in Germany · Allo Cars</title>
+<meta name="description" content="Weekly petrol, diesel and LPG prices in Germany since 2005, national averages including all taxes.">
+<link rel="alternate" type="application/json" href="/data/fuel-prices/latest.json" title="Latest prices (JSON)">
 <link rel="alternate" type="text/csv" href="/data/fuel-prices/weekly.csv" title="Weekly prices (CSV)">
 <!-- chrome:head -->
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/fuel-prices/">
@@ -32,19 +32,12 @@
   .stack { display: grid; gap: var(--space-5); }
   .ac-readouts { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
   .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
-  .fline { fill: none; stroke: var(--car-2); stroke-width: 2.5; stroke-dasharray: 6 5; }
-  .b80 { fill: var(--car-1); opacity: .45; }
-  .b95 { fill: var(--car-1); opacity: .2; }
-  .future { fill: var(--surface-200); opacity: .5; }
   .dot { fill: var(--car-2); }
   .hit { fill: transparent; }
+  .ac-seg { margin-bottom: var(--space-3); }
   .grid { stroke: var(--chart-grid); }
   main p a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
   .ev a { font-weight: 700; }
-  .method summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--ink-muted); padding: 4px 0; }
-  .method[open] { gap: var(--space-2); }
-  .ac-table td:not(:first-child), .ac-table th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
-  @media (max-width: 560px) { .ac-table td:nth-child(4), .ac-table th:nth-child(4) { display: none; } }
 </style>
 </head>
 <body>
@@ -73,8 +66,8 @@
 </aside>
 <!-- /chrome:header -->
 
-    <h1>Where are <span class="ac-hl">fuel prices</span> heading?</h1>
-    <p class="lead">The national weekly average from the EU Weekly Oil Bulletin, and the range the price is likely to be in over the next 8 weeks. Prices are per litre including all taxes.</p>
+    <h1>What do <span class="ac-hl">petrol and diesel</span> cost in Germany?</h1>
+    <p class="lead">The national weekly average from the EU Weekly Oil Bulletin, every week since 2005. Prices are per litre including all taxes.</p>
 
     <div class="stack">
       <div class="ac-chips" id="fuels" role="group" aria-label="Fuel"></div>
@@ -86,33 +79,14 @@
       </section>
 
       <section class="ac-card">
-        <h2 class="ac-card__title">Weekly price, last 12 months and next 8 weeks</h2>
-        <div class="ac-legend"><span><i style="border-color:var(--car-2)"></i>Measured</span><span><i style="border-color:var(--car-2);border-top-style:dashed"></i>Forecast</span><span><i style="border-color:var(--car-1);border-top-width:8px;opacity:.6"></i>8 in 10</span><span><i style="border-color:var(--car-1);border-top-width:8px;opacity:.25"></i>19 in 20</span></div>
+        <h2 class="ac-card__title">Weekly price per litre</h2>
+        <div class="ac-seg" id="ranges" role="group" aria-label="Period"></div>
         <div class="ac-chart" id="chart"></div>
-        <div class="ac-table-wrap">
-          <table class="ac-table">
-            <caption class="ac-caption">Next 8 weeks</caption>
-            <thead><tr><th>Week of</th><th>Middle</th><th>8 in 10</th><th>19 in 20</th></tr></thead>
-            <tbody id="table"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="ac-card">
-        <h2 class="ac-card__title">How good is this forecast?</h2>
-        <p id="skill" style="margin:0;max-width:65ch"></p>
       </section>
 
       <p class="ev" style="margin:0">Thinking about an electric car? Compare what charging costs with these prices: <a href="/ev-cost/">Charging cost vs petrol and diesel</a></p>
 
-      <details class="ac-source method">
-        <summary>How the forecast works</summary>
-        <p class="ac-source__line" style="margin:0">Every week we score three simple forecasters on the last two years of this series, as if we had run them each week back then: <b>no change</b> (the last price carried forward), <b>trend</b> (the average weekly change of the past year) and <b>momentum</b> (an autoregression on the weekly changes). The one with the smallest average error over weeks 1 to 8 is shown, but only if it beats "no change" by at least 2 %; otherwise the forecast is "no change".</p>
-        <p class="ac-source__line" style="margin:0">The bands come from the chosen forecaster's own past errors: 8 in 10 of its past forecasts that many weeks ahead fell inside the darker band, 19 in 20 inside the lighter one. No distribution is assumed. The approach follows research on naive forecasting by the Allo Cars maker (<a href="https://github.com/emptymalei/extrapolation-as-forecasts">extrapolation-as-forecasts</a>): a forecast is worth only what it adds over "no change".</p>
-        <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>A forecast cannot know the news. Oil shocks, tax changes or a weak euro move prices faster than any of these methods can see.</span></div>
-      </details>
-
-      <p class="ac-caption" style="margin:0">Data: European Commission, Weekly Oil Bulletin (CC BY 4.0). Holiday weeks the bulletin skips are interpolated. <span id="asof"></span> Downloads: <a href="/open-data/#fuel-prices">Data and sources</a>.</p>
+      <p class="ac-caption" style="margin:0">Data: European Commission, Weekly Oil Bulletin (CC BY 4.0). Each week is dated the Monday it refers to; the bulletin skips some holiday weeks. <span id="asof"></span> Downloads: <a href="/open-data/#fuel-prices">Data and sources</a>.</p>
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
@@ -144,6 +118,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/fuel-prices/app.js?v=f5e2a40361"></script>
+<script src="/fuel-prices/app.js?v=c3ed2506a3"></script>
 </body>
 </html>

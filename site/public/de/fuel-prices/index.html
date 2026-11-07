@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Spritpreis-Prognose · Allo Cars</title>
-<meta name="description" content="Wöchentliche Preise für Super, Diesel und Autogas in Deutschland und wo sie in den nächsten 8 Wochen wahrscheinlich liegen, mit ehrlicher Trefferbilanz.">
-<link rel="alternate" type="application/json" href="/data/fuel-prices/forecast.json" title="Prognose (JSON)">
+<title>Spritpreise in Deutschland · Allo Cars</title>
+<meta name="description" content="Wöchentliche Preise für Super, Diesel und Autogas in Deutschland seit 2005, Bundesdurchschnitt inklusive aller Steuern.">
+<link rel="alternate" type="application/json" href="/data/fuel-prices/latest.json" title="Aktuelle Preise (JSON)">
 <link rel="alternate" type="text/csv" href="/data/fuel-prices/weekly.csv" title="Wochenpreise (CSV)">
 <!-- chrome:head -->
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/fuel-prices/">
@@ -32,19 +32,12 @@
   .stack { display: grid; gap: var(--space-5); }
   .ac-readouts { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
   .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
-  .fline { fill: none; stroke: var(--car-2); stroke-width: 2.5; stroke-dasharray: 6 5; }
-  .b80 { fill: var(--car-1); opacity: .45; }
-  .b95 { fill: var(--car-1); opacity: .2; }
-  .future { fill: var(--surface-200); opacity: .5; }
   .dot { fill: var(--car-2); }
   .hit { fill: transparent; }
+  .ac-seg { margin-bottom: var(--space-3); }
   .grid { stroke: var(--chart-grid); }
   main p a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
   .ev a { font-weight: 700; }
-  .method summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--ink-muted); padding: 4px 0; }
-  .method[open] { gap: var(--space-2); }
-  .ac-table td:not(:first-child), .ac-table th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
-  @media (max-width: 560px) { .ac-table td:nth-child(4), .ac-table th:nth-child(4) { display: none; } }
 </style>
 </head>
 <body>
@@ -73,8 +66,8 @@
 </aside>
 <!-- /chrome:header -->
 
-    <h1>Wohin gehen die <span class="ac-hl">Spritpreise</span>?</h1>
-    <p class="lead">Der wöchentliche Bundesdurchschnitt aus dem Weekly Oil Bulletin der EU und der Bereich, in dem der Preis in den nächsten 8 Wochen wahrscheinlich liegt. Preise pro Liter inklusive aller Steuern.</p>
+    <h1>Was kosten <span class="ac-hl">Benzin und Diesel</span> in Deutschland?</h1>
+    <p class="lead">Der wöchentliche Bundesdurchschnitt aus dem Weekly Oil Bulletin der EU, jede Woche seit 2005. Preise pro Liter inklusive aller Steuern.</p>
 
     <div class="stack">
       <div class="ac-chips" id="fuels" role="group" aria-label="Sorte"></div>
@@ -86,33 +79,14 @@
       </section>
 
       <section class="ac-card">
-        <h2 class="ac-card__title">Wöchentlicher Preis, letzte 12 Monate und nächste 8 Wochen</h2>
-        <div class="ac-legend"><span><i style="border-color:var(--car-2)"></i>Gemessen</span><span><i style="border-color:var(--car-2);border-top-style:dashed"></i>Prognose</span><span><i style="border-color:var(--car-1);border-top-width:8px;opacity:.6"></i>8 von 10</span><span><i style="border-color:var(--car-1);border-top-width:8px;opacity:.25"></i>19 von 20</span></div>
+        <h2 class="ac-card__title">Wöchentlicher Preis pro Liter</h2>
+        <div class="ac-seg" id="ranges" role="group" aria-label="Zeitraum"></div>
         <div class="ac-chart" id="chart"></div>
-        <div class="ac-table-wrap">
-          <table class="ac-table">
-            <caption class="ac-caption">Nächste 8 Wochen</caption>
-            <thead><tr><th>Woche ab</th><th>Mitte</th><th>8 von 10</th><th>19 von 20</th></tr></thead>
-            <tbody id="table"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="ac-card">
-        <h2 class="ac-card__title">Wie gut ist diese Prognose?</h2>
-        <p id="skill" style="margin:0;max-width:65ch"></p>
       </section>
 
       <p class="ev" style="margin:0">Du überlegst, auf ein E-Auto umzusteigen? Vergleiche die Ladekosten mit diesen Preisen: <a href="/de/ev-cost/">Ladekosten im Vergleich mit Benzin und Diesel</a></p>
 
-      <details class="ac-source method">
-        <summary>So entsteht die Prognose</summary>
-        <p class="ac-source__line" style="margin:0">Jede Woche prüfen wir drei einfache Verfahren an den letzten zwei Jahren dieser Reihe, so als hätten wir sie damals jede Woche laufen lassen: <b>keine Änderung</b> (der letzte Preis bleibt), <b>Trend</b> (die durchschnittliche Wochenänderung des letzten Jahres) und <b>Schwung</b> (eine Autoregression auf die Wochenänderungen). Gezeigt wird das Verfahren mit dem kleinsten mittleren Fehler über die Wochen 1 bis 8, aber nur, wenn es „keine Änderung“ um mindestens 2 % schlägt; sonst lautet die Prognose „keine Änderung“.</p>
-        <p class="ac-source__line" style="margin:0">Die Bänder stammen aus den eigenen früheren Fehlern des gewählten Verfahrens: 8 von 10 seiner früheren Prognosen für so viele Wochen voraus lagen im dunkleren Band, 19 von 20 im helleren. Eine Verteilung wird nicht angenommen. Der Ansatz folgt der Forschung des Allo-Cars-Machers zu naiven Prognosen (<a href="https://github.com/emptymalei/extrapolation-as-forecasts">extrapolation-as-forecasts</a>): Eine Prognose ist nur so viel wert, wie sie über „keine Änderung“ hinaus leistet.</p>
-        <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Eine Prognose kennt keine Nachrichten. Ölpreisschocks, Steueränderungen oder ein schwacher Euro bewegen die Preise schneller, als diese Verfahren es sehen können.</span></div>
-      </details>
-
-      <p class="ac-caption" style="margin:0">Daten: Europäische Kommission, Weekly Oil Bulletin (CC BY 4.0). Feiertagswochen, die das Bulletin auslässt, sind interpoliert. <span id="asof"></span> Downloads: <a href="/de/open-data/#fuel-prices">Daten und Quellen</a>.</p>
+      <p class="ac-caption" style="margin:0">Daten: Europäische Kommission, Weekly Oil Bulletin (CC BY 4.0). Jede Woche trägt das Datum ihres Montags; Feiertagswochen lässt das Bulletin teils aus. <span id="asof"></span> Downloads: <a href="/de/open-data/#fuel-prices">Daten und Quellen</a>.</p>
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
@@ -144,6 +118,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/fuel-prices/app.js?v=f5e2a40361"></script>
+<script src="/fuel-prices/app.js?v=c3ed2506a3"></script>
 </body>
 </html>

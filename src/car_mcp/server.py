@@ -42,7 +42,7 @@ Guidance:
 - Money is in the configured currency (see get_settings). Distances use the configured unit.
 - If the logbook is empty and the user just wants to try things out, offer load_demo_data.
 - For "is my car recalled?" call get_recalls (official EU and US recalls, needs internet).
-- For "will petrol/diesel get cheaper", "should I fill up now", call get_fuel_price_forecast (needs internet).
+- For "what does petrol/diesel cost now" or how fuel prices moved, call get_fuel_prices (needs internet).
 - For "how many X are sold/registered in Germany" or the most popular new cars, call get_registrations (needs internet).
 """
 
@@ -277,18 +277,15 @@ def build_server(db_path: str | Path | None = None) -> MCPServer:
             raise ToolError(f"Could not reach cars.allo.land: {e}") from e
 
     @mcp.tool(annotations=WEB)
-    def get_fuel_price_forecast(
+    def get_fuel_prices(
         region: Annotated[str, Field(description="Two-letter country code (de, at, fr, ...) or eu for the EU average.")] = "de",
         fuel: Annotated[FUELS | None, Field(description="One fuel; all fuels when omitted.")] = None,
+        weeks: Annotated[int, Field(description="How many recent weeks of history to return (1-1200, data since 2005).")] = 12,
     ) -> dict[str, Any]:
-        """National average pump prices (weekly, incl. taxes) and where they are likely to be in the next 8 weeks.
-
-        Each forecast step has a middle price and 80 % / 95 % ranges (lo80/hi80, lo95/hi95), plus a backtest:
-        skill_vs_naive per horizon (0 = no better than "the price stays where it is"). When model is "naive",
-        say plainly that no method beat "no change" and use the ranges. Online data from cars.allo.land.
-        """
+        """National average pump prices per litre incl. all taxes (EU Weekly Oil Bulletin): this week's price, the
+        change on last week, 4- and 52-week averages, and recent weekly history. Data from cars.allo.land."""
         try:
-            return fuel_data.forecast(region, fuel)
+            return fuel_data.prices(region, fuel, weeks)
         except fuel_data.FuelError as e:
             raise ToolError(str(e)) from e
 

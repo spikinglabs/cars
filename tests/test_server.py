@@ -66,44 +66,44 @@ def test_render_escapes_script_close():
     assert "</script><script>alert" not in html
 
 
-def test_fuel_price_forecast_shapes_and_filters():
-    from car_mcp.fuel import FuelError as ToolError
-    from car_mcp.fuel import forecast as fuel_price_forecast
+
+LATEST = {"region": "DE", "currency": "EUR", "week": "2026-11-02",
+          "products": {"euro_super_95": {"eur_per_litre": 2.128}, "diesel": {"eur_per_litre": 2.282}, "lpg": {}}}
+WEEKLY = b"date,euro_super_95,diesel,lpg\n2026-10-26,2.167,2.298,1.13\n2026-11-02,2.128,2.282,\n"
+
+
+def _fake(seen):
+    def fetch(url):
+        seen.append(url)
+        return json.dumps(LATEST).encode() if url.endswith(".json") else WEEKLY
+    return fetch
+
+
+def test_fuel_prices_shapes_and_filters():
+    from car_mcp.fuel import FuelError, prices
 
     seen = []
-    doc = {"region": "DE", "currency": "EUR", "observed_at": "t", "method": "m",
-           "products": {"diesel": {"model": "naive", "forecast": [{"horizon": 1, "price": 2.0}]},
-                        "lpg": {"model": "ar", "forecast": []}}}
-
-    def fake(url):
-        seen.append(url)
-        return doc
-
-    out = fuel_price_forecast("DE", "diesel", fetch=fake)
-    assert seen[-1].endswith("/fuel-prices/de/forecast.json")
+    out = prices("DE", "diesel", 1, fetch=_fake(seen))
+    assert seen[0].endswith("/fuel-prices/de/latest.json") and seen[1].endswith("/fuel-prices/de/weekly.csv")
     assert list(out["products"]) == ["diesel"]
+    assert out["history"] == [{"week": "2026-11-02", "diesel": 2.282}]
     assert out["page"].endswith("?fuel=diesel")
-    assert set(fuel_price_forecast(fetch=fake)["products"]) == {"diesel", "lpg"}
-    with pytest.raises(ToolError):
-        fuel_price_forecast("de", "euro_super_95", fetch=fake)
-    with pytest.raises(ToolError):
-        fuel_price_forecast("../x", fetch=fake)
+    full = prices(fetch=_fake([]))
+    assert set(full["products"]) == {"euro_super_95", "diesel", "lpg"}
+    assert full["history"][-1]["lpg"] is None and len(full["history"]) == 2
+    with pytest.raises(FuelError):
+        prices("de", "kerosene", fetch=_fake([]))
+    with pytest.raises(FuelError):
+        prices("../x", fetch=_fake([]))
 
 
-async def test_fuel_forecast_tool_listed(tmp_path):
-    async with Client(build_server(tmp_path / "car.db")) as c:
-        tool = next(t for t in (await c.list_tools()).tools if t.name == "get_fuel_price_forecast")
-        assert tool.annotations.open_world_hint
-
-
-async def test_fuel_forecast_tool_call(tmp_path, monkeypatch):
+async def test_fuel_prices_tool_call(tmp_path, monkeypatch):
     from car_mcp import fuel
 
-    monkeypatch.setattr(fuel, "_get", lambda url: {"region": "DE", "products": {"diesel": {"model": "naive"}}})
-    monkeypatch.setattr(fuel.forecast, "__defaults__", ("de", None, fuel._get))
+    monkeypatch.setattr(fuel.prices, "__defaults__", ("de", None, 12, _fake([])))
     async with Client(build_server(tmp_path / "car.db")) as c:
-        res = await c.call_tool("get_fuel_price_forecast", {"fuel": "diesel"})
+        tool = next(t for t in (await c.list_tools()).tools if t.name == "get_fuel_prices")
+        assert tool.annotations.open_world_hint
+        res = await c.call_tool("get_fuel_prices", {"fuel": "diesel", "weeks": 2})
         assert not res.is_error
-        assert _data(res)["products"]["diesel"]["model"] == "naive"
-        res = await c.call_tool("get_fuel_price_forecast", {"fuel": "lpg"})
-        assert res.is_error
+        assert _data(res)["products"]["diesel"]["eur_per_litre"] == 2.282
