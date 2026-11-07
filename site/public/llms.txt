@@ -15,6 +15,7 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 Data from the Open ChargePoint Database (MobiData BW), which merges AFIR feeds published on Mobilithek. Licences per source are in sources.json.
 
 ## Pages
+Every page is also in German under /de/ (for example https://cars.allo.land/de/ev-cost/), with the same link parameters.
 - [Home](https://cars.allo.land/)
 - [Charging price history](https://cars.allo.land/charging-prices/)
 - [Data and sources](https://cars.allo.land/open-data/)
