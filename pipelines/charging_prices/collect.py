@@ -1,7 +1,7 @@
 """Collect charging data snapshots.
 
     python -m pipelines.charging_prices.collect --tier hourly --local ./out
-    python -m pipelines.charging_prices.collect --tier daily --r2 spikinglabs-cars-charging-data
+    python -m pipelines.charging_prices.collect --tier daily --r2 spikinglabs-cars --prefix charging-prices
 
 Tiers:
     hourly  prices (stored only when changed) + charger status changes
@@ -11,22 +11,27 @@ Tiers:
 Everything is sized to stay inside the Cloudflare R2 free tier (10 GB, 1M writes/month):
 roughly 1.5-2.5 GB per year.
 
-Storage layout (same locally and in R2):
+Bucket layout. The bucket is shared with other projects, so everything this
+pipeline writes lives under one top-level folder, ``charging-prices/``
+(``--prefix``). Inside it:
 
-    raw/ocpdb/<dataset>/YYYY/MM/DD/<YYYYMMDDTHHMMSSZ>.jsonl.gz   every item, one per line
-    raw/ocpdb/<dataset>/latest.json                              manifest of the newest stored copy
-    raw/ocpdb/evse_status/YYYY/MM/DD/<ts>.csv.gz                 first full status snapshot of each day
-    raw/ocpdb/evse_status_changes/YYYY/MM/DD/<ts>.csv.gz         status changes since the previous run
-    state/evse_status.json.gz                                    last seen status per EVSE
-    raw/bnetza/register/<original file name>                     each register file once
-    derived/tariffs/YYYY/MM/DD/<ts>.csv.gz                       flat tariffs, all sources
-    public/charging-prices/latest.json                           summary, open-licence sources only
-    public/charging-prices/daily.csv                             one row per day x source
-    public/charging-prices/tariffs.csv                           newest flat tariffs, open-licence only
-    public/charging-prices/sources.json                          sources, licences, freshness
-    runs/YYYY/MM/DD/<ts>-<tier>.json                             what each run did
+    charging-prices/
+      raw/                                   source data exactly as fetched
+        ocpdb/<dataset>/YYYY/MM/DD/<ts>.jsonl.gz      every item, one per line
+        ocpdb/<dataset>/latest.json                   manifest of the newest stored copy
+        ocpdb/evse_status/YYYY/MM/DD/<ts>.csv.gz      first status snapshot of each day
+        ocpdb/evse_status_changes/YYYY/MM/DD/<ts>.csv.gz   status changes since the last run
+        bnetza/register/<original file name>          each register file once
+      derived/                               our processed tables
+        tariffs/YYYY/MM/DD/<ts>.csv.gz                flat tariffs, all sources
+      public/                                served at https://cars.allo.land/data/charging-prices/
+        latest.json  daily.csv  tariffs.csv  sources.json   (open-licence sources only)
+      state/                                 bookkeeping between runs
+        evse_status.json.gz  evse_status_day
+      runs/YYYY/MM/DD/<ts>-<tier>.json       what each run did
 
-Only the ``public/`` prefix is served by the website.
+``<ts>`` is the UTC run time, e.g. ``20261106T210552Z``.
+The website serves ``<project>/public/`` for every project folder (site/functions/data/[[path]].js).
 """
 
 from __future__ import annotations
@@ -42,7 +47,7 @@ from datetime import datetime, timezone
 
 from . import bnetza, normalize, ocpdb
 from .http import get_bytes
-from .storage import LocalStore, R2Store
+from .storage import LocalStore, PrefixedStore, R2Store
 
 
 def _gz_jsonl(items: list[dict]) -> bytes:
@@ -199,14 +204,14 @@ def publish_prices(store, now: datetime, ts: str, sources: list[dict], tariffs: 
         "data_source": "Open ChargePoint Database (MobiData BW), https://api.mobidata-bw.de/ocpdb/",
         **summary,
     }
-    store.put("public/charging-prices/latest.json", _json(latest), "application/json")
-    store.put("public/charging-prices/sources.json", _json(public_sources), "application/json")
+    store.put("public/latest.json", _json(latest), "application/json")
+    store.put("public/sources.json", _json(public_sources), "application/json")
     store.put(
-        "public/charging-prices/tariffs.csv",
+        "public/tariffs.csv",
         normalize.to_csv(public_rows, normalize.TARIFF_FIELDS),
         "text/csv",
     )
-    daily_key = "public/charging-prices/daily.csv"
+    daily_key = "public/daily.csv"
     store.put(daily_key, normalize.upsert_daily(store.get(daily_key), now.date().isoformat(), summary), "text/csv")
     return summary
 
@@ -270,13 +275,15 @@ def run(store, tier: str, datasets: list[str] | None = None) -> dict:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--tier", choices=["hourly", "daily", "weekly"], required=True)
+    p.add_argument("--prefix", default="charging-prices", help="top-level folder in the bucket (default: charging-prices)")
     p.add_argument("--datasets", nargs="*", help="only these OCPDB datasets (default: all of the tier)")
     where = p.add_mutually_exclusive_group(required=True)
     where.add_argument("--local", help="write to this folder")
     where.add_argument("--r2", help="write to this R2 bucket")
     args = p.parse_args(argv)
 
-    store = LocalStore(args.local) if args.local else R2Store(args.r2)
+    base = LocalStore(args.local) if args.local else R2Store(args.r2)
+    store = PrefixedStore(base, args.prefix) if args.prefix else base
     report = run(store, args.tier, args.datasets)
     failed = [s for s in report["steps"] if not s.get("ok")]
     for f in failed:

@@ -2,7 +2,7 @@
 
 Builds a history of German EV charging prices (and charger status) from open data,
 because no public archive of past prices exists. Runs on GitHub Actions and stores
-everything in the Cloudflare R2 bucket `spikinglabs-cars-charging-data`.
+everything in the Cloudflare R2 bucket `spikinglabs-cars` (repo variable `R2_BUCKET` overrides it).
 
 ## Source
 
@@ -19,8 +19,28 @@ The Bundesnetzagentur register files (CC BY 4.0) are archived as well.
 | daily | 03:23 UTC | new Bundesnetzagentur register files; storage usage check (fails above 8 GB) |
 | weekly | Monday 04:41 UTC | full locations and businesses |
 
-Storage layout is documented at the top of `collect.py`. Only `public/` is served by the
-website (`site/functions/data/[[path]].js`), and only sources with an open licence go there.
+## Bucket layout
+
+The bucket is shared by several projects. Each project owns one top-level folder, and
+the website serves only its `public/` subfolder at `/data/<project>/`
+(`site/functions/data/[[path]].js`).
+
+```
+spikinglabs-cars/
+  charging-prices/              this pipeline (--prefix)
+    raw/                        source data exactly as fetched
+      ocpdb/<dataset>/YYYY/MM/DD/<ts>.jsonl.gz
+      ocpdb/evse_status/YYYY/MM/DD/<ts>.csv.gz
+      ocpdb/evse_status_changes/YYYY/MM/DD/<ts>.csv.gz
+      bnetza/register/<file>
+    derived/                    processed tables (tariffs/YYYY/MM/DD/<ts>.csv.gz)
+    public/                     -> cars.allo.land/data/charging-prices/
+    state/                      bookkeeping between runs
+    runs/YYYY/MM/DD/            one report per run
+  <other-project>/              same pattern: raw/, derived/, public/, state/, runs/
+```
+
+Only sources with an open licence go into `public/`. Full details are at the top of `collect.py`.
 
 ## Cost
 
@@ -30,7 +50,7 @@ Built to stay at zero: public repo (free Actions minutes), R2 free tier (10 GB s
 ## Run locally
 
 ```sh
-python -m pipelines.charging_prices.collect --tier hourly --local ./out
+python -m pipelines.charging_prices.collect --tier hourly --local ./out   # writes ./out/charging-prices/...
 python -m unittest discover -s pipelines/charging_prices/tests -t .
 ```
 

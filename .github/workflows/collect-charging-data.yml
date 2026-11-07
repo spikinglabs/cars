@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  R2_BUCKET: spikinglabs-cars-charging-data
+  R2_BUCKET: ${{ vars.R2_BUCKET || 'spikinglabs-cars' }}
   R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
   R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
   R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -49,7 +49,7 @@ jobs:
             *) echo "tier=hourly" >> "$GITHUB_OUTPUT" ;;
           esac
       - name: Collect
-        run: python -m pipelines.charging_prices.collect --tier ${{ steps.tier.outputs.tier }} --r2 "$R2_BUCKET"
+        run: python -m pipelines.charging_prices.collect --tier ${{ steps.tier.outputs.tier }} --r2 "$R2_BUCKET" --prefix charging-prices
       - name: Keep schedule alive
         # GitHub disables schedules after 60 days without repo activity.
         if: steps.tier.outputs.tier == 'daily'

@@ -81,3 +81,27 @@ class R2Store:
 
     def __str__(self) -> str:
         return f"r2:{self.bucket}"
+
+
+class PrefixedStore:
+    """Puts every key under one top-level folder of a shared bucket."""
+
+    def __init__(self, inner, prefix: str):
+        self.inner = inner
+        self.prefix = prefix.strip("/") + "/"
+
+    def put(self, key: str, data: bytes, content_type: str = "application/octet-stream") -> None:
+        self.inner.put(self.prefix + key, data, content_type)
+
+    def get(self, key: str) -> bytes | None:
+        return self.inner.get(self.prefix + key)
+
+    def exists(self, key: str) -> bool:
+        return self.inner.exists(self.prefix + key)
+
+    def total_bytes(self, prefix: str = "") -> tuple[int, int]:
+        # Free-tier limits apply to the whole bucket, so measure all of it.
+        return self.inner.total_bytes(prefix)
+
+    def __str__(self) -> str:
+        return f"{self.inner}/{self.prefix}"

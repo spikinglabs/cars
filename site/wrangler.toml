@@ -4,7 +4,7 @@ pages_build_output_dir = "public"
 compatibility_date = "2026-10-01"
 
 # Data collected by .github/workflows/collect-charging-data.yml.
-# Only keys under public/ are served (see functions/data/[[path]].js).
+# Shared bucket: one top-level folder per project; only <project>/public/ is served
 [[r2_buckets]]
 binding = "DATA"
-bucket_name = "spikinglabs-cars-charging-data"
+bucket_name = "spikinglabs-cars"

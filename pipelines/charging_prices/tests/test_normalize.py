@@ -69,6 +69,21 @@ class Daily(unittest.TestCase):
         self.assertEqual(len(third.strip().splitlines()), 3)
 
 
+class Prefix(unittest.TestCase):
+    def test_keys_live_under_project_folder(self):
+        import tempfile
+        from pathlib import Path
+
+        from pipelines.charging_prices.storage import LocalStore, PrefixedStore
+
+        with tempfile.TemporaryDirectory() as d:
+            store = PrefixedStore(LocalStore(d), "charging-prices")
+            store.put("public/latest.json", b"{}")
+            self.assertTrue((Path(d) / "charging-prices/public/latest.json").exists())
+            self.assertEqual(store.get("public/latest.json"), b"{}")
+            self.assertEqual(store.total_bytes(), (2, 1))
+
+
 class Register(unittest.TestCase):
     def test_links(self):
         page = (
