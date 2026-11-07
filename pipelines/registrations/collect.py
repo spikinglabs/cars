@@ -222,7 +222,25 @@ def run(store, max_downloads: int = 200, delay: float = kba.CRAWL_DELAY, fetch=_
             store.put(f"derived/months/{month}.json", _json(parsed), "application/json")
             entry = {"sha256": digest, "key": key}
             changed.append(month)
-        state[month] = {**entry, "url": url, "checked_at": now.isoformat()}
+        state[month] = {**entry, "url": url, "parser": kba.PARSER, "checked_at": now.isoformat()}
+        store.put("state/months.json", _pretty(dict(sorted(state.items()))), "application/json")
+
+    # Months parsed by an older parser are parsed again from the stored workbook.
+    for month, entry in sorted(state.items()):
+        if entry.get("parser") == kba.PARSER or month in fetched or not entry.get("key"):
+            continue
+        xlsx = store.get(entry["key"])
+        if xlsx is None:
+            continue
+        try:
+            parsed = kba.parse(xlsx, month)
+        except Exception as exc:  # noqa: BLE001 (keep the older parse rather than stop)
+            failed.append({"month": month, "error": f"re-parse: {str(exc)[:280]}"})
+            continue
+        store.put(f"derived/months/{month}.json", _json(parsed), "application/json")
+        state[month] = {**entry, "parser": kba.PARSER}
+        changed.append(month)
+    if changed:
         store.put("state/months.json", _pretty(dict(sorted(state.items()))), "application/json")
 
     months = []

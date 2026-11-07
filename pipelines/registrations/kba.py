@@ -37,6 +37,8 @@ DRIVES = {
     "bev": lambda h: h.startswith("mit Elektroantrieb"),
 }
 FIELDS = list(DRIVES)
+# Bump when parse() changes: the collector then re-parses the stored workbooks (no new downloads).
+PARSER = 2
 
 _LINK = re.compile(r'href="([^"]*/fz10_(\d{4})_(\d{2})(?:_xlsx)?\.xlsx[^"]*)"')
 
@@ -68,7 +70,9 @@ def _sheet_rows(xlsx: bytes) -> list[tuple]:
     import openpyxl
 
     wb = openpyxl.load_workbook(io.BytesIO(xlsx), read_only=True, data_only=True)
-    names = [n for n in wb.sheetnames if "10.1" in n.replace(" ", "")]
+    # "FZ 10.1" usually; November 2020 named it "FZ 10-November 2020".
+    names = [n for n in wb.sheetnames if "10.1" in n.replace(" ", "")] or \
+        [n for n in wb.sheetnames if n.replace(" ", "").upper().startswith("FZ10")]
     if not names:
         raise ValueError(f"no FZ 10.1 sheet; sheets: {wb.sheetnames}")
     return list(wb[names[0]].iter_rows(values_only=True))
@@ -102,7 +106,7 @@ def parse(xlsx: bytes, month: str) -> dict:
     """
     rows = _sheet_rows(xlsx)
     start, bc, mc, cols = _columns(rows)
-    models, brands, market, brand = [], [], None, None
+    models, brands, market, brand = [], {}, None, None
 
     def counts(row):
         return {f: (_num(row[cols[f]]) if f in cols and cols[f] < len(row) else None) for f in FIELDS}
@@ -116,11 +120,20 @@ def parse(xlsx: bytes, month: str) -> dict:
         if b == "NEUZULASSUNGEN INSGESAMT":
             market = counts(row)
             continue
-        if b.endswith(" ZUSAMMEN") or (b and not m):
-            # Brand total; "SONSTIGE" alone (until 2022) or "SONSTIGE ZUSAMMEN" = all other brands.
-            name = b.removesuffix(" ZUSAMMEN")
-            brands.append({"brand": name, **counts(row)})
+        if b.endswith(" ZUSAMMEN"):
+            # Brand total. "SONSTIGE ZUSAMMEN" = all other brands together.
+            brands[b.removesuffix(" ZUSAMMEN")] = {"brand": b.removesuffix(" ZUSAMMEN"), **counts(row)}
             brand = None
+            continue
+        if b and not m:
+            c = counts(row)
+            if c["total"] is None:  # a brand name on its own row, its models follow
+                brand = b
+            else:
+                # A brand without model rows (LOTUS, or "SONSTIGE" = other brands until 2022), counted as its
+                # total. A later ZUSAMMEN row for the same brand wins: once (2020-08) a model row lost its name.
+                brands.setdefault(b, {"brand": b, **c})
+                brand = None
             continue
         if b:
             brand = b
@@ -132,7 +145,7 @@ def parse(xlsx: bytes, month: str) -> dict:
         models.append({"brand": brand, "model": m, **c})
     if market is None:
         raise ValueError(f"{month}: market total row not found")
-    return {"month": month, "models": models, "brands": brands, "market": market}
+    return {"month": month, "models": models, "brands": list(brands.values()), "market": market}
 
 
 def slug(*parts: str) -> str:
