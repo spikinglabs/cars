@@ -10,16 +10,19 @@
     hints: ["Stadt und Landstraße, mildes Wetter", "Eine normale Woche", "Konstant 120 km/h", "Kälte, Heizung an"],
     fuel: { petrol: "Benzin", diesel: "Diesel" },
     fuelPrice: { petrol: "Super", diesel: "Diesel" },
-    own: "Dein Verbrenner", ownShort: "Deiner",
+    own: "Dein Verbrenner",
     home: "Haushaltsstrom", median: "Öffentlich, Median", cheap: "Günstigste 10 %", dear: "Teuerste 10 %",
     perKwh: "/kWh", per100: "/100 km", per1000: "/1.000 km",
     costBasis: function (car, lvl, kwh) { return car + ", " + lvl + ", " + kwh + " kWh/100 km inkl. Ladeverluste"; },
-    per1000Basis: "Gleicher Preis, gleiche Fahrweise",
-    than: function (r) { return r.own ? "dein Verbrenner" : "ein " + r.name; },
-    cheaper: function (r) { return "Günstiger als " + T.than(r) + ", bei deinem Strompreis"; },
-    dearer: function (r) { return "Teurer als " + T.than(r) + ", bei deinem Strompreis"; },
-    beBasis: function (r) { return "Bis zu diesem Strompreis fährst du günstiger als " + T.than(r); },
-    youLine: "Du ", medianLine: "Median öffentlich ",
+    youLine: function (p) { return "Dein Preis " + p + " (Schritt 2)"; }, medianLine: "Median öffentlich ",
+    evChart: function (car) { return "Dein " + car + " (Schritt 1)"; },
+    costBasis2: function (car, p, lvl, kwh, loss) { return "So viel kostet dein " + car + " für 100 km bei " + p + "/kWh: " + "Fahrweise „" + lvl + "“, " + kwh + " kWh/100 km plus " + loss + " % Ladeverluste."; },
+    verdict: function (n, all) { return n === all ? (all === 1 ? "Günstiger als der Verbrenner, mit dem du vergleichst." : "Günstiger als alle " + all + " Verbrenner, mit denen du vergleichst.") : n === 0 ? (all === 1 ? "Teurer als der Verbrenner, mit dem du vergleichst." : "Teurer als alle " + all + " Verbrenner, mit denen du vergleichst.") : "Günstiger als " + n + " von " + all + " Verbrennern, mit denen du vergleichst."; },
+    detail: function (r, fuelP, save, more) {
+      var who = r.own ? "Dein Verbrenner (Schritt 3) braucht " : "Ein " + r.name + " braucht ";
+      return who + r.l + " L " + T.fuel[r.fuel] + " pro 100 km, das sind " + r.costT + " bei " + fuelP + "/L. " +
+        (save ? "Du sparst " + save + " auf je 100 km. Laden bleibt günstiger, solange du unter " + r.beT + "/kWh zahlst." : "Du zahlst " + more + " mehr auf je 100 km. Günstiger wärst du erst unter " + r.beT + "/kWh.");
+    },
     chartLabel: function (car, list) { return "Kosten pro 100 km für " + car + " nach Strompreis, mit Verbrennern als Linien. Gleichstand: " + list; },
     saveCell: function (d) { return d + " gespart"; }, moreCell: function (d) { return d + " teurer"; },
     range: function (a, b) { return a + " bis " + b; },
@@ -39,16 +42,19 @@
     levels: E.LEVELS, hints: E.LEVEL_HINTS,
     fuel: { petrol: "Petrol", diesel: "Diesel" },
     fuelPrice: { petrol: "Petrol", diesel: "Diesel" },
-    own: "Your fuel car", ownShort: "Yours",
+    own: "Your fuel car",
     home: "Home tariff", median: "Public median", cheap: "Cheapest 10 %", dear: "Dearest 10 %",
     perKwh: "/kWh", per100: "/100 km", per1000: "/1,000 km",
     costBasis: function (car, lvl, kwh) { return car + ", " + lvl.toLowerCase() + ", " + kwh + " kWh/100 km plus charging losses"; },
-    per1000Basis: "Same price, same driving",
-    than: function (r) { return r.own ? "your fuel car" : "a " + r.name; },
-    cheaper: function (r) { return "Cheaper than " + T.than(r) + ", at your price"; },
-    dearer: function (r) { return "More than " + T.than(r) + ", at your price"; },
-    beBasis: function (r) { return "Below this price you drive cheaper than " + T.than(r); },
-    youLine: "You ", medianLine: "Public median ",
+    youLine: function (p) { return "Your price " + p + " (step 2)"; }, medianLine: "Public median ",
+    evChart: function (car) { return "Your " + car + " (step 1)"; },
+    costBasis2: function (car, p, lvl, kwh, loss) { return "What 100 km cost in your " + car + " at " + p + "/kWh, with " + lvl.toLowerCase() + " driving: " + kwh + " kWh/100 km plus " + loss + " % charging losses."; },
+    verdict: function (n, all) { return n === all ? (all === 1 ? "Cheaper than the fuel car you compare with." : "Cheaper than all " + all + " fuel cars you compare with.") : n === 0 ? (all === 1 ? "More expensive than the fuel car you compare with." : "More expensive than all " + all + " fuel cars you compare with.") : "Cheaper than " + n + " of the " + all + " fuel cars you compare with."; },
+    detail: function (r, fuelP, save, more) {
+      var who = r.own ? "Your fuel car (step 3) uses " : "A " + r.name + " uses ";
+      return who + r.l + " L of " + T.fuel[r.fuel].toLowerCase() + " per 100 km, which costs " + r.costT + " at " + fuelP + "/L. " +
+        (save ? "You save " + save + " every 100 km. Charging stays cheaper as long as you pay under " + r.beT + "/kWh." : "You pay " + more + " more every 100 km. You would need to pay under " + r.beT + "/kWh to beat it.");
+    },
     chartLabel: function (car, list) { return "Cost per 100 km for " + car + " by electricity price, with fuel cars as lines. Break-even: " + list; },
     saveCell: function (d) { return d + " saved"; }, moreCell: function (d) { return d + " more"; },
     range: function (a, b) { return a + " to " + b; },
@@ -218,7 +224,7 @@
   function drawChart(R, rows) {
     var el = $("chart");
     var W = Math.max(300, el.clientWidth || 640), narrow = W < 560;
-    var H = narrow ? 340 : 400;
+    var H = narrow ? 360 : 440;
     var m = { t: 22, r: 14, b: 40, l: 46 };
     var iw = W - m.l - m.r, ih = H - m.t - m.b;
     var bes = rows.map(function (r) { return r.breakEven; });
@@ -253,39 +259,59 @@
     s += '<path d="M' + f(X(0)) + "," + f(Y(0)) + " L" + f(X(Math.min(xmax, ymax / kWin))) + "," + f(Y(Math.min(ymax, kWin * xmax))) +
       (kWin * xmax > ymax ? " L" + f(X(xmax)) + "," + f(Y(ymax)) : "") + " L" + f(X(xmax)) + "," + f(Y(Math.min(ymax, kEff * xmax))) + ' Z" fill="var(--accent)" opacity="0.08"/>';
 
-    // fuel cars
-    var labels = [];
-    rows.forEach(function (r) {
+    // fuel cars: a dashed line each, labelled on the line at the left. Cars with the same cost share
+    // one label; labels that would overlap are spread out, with a short tick back to their line.
+    var groups = [], boxes = [];
+    rows.slice().sort(function (a, b) { return b.cost - a.cost; }).forEach(function (r) {
       var cls = "fuel fuel--" + r.fuel + (r.own ? " fuel--own" : "");
       s += '<line class="' + cls + '" x1="' + m.l + '" x2="' + (m.l + iw) + '" y1="' + f(Y(r.cost)) + '" y2="' + f(Y(r.cost)) + '"/>';
-      labels.push({ y: Y(r.cost) - 6, t: (narrow ? (r.own ? T.ownShort : r.short) : nameOf(r)) + " · " + eur(r.cost), cls: "lab lab--" + r.fuel });
+      var name = r.own ? T.own : r.short, g = groups[groups.length - 1];
+      if (g && eur(g.cost) === eur(r.cost)) { g.names.push(name); g.own = g.own || r.own; }
+      else groups.push({ cost: r.cost, line: Y(r.cost), y: Y(r.cost) - 5, names: [name], fuel: r.fuel, own: r.own });
     });
-    // keep the line labels from sitting on top of each other
-    labels.sort(function (a, b) { return b.y - a.y; });
-    for (var i = 1; i < labels.length; i++) if (labels[i - 1].y - labels[i].y < 13) labels[i].y = labels[i - 1].y - 13;
-    labels.forEach(function (l) { s += '<text class="' + l.cls + '" x="' + (m.l + 6) + '" y="' + f(l.y) + '">' + A.esc(l.t) + "</text>"; });
+    var GAP = 14;
+    for (var i = 1; i < groups.length; i++) if (groups[i].y - groups[i - 1].y < GAP) groups[i].y = groups[i - 1].y + GAP;
+    var over = groups.length ? groups[groups.length - 1].y - (m.t + ih - 4) : 0;
+    if (over > 0) groups.forEach(function (g) { g.y -= over; });
+    groups.forEach(function (g) {
+      var lx = m.l + 10;
+      if (Math.abs(g.y + 5 - g.line) > 3) s += '<path class="tick" d="M' + (m.l + 3) + "," + f(g.line) + " L" + (m.l + 7) + "," + f(g.y - 4) + '"/>';
+      var txt = g.names.join(", ") + (narrow ? "" : " · " + eur(g.cost));
+      s += '<text class="lab lab--' + g.fuel + (g.own ? " lab--own" : "") + '" x="' + lx + '" y="' + f(g.y) + '">' + A.esc(txt) + "</text>";
+      boxes.push({ x1: lx, x2: lx + txt.length * 6.4, y1: g.y - 11, y2: g.y + 3 });
+    });
 
     var xEnd = Math.min(xmax, ymax / kUse);
     s += '<line x1="' + f(X(0)) + '" y1="' + f(Y(0)) + '" x2="' + f(X(xEnd)) + '" y2="' + f(Y(kUse * xEnd)) + '" stroke="var(--accent)" stroke-width="3.5" stroke-linecap="round"/>';
-    s += '<text class="lab lab--ev" x="' + f(X(xEnd) - 4) + '" y="' + f(Y(kUse * xEnd) + (xEnd < xmax ? 14 : -8)) + '" text-anchor="end">' + A.esc(S.car) + "</text>";
+    // the EV label sits under the lower part of the line, away from the fuel lines
+    var lxv = xEnd * 0.42;
+    s += '<text class="lab lab--ev" x="' + f(X(lxv) + 10) + '" y="' + f(Y(kUse * lxv) + 18) + '">' + A.esc(T.evChart(S.car)) + "</text>";
 
     // break-even points
     var dots = rows.filter(function (r) { return r.breakEven <= xmax; }).sort(function (a, b) { return a.breakEven - b.breakEven; });
-    var last = { x: -1e9, y: 0, t: "" };
+    // each price goes next to its dot, in the first spot that is free of other labels
+    var hits = function (b) { return boxes.some(function (o) { return b.x1 < o.x2 && b.x2 > o.x1 && b.y1 < o.y2 && b.y2 > o.y1; }); };
+    var lastT = "", lastY = -1;
     dots.forEach(function (r) {
-      var cx = X(r.breakEven), cy = Y(r.cost), t = eur(r.breakEven);
+      var cx = X(r.breakEven), cy = Y(r.cost), t = eur(r.breakEven), w = t.length * 7.2;
       s += '<line x1="' + f(cx) + '" x2="' + f(cx) + '" y1="' + f(cy) + '" y2="' + (m.t + ih) + '" stroke="var(--chart-axis)" stroke-dasharray="1 3"/>';
       s += '<circle cx="' + f(cx) + '" cy="' + f(cy) + '" r="5" fill="var(--surface-100)" stroke="var(--accent)" stroke-width="2.5"/>';
       // two cars with the same cost share one dot: label it once
-      if (t === last.t && Math.abs(cy - last.y) < 2) return;
-      // a label below-right of the dot, unless the previous one is too close: then above-left
-      var below = !(cx - last.x < 52 && Math.abs(cy - last.y) < 18);
-      s += '<text class="be" x="' + f(below ? cx + 8 : cx - 8) + '" y="' + f(below ? cy + 17 : cy - 9) + '" text-anchor="' + (below ? "start" : "end") + '">' + t + "</text>";
-      last = below ? { x: cx, y: cy, t: t } : { x: last.x, y: last.y, t: t };
+      if (t === lastT && Math.abs(cy - lastY) < 2) return;
+      lastT = t; lastY = cy;
+      var spots = [[cx + 8, cy + 17], [cx + 8, cy + 31], [cx - 8 - w, cy - 9], [cx + 8, cy + 45]];
+      for (var k = 0; k < spots.length; k++) {
+        var b = { x1: spots[k][0], x2: spots[k][0] + w, y1: spots[k][1] - 12, y2: spots[k][1] + 2 };
+        if (!hits(b) && b.x2 <= W) break;
+      }
+      if (k === spots.length) return; // no room: the table below lists it
+      boxes.push(b);
+      s += '<text class="be" x="' + f(b.x1) + '" y="' + f(b.y2 - 2) + '">' + t + "</text>";
     });
 
     // price markers on top
-    s += '<text class="you" x="' + f(X(S.p) + (X(S.p) > m.l + iw - 90 ? -6 : 6)) + '" y="' + (m.t + 12) + '" text-anchor="' + (X(S.p) > m.l + iw - 90 ? "end" : "start") + '">' + T.youLine + eur(S.p) + "</text>";
+    var right = X(S.p) > m.l + iw * 0.55;
+    s += '<text class="you" x="' + f(X(S.p) + (right ? -6 : 6)) + '" y="' + (m.t + 12) + '" text-anchor="' + (right ? "end" : "start") + '">' + T.youLine(eur(S.p)) + "</text>";
     if (live && Math.abs(X(live.median) - X(S.p)) > 70) s += '<text x="' + f(X(live.median) + 4) + '" y="' + (m.t + 26) + '">' + T.medianLine + eur(live.median) + "</text>";
 
     s += '<line x1="' + m.l + '" x2="' + (m.l + iw) + '" y1="' + (m.t + ih) + '" y2="' + (m.t + ih) + '" stroke="var(--chart-axis)"/>';
@@ -322,22 +348,21 @@
     var rows = R.rows.slice().sort(function (a, b) { return b.breakEven - a.breakEven; });
     var lvl = T.levels[S.use];
 
-    // the answer
+    // the answer, in plain words
     var html = '<div class="ac-readout"><span class="ac-readout__value">' + eur(R.cost) + "<small>" + T.per100 + '</small></span><span class="ac-readout__basis">' +
-      A.esc(T.costBasis(S.car, lvl, A.num(R.kwh))) + "</span></div>";
-    var first = R.rows[0];
-    if (first) {
-      var d = Math.abs(first.saving);
-      html += '<div class="ac-readout ac-readout--md"><span class="ac-readout__value ' + (first.saving >= 0 ? "good" : "bad") + '">' + eur(first.breakEven) + "<small>" + T.perKwh + '</small></span><span class="ac-readout__basis">' +
-        A.esc(T.beBasis(first)) + "</span></div>";
-      html += '<div class="ac-readout ac-readout--md"><span class="ac-readout__value ' + (first.saving >= 0 ? "good" : "bad") + '">' + eur(d) + "<small>" + T.per100 + '</small></span><span class="ac-readout__basis">' +
-        A.esc(first.saving >= 0 ? T.cheaper(first) : T.dearer(first)) + "</span></div>";
-    } else {
-      html += '<div class="ac-readout ac-readout--md"><span class="ac-readout__value">' + A.money(R.per1000, { digits: 0 }) + "<small>" + T.per1000 + '</small></span><span class="ac-readout__basis">' + T.per1000Basis + "</span></div>";
+      A.esc(T.costBasis2(S.car, eur(S.p), lvl, A.num(R.kwh), A.num(S.loss, 0))) + "</span></div>";
+    var main = R.rows[0];
+    if (main) {
+      var wins = R.rows.filter(function (r) { return r.saving >= 0; }).length;
+      var good = main.saving >= 0;
+      html += '<div class="verdict"><p class="verdict__head ' + (wins === R.rows.length ? "good" : wins === 0 ? "bad" : "") + '">' + A.esc(T.verdict(wins, R.rows.length)) + "</p>" +
+        '<p class="verdict__detail">' + A.esc(T.detail({ own: main.own, name: main.name, l: A.num(main.l), fuel: main.fuel, costT: eur(main.cost), beT: eur(main.breakEven) },
+          eur(main.price), good ? eur(main.saving) : null, good ? null : eur(-main.saving))) + "</p></div>";
     }
     $("readouts").innerHTML = html;
 
     $("norefs").style.display = rows.length ? "none" : "";
+    $("legown").hidden = !S.own;
     drawChart(R, rows);
 
     // break-even table, highest break-even first
@@ -352,7 +377,11 @@
     }).join("");
 
     drawPriceChips();
-    $("claude").href = "https://claude.ai/new?q=" + encodeURIComponent(T.claude + summary() + "\n\n" + location.origin + location.pathname + "?" + query());
+    // the same question, filled in, for each assistant that takes one from a link
+    var ask = encodeURIComponent(T.claude + summary() + "\n\n" + location.origin + location.pathname + "?" + query());
+    $("claude").href = "https://claude.ai/new?q=" + ask;
+    $("chatgpt").href = "https://chatgpt.com/?q=" + ask;
+    $("perplexity").href = "https://www.perplexity.ai/search?q=" + ask;
   }
 
   function summary() {
