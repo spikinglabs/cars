@@ -93,3 +93,34 @@ class PublishTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class StatsTest(unittest.TestCase):
+    def test_components_from_hazard_text(self):
+        from pipelines.recalls.components import classify
+        self.assertEqual(classify("The separator of the high voltage battery may be damaged."), "hv_battery")
+        self.assertEqual(classify("A defect in the driver airbag inflator may cause ..."), "airbags_belts")
+        self.assertEqual(classify("The brake hose may chafe on the wheel arch."), "brakes")
+        self.assertEqual(classify("The connector of the positive battery cable may be damaged."), "electrical")
+        self.assertEqual(classify("Nothing named here."), "other")
+
+    def test_brand_key_takes_first_of_several(self):
+        self.assertEqual(collect.brand_key("Opel/Vauxhall"), "opel")
+        self.assertEqual(collect.brand_key("Citroen &amp; DS"), "citroen")
+        self.assertEqual(collect.brand_key("Mercedes- Benz"), "mercedes-benz")
+        self.assertEqual(collect.brand_key("Volkswagen (VW)"), "volkswagen")
+
+    def test_statistics_normalise_by_registrations(self):
+        from datetime import date
+        rows = [{"id": str(i), "date": "2024-05-01", "brand": "VW", "product": "Passenger car", "risk": "Fire",
+                 "component": "brakes"} for i in range(3)]
+        rows.append({"id": "m", "date": "2024-06-01", "brand": "Ducati", "product": "Motorcycle", "risk": "Injuries",
+                     "component": "brakes"})
+        reg = {"brands": [{"slug": "vw", "months": [["2018-12", 999999], ["2024-01", 300000]]}]}
+        s = collect.statistics(rows, date(2026, 11, 7), reg)
+        self.assertEqual(s["years"][0]["cars"], 3)
+        self.assertEqual(s["years"][0]["two_wheelers"], 1)
+        vw = next(b for b in s["brands"] if b["slug"] == "volkswagen")
+        self.assertEqual(vw["registrations_de"], 300000)
+        self.assertEqual(vw["alerts_per_100k"], 1.0)
+        self.assertEqual(next(c for c in s["components"] if c["key"] == "brakes")["cars"], 3)
