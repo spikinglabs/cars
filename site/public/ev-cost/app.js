@@ -257,15 +257,17 @@
 
     // break-even points
     var dots = rows.filter(function (r) { return r.breakEven <= xmax; }).sort(function (a, b) { return a.breakEven - b.breakEven; });
-    var lastX = -1e9, lastY = 0;
+    var last = { x: -1e9, y: 0, t: "" };
     dots.forEach(function (r) {
-      var cx = X(r.breakEven), cy = Y(r.cost);
-      // a label below-right of the dot, unless the previous one is too close: then above-left
-      var below = !(cx - lastX < 52 && Math.abs(cy - lastY) < 18);
-      lastX = below ? cx : lastX; lastY = below ? cy : lastY;
+      var cx = X(r.breakEven), cy = Y(r.cost), t = eur(r.breakEven);
       s += '<line x1="' + f(cx) + '" x2="' + f(cx) + '" y1="' + f(cy) + '" y2="' + (m.t + ih) + '" stroke="var(--chart-axis)" stroke-dasharray="1 3"/>';
       s += '<circle cx="' + f(cx) + '" cy="' + f(cy) + '" r="5" fill="var(--surface-100)" stroke="var(--accent)" stroke-width="2.5"/>';
-      s += '<text class="be" x="' + f(below ? cx + 8 : cx - 8) + '" y="' + f(below ? cy + 17 : cy - 9) + '" text-anchor="' + (below ? "start" : "end") + '">' + eur(r.breakEven) + "</text>";
+      // two cars with the same cost share one dot: label it once
+      if (t === last.t && Math.abs(cy - last.y) < 2) return;
+      // a label below-right of the dot, unless the previous one is too close: then above-left
+      var below = !(cx - last.x < 52 && Math.abs(cy - last.y) < 18);
+      s += '<text class="be" x="' + f(below ? cx + 8 : cx - 8) + '" y="' + f(below ? cy + 17 : cy - 9) + '" text-anchor="' + (below ? "start" : "end") + '">' + t + "</text>";
+      last = below ? { x: cx, y: cy, t: t } : { x: last.x, y: last.y, t: t };
     });
 
     // price markers on top

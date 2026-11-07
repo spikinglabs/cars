@@ -13,7 +13,7 @@
     "loss": { "type": "number", "default": 10, "unit": "%", "description": "Charging losses between plug and battery." },
     "petrol": { "type": "number", "default": 2.11, "unit": "EUR/L", "description": "Petrol price. Defaults to the latest German average (EU Weekly Oil Bulletin when available, else ADAC monthly average)." },
     "diesel": { "type": "number", "default": 2.26, "unit": "EUR/L", "description": "Diesel price, same source as petrol." },
-    "refs": { "type": "string", "default": "golf,troc,tiguan,octavia", "description": "Fuel cars to compare with, comma separated ids.", "enum": ["golf", "troc", "tiguan", "corsa", "octavia", "passat"] },
+    "refs": { "type": "string", "default": "golf,troc,tiguan,octavia,cx30,cx5", "description": "Fuel cars to compare with, comma separated ids.", "enum": ["golf", "troc", "tiguan", "corsa", "octavia", "passat", "cx30", "cx5"] },
     "own": { "type": "string", "description": "Your own fuel car as litres_per_100km,fuel, for example 6.2,petrol or 5.5,diesel. Omit for none." }
   },
   "fuel_cars": {
@@ -22,10 +22,12 @@
     "tiguan": "VW Tiguan 2.0 TDI, diesel, 6.5 L/100 km",
     "corsa": "Opel Corsa 1.2, petrol, 5.8 L/100 km",
     "octavia": "Skoda Octavia 2.0 TDI, diesel, 5.3 L/100 km",
-    "passat": "VW Passat 2.0 TDI, diesel, 5.8 L/100 km"
+    "passat": "VW Passat 2.0 TDI, diesel, 5.8 L/100 km",
+    "cx30": "Mazda CX-30 2.5 e-Skyactiv G, petrol, 7.0 L/100 km",
+    "cx5": "Mazda CX-5 2.5 e-Skyactiv G, petrol, 7.8 L/100 km"
   },
   "sources": {
-    "fuel_car_models": "KBA new registrations 2025 by model series",
+    "fuel_car_models": "KBA new registrations 2025 by model series, plus Mazda CX-30 and CX-5",
     "fuel_car_consumption": "Real-world averages rounded from owner logs on spritmonitor.de",
     "fuel_prices": "https://cars.allo.land/data/fuel-prices/latest.json (European Commission Weekly Oil Bulletin, CC BY 4.0); fallback ADAC monthly average October 2026",
     "charging_prices": "https://cars.allo.land/data/charging-prices/latest.json"

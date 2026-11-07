@@ -38,8 +38,8 @@
   var LEVELS = ["Efficient", "Typical", "Motorway", "Winter"];
   var LEVEL_HINTS = ["City and country roads, mild weather", "A normal week of driving", "Steady 120 km/h", "Cold weather, heating on"];
 
-  /* Fuel cars to compare with: the most registered new cars in Germany in 2025 (KBA, by model series),
-     each with its most common engine. l = real-world litres per 100 km, rounded from owner logs on
+  /* Fuel cars to compare with: the most registered new cars in Germany in 2025 (KBA, by model series)
+     plus the Mazda CX-30 and CX-5, each with its most common engine. l = real-world litres per 100 km, rounded from owner logs on
      spritmonitor.de; the official WLTP figures are lower. */
   var FUEL_CARS = [
     { id: "golf", short: "Golf", name: "VW Golf 1.5 TSI", fuel: "petrol", l: 6.5 },
@@ -47,7 +47,10 @@
     { id: "tiguan", short: "Tiguan", name: "VW Tiguan 2.0 TDI", fuel: "diesel", l: 6.5 },
     { id: "corsa", short: "Corsa", name: "Opel Corsa 1.2", fuel: "petrol", l: 5.8 },
     { id: "octavia", short: "Octavia", name: "Skoda Octavia 2.0 TDI", fuel: "diesel", l: 5.3 },
-    { id: "passat", short: "Passat", name: "VW Passat 2.0 TDI", fuel: "diesel", l: 5.8 }
+    { id: "passat", short: "Passat", name: "VW Passat 2.0 TDI", fuel: "diesel", l: 5.8 },
+    // added on request, not in the KBA top list: popular compact and mid-size SUVs, petrol only in Germany
+    { id: "cx30", short: "CX-30", name: "Mazda CX-30 2.5 e-Skyactiv G", fuel: "petrol", l: 7.0 },
+    { id: "cx5", short: "CX-5", name: "Mazda CX-5 2.5 e-Skyactiv G", fuel: "petrol", l: 7.8 }
   ];
   var FUELS = ["petrol", "diesel"];
 
@@ -63,7 +66,7 @@
     loss: 10,          // % charging losses
     petrol: FUEL_PRICES.petrol,
     diesel: FUEL_PRICES.diesel,
-    refs: ["golf", "troc", "tiguan", "octavia"],
+    refs: ["golf", "troc", "tiguan", "octavia", "cx30", "cx5"],
     own: null          // your own fuel car: { l: litres/100 km, fuel: "petrol" | "diesel" }
   };
 
