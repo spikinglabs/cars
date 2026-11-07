@@ -2,7 +2,7 @@
 //   pages, scripts, styles and /data/ → network first; after 3 s, or offline, the copy saved last time
 //   fonts and images   → a saved copy answers at once and is refreshed in the background
 //   anything not GET, or from another site → straight to the network, never saved
-const VERSION = "v1";
+const VERSION = "v2";
 const PAGES = `pages-${VERSION}`;
 const STATIC = `static-${VERSION}`;
 const MAX_PAGES = 60;
