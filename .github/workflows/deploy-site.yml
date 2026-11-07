@@ -3,7 +3,7 @@ name: Deploy site
 # Deploys site/ to the Cloudflare Pages project "alloland-cars" (cars.allo.land).
 on:
   push:
-    branches: [main]
+    branches: [main, claude/project-thread-piofe5] # TEMP: test deploy from PR branch
     paths: ["site/**", ".github/workflows/deploy-site.yml"]
   workflow_dispatch:
 

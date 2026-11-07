@@ -7,6 +7,8 @@ on:
     - cron: "7 * * * *"    # hourly: prices + charger status
     - cron: "23 3 * * *"   # daily: Bundesnetzagentur register + storage check
     - cron: "41 4 * * 1"   # weekly (Monday): locations + businesses
+  push: # TEMP: one test run from the PR branch, removed before merge
+    branches: [claude/project-thread-piofe5]
   workflow_dispatch:
     inputs:
       tier:
@@ -45,7 +47,7 @@ jobs:
           case "${{ github.event.schedule }}" in
             "23 3 * * *") echo "tier=daily" >> "$GITHUB_OUTPUT" ;;
             "41 4 * * 1") echo "tier=weekly" >> "$GITHUB_OUTPUT" ;;
-            "") echo "tier=${{ inputs.tier }}" >> "$GITHUB_OUTPUT" ;;
+            "") echo "tier=${{ inputs.tier || 'hourly' }}" >> "$GITHUB_OUTPUT" ;;
             *) echo "tier=hourly" >> "$GITHUB_OUTPUT" ;;
           esac
       - name: Collect
