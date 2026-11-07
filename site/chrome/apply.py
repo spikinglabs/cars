@@ -9,6 +9,9 @@ footer.html (English) and header.de.html and footer.de.html (German). In them:
     {{alt}}    the same page in the other language
     {{en}}     the English URL of this page, {{de}} the German one
 
+Links to the site's own .css and .js files get ?v=<content hash>, so a browser that kept an old copy
+(the host lets browsers cache assets for hours) loads the new one as soon as a page changes it.
+
 The nav link for the page's own section gets aria-current="page". Every English page needs a German
 twin and the other way round. Run after changing any part:
 
@@ -17,6 +20,7 @@ twin and the other way round. Run after changing any part:
 """
 from __future__ import annotations
 
+import hashlib
 import re
 import sys
 from pathlib import Path
@@ -25,6 +29,19 @@ HERE = Path(__file__).resolve().parent
 PUBLIC = HERE.parent / "public"
 PARTS = ("head", "header", "footer")
 SITE = "https://cars.allo.land"
+
+
+ASSET = re.compile(r'((?:href|src)=")(/[^"?#]+\.(?:css|js))(?:\?v=[0-9a-f]*)?(")')
+
+
+def version_assets(html: str) -> str:
+    """Add ?v=<first 10 hex of sha256> to every link to a local .css or .js file."""
+    def sub(m: re.Match) -> str:
+        file = PUBLIC / m.group(2).lstrip("/")
+        if not file.is_file():
+            raise SystemExit(f"{m.group(2)}: linked from a page but missing under site/public")
+        return f"{m.group(1)}{m.group(2)}?v={hashlib.sha256(file.read_bytes()).hexdigest()[:10]}{m.group(3)}"
+    return ASSET.sub(sub, html)
 
 
 def url_of(page: Path) -> str:
@@ -77,6 +94,7 @@ def apply(page: Path) -> tuple[str, str]:
         if not pat.search(new):
             raise SystemExit(f"{page}: missing <!-- chrome:{part} --> markers")
         new = pat.sub(lambda m: m.group(1) + "\n" + render(part, url) + "\n" + m.group(3), new, count=1)
+    new = version_assets(new)
     want = f'<html lang="{lang_of(url)}"'
     if want not in new:
         raise SystemExit(f"{page}: expected {want}>")
