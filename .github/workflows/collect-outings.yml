@@ -1,0 +1,40 @@
+name: Collect family outings
+
+# Kid-friendly places and family events from Allo Outings (outings.allo.land, open JSON) into R2 (outings/),
+# for the "charge while the kids play" layer of the charger map at /chargers/. Outings rebuilds its listings
+# every night; a daily copy after that keeps this one fresh, so past events drop off (about 30 seconds, ~90 small files).
+# It also runs on pull requests that change the pipeline, so the site preview has data to show.
+on:
+  schedule:
+    - cron: "41 5 * * *"
+  pull_request:
+    paths: ["pipelines/outings/**", ".github/workflows/collect-outings.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collect-outings
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Fork PRs get no secrets.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      R2_BUCKET: ${{ vars.R2_BUCKET_EV }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r pipelines/outings/requirements.txt
+      - name: Check bucket variable
+        run: test -n "$R2_BUCKET" || { echo "::error::Set the R2_BUCKET_EV repository variable"; exit 1; }
+      - run: python -m pipelines.outings.collect --r2 "$R2_BUCKET" --prefix outings

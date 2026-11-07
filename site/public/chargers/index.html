@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Charger map · Allo Cars</title>
-<meta name="description" content="Every public EV charger in Germany on one map: filter by power, plug and payment, search a town or postcode, and find the nearest fast charger.">
+<meta name="description" content="Every public EV charger in Germany on one map: filter by power, plug and payment, search a town or postcode, and find the nearest fast charger, with playgrounds and family outings nearby.">
 <link rel="alternate" type="application/json" href="/data/chargers/de/latest.json" title="Charger counts (JSON)">
 <link rel="alternate" type="text/csv" href="/data/chargers/de/stations.csv" title="All charging stations (CSV)">
 <!-- chrome:head -->
@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
 <link rel="stylesheet" href="/assets/vendor/leaflet/leaflet.css?v=a783710282">
-<link rel="stylesheet" href="/chargers/map.css?v=9d31b512fe">
+<link rel="stylesheet" href="/chargers/map.css?v=50f2639405">
 <script src="/assets/site.js?v=4d5b1b5049"></script>
 </head>
 <body>
@@ -58,7 +58,7 @@
 <!-- /chrome:header -->
 
     <h1>Where can I <span class="ac-hl">charge</span> nearby?</h1>
-    <p class="lead">Every public charger registered in Germany on one map. Pick the power and plug you need, then search a town or use your location.</p>
+    <p class="lead">Every public charger registered in Germany on one map. Pick the power and plug you need, then search a town or use your location. With kids? Turn on family outings to see playgrounds, pools and events next to the chargers.</p>
 
     <div class="stack">
       <section class="ac-card controls" aria-label="Find chargers">
@@ -90,6 +90,11 @@
               <button type="button" class="ac-chip" data-only="247">Open 24/7</button><button type="button" class="ac-chip" data-only="card">Pay by card</button><button type="button" class="ac-chip" data-only="free">Free</button><button type="button" class="ac-chip" data-only="public">No customer-only</button>
             </div>
           </div>
+          <div><span class="ac-param__label">With kids</span>
+            <div class="ac-chips" role="group" aria-label="With kids">
+              <button type="button" class="ac-chip ac-chip--kids" data-kids aria-pressed="false">🛝 Family outings</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -97,6 +102,7 @@
         <div class="map" id="map" role="region" aria-label="Map of chargers"></div>
         <div class="maplegend">
           <span><i class="sw sw--ac"></i>Up to 49 kW</span><span><i class="sw sw--fast"></i>50 to 149 kW</span><span><i class="sw sw--hpc"></i>150 kW and more</span>
+          <span id="legend-kids" class="maplegend__kids" hidden><span><i class="sw sw--place"></i>Family place</span><span><i class="sw sw--event"></i>Family event</span></span>
           <span class="maplegend__hint" id="maphint"></span>
         </div>
       </section>
@@ -105,6 +111,13 @@
         <h2 class="ac-card__title" id="neartitle">Closest to the middle of the map</h2>
         <p class="ac-card__desc" id="neardesc">Zoom in or search a place to list chargers.</p>
         <ol class="near" id="near"></ol>
+      </section>
+
+      <section class="ac-card kidscard" id="kids">
+        <h2 class="ac-card__title">Charge while the kids play</h2>
+        <p class="ac-card__desc" id="kidsdesc"></p>
+        <p class="kidscard__go"><button type="button" class="ac-btn ac-btn--primary" id="kidsgo">🛝 Show family outings</button></p>
+        <ol class="near near--kids" id="kidslist"></ol>
       </section>
 
       <section class="ac-card">
@@ -118,7 +131,7 @@
         <a class="ac-btn ac-btn--ai" id="aigo" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>Open in Claude</span></a>
       </section>
 
-      <p class="ac-caption" style="margin:0">Charge points notified to the Federal Network Agency, <span id="asof"></span> Operators who have not finished the notification are missing, so there are more chargers than shown. Map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Sources, licences and downloads: <a href="/open-data/#chargers">Data and sources</a>.</p>
+      <p class="ac-caption" style="margin:0">Charge points notified to the Federal Network Agency, <span id="asof"></span> Operators who have not finished the notification are missing, so there are more chargers than shown. Map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Family places and events: <a href="https://outings.allo.land/en/">Allo Outings</a>. Sources, licences and downloads: <a href="/open-data/#chargers">Data and sources</a>.</p>
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
@@ -172,6 +185,6 @@
   </main>
 </div>
 <script src="/assets/vendor/leaflet/leaflet.js?v=db49d009c8"></script>
-<script src="/chargers/app.js?v=484d6a3255"></script>
+<script src="/chargers/app.js?v=9f34dd454f"></script>
 </body>
 </html>

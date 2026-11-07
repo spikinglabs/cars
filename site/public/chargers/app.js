@@ -7,8 +7,11 @@
      cells/<id>.json  stations of one 0.5 degree cell, id = floor(lat*2)_floor(lon*2)
      places.json      postcode and town centres for the search box
 
+   Family outings ("charge while the kids play", built by pipelines/outings from Allo Outings):
+     /data/outings/<region>/latest.json, cells/<id>.json   kid-friendly places and events, same cells
+
    Link parameters (all optional): lat, lon, z (zoom), kw (0, 11, 50, 150), plug (type2,ccs,chademo),
-   only (247,card,free,public). Example: /chargers/?lat=50.94&lon=6.96&z=13&kw=150&plug=ccs */
+   only (247,card,free,public), kids (1 = show family outings). Example: /chargers/?lat=50.94&lon=6.96&z=13&kw=150&plug=ccs&kids=1 */
 (() => {
   "use strict";
   const lang = (document.documentElement.lang || "en").slice(0, 2);
@@ -28,6 +31,14 @@
     locating: "正在获取你的位置 …", noLocate: "无法获取你的位置。请改为搜索地点。",
     you: "你在这里", stationsN: (n) => `${n.toLocaleString("zh-CN")} 个站点`,
     ask: (url, cell, f) => `我在德国给电动车找公共充电桩${f}。请使用地图 ${url} 和站点数据 ${cell}（字段名在 "fields" 中），列出附近最好的几个选择，包括功率、运营商和地址。`,
+    askKids: (cell) => `我们带着孩子。附近适合孩子的地方和活动在 ${cell}（来自 Allo Outings，字段名在 "place_fields" 和 "event_fields" 中）。请优先推荐步行几分钟内就有游乐场、公园或活动的充电桩，让孩子在充电时可以玩。`,
+    kind: { playground: "游乐场", park: "公园", pool: "游泳池和湖", farm: "农场", zoo: "动物园", museum: "博物馆", indoor: "室内游乐", fun: "游乐园", cafe: "亲子咖啡馆", winter: "滑冰和滑雪橇", event: "亲子活动" },
+    kidsOff: "打开「亲子去处」，就能看到充电桩附近的游乐场、游泳池、动物园和本周活动（来自 Allo Outings）。",
+    kidsOn: "显示亲子去处", kidsZoom: "放大地图或搜索地点，即可找到附近有亲子去处的充电桩。",
+    kidsDesc: (n, m) => `${n} 个亲子去处，${m} 米内有符合条件的充电桩，离地图中心最近的排在前面。`,
+    kidsNone: (m) => `当前视图中没有 ${m} 米内有符合条件充电桩的亲子去处。移动地图或放宽筛选条件。`,
+    kidsFail: "暂时无法加载亲子去处。", nearestCharger: "最近的充电桩", showCharger: "在地图上显示",
+    onOutings: "在 Allo Outings 查看", nearby: "附近", today: "今天", until: (d) => `至 ${d}`, indoorTag: "室内", freeTag: "免费",
   } : de ? {
     locale: "de-DE", loading: "Lädt …", failed: "Die Daten konnten nicht geladen werden: ",
     notYet: "Die Ladesäulen werden gerade zum ersten Mal eingelesen. Bitte später nochmal vorbeischauen.",
@@ -43,6 +54,14 @@
     locating: "Standort wird ermittelt …", noLocate: "Dein Standort ist nicht verfügbar. Such stattdessen einen Ort.",
     you: "Du bist hier", stationsN: (n) => n === 1 ? "1 Standort" : `${n.toLocaleString("de-DE")} Standorte`,
     ask: (url, cell, f) => `Ich suche eine Ladesäule für mein E-Auto in Deutschland${f}. Bitte nutze die Karte ${url} und die Stationsdaten ${cell} (Felder stehen in "fields") und nenne mir die besten Optionen in der Nähe mit Leistung, Betreiber und Adresse.`,
+    askKids: (cell) => ` Wir haben Kinder dabei. Kinderfreundliche Orte und Termine in der Nähe stehen in ${cell} (von Allo Outings, Felder in "place_fields" und "event_fields"). Bevorzuge Ladesäulen mit einem Spielplatz, Park oder Termin wenige Gehminuten entfernt, damit die Kinder beim Laden spielen können.`,
+    kind: { playground: "Spielplatz", park: "Park", pool: "Bad und See", farm: "Bauernhof", zoo: "Zoo und Tiere", museum: "Museum", indoor: "Indoor-Spielplatz", fun: "Freizeitpark", cafe: "Familiencafé", winter: "Eisbahn und Rodeln", event: "Familientermin" },
+    kidsOff: "Mit „Ausflüge mit Kindern“ siehst du Spielplätze, Bäder, Zoos und Termine dieser Woche von Allo Outings neben den Ladesäulen.",
+    kidsOn: "Ausflüge zeigen", kidsZoom: "Hineinzoomen oder einen Ort suchen, um Ladesäulen mit Ausflugszielen in der Nähe zu finden.",
+    kidsDesc: (n, m) => `${n} Ausflugsziel${n === 1 ? "" : "e"} mit passender Ladesäule im Umkreis von ${m} m, das nächste zur Kartenmitte zuerst.`,
+    kidsNone: (m) => `Im Kartenausschnitt hat kein Ausflugsziel eine passende Ladesäule im Umkreis von ${m} m. Karte verschieben oder Filter lockern.`,
+    kidsFail: "Die Ausflugsziele konnten gerade nicht geladen werden.", nearestCharger: "Nächste Ladesäule", showCharger: "Auf der Karte zeigen",
+    onOutings: "Bei Allo Outings", nearby: "In der Nähe", today: "heute", until: (d) => `bis ${d}`, indoorTag: "drinnen", freeTag: "kostenlos",
   } : {
     locale: "en-GB", loading: "Loading …", failed: "Could not load data: ",
     notYet: "The chargers are being read in for the first time. Please check back later.",
@@ -58,17 +77,29 @@
     locating: "Finding your location …", noLocate: "Your location is not available. Search a place instead.",
     you: "You are here", stationsN: (n) => n === 1 ? "1 location" : `${n.toLocaleString("en-GB")} locations`,
     ask: (url, cell, f) => `I'm looking for a public charger for my EV in Germany${f}. Please use the map ${url} and the station data ${cell} (field names are in "fields") and list the best nearby options with power, operator and address.`,
+    askKids: (cell) => ` We have kids with us. Kid-friendly places and events nearby are in ${cell} (from Allo Outings, field names in "place_fields" and "event_fields"). Prefer chargers with a playground, park or event a few minutes' walk away, so the kids can play while we charge.`,
+    kind: { playground: "Playground", park: "Park", pool: "Pool or lake", farm: "Farm", zoo: "Zoo and animals", museum: "Museum", indoor: "Indoor play", fun: "Theme park", cafe: "Family café", winter: "Ice rink and sledging", event: "Family event" },
+    kidsOff: "Turn on family outings to see playgrounds, pools, zoos and this week's events from Allo Outings next to the chargers.",
+    kidsOn: "Show family outings", kidsZoom: "Zoom in or search a place to find chargers with family outings nearby.",
+    kidsDesc: (n, m) => `${n} family outing${n === 1 ? "" : "s"} with a matching charger within ${m} m, closest to the middle of the map first.`,
+    kidsNone: (m) => `No family outing in view has a matching charger within ${m} m. Move the map or loosen the filters.`,
+    kidsFail: "Family outings could not be loaded just now.", nearestCharger: "Nearest charger", showCharger: "Show on map",
+    onOutings: "On Allo Outings", nearby: "Nearby", today: "today", until: (d) => `until ${d}`, indoorTag: "indoor", freeTag: "free",
   };
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const num = (n) => Number(n).toLocaleString(T.locale);
   const data = (file) => (window.AlloSite ? AlloSite.data("chargers", file) : "/data/chargers/de/" + file);
   const ORIGIN = "https://cars.allo.land";
+  const OUTINGS = "https://outings.allo.land";
+  const outData = (file) => (window.AlloSite ? AlloSite.data("outings", file) : "/data/outings/de/" + file);
 
   const PLUG = { type2: 1, ccs: 2, chademo: 4, schuko: 8, mcs: 16, type1: 32 };
   const PLUG_NAME = { type2: "Type 2", ccs: "CCS", chademo: "CHAdeMO", schuko: "Schuko", mcs: "MCS", type1: "Type 1" };
   const FLAG = { open247: 1, free: 2, card: 4, customers: 8, pnc: 16 };
   const CELL = 0.5, DETAIL_ZOOM = 11, NEAR = 10;
+  const WALK = 500, ICON_ZOOM = 14, KIDS_LIST = 8, EVENT_DAYS = 7; // metres; zoom for emoji icons; rows; days ahead
+  const EMOJI = { playground: "🛝", park: "🌳", pool: "🏊", farm: "🐄", zoo: "🦒", museum: "🏛️", indoor: "🧸", fun: "🎢", cafe: "☕", winter: "⛸️", event: "📅" };
   const DEFAULT = { lat: 51.16, lon: 10.45, z: 6 };
 
   /* ---------- state in the link ---------- */
@@ -78,6 +109,7 @@
     kw: [0, 11, 50, 150].includes(+qs.get("kw")) ? +qs.get("kw") : 0,
     plug: listParam("plug", ["type2", "ccs", "chademo"]),
     only: listParam("only", ["247", "card", "free", "public"]),
+    kids: qs.get("kids") === "1",
   };
   const fnum = (k, lo, hi) => { const v = parseFloat(qs.get(k)); return isFinite(v) && v >= lo && v <= hi ? v : null; };
   const start = { lat: fnum("lat", 47, 55.5) ?? DEFAULT.lat, lon: fnum("lon", 5, 16) ?? DEFAULT.lon, z: fnum("z", 5, 18) ?? DEFAULT.z };
@@ -105,6 +137,7 @@
   const canvas = L.canvas({ padding: 0.3 });
   const overviewLayer = L.layerGroup().addTo(map);
   const stationLayer = L.layerGroup().addTo(map);
+  const spotLayer = L.layerGroup().addTo(map);
   let youMarker = null;
 
   const style = (s) => s.kw >= 150 ? { fillColor: "#17191b", color: "#ffcc00" } : s.kw >= 50 ? { fillColor: "#ffcc00", color: "#17191b" } : { fillColor: "#1d4f91", color: "#ffffff" };
@@ -152,6 +185,7 @@
       <p>${plugs.map(esc).join(", ")}</p>
       ${tags.length ? `<div class="tags">${tags.map((t) => `<span>${esc(t)}</span>`).join("")}</div>` : ""}
       <p>${esc(s.address)}${s.since ? `<br><small>${T.since(s.since)}</small>` : ""}</p>
+      ${state.kids && s.spot ? `<p class="kidsline">${EMOJI[s.spot[1].kind]} <a href="${spotUrl(s.spot[1])}" target="_blank" rel="noopener">${esc(spotName(s.spot[1]))}</a> · ${dist(s.spot[0])}</p>` : ""}
       <p><a class="go" href="${go}" target="_blank" rel="noopener">${T.directions} ↗</a></p></div>`;
   }
 
@@ -211,7 +245,117 @@
       stationLayer.addLayer(m);
     }
     $("maphint").textContent = T.shown(drawn.length);
+    await drawSpots(b, my);
+    if (my !== token) return;
     listNear();
+    listKids();
+  }
+
+  /* ---------- family outings (Allo Outings) ---------- */
+  const outCells = new Map(); // id -> Promise<{places, events}>
+  let outLatest = null; // Promise<latest.json>
+  let spots = [], spotsFailed = false; // places and events in view
+  const isoDay = (d) => d.toISOString().slice(0, 10);
+  function loadOutCell(id) {
+    if (!outLatest) outLatest = getJson(outData("latest.json")).catch((e) => { outLatest = null; throw e; });
+    if (!outCells.has(id)) {
+      outCells.set(id, outLatest.then((l) => !l.cells.includes(id) ? { places: [], events: [] } : getJson(outData(`cells/${id}.json`)).then((c) => {
+        const pf = Object.fromEntries(c.place_fields.map((k, i) => [k, i])), ef = Object.fromEntries(c.event_fields.map((k, i) => [k, i]));
+        return {
+          places: c.places.map((r) => ({ type: "place", lat: r[pf.lat], lon: r[pf.lon], kind: r[pf.kind], id: r[pf.id], name: r[pf.name], name_zh: r[pf.name_zh], town: r[pf.town], free: r[pf.free], indoor: r[pf.indoor], hours: r[pf.hours] })),
+          events: c.events.map((r) => ({ type: "event", kind: "event", lat: r[ef.lat], lon: r[ef.lon], id: r[ef.id], start: r[ef.start], end: r[ef.end], time: r[ef.time], de: r[ef.title_de], en: r[ef.title_en], zh: r[ef.title_zh], venue: r[ef.venue], town: r[ef.town], free: r[ef.free] })),
+        };
+      })).catch((e) => { outCells.delete(id); throw e; }));
+    }
+    return outCells.get(id);
+  }
+  const spotName = (p) => p.type === "event" ? (zh ? p.zh || p.de : de ? p.de : p.en || p.de) : (zh && p.name_zh) || p.name;
+  const spotUrl = (p) => `${OUTINGS}/${lang}/${p.type === "event" ? "termine" : "orte"}/${encodeURIComponent(p.id)}/`;
+  const fmtDay = (iso, opts) => new Date(iso + "T12:00:00Z").toLocaleDateString(T.locale, opts);
+  function when(p) {
+    const today = isoDay(new Date());
+    if (p.start <= today) return p.end > today ? T.until(fmtDay(p.end, { day: "numeric", month: "short" })) : T.today + (p.time ? " " + p.time : "");
+    return fmtDay(p.start, { weekday: "short", day: "numeric", month: "short" }) + (p.time ? " " + p.time : "");
+  }
+  function spotSub(p) {
+    if (p.type === "event") return [when(p), p.venue].filter(Boolean).join(" · ");
+    return [T.kind[p.kind], p.town, p.indoor ? T.indoorTag : "", p.free ? T.freeTag : ""].filter(Boolean).join(" · ");
+  }
+  // Nearest matching charger to a spot (and the other way round), as the crow flies, in km.
+  function nearest(p, list) {
+    let best = null, bd = Infinity;
+    for (const s of list) { const d = km(p, s); if (d < bd) { bd = d; best = s; } }
+    return best ? [bd, best] : null;
+  }
+  function spotPopup(p) {
+    const c = p.charger;
+    return `<div class="pop"><p class="pop__kind">${EMOJI[p.kind]} ${esc(T.kind[p.kind])}</p><h3>${esc(spotName(p))}</h3>
+      <p>${esc(p.type === "event" ? spotSub(p) : [p.town, p.indoor ? T.indoorTag : "", p.free ? T.freeTag : ""].filter(Boolean).join(" · "))}</p>
+      ${p.hours && p.hours !== "24/7" ? `<p><small>${esc(p.hours)}</small></p>` : ""}
+      ${c ? `<p class="kidsline">⚡ ${T.nearestCharger}: <b>${num(c[1].kw)} kW</b> · ${dist(c[0])}<br><small>${esc(c[1].operator)}</small></p>
+        <p><button type="button" class="linkbtn" data-show-charger>${T.showCharger}</button></p>` : ""}
+      <p><a class="go" href="${spotUrl(p)}" target="_blank" rel="noopener">${T.onOutings} ↗</a></p></div>`;
+  }
+  function showCharger(s) {
+    map.closePopup();
+    map.setView([s.lat, s.lon], Math.max(map.getZoom(), 16));
+    setTimeout(() => s.marker && s.marker.openPopup(), 350);
+  }
+  async function drawSpots(b, my) {
+    spotLayer.clearLayers();
+    spots = []; spotsFailed = false;
+    for (const s of drawn) s.spot = null;
+    if (!state.kids) return;
+    let lists;
+    try { lists = await Promise.all(cellsIn(b).map(loadOutCell)); }
+    catch (e) { spotsFailed = true; return; }
+    if (my !== token) return;
+    const today = isoDay(new Date()), last = isoDay(new Date(Date.now() + EVENT_DAYS * 864e5));
+    for (const c of lists) {
+      for (const p of c.places) if (b.contains([p.lat, p.lon])) spots.push(p);
+      for (const e of c.events) if (e.end >= today && e.start <= last && b.contains([e.lat, e.lon])) spots.push(e);
+    }
+    // Pair each spot with its nearest matching charger, and each charger with its nearest spot.
+    const walk = WALK / 1000, deg = walk / 111 * 1.6;
+    const near = (p, list) => nearest(p, list.filter((s) => Math.abs(s.lat - p.lat) < deg && Math.abs(s.lon - p.lon) < deg * 1.6));
+    for (const p of spots) { const n = near(p, drawn); p.charger = n && n[0] <= walk ? n : null; }
+    for (const s of drawn) { const n = near(s, spots); s.spot = n && n[0] <= walk ? n : null; }
+    const z = map.getZoom();
+    for (const p of spots) {
+      const m = z >= ICON_ZOOM
+        ? L.marker([p.lat, p.lon], { icon: L.divIcon({ className: "", html: `<span class="spot${p.type === "event" ? " spot--event" : ""}">${EMOJI[p.kind]}</span>`, iconSize: [26, 26] }), keyboard: false, zIndexOffset: -100 })
+        : L.circleMarker([p.lat, p.lon], { renderer: canvas, radius: 3.5, weight: 1.5, color: "#ffffff", fillColor: p.type === "event" ? "#a3307e" : "#2b8a3e", fillOpacity: 0.95 });
+      m.bindPopup(() => spotPopup(p), { maxWidth: 300 });
+      m.on("popupopen", (ev) => {
+        const btn = ev.popup.getElement().querySelector("[data-show-charger]");
+        if (btn && p.charger) btn.addEventListener("click", () => showCharger(p.charger[1]));
+      });
+      p.marker = m;
+      spotLayer.addLayer(m);
+    }
+  }
+  function listKids() {
+    const ol = $("kidslist"), desc = $("kidsdesc"), btn = $("kidsgo");
+    btn.hidden = state.kids;
+    $("legend-kids").hidden = !state.kids;
+    if (!state.kids) { ol.innerHTML = ""; desc.textContent = T.kidsOff; return; }
+    if (map.getZoom() < DETAIL_ZOOM) { ol.innerHTML = ""; desc.textContent = T.kidsZoom; return; }
+    if (spotsFailed) { ol.innerHTML = ""; desc.textContent = T.kidsFail; return; }
+    const c = map.getCenter(), here = { lat: c.lat, lon: c.lng };
+    const withCharger = spots.filter((p) => p.charger);
+    // Events first among equals: they only happen now, places are always there.
+    const best = withCharger.map((p) => [km(here, p) * (p.type === "event" ? 0.8 : 1), p]).sort((a, b) => a[0] - b[0]).slice(0, KIDS_LIST).map((x) => x[1]);
+    if (!best.length) { ol.innerHTML = ""; desc.textContent = T.kidsNone(WALK); return; }
+    desc.textContent = T.kidsDesc(withCharger.length, WALK);
+    ol.innerHTML = best.map((p, i) => `<li><span class="e" aria-hidden="true">${EMOJI[p.kind]}</span>
+      <button type="button" class="who" data-i="${i}"><b>${esc(spotName(p))}</b><span>${esc(spotSub(p))}</span></button>
+      <span class="k">⚡ ${num(p.charger[1].kw)}<small> kW</small> <small>· ${dist(p.charger[0])}</small></span></li>`).join("");
+    ol.querySelectorAll("button.who").forEach((b) => b.addEventListener("click", () => {
+      const p = best[+b.dataset.i];
+      map.fitBounds(L.latLngBounds([[p.lat, p.lon], [p.charger[1].lat, p.charger[1].lon]]).pad(0.6), { maxZoom: 17 });
+      map.once("moveend", () => setTimeout(() => p.marker && p.marker.openPopup(), 400));
+      $("map").scrollIntoView({ behavior: "smooth", block: "center" });
+    }));
   }
 
   function km(a, b) {
@@ -230,7 +374,7 @@
     if (!best.length) { ol.innerHTML = ""; $("neardesc").textContent = T.none; return; }
     $("neardesc").textContent = T.nearDesc(best.length);
     ol.innerHTML = best.map(([d, s], i) => `<li><span class="d">${dist(d)}</span>
-      <button type="button" class="who" data-i="${i}"><b>${esc(s.operator)}</b><span>${esc(s.address)}</span></button>
+      <button type="button" class="who" data-i="${i}"><b>${esc(s.operator)}</b><span>${esc(s.address)}</span>${state.kids && s.spot ? `<span class="kidsline">${EMOJI[s.spot[1].kind]} ${esc(spotName(s.spot[1]))} · ${dist(s.spot[0])}</span>` : ""}</button>
       <span class="k">${num(s.kw)}<small> kW</small> <small>· ${s.points}×</small></span></li>`).join("");
     ol.querySelectorAll("button.who").forEach((btn) => btn.addEventListener("click", () => {
       const s = best[+btn.dataset.i][1];
@@ -243,7 +387,7 @@
   function redraw() {
     const detail = map.getZoom() >= DETAIL_ZOOM;
     if (detail) { overviewLayer.clearLayers(); drawStations(); }
-    else { token++; stationLayer.clearLayers(); drawn = []; drawOverview(); $("maphint").textContent = T.zoomIn; listNear(); }
+    else { token++; stationLayer.clearLayers(); spotLayer.clearLayers(); drawn = []; spots = []; drawOverview(); $("maphint").textContent = T.zoomIn; listNear(); listKids(); }
     syncUrl();
   }
 
@@ -255,6 +399,7 @@
     if (state.kw) p.set("kw", state.kw);
     if (state.plug.length) p.set("plug", state.plug.join(","));
     if (state.only.length) p.set("only", state.only.join(","));
+    if (state.kids) p.set("kids", "1");
     const country = qs.get("country");
     if (country) p.set("country", country);
     return p;
@@ -265,7 +410,8 @@
     const c = map.getCenter();
     const filt = [state.kw ? `${state.kw} kW+` : "", state.plug.map((k) => PLUG_NAME[k]).join("/"),
       state.only.map((o) => ({ 247: T.open247, card: T.card, free: T.free, public: de ? "öffentlich" : zh ? "非仅限顾客" : "public" })[o]).join(", ")].filter(Boolean).join(", ");
-    const prompt = T.ask(ORIGIN + location.pathname + "?" + p.toString(), ORIGIN + data(`cells/${cellId(c.lat, c.lng)}.json`), filt ? ` (${filt})` : "");
+    const prompt = T.ask(ORIGIN + location.pathname + "?" + p.toString(), ORIGIN + data(`cells/${cellId(c.lat, c.lng)}.json`), filt ? ` (${filt})` : "")
+      + (state.kids ? T.askKids(ORIGIN + outData(`cells/${cellId(c.lat, c.lng)}.json`)) : "");
     $("aigo").href = "https://claude.ai/new?q=" + encodeURIComponent(prompt);
   }
 
@@ -274,12 +420,17 @@
     document.querySelectorAll("#kw button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.kw === state.kw)));
     document.querySelectorAll("#plug button").forEach((b) => b.setAttribute("aria-pressed", String(state.plug.includes(b.dataset.plug))));
     document.querySelectorAll("#only button").forEach((b) => b.setAttribute("aria-pressed", String(state.only.includes(b.dataset.only))));
+    document.querySelectorAll("[data-kids]").forEach((b) => b.setAttribute("aria-pressed", String(state.kids)));
   }
   const toggle = (arr, v) => (arr.includes(v) ? arr.filter((x) => x !== v) : arr.concat(v));
   $("kw").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; state.kw = +b.dataset.kw; paintFilters(); redraw(); });
   $("plug").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; state.plug = toggle(state.plug, b.dataset.plug); paintFilters(); redraw(); });
   $("only").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; state.only = toggle(state.only, b.dataset.only); paintFilters(); redraw(); });
+  const setKids = (on) => { state.kids = on; paintFilters(); listKids(); redraw(); };
+  document.querySelectorAll("[data-kids]").forEach((b) => b.addEventListener("click", () => setKids(!state.kids)));
+  $("kidsgo").addEventListener("click", () => setKids(true));
   paintFilters();
+  listKids();
 
   /* ---------- search ---------- */
   const fold = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ß/g, "ss").replace(/[^a-z0-9]+/g, " ").trim();

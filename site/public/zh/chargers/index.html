@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>充电桩地图 · Allo Cars</title>
-<meta name="description" content="一张地图看遍德国所有公共电动车充电桩：按功率、插头和支付方式筛选，搜索城镇或邮政编码，找到最近的快充桩。">
+<meta name="description" content="一张地图看遍德国所有公共电动车充电桩：按功率、插头和支付方式筛选，搜索城镇或邮政编码，找到最近的快充桩，还能看到附近的游乐场和亲子去处。">
 <link rel="alternate" type="application/json" href="/data/chargers/de/latest.json" title="充电桩统计 (JSON)">
 <link rel="alternate" type="text/csv" href="/data/chargers/de/stations.csv" title="全部充电站 (CSV)">
 <!-- chrome:head -->
@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
 <link rel="stylesheet" href="/assets/vendor/leaflet/leaflet.css?v=a783710282">
-<link rel="stylesheet" href="/chargers/map.css?v=9d31b512fe">
+<link rel="stylesheet" href="/chargers/map.css?v=50f2639405">
 <script src="/assets/site.js?v=4d5b1b5049"></script>
 </head>
 <body>
@@ -58,7 +58,7 @@
 <!-- /chrome:header -->
 
     <h1>附近哪里可以<span class="ac-hl">充电</span>？</h1>
-    <p class="lead">德国所有已登记的公共充电桩都在这张地图上。选好你需要的功率和插头，然后搜索城镇或使用你的位置。</p>
+    <p class="lead">德国所有已登记的公共充电桩都在这张地图上。选好你需要的功率和插头，然后搜索城镇或使用你的位置。带着孩子？打开「亲子去处」，就能在充电桩旁看到游乐场、游泳池和活动。</p>
 
     <div class="stack">
       <section class="ac-card controls" aria-label="查找充电桩">
@@ -90,6 +90,11 @@
               <button type="button" class="ac-chip" data-only="247">24 小时开放</button><button type="button" class="ac-chip" data-only="card">可刷卡</button><button type="button" class="ac-chip" data-only="free">免费</button><button type="button" class="ac-chip" data-only="public">排除仅限顾客</button>
             </div>
           </div>
+          <div><span class="ac-param__label">带娃出行</span>
+            <div class="ac-chips" role="group" aria-label="带娃出行">
+              <button type="button" class="ac-chip ac-chip--kids" data-kids aria-pressed="false">🛝 亲子去处</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -97,6 +102,7 @@
         <div class="map" id="map" role="region" aria-label="充电桩地图"></div>
         <div class="maplegend">
           <span><i class="sw sw--ac"></i>49 kW 以下</span><span><i class="sw sw--fast"></i>50 至 149 kW</span><span><i class="sw sw--hpc"></i>150 kW 及以上</span>
+          <span id="legend-kids" class="maplegend__kids" hidden><span><i class="sw sw--place"></i>亲子地点</span><span><i class="sw sw--event"></i>亲子活动</span></span>
           <span class="maplegend__hint" id="maphint"></span>
         </div>
       </section>
@@ -105,6 +111,13 @@
         <h2 class="ac-card__title" id="neartitle">离地图中心最近</h2>
         <p class="ac-card__desc" id="neardesc">放大地图或搜索地点，即可列出充电桩。</p>
         <ol class="near" id="near"></ol>
+      </section>
+
+      <section class="ac-card kidscard" id="kids">
+        <h2 class="ac-card__title">孩子玩耍，顺便充电</h2>
+        <p class="ac-card__desc" id="kidsdesc"></p>
+        <p class="kidscard__go"><button type="button" class="ac-btn ac-btn--primary" id="kidsgo">🛝 显示亲子去处</button></p>
+        <ol class="near near--kids" id="kidslist"></ol>
       </section>
 
       <section class="ac-card">
@@ -118,7 +131,7 @@
         <a class="ac-btn ac-btn--ai" id="aigo" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>在 Claude 中打开</span></a>
       </section>
 
-      <p class="ac-caption" style="margin:0">向德国联邦网络管理局 (Bundesnetzagentur) 申报的充电点，<span id="asof"></span> 尚未完成申报的运营商不在其中，所以实际充电桩比显示的更多。地图 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 贡献者。来源、许可和下载：<a href="/zh/open-data/#chargers">数据与来源</a>。</p>
+      <p class="ac-caption" style="margin:0">向德国联邦网络管理局 (Bundesnetzagentur) 申报的充电点，<span id="asof"></span> 尚未完成申报的运营商不在其中，所以实际充电桩比显示的更多。地图 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 贡献者。亲子地点和活动：<a href="https://outings.allo.land/zh/">Allo Outings</a>（小鹿出游）。来源、许可和下载：<a href="/zh/open-data/#chargers">数据与来源</a>。</p>
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
@@ -172,6 +185,6 @@
   </main>
 </div>
 <script src="/assets/vendor/leaflet/leaflet.js?v=db49d009c8"></script>
-<script src="/chargers/app.js?v=484d6a3255"></script>
+<script src="/chargers/app.js?v=9f34dd454f"></script>
 </body>
 </html>

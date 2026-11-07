@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ladesäulenkarte · Allo Cars</title>
-<meta name="description" content="Alle öffentlichen Ladesäulen in Deutschland auf einer Karte: nach Leistung, Stecker und Bezahlung filtern, Ort oder Postleitzahl suchen und den nächsten Schnelllader finden.">
+<meta name="description" content="Alle öffentlichen Ladesäulen in Deutschland auf einer Karte: nach Leistung, Stecker und Bezahlung filtern, Ort oder Postleitzahl suchen und den nächsten Schnelllader finden, mit Spielplätzen und Ausflugszielen in der Nähe.">
 <link rel="alternate" type="application/json" href="/data/chargers/de/latest.json" title="Ladesäulen-Zahlen (JSON)">
 <link rel="alternate" type="text/csv" href="/data/chargers/de/stations.csv" title="Alle Ladestandorte (CSV)">
 <!-- chrome:head -->
@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
 <link rel="stylesheet" href="/assets/vendor/leaflet/leaflet.css?v=a783710282">
-<link rel="stylesheet" href="/chargers/map.css?v=9d31b512fe">
+<link rel="stylesheet" href="/chargers/map.css?v=50f2639405">
 <script src="/assets/site.js?v=4d5b1b5049"></script>
 </head>
 <body>
@@ -58,7 +58,7 @@
 <!-- /chrome:header -->
 
     <h1>Wo kann ich in der Nähe <span class="ac-hl">laden</span>?</h1>
-    <p class="lead">Alle in Deutschland gemeldeten öffentlichen Ladesäulen auf einer Karte. Wähl Leistung und Stecker, dann such einen Ort oder nimm deinen Standort.</p>
+    <p class="lead">Alle in Deutschland gemeldeten öffentlichen Ladesäulen auf einer Karte. Wähl Leistung und Stecker, dann such einen Ort oder nimm deinen Standort. Mit Kindern unterwegs? Schalte „Ausflüge mit Kindern“ ein und sieh Spielplätze, Bäder und Termine neben den Ladesäulen.</p>
 
     <div class="stack">
       <section class="ac-card controls" aria-label="Ladesäulen finden">
@@ -90,6 +90,11 @@
               <button type="button" class="ac-chip" data-only="247">Rund um die Uhr</button><button type="button" class="ac-chip" data-only="card">Kartenzahlung</button><button type="button" class="ac-chip" data-only="free">Kostenlos</button><button type="button" class="ac-chip" data-only="public">Ohne Kundenpflicht</button>
             </div>
           </div>
+          <div><span class="ac-param__label">Mit Kindern</span>
+            <div class="ac-chips" role="group" aria-label="Mit Kindern">
+              <button type="button" class="ac-chip ac-chip--kids" data-kids aria-pressed="false">🛝 Ausflüge mit Kindern</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -97,6 +102,7 @@
         <div class="map" id="map" role="region" aria-label="Karte der Ladesäulen"></div>
         <div class="maplegend">
           <span><i class="sw sw--ac"></i>Bis 49 kW</span><span><i class="sw sw--fast"></i>50 bis 149 kW</span><span><i class="sw sw--hpc"></i>150 kW und mehr</span>
+          <span id="legend-kids" class="maplegend__kids" hidden><span><i class="sw sw--place"></i>Ausflugsziel</span><span><i class="sw sw--event"></i>Familientermin</span></span>
           <span class="maplegend__hint" id="maphint"></span>
         </div>
       </section>
@@ -105,6 +111,13 @@
         <h2 class="ac-card__title" id="neartitle">Am nächsten zur Kartenmitte</h2>
         <p class="ac-card__desc" id="neardesc">Hineinzoomen oder einen Ort suchen, um Ladesäulen aufzulisten.</p>
         <ol class="near" id="near"></ol>
+      </section>
+
+      <section class="ac-card kidscard" id="kids">
+        <h2 class="ac-card__title">Laden, während die Kinder spielen</h2>
+        <p class="ac-card__desc" id="kidsdesc"></p>
+        <p class="kidscard__go"><button type="button" class="ac-btn ac-btn--primary" id="kidsgo">🛝 Ausflüge zeigen</button></p>
+        <ol class="near near--kids" id="kidslist"></ol>
       </section>
 
       <section class="ac-card">
@@ -118,7 +131,7 @@
         <a class="ac-btn ac-btn--ai" id="aigo" href="https://claude.ai/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>In Claude öffnen</span></a>
       </section>
 
-      <p class="ac-caption" style="margin:0">Bei der Bundesnetzagentur gemeldete Ladepunkte, <span id="asof"></span> Betreiber, die das Anzeigeverfahren noch nicht abgeschlossen haben, fehlen, es gibt also mehr Ladesäulen als hier gezeigt. Karte © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende. Quellen, Lizenzen und Downloads: <a href="/de/open-data/#chargers">Daten und Quellen</a>.</p>
+      <p class="ac-caption" style="margin:0">Bei der Bundesnetzagentur gemeldete Ladepunkte, <span id="asof"></span> Betreiber, die das Anzeigeverfahren noch nicht abgeschlossen haben, fehlen, es gibt also mehr Ladesäulen als hier gezeigt. Karte © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende. Ausflugsziele und Termine: <a href="https://outings.allo.land/de/">Allo Outings</a>. Quellen, Lizenzen und Downloads: <a href="/de/open-data/#chargers">Daten und Quellen</a>.</p>
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
@@ -172,6 +185,6 @@
   </main>
 </div>
 <script src="/assets/vendor/leaflet/leaflet.js?v=db49d009c8"></script>
-<script src="/chargers/app.js?v=484d6a3255"></script>
+<script src="/chargers/app.js?v=9f34dd454f"></script>
 </body>
 </html>

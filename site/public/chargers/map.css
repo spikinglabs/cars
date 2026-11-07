@@ -64,3 +64,24 @@ h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9); } }
 :root[data-theme="dark"] .leaflet-popup-content-wrapper, :root[data-theme="dark"] .leaflet-popup-tip { background: var(--surface-100); color: var(--ink); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .leaflet-popup-content-wrapper, :root:not([data-theme="light"]) .leaflet-popup-tip { background: var(--surface-100); color: var(--ink); } }
+
+/* Family outings from Allo Outings ("charge while the kids play") */
+.sw--place { background: #2b8a3e; border-color: #fff; box-shadow: 0 0 0 1px #2b8a3e; }
+.sw--event { background: #a3307e; border-color: #fff; box-shadow: 0 0 0 1px #a3307e; }
+.maplegend__kids { display: contents; }
+.maplegend__kids[hidden] { display: none; }
+.spot { display: grid; place-items: center; width: 26px; height: 26px; box-sizing: border-box; border-radius: 50%; background: #fff; border: 2px solid #2b8a3e; font-size: 14px; line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.spot--event { border-color: #a3307e; }
+.pop__kind { font-size: 13px; color: var(--ink-muted); }
+.pop .kidsline, .near .who .kidsline { color: var(--ink); }
+.near .who .kidsline { font-size: 13px; }
+.linkbtn { all: unset; cursor: pointer; font-weight: 700; text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
+.linkbtn:focus-visible { outline: 3px solid var(--gold); border-radius: 4px; }
+.kidscard__go { margin: var(--space-3) 0 0; }
+.kidscard__go:has(> [hidden]) { display: none; }
+.near--kids li { grid-template-columns: 32px 1fr auto; }
+.near--kids .e { font-size: 20px; line-height: 1; text-align: center; }
+@media (max-width: 520px) {
+  .near--kids li { grid-template-columns: 32px 1fr; }
+  .near--kids li > .k { grid-column: 2; }
+}
