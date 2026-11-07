@@ -37,6 +37,14 @@ jobs:
           else
             echo "branch=main" >> "$GITHUB_OUTPUT"
           fi
+      - name: Fill bucket names from secrets
+        env:
+          R2_BUCKET_EV: ${{ secrets.R2_BUCKET_EV }}
+          R2_BUCKET_ICE: ${{ secrets.R2_BUCKET_ICE }}
+        run: |
+          test -n "$R2_BUCKET_EV" && test -n "$R2_BUCKET_ICE" || { echo "::error::Set the R2_BUCKET_EV and R2_BUCKET_ICE repository secrets"; exit 1; }
+          sed -i "s/__R2_BUCKET_EV__/$R2_BUCKET_EV/; s/__R2_BUCKET_ICE__/$R2_BUCKET_ICE/" site/wrangler.toml
+          ! grep -q "__R2_BUCKET_" site/wrangler.toml
       - name: Create Pages project if missing
         if: github.event_name != 'pull_request'
         uses: cloudflare/wrangler-action@v3

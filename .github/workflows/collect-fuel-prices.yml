@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      R2_BUCKET: ${{ vars.R2_BUCKET_ICE || 'spikinglabs-cars-ice' }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET_ICE }}
       R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
       R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -30,4 +30,6 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r pipelines/charging_prices/requirements.txt -r pipelines/fuel_prices/requirements.txt
+      - name: Check bucket secret
+        run: test -n "$R2_BUCKET" || { echo "::error::Set the R2_BUCKET_ICE repository secret"; exit 1; }
       - run: python -m pipelines.fuel_prices.collect --r2 "$R2_BUCKET" --prefix fuel-prices

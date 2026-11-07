@@ -2,7 +2,7 @@
 
 Builds a history of German EV charging prices (and charger status) from open data,
 because no public archive of past prices exists. Runs on GitHub Actions and stores
-everything in the Cloudflare R2 bucket `spikinglabs-car-ev` (repo variable `R2_BUCKET` overrides it).
+everything in the Cloudflare R2 bucket named by the `R2_BUCKET_EV` repository secret.
 
 ## Source
 
@@ -26,7 +26,7 @@ the website serves only its `public/` subfolder at `/data/<project>/`
 (`site/functions/data/[[path]].js`).
 
 ```
-spikinglabs-car-ev/
+<EV bucket>/
   charging-prices/              this pipeline (--prefix)
     raw/                        source data exactly as fetched
       ocpdb/<dataset>/YYYY/MM/DD/<ts>.jsonl.gz
