@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheapest time to charge · Allo Cars</title>
+<meta name="description" content="The cheapest hours to charge an EV at home in Germany today and tomorrow, from day-ahead exchange prices, for dynamic electricity tariffs.">
+<link rel="alternate" type="application/json" href="/data/electricity-prices/de/latest.json" title="Today's and tomorrow's prices (JSON)">
+<link rel="alternate" type="text/csv" href="/data/electricity-prices/de/daily.csv" title="Daily prices since 2018 (CSV)">
+<!-- chrome:head -->
+<link rel="alternate" hreflang="en" href="https://cars.allo.land/charge-times/">
+<link rel="alternate" hreflang="de" href="https://cars.allo.land/de/charge-times/">
+<link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charge-times/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Allo Cars">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland"},"currency":"EUR","locale":"de-DE"}]};</script>
+<!-- /chrome:head -->
+<link rel="stylesheet" href="/assets/tokens.css?v=1b9a81cd8e">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=215fe384b4">
+<script src="/assets/site.js?v=23175c89db"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; }
+  .stack { display: grid; gap: var(--space-5); }
+  .controls { display: grid; gap: 14px; }
+  .controls .row > div > .ac-param__label { display: block; margin-bottom: 6px; }
+  .controls .row { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: end; }
+  .more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
+  .more[open] summary { margin-bottom: 10px; }
+  .bar { fill: var(--car-1); }
+  .bar.win { fill: var(--gold); stroke: var(--ink); stroke-width: .6; }
+  .bar.neg { fill: var(--success); }
+  .grid { stroke: var(--chart-grid); }
+  .avg { stroke: var(--ink-muted); stroke-dasharray: 5 4; }
+  .now { stroke: var(--danger); stroke-width: 1.5; }
+  .ac-chart svg text { font: 600 11px/1 var(--font-sign); fill: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="ac">
+  <div class="ac-flagbar"></div>
+  <main>
+    <!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/">Tools</a>
+    <a href="/ev-cost/">Charging cost</a>
+    <a href="/charging-prices/">Price archive</a>
+    <a href="/charge-times/" aria-current="page">Best time</a>
+    <a href="/recalls/">Recalls</a>
+  </nav>
+  <div class="ac-top__right">
+    <a class="ac-lang" href="/de/charge-times/" hreflang="de" lang="de" title="Auf Deutsch lesen" aria-label="Auf Deutsch lesen"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>DE</span></a>
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Switch light or dark" title="Switch light or dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<aside class="ac-apphint" data-app-hint hidden>
+  <span class="ac-apphint__text" data-app-hint-text>Add Allo Cars to your home screen, it works like an app.</span>
+  <button type="button" class="ac-apphint__go" data-app-hint-go hidden>Install</button>
+  <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="Dismiss">×</button>
+</aside>
+<!-- /chrome:header -->
+
+    <h1>When is <span class="ac-hl">charging</span> cheapest?</h1>
+    <p class="lead">The cheapest hours to charge at home today and tomorrow, from the German power exchange. Useful with a dynamic electricity tariff, where your price follows the exchange every 15 minutes.</p>
+
+    <div class="stack">
+      <section class="ac-card controls">
+        <div class="row">
+          <div><span class="ac-param__label">Day</span><div class="ac-seg" id="day" role="group" aria-label="Day"></div></div>
+          <div><span class="ac-param__label">How long you charge</span><div class="ac-seg" id="hours" role="group" aria-label="How long you charge"></div></div>
+        </div>
+        <details class="more">
+          <summary>Your tariff</summary>
+          <div class="row">
+            <label class="ac-param"><span class="ac-param__label">Add-on per kWh, before VAT</span><span class="ac-param__box"><input id="addon" type="number" min="0" max="1" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/kWh</span></span><span class="ac-param__hint">Grid fee, levies, electricity tax and your supplier's margin. Often 0.15 to 0.22 €/kWh; your bill shows it.</span></label>
+            <label class="ac-param"><span class="ac-param__label">Energy you add</span><span class="ac-param__box"><input id="kwh" type="number" min="1" max="200" step="1" inputmode="numeric"><span class="ac-param__unit">kWh</span></span><span class="ac-param__hint">For the saving. 30 kWh is about half an EX30 battery.</span></label>
+          </div>
+        </details>
+      </section>
+
+      <section class="ac-card">
+        <div class="ac-readouts" id="readouts">
+          <div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">Loading</div></div>
+        </div>
+      </section>
+
+      <section class="ac-card">
+        <h2 class="ac-card__title" id="chart-title">Price through the day</h2>
+        <p class="ac-card__desc">Estimated price per kWh with your tariff, in 15-minute steps, German time</p>
+        <div class="ac-legend"><span><i style="border-color:var(--gold);border-top-width:8px"></i>Cheapest window</span><span><i style="border-color:var(--car-1);border-top-width:8px"></i>Other times</span><span class="ac-legend--dash"><i style="border-color:var(--ink-muted)"></i>Day average</span></div>
+        <div class="ac-chart" id="chart"></div>
+        <p class="ac-caption" id="tomorrow-note"></p>
+      </section>
+
+      <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>With a fixed tariff your price is the same all day, so timing only saves money on a dynamic or time-of-use tariff. Set the start time in your car's or wallbox's app.</span></p>
+      <p class="ac-caption" style="margin:0"><span id="asof"></span> Sources, licences and downloads: <a href="/open-data/#electricity-prices">Data and sources</a>.</p>
+    </div>
+    <!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">More from Allo</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>Family outings and events around you</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>Recalls of baby and kids' products, from official sources</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>A private baby log for parents</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>Settle into life in Germany</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars is a product by <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+  <p class="ac-country"><label for="ac-country">Country</label> <select id="ac-country" data-country><option value="de" selected>Germany</option></select></p>
+  <p class="ac-install" data-install hidden>
+    <button type="button" class="ac-btn ac-btn--gold" data-install-btn>Install the app</button>
+    <span class="ac-install__how" data-install-how role="status" hidden></span>
+  </p>
+</footer>
+<nav class="ac-tabs" aria-label="Allo Cars">
+  <a href="/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Tools</span></a>
+  <a href="/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Charging cost</span></a>
+  <a href="/charging-prices/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>Price archive</span></a>
+  <a href="/charge-times/" aria-current="page" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Best time</span></a>
+  <a href="/recalls/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Recalls</span></a>
+</nav>
+<!-- /chrome:footer -->
+  </main>
+</div>
+<script src="/charge-times/app.js?v=53b3229147"></script>
+</body>
+</html>
