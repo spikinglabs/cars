@@ -29,32 +29,94 @@ def find_history_url(page_html: str) -> str:
     return urllib.parse.urljoin(PAGE_URL, m.group(1).replace("&amp;", "&")) if m else FALLBACK_HISTORY_URL
 
 
-def parse_history(xlsx: bytes, country: str = "DE") -> list[dict]:
-    """Weekly rows for one country, oldest first, prices in EUR per litre incl. taxes."""
+# Bulletin column prefix -> (our region code, lowercase ISO 3166 / "eu").
+# EU_ is the EU weighted average. UK is reported until it left the EU.
+REGION_CODES = {"EU": "eu", "UK": "gb", "GR": "gr"}
+# National currencies for countries outside the euro area (ISO 4217).
+CURRENCIES = {"BG": "BGN", "CZ": "CZK", "DK": "DKK", "HR": "HRK", "HU": "HUF", "PL": "PLN",
+              "RO": "RON", "SE": "SEK", "UK": "GBP", "CY": "CYP", "EE": "EEK", "LT": "LTL",
+              "LV": "LVL", "SI": "SIT", "SK": "SKK"}
+
+
+def region_code(prefix: str) -> str:
+    return REGION_CODES.get(prefix, prefix.lower())
+
+
+def _load(xlsx: bytes):
     import openpyxl
 
     ws = openpyxl.load_workbook(io.BytesIO(xlsx), read_only=True, data_only=True)[SHEET]
     rows = ws.iter_rows(values_only=True)
-    header = next(rows)
-    cols = {}
+    return next(rows), list(rows)
+
+
+def _columns(header, country: str) -> tuple[dict, int | None]:
+    cols, rate = {}, None
     for i, name in enumerate(header):
+        if name == f"{country}_exchange_rate":
+            rate = i
         for suffix, field in PRODUCTS.items():
             if name == f"{country}_price_with_tax_{suffix}":
                 cols[field] = i
+    return cols, rate
+
+
+def countries(header) -> list[str]:
+    """Column prefixes that have all products, e.g. ["EU", "AT", "BE", ...]; skips EUR (euro area)."""
+    seen = []
+    for name in header:
+        if isinstance(name, str) and name.endswith("_price_with_tax_euro95"):
+            c = name.split("_", 1)[0]
+            if c != "EUR" and c not in seen and len(_columns(header, c)[0]) == len(PRODUCTS):
+                seen.append(c)
+    return seen
+
+
+def _parse(header, data, country: str) -> tuple[list[dict], str]:
+    cols, rate_col = _columns(header, country)
     if len(cols) != len(PRODUCTS):
         raise ValueError(f"columns for {country} not found; got {cols}")
-    out = []
-    for row in rows:
+    weeks = []
+    for row in data:
         d = row[0]
         if isinstance(d, datetime):
             d = d.date()
         if not isinstance(d, date):
             continue
+        eur = {f: (float(row[i]) / 1000 if isinstance(row[i], (int, float)) and row[i] > 0 else None) for f, i in cols.items()}
+        rate = row[rate_col] if rate_col is not None and isinstance(row[rate_col], (int, float)) and row[rate_col] > 0 else None
+        if any(v is not None for v in eur.values()):
+            weeks.append((d, eur, rate))
+    weeks.sort(key=lambda w: w[0])
+    # The sheet is in EUR for every country, with the EUR value of one unit of national
+    # currency. A country whose latest rate is 1 (or has no rate) uses the euro today.
+    last_rate = next((w[2] for w in reversed(weeks) if w[2] is not None), None)
+    currency = "EUR" if last_rate in (None, 1) else CURRENCIES.get(country, f"{country}?")
+    out = []
+    for d, eur, rate in weeks:
         rec = {"date": d.isoformat()}
-        for field, i in cols.items():
-            v = row[i]
-            rec[field] = round(float(v) / 1000, 4) if isinstance(v, (int, float)) and v > 0 else None
-        if any(rec[f] is not None for f in PRODUCTS.values()):
-            out.append(rec)
-    out.sort(key=lambda r: r["date"])
-    return out
+        for f, v in eur.items():
+            if currency == "EUR":
+                rec[f] = round(v, 4) if v is not None else None
+            else:
+                rec[f] = round(v / rate, 4) if v is not None and rate else None
+                rec[f + "_eur"] = round(v, 4) if v is not None else None
+        out.append(rec)
+    return out, currency
+
+
+def parse_history(xlsx: bytes, country: str = "DE") -> list[dict]:
+    """Weekly rows for one country, oldest first, prices per litre incl. taxes."""
+    header, data = _load(xlsx)
+    return _parse(header, data, country)[0]
+
+
+def parse_all(xlsx: bytes) -> dict[str, tuple[list[dict], str]]:
+    """{region code: (weekly rows, currency)} for every country in the sheet plus eu."""
+    header, data = _load(xlsx)
+    return {region_code(c): _parse(header, data, c) for c in countries(header)}
+
+
+def fields(currency: str) -> list[str]:
+    extra = [] if currency == "EUR" else [f + "_eur" for f in PRODUCTS.values()]
+    return FIELDS + extra

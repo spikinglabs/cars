@@ -8,6 +8,8 @@ footer.html (English) and header.de.html and footer.de.html (German). In them:
     {{lang}}   en or de
     {{alt}}    the same page in the other language
     {{en}}     the English URL of this page, {{de}} the German one
+    {{regions}}          the selectable regions from public/regions.json, as JSON for site.js
+    {{country_options}}  <option>s for the country selector at the bottom of the page
 
 Links to the site's own .css and .js files get ?v=<content hash>, so a browser that kept an old copy
 (the host lets browsers cache assets for hours) loads the new one as soon as a page changes it.
@@ -21,6 +23,7 @@ twin and the other way round. Run after changing any part:
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import sys
 from pathlib import Path
@@ -42,6 +45,36 @@ def version_assets(html: str) -> str:
             raise SystemExit(f"{m.group(2)}: linked from a page but missing under site/public")
         return f"{m.group(1)}{m.group(2)}?v={hashlib.sha256(file.read_bytes()).hexdigest()[:10]}{m.group(3)}"
     return ASSET.sub(sub, html)
+
+
+REGIONS = PUBLIC / "regions.json"
+
+
+def selectable_regions() -> tuple[str, list[dict]]:
+    """(default code, regions people can pick) from public/regions.json, the one list of regions."""
+    data = json.loads(REGIONS.read_text(encoding="utf-8"))
+    picks = [r for r in data["regions"] if r.get("selectable")]
+    codes = [r["code"] for r in picks]
+    if data["default"] not in codes:
+        raise SystemExit(f"regions.json: default {data['default']!r} is not a selectable region")
+    for code in codes:
+        if not re.fullmatch(r"[a-z]{2}(-[a-z0-9]{1,3})?", code):
+            raise SystemExit(f"regions.json: {code!r} is not a lowercase ISO 3166 code")
+    return data["default"], picks
+
+
+def regions_json() -> str:
+    default, picks = selectable_regions()
+    slim = [{"code": r["code"], "name": r["name"], "currency": r["currency"], "locale": r.get("locale")} for r in picks]
+    return json.dumps({"default": default, "regions": slim}, ensure_ascii=False, separators=(",", ":"))
+
+
+def country_options(lang: str) -> str:
+    default, picks = selectable_regions()
+    picks = sorted(picks, key=lambda r: r["name"].get(lang, r["name"]["en"]))
+    return "".join(
+        f'<option value="{r["code"]}"{" selected" if r["code"] == default else ""}>{r["name"].get(lang, r["name"]["en"])}</option>'
+        for r in picks)
 
 
 def url_of(page: Path) -> str:
@@ -71,6 +104,7 @@ def render(part: str, url: str) -> str:
     html = part_file(part, lang).read_text(encoding="utf-8").strip()
     html = (html.replace("{{lang}}", lang).replace("{{alt}}", de if lang == "en" else en)
             .replace("{{en}}", en).replace("{{de}}", de).replace("{{site}}", SITE)
+            .replace("{{regions}}", regions_json()).replace("{{country_options}}", country_options(lang))
             .replace("{{manifest}}", "/de/manifest.webmanifest" if lang == "de" else "/manifest.webmanifest"))
     if part in ("header", "footer"):
         segs = [p for p in url.split("/") if p]

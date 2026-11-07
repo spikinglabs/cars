@@ -84,6 +84,28 @@ class Prefix(unittest.TestCase):
             self.assertEqual(store.total_bytes(), (2, 1))
 
 
+class PublishRegion(unittest.TestCase):
+    def test_writes_de_folder_and_carries_flat_history(self):
+        import json
+        import tempfile
+        from datetime import datetime, timezone
+
+        from pipelines.charging_prices import collect
+        from pipelines.charging_prices.storage import LocalStore, PrefixedStore
+
+        with tempfile.TemporaryDirectory() as d:
+            store = PrefixedStore(LocalStore(d), "charging-prices")
+            store.put("public/daily.csv", b"date,source,tariffs,median,p10,p90,min,max\n2026-11-06,ALL,1,0.5,0.5,0.5,0.5,0.5\n")
+            now = datetime(2026, 11, 7, 3, tzinfo=timezone.utc)
+            collect.publish_prices(store, now, "ts", [{"uid": "datex2_enbw", "attribution_license": "cc-by/4.0"}], [ENBW])
+            daily = store.get("public/de/daily.csv").decode()
+            self.assertIn("2026-11-06", daily)
+            self.assertIn("2026-11-07", daily)
+            latest = json.loads(store.get("public/de/latest.json"))
+            self.assertEqual((latest["dataset"], latest["region"], latest["currency"]), ("charging-prices", "DE", "EUR"))
+            self.assertEqual(list(json.loads(store.get("public/index.json"))["regions"]), ["de"])
+
+
 class Register(unittest.TestCase):
     def test_links(self):
         page = (

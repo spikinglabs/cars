@@ -50,8 +50,8 @@
 
   async function load() {
     const [latest, daily] = await Promise.all([
-      fetch("/data/charging-prices/latest.json").then((r) => r.json()),
-      fetch("/data/charging-prices/daily.csv").then((r) => r.text()).then(parseCsv),
+      fetch(AlloSite.data("charging-prices", "latest.json")).then((r) => r.json()),
+      fetch(AlloSite.data("charging-prices", "daily.csv")).then((r) => r.text()).then(parseCsv),
     ]);
     const o = latest.overall || {};
     const when = new Date(latest.observed_at);

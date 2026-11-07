@@ -12,8 +12,8 @@
   };
   var eur = function (v) { return v == null ? "–" : new Intl.NumberFormat(de ? "de-DE" : "en-DE", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(v); };
   Promise.all([
-    fetch("/data/charging-prices/latest.json").then(function (r) { return r.json(); }),
-    fetch("/data/charging-prices/daily.csv").then(function (r) { return r.ok ? r.text() : ""; }).catch(function () { return ""; })
+    fetch(AlloSite.data("charging-prices", "latest.json")).then(function (r) { return r.json(); }),
+    fetch(AlloSite.data("charging-prices", "daily.csv")).then(function (r) { return r.ok ? r.text() : ""; }).catch(function () { return ""; })
   ]).then(function (res) {
     var j = res[0], o = j.overall || {};
     document.getElementById("live").innerHTML = '<span class="ac-readout__value">' + eur(o.median) + '<small>/kWh</small></span><span class="ac-readout__basis">' + T.basis(o.tariffs || "–", eur(o.p10), eur(o.p90)) + "</span>";
