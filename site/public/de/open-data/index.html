@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daten und Quellen · Allo Cars</title>
+<meta name="description" content="Woher Allo Cars seine Zahlen hat, welche offenen Daten du herunterladen kannst und wie ein KI-Assistent die Tools nutzt.">
+<!-- chrome:head -->
+<link rel="alternate" hreflang="en" href="https://cars.allo.land/open-data/">
+<link rel="alternate" hreflang="de" href="https://cars.allo.land/de/open-data/">
+<link rel="alternate" hreflang="x-default" href="https://cars.allo.land/open-data/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/de/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Allo Cars">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<!-- /chrome:head -->
+<link rel="stylesheet" href="/assets/tokens.css">
+<link rel="stylesheet" href="/assets/components/bundle.css">
+<script src="/assets/site.js"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+  h1 { font: 800 clamp(30px, 5vw, 44px)/1.08 var(--font-display); letter-spacing: -0.02em; margin: 28px 0 8px; }
+  .lead { color: var(--ink-muted); font-size: 17px; line-height: 26px; margin: 0 0 24px; }
+  main { display: grid; gap: 16px; }
+  .ac-card h2 { font: 800 22px/28px var(--font-display); margin: 0 0 6px; }
+  .ac-card p, .ac-card li { font-size: 15px; line-height: 23px; }
+  .ac-card p { margin: 0 0 10px; }
+  .ac-card ul { margin: 0 0 10px; padding-left: 1.2em; }
+  code { font: 600 13px/20px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface-200); padding: 1px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<div class="ac">
+<div class="ac-flagbar"></div>
+<div class="wrap">
+<!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/de/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/de/">Tools</a>
+    <a href="/de/ev-cost/">Ladekosten</a>
+    <a href="/de/charging-prices/">Preisarchiv</a>
+  </nav>
+  <div class="ac-top__right">
+    <a class="ac-lang" href="/open-data/" hreflang="en" lang="en" title="Read in English" aria-label="Read in English"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>EN</span></a>
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Hell / dunkel umschalten" title="Hell / dunkel umschalten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<aside class="ac-apphint" data-app-hint hidden>
+  <span class="ac-apphint__text" data-app-hint-text>Allo Cars lässt sich wie eine App auf den Startbildschirm legen.</span>
+  <button type="button" class="ac-apphint__go" data-app-hint-go hidden>Installieren</button>
+  <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="Ausblenden">×</button>
+</aside>
+<!-- /chrome:header -->
+
+<h1>Daten und <em class="ac-hl">Quellen</em></h1>
+<p class="lead">Woher Allo Cars seine Zahlen hat, was du herunterladen kannst und wie ein KI-Assistent die Tools nutzen kann.</p>
+
+<main>
+  <section class="ac-card" id="charging-prices">
+    <span class="ac-label">Ladepreise</span>
+    <h2>Öffentliche Ad-hoc-Ladepreise</h2>
+    <p>Jede Stunde lesen wir die veröffentlichten Ad-hoc-Tarife (zahlen ohne Vertrag) öffentlicher Ladepunkte in Deutschland aus der <a href="https://api.mobidata-bw.de/ocpdb/">Open ChargePoint Database</a> von MobiData BW. Sie führt die AFIR-Preisdaten zusammen, die Betreiber auf der <a href="https://mobilithek.info">Mobilithek</a> veröffentlichen. Wir nehmen nur Quellen mit offener Lizenz und behalten jede Erfassung, so wächst das Archiv von selbst. Ein offenes Archiv früherer Preise gibt es nicht, darum beginnt unsere Reihe am 6. November 2026.</p>
+    <p>Kostenlos herunterladen, ohne Schlüssel und ohne Anmeldung:</p>
+    <ul>
+      <li><a href="/data/charging-prices/latest.json"><code>/data/charging-prices/latest.json</code></a>: Median, 10. und 90. Perzentil von heute, gesamt und je Quelle</li>
+      <li><a href="/data/charging-prices/daily.csv"><code>/data/charging-prices/daily.csv</code></a>: eine Zeile pro Tag und Quelle</li>
+      <li><a href="/data/charging-prices/tariffs.csv"><code>/data/charging-prices/tariffs.csv</code></a>: jeder aktuelle Ad-hoc-Tarif mit Energie-, Zeit-, Park- und Sitzungspreis</li>
+      <li><a href="/data/charging-prices/sources.json"><code>/data/charging-prices/sources.json</code></a>: Quellen und ihre Lizenzen</li>
+    </ul>
+    <p>Die Preise sind der Grundpreis für die Energie jedes Ad-hoc-Tarifs. Sitzungs- und Blockiergebühren stehen in <code>tariffs.csv</code>. Mit Vertrag ist Laden meist günstiger.</p>
+    <p>Wenn du die Daten weiterverwendest, nenne die Quellen und Lizenzen aus <code>sources.json</code>.</p>
+  </section>
+
+  <section class="ac-card">
+    <span class="ac-label">Rechner</span>
+    <h2>Verbrauchswerte der Autos</h2>
+    <p>Der Ladekosten-Rechner startet jedes Auto mit groben Praxisverbräuchen für vier Fahrweisen: sparsam, normal, Autobahn mit 120 km/h und Winter. Das sind unsere Schätzungen zum Vergleich, keine Herstellerangaben. Trag ein, was dein Bordcomputer zeigt. Die Formel ist offen: kWh pro 100 km × (1 + Ladeverluste) × Preis pro kWh. Der Code steht in <a href="/ev-cost/calc.js"><code>/ev-cost/calc.js</code></a>.</p>
+  </section>
+
+  <section class="ac-card" id="ai">
+    <span class="ac-label">Für KI-Assistenten</span>
+    <h2>Allo Cars mit einer KI nutzen</h2>
+    <ul>
+      <li><b>Für KI kopieren.</b> Jedes Tool hat einen Knopf, der deine Eingaben, die Ergebnisse und den Link als Text kopiert, den du in jeden Assistenten einfügen kannst.</li>
+      <li><b>Links mit den Eingaben.</b> Die Einstellungen eines Tools stehen in seiner Adresse, zum Beispiel <a href="/de/ev-cost/?car=Volvo%20EX30&amp;lv=14.5,16,19.5,22&amp;p=0.35&amp;loss=10&amp;fl=6&amp;fp=1.75"><code>/ev-cost/?car=Volvo EX30&amp;p=0.35</code></a>. Ein Assistent kann so einen Link bauen und das Tool gleich ausgefüllt öffnen.</li>
+      <li><b>Maschinenlesbare Listen.</b> <a href="/tools.json"><code>/tools.json</code></a> beschreibt jedes Tool und seine Parameter, und <a href="/llms.txt"><code>/llms.txt</code></a> listet die Seiten und Datendateien.</li>
+    </ul>
+    <p>Ein Connector, mit dem Claude die Tools direkt ausführen kann, ist geplant. Die Link-Parameter sind auf Deutsch und Englisch gleich.</p>
+  </section>
+
+  <section class="ac-card">
+    <span class="ac-label">Datenschutz</span>
+    <h2>Was wir über dich speichern</h2>
+    <p>Nichts. Es gibt kein Konto, keine Cookies und kein Tracking. Deine Eingaben bleiben in der Seite und ihrem Link. In deinem Browser gespeichert wird nur, ob du hell oder dunkel gewählt hast, und ob du den App-Hinweis geschlossen hast. Details stehen in der <a href="/de/legal/">Datenschutzerklärung</a>.</p>
+  </section>
+</main>
+
+<!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">Mehr von Allo</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>Familienausflüge und Veranstaltungen in deiner Nähe</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>Rückrufe von Baby- und Kinderprodukten, aus amtlichen Quellen</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>Ein privates Babytagebuch für Eltern</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>Ankommen und leben in Deutschland</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars ist ein Produkt von <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+  <p class="ac-install" data-install hidden>
+    <button type="button" class="ac-btn ac-btn--gold" data-install-btn>App installieren</button>
+    <span class="ac-install__how" data-install-how role="status" hidden></span>
+  </p>
+</footer>
+<nav class="ac-tabs" aria-label="Allo Cars">
+  <a href="/de/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Tools</span></a>
+  <a href="/de/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Ladekosten</span></a>
+  <a href="/de/charging-prices/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>Preisarchiv</span></a>
+</nav>
+<!-- /chrome:footer -->
+</div>
+</div>
+</body>
+</html>
