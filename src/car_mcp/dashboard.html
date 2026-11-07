@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Car Dashboard</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f2; --surface: #fcfcfb; --border: #e4e2dc; --grid: #ebe9e4;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #7a7974;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300;
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --border: #2e2e2b; --grid: #2a2a27;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --border: #2e2e2b; --grid: #2a2a27;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text-primary); font: 14px/1.45 var(--font); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 20px 16px 32px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; margin-bottom: 16px; }
+h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+.sub { color: var(--text-secondary); font-size: 13px; }
+select { font: inherit; color: var(--text-primary); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(12, 1fr); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+.span-3 { grid-column: span 3; } .span-4 { grid-column: span 4; } .span-5 { grid-column: span 5; }
+.span-7 { grid-column: span 7; } .span-8 { grid-column: span 8; } .span-12 { grid-column: span 12; } .span-6 { grid-column: span 6; }
+@media (max-width: 820px) { .span-3 { grid-column: span 6; } .span-4, .span-5, .span-6, .span-7, .span-8 { grid-column: span 12; } }
+.kpi-label { color: var(--text-secondary); font-size: 12px; }
+.kpi-value { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.kpi-note { color: var(--text-muted); font-size: 12px; }
+h2 { font-size: 14px; margin: 0 0 2px; }
+.card .desc { color: var(--text-muted); font-size: 12px; margin-bottom: 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--text-muted); font: 11px var(--font); font-variant-numeric: tabular-nums; }
+.axis line, .gridline { stroke: var(--grid); stroke-width: 1; }
+.tip { position: fixed; pointer-events: none; background: var(--surface); color: var(--text-primary); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.12); display: none; z-index: 10; min-width: 140px; }
+.tip b { display: block; margin-bottom: 4px; }
+.tip .row { display: flex; justify-content: space-between; gap: 12px; color: var(--text-secondary); }
+.tip .row span:last-child { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+.rank { display: grid; grid-template-columns: minmax(80px, auto) 1fr auto; gap: 6px 10px; align-items: center; font-size: 13px; }
+.rank .bar { height: 10px; background: var(--s1); border-radius: 0 4px 4px 0; min-width: 2px; }
+.rank .val { font-variant-numeric: tabular-nums; color: var(--text-secondary); text-align: right; }
+.mlist { list-style: none; margin: 0; padding: 0; }
+.mlist li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--border); font-size: 13px; }
+.mlist li:first-child { border-top: 0; }
+.badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+.badge .dot { width: 9px; height: 9px; border-radius: 50%; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 500; border-top: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+details summary { cursor: pointer; color: var(--text-secondary); font-size: 12px; margin-top: 8px; }
+.empty { color: var(--text-muted); font-size: 13px; padding: 24px 0; text-align: center; }
+#loading { color: var(--text-muted); padding: 40px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div id="loading">Loading car data…</div></div>
+<div class="tip" id="tip"></div>
+<script>
+/* Data arrives one of two ways:
+   1. Standalone file: the server inlines it into window.__CAR_DATA__.
+   2. MCP App (rendered inside Claude): the host posts the tool result over postMessage. */
+window.__CAR_DATA__ = /*__CAR_DATA__*/null;
+
+const SERIES_VARS = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"];
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let D = null;
+
+function money(x, digits) {
+  if (x == null) return "–";
+  const cur = (D && D.summary.units.currency) || "EUR";
+  try { return new Intl.NumberFormat(undefined, { style: "currency", currency: cur, maximumFractionDigits: digits ?? (Math.abs(x) >= 100 ? 0 : 2) }).format(x); }
+  catch { return x.toFixed(2) + " " + cur; }
+}
+const num = (x, d = 0) => x == null ? "–" : Number(x).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: d });
+const monthLabel = (m) => new Date(m + "-01T00:00:00").toLocaleDateString(undefined, { month: "short" });
+const monthLong = (m) => new Date(m + "-01T00:00:00").toLocaleDateString(undefined, { month: "long", year: "numeric" });
+const dateLabel = (d) => new Date(d + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short" });
+
+/* ---------- tooltip ---------- */
+const tip = document.getElementById("tip");
+function showTip(e, html) {
+  tip.innerHTML = html; tip.style.display = "block";
+  const r = tip.getBoundingClientRect();
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
+  tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
+}
+const hideTip = () => { tip.style.display = "none"; };
+
+function niceMax(v) {
+  if (v <= 0) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(v))), n = v / p;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p;
+}
+
+/* ---------- stacked monthly bars ---------- */
+function stackedBars(el, data, series) {
+  const W = Math.max(300, el.clientWidth || 640), H = 240, m = { t: 8, r: 8, b: 24, l: 48 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const raw = Math.max(...data.map((d) => d.total), 1), step = niceMax(raw / 5), nt = Math.ceil(raw / step), max = step * nt;
+  const bw = iw / data.length, barW = Math.max(4, Math.min(36, bw * 0.62));
+  const y = (v) => m.t + ih - (v / max) * ih;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly spend stacked by category">`;
+  for (let i = 0; i <= nt; i++) {
+    const v = step * i;
+    s += `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${money(v, 0)}</text>`;
+  }
+  const every = Math.ceil(data.length / Math.max(3, Math.floor(iw / 44)));
+  data.forEach((d, i) => {
+    const cx = m.l + bw * i + bw / 2;
+    let acc = 0;
+    const segs = series.map((k, si) => ({ k, si, v: d[k] || 0 })).filter((x) => x.v > 0);
+    segs.forEach((seg, j) => {
+      const y0 = y(acc), y1 = y(acc + seg.v);
+      acc += seg.v;
+      const top = j === segs.length - 1;
+      const h = Math.max(0, y0 - y1 - (j > 0 ? 2 : 0)); // 2px surface gap between stacked segments
+      const yy = y1;
+      const r = top ? Math.min(4, h / 2, barW / 2) : 0;
+      s += top
+        ? `<path d="M${cx - barW / 2},${yy + h} V${yy + r} Q${cx - barW / 2},${yy} ${cx - barW / 2 + r},${yy} H${cx + barW / 2 - r} Q${cx + barW / 2},${yy} ${cx + barW / 2},${yy + r} V${yy + h} Z" fill="var(${SERIES_VARS[seg.si]})"/>`
+        : `<rect x="${cx - barW / 2}" y="${yy}" width="${barW}" height="${h}" fill="var(${SERIES_VARS[seg.si]})"/>`;
+    });
+    if (i % every === 0) s += `<text x="${cx}" y="${H - 6}" text-anchor="middle">${monthLabel(d.month)}</text>`;
+    s += `<rect class="hit" data-i="${i}" x="${m.l + bw * i}" y="${m.t}" width="${bw}" height="${ih}" fill="transparent"/>`;
+  });
+  s += `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}" style="stroke:var(--text-muted);stroke-opacity:.4"/></svg>`;
+  el.innerHTML = s;
+  el.querySelectorAll(".hit").forEach((h) => {
+    h.addEventListener("mousemove", (e) => {
+      const d = data[+h.dataset.i];
+      const rows = series.map((k, si) => d[k] ? `<div class="row"><span><i style="background:var(${SERIES_VARS[si]})"></i>${esc(k)}</span><span>${money(d[k], 2)}</span></div>` : "").reverse().join("");
+      showTip(e, `<b>${monthLong(d.month)} · ${money(d.total, 2)}</b>${rows || '<div class="row"><span>No spending</span></div>'}`);
+    });
+    h.addEventListener("mouseleave", hideTip);
+  });
+}
+
+/* ---------- single-series line with crosshair ---------- */
+function lineChart(el, pts, { color = "var(--s1)", fmt = (v) => num(v, 1), label = "" } = {}) {
+  if (pts.length < 2) { el.innerHTML = `<div class="empty">Not enough data yet. Log at least two full fill-ups with odometer readings.</div>`; return; }
+  const W = Math.max(280, el.clientWidth || 640), H = 200, m = { t: 10, r: 12, b: 24, l: 48 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const t0 = +new Date(pts[0].date), t1 = +new Date(pts[pts.length - 1].date);
+  const vals = pts.map((p) => p.v), lo0 = Math.min(...vals), hi0 = Math.max(...vals);
+  const pad = (hi0 - lo0) * 0.15 || 1, lo = Math.max(0, lo0 - pad), hi = hi0 + pad;
+  const x = (d) => m.l + ((+new Date(d) - t0) / Math.max(1, t1 - t0)) * iw;
+  const y = (v) => m.t + ih - ((v - lo) / (hi - lo)) * ih;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}">`;
+  for (let i = 0; i <= 3; i++) {
+    const v = lo + ((hi - lo) / 3) * i;
+    s += `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${fmt(v)}</text>`;
+  }
+  const ticks = W < 420 ? 3 : 5;
+  for (let i = 0; i < ticks; i++) {
+    const t = t0 + ((t1 - t0) / (ticks - 1)) * i, d = new Date(t).toISOString().slice(0, 10);
+    s += `<text x="${x(d)}" y="${H - 6}" text-anchor="${i === 0 ? "start" : i === ticks - 1 ? "end" : "middle"}">${dateLabel(d)}</text>`;
+  }
+  s += `<path d="${pts.map((p, i) => (i ? "L" : "M") + x(p.date).toFixed(1) + "," + y(p.v).toFixed(1)).join(" ")}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  s += `<line class="xh" x1="0" x2="0" y1="${m.t}" y2="${m.t + ih}" stroke="var(--text-muted)" stroke-dasharray="3 3" style="display:none"/>`;
+  s += `<circle class="dotm" r="4.5" fill="${color}" stroke="var(--surface)" stroke-width="2" style="display:none"/>`;
+  s += `<rect class="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/></svg>`;
+  el.innerHTML = s;
+  const svg = el.querySelector("svg"), xh = svg.querySelector(".xh"), dot = svg.querySelector(".dotm");
+  svg.querySelector(".hit").addEventListener("mousemove", (e) => {
+    const r = svg.getBoundingClientRect(), px = ((e.clientX - r.left) / r.width) * W;
+    let best = pts[0];
+    for (const p of pts) if (Math.abs(x(p.date) - px) < Math.abs(x(best.date) - px)) best = p;
+    xh.setAttribute("x1", x(best.date)); xh.setAttribute("x2", x(best.date)); xh.style.display = "";
+    dot.setAttribute("cx", x(best.date)); dot.setAttribute("cy", y(best.v)); dot.style.display = "";
+    showTip(e, `<b>${dateLabel(best.date)}</b><div class="row"><span>${esc(label)}</span><span>${fmt(best.v)}</span></div>${best.extra || ""}`);
+  });
+  svg.querySelector(".hit").addEventListener("mouseleave", () => { hideTip(); xh.style.display = "none"; dot.style.display = "none"; });
+}
+
+const STATUS = {
+  overdue: { c: "var(--critical)", t: "Overdue", icon: "!" },
+  due_soon: { c: "var(--warning)", t: "Due soon", icon: "◷" },
+  unknown: { c: "var(--text-muted)", t: "No record", icon: "?" },
+  ok: { c: "var(--good)", t: "OK", icon: "✓" },
+};
+
+function render(data) {
+  D = data;
+  const S = data.summary, u = S.units, v = data.vehicle;
+  const isEV = v.energy_type === "electric";
+  const kind = isEV ? "charge" : "fuel";
+  const unit = kind === "charge" ? "kWh" : u.volume_unit;
+  const dist = u.distance_unit;
+  const cons = (S.average_consumption || {})[kind];
+  const app = document.getElementById("app");
+  const vehicleSel = inHost && data.vehicles && data.vehicles.length > 1
+    ? `<select id="veh" aria-label="Vehicle">${data.vehicles.map((n) => `<option ${n === v.name ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>` : "";
+  const per = S.period.start ? `${new Date(S.period.start).toLocaleDateString(undefined, { month: "short", year: "numeric" })} – ${new Date(S.period.end).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : "All time";
+  const series = data.monthly_costs.series;
+
+  app.innerHTML = `
+    <header>
+      <div><h1>${esc(v.name)}</h1>
+        <div class="sub">${esc([v.year, v.make, v.model].filter(Boolean).join(" "))} · ${esc(v.energy_type.replace("_", "-"))}${v.current_odometer ? ` · ${num(v.current_odometer)} ${dist} on the clock` : ""}</div></div>
+      <div class="sub">${vehicleSel} ${per}</div>
+    </header>
+    <div class="grid">
+      <div class="card span-3"><div class="kpi-label">Total spend</div><div class="kpi-value">${money(S.total_cost, 0)}</div><div class="kpi-note">energy, service and other costs</div></div>
+      <div class="card span-3"><div class="kpi-label">Cost per ${dist}</div><div class="kpi-value">${S.cost_per_distance != null ? money(S.cost_per_distance, 2) : "–"}</div><div class="kpi-note">${S.energy_cost_per_distance != null ? money(S.energy_cost_per_distance, 2) + " of it is " + (isEV ? "charging" : "fuel") : "needs odometer readings"}</div></div>
+      <div class="card span-3"><div class="kpi-label">Average ${isEV ? "consumption" : "fuel use"}</div><div class="kpi-value">${cons ? num(cons.per_100, 1) : "–"} <span style="font-size:14px;font-weight:500;color:var(--text-secondary)">${unit}/100 ${dist}</span></div><div class="kpi-note">${cons ? `${num(cons.distance_per_unit, 1)} ${dist} per ${unit} · ${cons.samples} fill${isEV ? "s" : "-ups"}` : "log full fill-ups to compute"}</div></div>
+      <div class="card span-3"><div class="kpi-label">Distance driven</div><div class="kpi-value">${S.distance != null ? num(S.distance) : "–"} <span style="font-size:14px;font-weight:500;color:var(--text-secondary)">${dist}</span></div><div class="kpi-note">${S.energy[kind] ? `${num(S.energy[kind].quantity, 0)} ${unit} at avg ${money(S.energy[kind].avg_price_per_unit, 3)}/${unit}` : ""}</div></div>
+
+      <div class="card span-8"><h2>Monthly spend</h2><div class="desc">Stacked by category. Hover a month for the breakdown.</div>
+        <div class="legend">${series.map((k, i) => `<span><i style="background:var(${SERIES_VARS[i]})"></i>${esc(k)}</span>`).join("")}</div>
+        <div id="c-monthly"></div>
+        <details><summary>Show as table</summary><table><thead><tr><th>Month</th>${series.map((k) => `<th class="num">${esc(k)}</th>`).join("")}<th class="num">Total</th></tr></thead>
+        <tbody>${data.monthly_costs.months.map((m) => `<tr><td>${monthLong(m.month)}</td>${series.map((k) => `<td class="num">${money(m[k], 2)}</td>`).join("")}<td class="num">${money(m.total, 2)}</td></tr>`).join("")}</tbody></table></details>
+      </div>
+      <div class="card span-4"><h2>Where the money goes</h2><div class="desc">Share of total spend in this period</div>
+        ${data.breakdown.length ? `<div class="rank">${data.breakdown.map((b) => `<span>${esc(b.category)}</span><div class="bar" style="width:${(b.amount / data.breakdown[0].amount) * 100}%" title="${esc(b.category)}: ${money(b.amount, 2)}"></div><span class="val">${money(b.amount, 0)} · ${Math.round((b.amount / S.total_cost) * 100)}%</span>`).join("")}</div>` : '<div class="empty">No costs logged yet</div>'}
+      </div>
+
+      <div class="card span-6"><h2>${isEV ? "Energy consumption" : "Fuel consumption"}</h2><div class="desc">${unit}/100 ${dist}, measured between full ${isEV ? "charges" : "fill-ups"}</div><div id="c-eff"></div></div>
+      <div class="card span-6"><h2>${isEV ? "Electricity price" : "Fuel price"}</h2><div class="desc">Price paid per ${unit}</div><div id="c-price"></div></div>
+
+      <div class="card span-5"><h2>Maintenance</h2><div class="desc">Based on your schedule and service history</div>
+        ${data.maintenance.length ? `<ul class="mlist">${data.maintenance.map((it) => {
+          const st = STATUS[it.status];
+          const when = [it.distance_left != null ? (it.distance_left < 0 ? `${num(-it.distance_left)} ${dist} over` : `in ${num(it.distance_left)} ${dist}`) : null,
+                        it.days_left != null ? (it.days_left < 0 ? `${-it.days_left} days late` : `in ${it.days_left} days`) : null].filter(Boolean).join(" · ");
+          return `<li><div><div>${esc(it.service_type.replace(/^./, (c) => c.toUpperCase()))}</div><div class="kpi-note">${when || esc(it.hint || "")}</div></div><span class="badge"><span class="dot" style="background:${st.c}"></span>${st.icon} ${st.t}</span></li>`;
+        }).join("")}</ul>` : '<div class="empty">No maintenance schedule. Ask Claude to set one up.</div>'}
+      </div>
+      <div class="card span-7"><h2>Recent activity</h2><div class="desc">Latest fill-ups, services and expenses</div>
+        ${data.recent.length ? `<table><thead><tr><th>Date</th><th>Type</th><th>Item</th><th class="num">Amount</th></tr></thead><tbody>${data.recent.map((r) => `<tr><td>${dateLabel(r.date)}</td><td>${esc(r.type)}</td><td>${esc(r.label)}</td><td class="num">${money(r.amount, 2)}</td></tr>`).join("")}</tbody></table>` : '<div class="empty">Nothing logged yet</div>'}
+      </div>
+    </div>
+    <div class="sub" style="margin-top:12px">Generated ${new Date(data.generated_at).toLocaleString()} by car-mcp</div>`;
+
+  stackedBars(document.getElementById("c-monthly"), data.monthly_costs.months, series);
+  lineChart(document.getElementById("c-eff"),
+    data.efficiency.filter((e) => e.kind === kind).map((e) => ({ date: e.date, v: e.per_100,
+      extra: `<div class="row"><span>Distance</span><span>${num(e.distance)} ${dist}</span></div><div class="row"><span>Cost per ${dist}</span><span>${money(e.cost_per_distance, 3)}</span></div>` })),
+    { color: "var(--s1)", fmt: (x) => num(x, 1), label: `${unit}/100 ${dist}` });
+  lineChart(document.getElementById("c-price"),
+    data.prices.filter((p) => p.kind === kind).map((p) => ({ date: p.date, v: p.price_per_unit })),
+    { color: "var(--s2)", fmt: (x) => money(x, 2), label: `per ${unit}` });
+
+  const sel = document.getElementById("veh");
+  if (sel) sel.addEventListener("change", () => switchVehicle(sel.value));
+  reportSize();
+}
+
+/* ---------- MCP Apps bridge (JSON-RPC over postMessage) ---------- */
+const inHost = window.parent && window.parent !== window;
+let rpcId = 0; const pending = new Map();
+function rpc(method, params) {
+  return new Promise((resolve, reject) => {
+    const id = ++rpcId; pending.set(id, { resolve, reject });
+    window.parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
+  });
+}
+const notify = (method, params) => window.parent.postMessage({ jsonrpc: "2.0", method, params }, "*");
+function fromResult(res) {
+  if (!res) return null;
+  if (res.structuredContent) return res.structuredContent.result ?? res.structuredContent;
+  const t = (res.content || []).find((c) => c.type === "text");
+  if (t) { try { const j = JSON.parse(t.text); return j.result ?? j; } catch {} }
+  return null;
+}
+function applyHostContext(ctx) {
+  if (ctx && ctx.theme) document.documentElement.setAttribute("data-theme", ctx.theme);
+}
+window.addEventListener("message", (ev) => {
+  const msg = ev.data;
+  if (!msg || msg.jsonrpc !== "2.0") return;
+  if (msg.id != null && pending.has(msg.id) && !msg.method) {
+    const p = pending.get(msg.id); pending.delete(msg.id);
+    msg.error ? p.reject(msg.error) : p.resolve(msg.result);
+    return;
+  }
+  if (msg.method === "ui/notifications/tool-result") {
+    const d = fromResult(msg.params);
+    if (d && d.summary) render(d);
+  } else if (msg.method === "ui/notifications/host-context-changed") {
+    applyHostContext(msg.params);
+  }
+});
+async function switchVehicle(name) {
+  if (!inHost) return;
+  try {
+    const res = await rpc("tools/call", { name: "show_dashboard", arguments: { vehicle: name, months: D.months } });
+    const d = fromResult(res); if (d && d.summary) render(d);
+  } catch (e) { console.warn("vehicle switch failed", e); }
+}
+function reportSize() {
+  if (inHost) notify("ui/notifications/size-changed", { width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight });
+}
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (D) render(D); else reportSize(); }, 150); });
+
+if (window.__CAR_DATA__) {
+  render(window.__CAR_DATA__);
+} else if (inHost) {
+  rpc("ui/initialize", { protocolVersion: "2026-01-26", appInfo: { name: "car-mcp-dashboard", version: "0.1.0" }, appCapabilities: {} })
+    .then((r) => { applyHostContext(r && r.hostContext); notify("ui/notifications/initialized", {}); })
+    .catch(() => notify("ui/notifications/initialized", {}));
+}
+</script>
+</body>
+</html>
