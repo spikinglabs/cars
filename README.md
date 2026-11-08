@@ -51,7 +51,17 @@ Add to `claude_desktop_config.json` (Settings → Developer → Edit Config):
 claude mcp add car -- uvx --from git+https://github.com/spikinglabs/cars car-mcp
 ```
 
-### Remote (claude.ai custom connector, other clients)
+### Hosted, read-only (no install)
+
+`https://cars.allo.land/mcp` serves the online tools (`lookup_official_consumption`, `get_recalls`,
+`check_used_car`, `get_recall_statistics`, `get_fuel_prices`, `get_registrations`, `find_chargers`) plus
+`get_charging_prices` and `get_cheapest_charging_time`, with no login. Add it as a custom connector in claude.ai
+(Settings → Connectors → Add custom connector) or any MCP client; `claude mcp add --transport http allo-cars
+https://cars.allo.land/mcp` in Claude Code. It runs as a Cloudflare Pages Function next to the site
+(`site/functions/mcp.js`, tools in `site/lib/mcp-tools.js`) and reads the same files as `/data/`. The logbook tools
+need your own data, so they stay in the local server below.
+
+### Remote, self-hosted (claude.ai custom connector, other clients)
 
 ```bash
 uvx --from git+https://github.com/spikinglabs/cars car-mcp --http --host 0.0.0.0 --port 8765
