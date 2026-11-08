@@ -2,6 +2,12 @@
   "site": "Allo Cars",
   "url": "https://cars.allo.land/",
   "description": "Free car tools and open data for driving in Germany, by Spiking Labs. Every tool is a static page whose inputs live in the URL.",
+  "mcp": {
+    "url": "https://cars.allo.land/mcp",
+    "transport": "streamable-http",
+    "auth": "none",
+    "description": "Read-only MCP server with the same data as tools: official consumption per model, recalls and used-car check, recall statistics, fuel, charging and electricity prices, new registrations and public chargers. Add it as a custom connector in Claude or any MCP client."
+  },
   "tools": [
     {
       "name": "car_profile",
