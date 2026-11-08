@@ -43,8 +43,36 @@
     // AlloSite.data("charging-prices", "latest.json") -> "/data/charging-prices/de/latest.json"
     data: function (dataset, file) { return "/data/" + dataset + "/" + region + "/" + file; }
   };
+  /* ---------- anonymous usage counts ---------- */
+  // The shared Allo usage counter (spikinglabs/alloland-rebirth workers/count) keeps only day, site,
+  // feature name and country: no IP, ID or cookie, and nothing is stored here. Skipped when the browser
+  // sends Do Not Track or Global Privacy Control, and anywhere but cars.allo.land. Page scripts can call
+  // AlloTrack("name"); links and buttons can carry data-count="name".
+  var track = window.AlloTrack = function (f) {
+    try {
+      if (navigator.doNotTrack === "1" || navigator.globalPrivacyControl) return;
+      if (location.hostname !== "cars.allo.land") return;
+      if (navigator.sendBeacon) navigator.sendBeacon("https://monitoring.admin.allo.land/e?f=" + encodeURIComponent(f));
+    } catch (e) {}
+  };
+  // One "open" per page load, plus which section it was: /de/chargers/stats/ -> page_chargers.
+  (function () {
+    var parts = location.pathname.split("/").filter(Boolean);
+    if (parts[0] === "de" || parts[0] === "zh") parts.shift();
+    track("open");
+    track("page_" + (parts[0] ? parts[0].replace(/[^a-z0-9_-]/gi, "").toLowerCase().slice(0, 40) : "home"));
+  })();
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest && e.target.closest("[data-count], a[href]");
+    if (!el) return;
+    if (el.dataset.count) return track(el.dataset.count);
+    var href = el.getAttribute("href") || "";
+    if (el.hasAttribute("download") || /^\/data\//.test(href)) track("download");
+  });
+
   document.addEventListener("change", function (e) {
     if (!e.target.matches || !e.target.matches("[data-country]") || !known(e.target.value)) return;
+    track("country");
     local(REGION_KEY, e.target.value);
     var u = new URL(location.href);
     if (u.searchParams.has("country")) u.searchParams.set("country", e.target.value);
@@ -129,7 +157,7 @@
       ev.prompt();
       ev.userChoice.then(function (c) {
         if (hintGo) hintGo.hidden = true;
-        if (c && c.outcome === "accepted") { closeHint(); if (box) box.hidden = true; }
+        if (c && c.outcome === "accepted") { track("install"); closeHint(); if (box) box.hidden = true; }
       }, function () {});
     };
     take();
