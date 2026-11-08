@@ -14,6 +14,12 @@ python -m pipelines.chargers.collect --r2 <bucket> --prefix chargers    # what t
 - `build.py` merges devices within about 10 m into one location, drops locations whose coordinates are far from
   their own postcode, and writes `latest.json`, `overview.json` (0.1° grid counts), `cells/<lat*2>_<lon*2>.json`
   (0.5° squares), `places.json` (postcode and town centres for search) and `stations.csv`.
+- `stats.py` builds `stats.json` and `districts.csv` for [/chargers/stats/](https://cars.allo.land/chargers/stats/):
+  charge points per state, district and town (50,000+ people), per 100,000 people, electric cars per point and kW per
+  electric car, by power class, plug and year, and the top operators. It compares against
+  `reference/districts.json` (population from Destatis, battery electric cars from the KBA's FZ1 table). Refresh
+  that file once a year with `python -m pipelines.chargers.districts --kreise 04-kreise.xlsx --towns Auszug_GV.xlsx --kba fz1_<year>.xlsx`
+  (see its docstring for the download pages), commit it and raise `BUILD_VERSION` in `collect.py` so the next run rebuilds.
 - `.github/workflows/collect-chargers.yml` checks daily and rebuilds only when a newer register file is out.
   The raw files are archived by the charging-prices pipeline under `charging-prices/raw/bnetza/register/`.
 

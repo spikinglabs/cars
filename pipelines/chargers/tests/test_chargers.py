@@ -84,3 +84,66 @@ class BuildTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class StatsTest(unittest.TestCase):
+    REF = {
+        "population_date": "2024-12-31", "cars_date": "2026-01-01", "sources": [], "town_min_population": 50000,
+        "districts": [
+            {"ars": "05315", "name": "Köln", "official_name": "Köln, Stadt", "city": True, "kind": "Kreisfreie Stadt",
+             "state": "Nordrhein-Westfalen", "area_km2": 405.0, "population": 1000000, "cars": 500000, "phev": 1, "bev": 20000},
+            {"ars": "05362", "name": "Rhein-Erft-Kreis", "official_name": "Rhein-Erft-Kreis", "city": False, "kind": "Kreis",
+             "state": "Nordrhein-Westfalen", "area_km2": 704.0, "population": 470000, "cars": 300000, "phev": 1, "bev": None},
+        ],
+        "towns": [
+            {"ars": "053150000000", "name": "Köln", "district": "05315", "population": 1000000, "area_km2": 405.0},
+            {"ars": "053620004004", "name": "Bergheim", "district": "05362", "population": 60000, "area_km2": 96.0},
+        ],
+    }
+
+    def rows(self):
+        lines = [
+            row(1, "A", 22, "50,9413", "6,9583", "AC Typ 2 Steckdose", "AC Typ 2 Steckdose"),
+            row(2, "B", 300, "50,94", "6,95", "DC Fahrzeugkupplung Typ Combo 2 (CCS)", town="Köln-Porz"),
+            row(3, "A", 11, "50,95", "6,64", "AC Typ 2 Steckdose", pc="50126", town="Bergheim").replace(";Köln;Nordrhein", ";Rhein-Erft-Kreis;Nordrhein"),
+        ]
+        rows = register.read(sample_csv(lines), "r.csv")[1]
+        rows[0]["Kreis/kreisfreie Stadt"] = rows[1]["Kreis/kreisfreie Stadt"] = "Kreisfreie Stadt Köln"
+        rows[2]["Kreis/kreisfreie Stadt"] = "Kreis Rhein-Erft-Kreis"
+        return rows
+
+    def test_counts_rankings_and_classes(self):
+        from pipelines.chargers import stats
+        s = stats.stats_json(self.rows(), {"updated": "2026-09-30"}, self.REF, "now", "u", "p")
+        t = s["totals"]
+        self.assertEqual((t["points"], t["fast_points"], t["ultra_points"], t["dc_points"]), (4, 1, 1, 1))
+        self.assertEqual(s["unmatched_districts"], {})
+        koeln = next(d for d in s["districts"] if d["ars"] == "05315")
+        self.assertEqual((koeln["points"], koeln["points_per_100k"], koeln["bev_per_point"]), (3, 0.3, 6666.7))
+        erft = next(d for d in s["districts"] if d["ars"] == "05362")
+        self.assertIsNone(erft["bev_per_point"])
+        towns = {x["name"]: x for x in s["towns"]}
+        self.assertEqual(towns["Köln"]["points"], 3)  # "Köln-Porz" counts for the city district
+        self.assertEqual(towns["Bergheim"]["points"], 1)
+        classes = {c["class"]: c["points"] for c in s["power_classes"]}
+        self.assertEqual((classes["up_to_11"], classes["12_22"], classes["300_plus"]), (1, 2, 1))
+        plugs = {c["connector"]: c["points"] for c in s["connectors"]}
+        self.assertEqual((plugs["type2_socket"], plugs["ccs"], plugs["chademo"]), (3, 1, 0))
+        self.assertEqual(s["by_year"][0]["points_total"], 4)
+        self.assertIn("ars,name,state", stats.districts_csv(s).decode())
+        body = stats.compute(self.rows(), self.REF)
+        areas = {a["id"]: a for a in stats.areas_json(body["_areas"], {}, "now")["areas"]}
+        self.assertEqual(areas["05"]["points"], 4)  # state code of Nordrhein-Westfalen
+        self.assertEqual(areas["053150000000"]["classes"], [0, 2, 0, 0, 0, 1])
+        self.assertEqual(areas["053620004004"]["operators"], [["A", 1, 0]])
+        self.assertEqual(areas["05315"]["years"], {"2021": [3, 1]})
+
+    def test_district_matcher(self):
+        from pipelines.chargers import stats
+        m = stats.DistrictMatcher([
+            {"ars": "13003", "name": "Rostock", "official_name": "Rostock", "city": True, "state": "MV"},
+            {"ars": "13072", "name": "Landkreis Rostock", "official_name": "Landkreis Rostock", "city": False, "state": "MV"},
+        ])
+        self.assertEqual(m("Kreisfreie Stadt Rostock", "MV"), "13003")
+        self.assertEqual(m("Landkreis Rostock", "MV"), "13072")
+        self.assertIsNone(m("Landkreis Nirgendwo", "MV"))

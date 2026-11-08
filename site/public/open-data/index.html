@@ -140,7 +140,11 @@
       <li><a href="/data/chargers/de/stations.csv"><code>/data/chargers/de/stations.csv</code></a>: every location with position, power, charge points, plugs, operator, address and payment</li>
       <li><code>/data/chargers/de/cells/&lt;id&gt;.json</code>: the locations in one 0.5 × 0.5 degree square, id = floor(lat × 2)_floor(lon × 2), for example <a href="/data/chargers/de/cells/101_13.json"><code>101_13</code></a> around Cologne</li>
       <li><a href="/data/chargers/de/overview.json"><code>/data/chargers/de/overview.json</code></a> and <a href="/data/chargers/de/places.json"><code>places.json</code></a>: counts on a 0.1 degree grid, and postcode and town centres</li>
+      <li><a href="/data/chargers/de/stats.json"><code>/data/chargers/de/stats.json</code></a>: the <a href="/chargers/stats/">statistics</a>: charge points per federal state, district and town (50,000+ people) with population, battery electric cars, points per 100,000 people, electric cars per point and kW per electric car; charge points by power class, plug and year; top operators</li>
+      <li><a href="/data/chargers/de/areas.json"><code>/data/chargers/de/areas.json</code></a>: power classes, plugs, years and top operators for every state, district and town, for comparing places</li>
+      <li><a href="/data/chargers/de/districts.csv"><code>/data/chargers/de/districts.csv</code></a>: the same per district as a table</li>
     </ul>
+    <p>Population: Statistisches Bundesamt (Destatis), Gemeindeverzeichnis, 31 December 2024. Battery electric cars: Kraftfahrt-Bundesamt, FZ1 vehicle stock by registration district, 1 January. Both under the <a href="https://www.govdata.de/dl-de/by-2-0">Data licence Germany, attribution, version 2.0</a>. The statistics count every device in the register, including the locations left off the map.</p>
     <p>Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, served by the OpenStreetMap Foundation. The map uses <a href="https://leafletjs.com/">Leaflet</a> (BSD-2-Clause), loaded from this site.</p>
   </section>
 
@@ -225,6 +229,7 @@
   <ul>
     <li><a href="/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Charging cost</span></a></li>
     <li><a href="/chargers/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>Charger map</span></a></li>
+    <li><a href="/chargers/stats/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>Charger statistics</span></a></li>
     <li><a href="/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>Price archive</span></a></li>
     <li><a href="/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Best time to charge</span></a></li>
   </ul>
