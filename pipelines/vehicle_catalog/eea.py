@@ -72,6 +72,19 @@ def find_latest_table(this_year: int, *, newest_version: int = 45, oldest_versio
     raise LookupError("no co2cars table found")
 
 
+def find_table(year: int, *, newest_version: int = 45, oldest_version: int = 5, ask=query) -> str:
+    """The newest table of one data year, final before provisional."""
+    for status in ("F", "P"):
+        for version in range(newest_version, oldest_version - 1, -1):
+            name = table_name(year, status, version)
+            try:
+                ask(f"SELECT TOP 1 * FROM [CO2Emission].[latest].[{name}]", rows=1)
+                return name
+            except LookupError:
+                continue
+    raise LookupError(f"no co2cars table for {year}")
+
+
 FIGURES = {"z": Z, "fc": "Fc", "co2": CO2, "kw": POWER, "kg": MASS}
 
 
