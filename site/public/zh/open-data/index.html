@@ -151,10 +151,10 @@
   <section class="ac-card" id="vehicle-catalog">
     <span class="ac-label">车型目录</span>
     <h2>每款新车的官方能耗</h2>
-    <p>欧盟每辆新登记汽车都会申报其型式认证 (WLTP) 数据。<a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b">欧洲环境署</a>依据法规 (EU) 2019/631 每年公布这些数据。我们每月把最新年份整理成每个车型和燃料类型一行：官方每 100 公里 kWh（插头端电量，已包含充电损耗）、每 100 公里升数、CO2、功率和质量，按人们实际购买的版本加权平均，并附登记数量。这些是官方数值，而非实际使用值：真实驾驶的能耗更高，高速和冬季尤其如此。</p>
+    <p>欧盟每辆新登记汽车都会申报其型式认证 (WLTP) 数据。<a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b">欧洲环境署</a>依据法规 (EU) 2019/631 每年公布这些数据。我们每月把最新年份整理成每个车型和燃料类型一行：官方每 100 公里 kWh（插头端电量，已包含充电损耗）、每 100 公里升数、CO2、功率和质量，按人们实际购买的版本加权平均，并附登记数量。不再作为新车销售的车型也会保留在列表中，最早追溯到 2021 年，因此也涵盖较旧的汽车：<code>year</code> 是数据所属年份（该车型销量仍较好的最近一年），<code>years</code> 是其作为新车销售的首个和最后一个年份。这些是官方数值，而非实际使用值：真实驾驶的能耗更高，高速和冬季尤其如此。</p>
     <p>免费下载，无需密钥，无需注册：</p>
     <ul>
-      <li><a href="/data/vehicle-catalog/de/models.json"><code>/data/vehicle-catalog/de/models.json</code></a> and <a href="/data/vehicle-catalog/de/models.csv"><code>models.csv</code></a>：在德国至少有 20 辆新登记的所有车型，包括汽油、柴油、插电混动和纯电动</li>
+      <li><a href="/data/vehicle-catalog/de/models.json"><code>/data/vehicle-catalog/de/models.json</code></a> and <a href="/data/vehicle-catalog/de/models.csv"><code>models.csv</code></a>：2021 年以来任一年在德国至少有 20 辆新登记的所有车型，包括汽油、柴油、插电混动和纯电动</li>
       <li><a href="/data/vehicle-catalog/de/electric.json"><code>/data/vehicle-catalog/de/electric.json</code></a>：仅电动车型，精简版</li>
       <li><a href="/data/vehicle-catalog/eu/models.json"><code>/data/vehicle-catalog/eu/models.json</code></a>：欧盟 27 国的同类数据</li>
     </ul>

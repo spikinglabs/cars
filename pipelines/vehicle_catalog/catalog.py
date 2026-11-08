@@ -32,8 +32,11 @@ MAKE_WORDS = {"VOLKSWAGEN", "VW", "MERCEDES-BENZ", "MERCEDES", "AMG", "BMW", "MG
               "MINI", "SMART", "XPENG", "LEAPMOTOR", "DS", "ALFA", "ROMEO", "LANCIA", "PORSCHE", "SUBARU", "ZEEKR",
               "OMODA", "JAECOO", "LAND", "ROVER", "MERCEDES-AMG", "LYNK", "&", "CO", "MITSUBISHI", "GENESIS", "ABARTH", "ALPINE", "NIO", "LOTUS"}
 # A second word that makes a different car, not a trim: Dolphin Surf, C3 Aircross, Yaris Cross, ID. Buzz.
-SECOND_WORDS = {"SURF", "AIRCROSS", "CROSS", "BUZZ", "PLUS", "MINI", "EV", "GT", "SPORT", "U"}
-FIRST_TWO = {"MODEL", "ID.", "E-TRON", "SERIES", "#", "IONIQ", "SEALION", "ATTO", "RS", "S"}
+SECOND_WORDS = {"SURF", "AIRCROSS", "CROSS", "BUZZ", "PLUS", "MINI", "EV", "GT", "SPORT", "U", "N"}
+FIRST_TWO = {"MODEL", "ID.", "E-TRON", "SERIES", "#", "IONIQ", "SEALION", "ATTO", "RS", "S", "GRAND", "SPACE", "SANTA"}
+# Makes typed as company names in some years: a cleaned make starting with the key is that make.
+MAKE_PREFIXES = {"MITSUBISHI": "Mitsubishi", "GREATWALL": "GWM", "DFSK": "DFSK", "AUTOMOBILILAMBORGHINI": "Lamborghini",
+                 "LAMBORGHINI": "Lamborghini", "HYUNDAIMOTOR": "Hyundai"}
 FUELS = {
     "electric": "electric", "petrol": "petrol", "diesel": "diesel",
     "petrol/electric": "phev-petrol", "diesel/electric": "phev-diesel",
@@ -52,17 +55,26 @@ def make_name(raw: str) -> str | None:
         return None
     if key in MAKES:
         return MAKES[key]
+    for prefix, name in MAKE_PREFIXES.items():
+        if key.startswith(prefix):
+            return name
     words = re.split(r"[\s,]+", s.strip(" ,.-"))
     return " ".join(w.capitalize() if len(w) > 3 else w.capitalize() if not w.isalpha() else w.title() for w in words if w)
 
 
 def family(make: str, commercial_name: str) -> str | None:
     """The model family in capitals, for example ID.7, MODEL Y, IONIQ 5, 3 SERIES, C3 AIRCROSS."""
-    s = ascii_upper(commercial_name).split(",")[0]
+    # "KONA. KAUAI", "GV60. GENESIS GV60", "KONA N.KAUAI N": the name, then the same in another language
+    s = re.sub(r"(?<!\bID)\.(?:\s+|(?=[A-Z]{3}))", ",", ascii_upper(commercial_name))
+    s = s.split(",")[0]
     s = re.sub(r"\s+", " ", s.replace("_", " ")).strip(" -.")
     s = re.sub(r"\bIONIQ\s*(\d)", r"IONIQ \1", s)
     s = re.sub(r"^ID\.?\s*(\d)", r"ID.\1", s)
     s = re.sub(r"^ID\. ?BUZZ", "ID. BUZZ", s)
+    s = re.sub(r"^TUCSON ?IX35\b", "TUCSON", s)  # Hyundai until 2023
+    s = re.sub(r"^(I|G) (\d{2})\b", r"\1\2", s)  # Hyundai "I 30", Genesis "G 80"
+    s = re.sub(r"^SANTAFE\b", "SANTA FE", s)
+    s = re.sub(r"^(I\d{2})N\b", r"\1 N", s)  # Hyundai I30N, I20N
     words = s.split(" ")
     mk = ascii_upper(make).replace(" ", "")
     while len(words) > 1 and (words[0] in MAKE_WORDS or words[0] == mk):
@@ -76,7 +88,11 @@ def family(make: str, commercial_name: str) -> str | None:
             return f"{m.group(1)} SERIES"
     if make == "Mercedes-Benz" and len(first) == 1 and first in "ABCEGSTV":
         return f"{first}-CLASS"
+    if first == "JOHN" and words[1:3] == ["COOPER", "WORKS"]:
+        return "JOHN COOPER WORKS"
     out = [first]
+    if first == "E-TRON" and len(words) > 1 and words[1].isdigit():  # e-tron 50 / 55 are versions of the e-tron
+        return first
     if len(words) > 1 and (first in FIRST_TWO or first.endswith("-") or words[1] in SECOND_WORDS):
         out.append(words[1])
     return " ".join(out)
@@ -208,7 +224,7 @@ def build(rows: list[dict], region: str, *, min_registrations: int = 20) -> list
 
 
 FIELDS = ["id", "make", "model", "name", "fuel", "registrations", "kwh_per_100km", "kwh_min", "kwh_max",
-          "l_per_100km", "l_min", "l_max", "co2_g_km", "power_kw", "mass_kg", "variants"]
+          "l_per_100km", "l_min", "l_max", "co2_g_km", "power_kw", "mass_kg", "variants", "year", "first_year"]
 
 
 def csv_rows(models: list[dict]) -> list[dict]:
@@ -217,6 +233,7 @@ def csv_rows(models: list[dict]) -> list[dict]:
         r = dict(m)
         r["kwh_min"], r["kwh_max"] = m["kwh_range"] or (None, None)
         r["l_min"], r["l_max"] = m["l_range"] or (None, None)
+        r["first_year"] = (m.get("years") or [None])[0]
         rows.append(r)
     return rows
 
@@ -225,3 +242,22 @@ def electric(models: list[dict]) -> list[list]:
     """Compact list for the charging cost page: [id, name, kWh/100 km, min, max, registrations]."""
     return [[m["id"], m["name"], m["kwh_per_100km"], *(m["kwh_range"] or [None, None]), m["registrations"]]
             for m in models if m["fuel"] == "electric" and m["kwh_per_100km"]]
+
+
+def merge(by_year: list[tuple[int, list[dict]]], *, share: float = 0.1) -> list[dict]:
+    """One catalog over several data years, so older cars that are no longer sold new stay in the list. Each model
+    takes its figures from the newest year with at least `share` of its best year's registrations: a model that sold
+    85 times in its last year (a run-out, or an import of another car with the same name) keeps the figures of the
+    years most of its cars were sold in. `year` is the year of those figures and registrations, `years` the first
+    and last year the model was registered new. Models still sold come first."""
+    seen: dict[str, list[tuple[int, dict]]] = {}
+    for year, models in by_year:
+        for m in models:
+            seen.setdefault(m["id"], []).append((year, m))
+    out = []
+    for entries in seen.values():
+        entries.sort(key=lambda e: -e[0])
+        peak = max(m["registrations"] for _, m in entries)
+        year, m = next(e for e in entries if e[1]["registrations"] >= peak * share)
+        out.append({**m, "year": year, "years": [entries[-1][0], entries[0][0]]})
+    return sorted(out, key=lambda m: (-m["years"][1], -m["registrations"], m["name"]))

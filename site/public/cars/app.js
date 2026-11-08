@@ -14,7 +14,7 @@
     fuel: { electric: "纯电动", petrol: "汽油", diesel: "柴油", lpg: "LPG", "phev-petrol": "插电混动（汽油）", "phev-diesel": "插电混动（柴油）", hydrogen: "氢燃料" },
     reg: (y) => `${y} 年首次登记`, noModel: "没有找到车型。可以选择“列表里没有我的车”。", needName: "请选择车型或填写品牌和车型。",
     cost: "每 100 公里费用", home: (p) => `在家充电，${p}/kWh`, pub: (p) => `公共即充即付，中位数 ${p}/kWh`, fuelAt: (f, p) => `${f}，${p}/升`,
-    mix: "按官方电/油比例，在家充电", noPrice: "没有这种燃料的价格数据", official: "官方能耗 (WLTP)", yours: "你的能耗", co2: "CO₂", power: "功率",
+    mix: "按官方电/油比例，在家充电", noPrice: "没有这种燃料的价格数据", official: "官方能耗 (WLTP)", sold: (a, b, y) => `新车销售：${a === b ? a : `${a}–${b}`} 年（官方数据来自 ${y} 年）`, yours: "你的能耗", co2: "CO₂", power: "功率",
     ownCons: "我的实际能耗", ownHint: "保存在这辆车上，费用会按它计算。",
     exact: "详细计算充电费用", compare: "和电动车比较", chargeTimes: "最便宜的充电时间", chargers: "附近的充电桩",
     recalls: "召回", recallsN: (n) => `${n} 次召回涉及此车型`, recallsYear: (n, y) => `其中 ${n} 次的生产时间与 ${y} 年首次登记相符`,
@@ -26,7 +26,7 @@
     fuel: { electric: "Elektro", petrol: "Benzin", diesel: "Diesel", lpg: "Autogas", "phev-petrol": "Plug-in-Hybrid (Benzin)", "phev-diesel": "Plug-in-Hybrid (Diesel)", hydrogen: "Wasserstoff" },
     reg: (y) => `Erstzulassung ${y}`, noModel: "Kein Modell gefunden. Wähle „Mein Auto ist nicht in der Liste“.", needName: "Wähle ein Modell oder trag Marke und Modell ein.",
     cost: "Kosten pro 100 km", home: (p) => `Zu Hause geladen, ${p}/kWh`, pub: (p) => `Öffentlich ad hoc, Median ${p}/kWh`, fuelAt: (f, p) => `${f}, ${p}/l`,
-    mix: "Offizieller Strom-/Kraftstoffmix, zu Hause geladen", noPrice: "Für diesen Kraftstoff haben wir keine Preise", official: "Offizieller Verbrauch (WLTP)", yours: "Dein Verbrauch", co2: "CO₂", power: "Leistung",
+    mix: "Offizieller Strom-/Kraftstoffmix, zu Hause geladen", noPrice: "Für diesen Kraftstoff haben wir keine Preise", official: "Offizieller Verbrauch (WLTP)", sold: (a, b, y) => `Neu verkauft ${a === b ? a : `${a}–${b}`} (offizielle Werte von ${y})`, yours: "Dein Verbrauch", co2: "CO₂", power: "Leistung",
     ownCons: "Mein echter Verbrauch", ownHint: "Wird bei diesem Auto gespeichert und für die Kosten genutzt.",
     exact: "Ladekosten genau ausrechnen", compare: "Mit einem E-Auto vergleichen", chargeTimes: "Günstigste Ladezeit", chargers: "Ladesäulen in der Nähe",
     recalls: "Rückrufe", recallsN: (n) => `${n} ${n === 1 ? "Rückruf nennt" : "Rückrufe nennen"} dieses Modell`, recallsYear: (n, y) => `${n} davon passen zur Erstzulassung ${y}`,
@@ -38,7 +38,7 @@
     fuel: { electric: "Electric", petrol: "Petrol", diesel: "Diesel", lpg: "LPG", "phev-petrol": "Plug-in hybrid (petrol)", "phev-diesel": "Plug-in hybrid (diesel)", hydrogen: "Hydrogen" },
     reg: (y) => `First registered ${y}`, noModel: "No model found. Choose “My car is not in the list”.", needName: "Pick a model, or type make and model.",
     cost: "Cost per 100 km", home: (p) => `Charged at home, ${p}/kWh`, pub: (p) => `Public ad hoc, median ${p}/kWh`, fuelAt: (f, p) => `${f}, ${p}/L`,
-    mix: "Official electric/fuel mix, charged at home", noPrice: "We have no prices for this fuel", official: "Official consumption (WLTP)", yours: "Your consumption", co2: "CO₂", power: "Power",
+    mix: "Official electric/fuel mix, charged at home", noPrice: "We have no prices for this fuel", official: "Official consumption (WLTP)", sold: (a, b, y) => `Sold new ${a === b ? a : `${a}–${b}`} (official figures from ${y})`, yours: "Your consumption", co2: "CO₂", power: "Power",
     ownCons: "My real consumption", ownHint: "Saved with this car and used for the cost.",
     exact: "Work out the charging cost in detail", compare: "Compare with an electric car", chargeTimes: "Cheapest time to charge", chargers: "Chargers near you",
     recalls: "Recalls", recallsN: (n) => `${n} ${n === 1 ? "recall names" : "recalls name"} this model`, recallsYear: (n, y) => `${n} of them match first registration in ${y}`,
@@ -57,7 +57,7 @@
   const json = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: ${r.status}`); return r.json(); });
   const soft = (u) => json(u).catch(() => null);
 
-  let catalog = [], byId = new Map(), prices = { fuel: null, charge: null }, regs = null, recallBrands = null;
+  let catalogYear = 0, catalog = [], byId = new Map(), prices = { fuel: null, charge: null }, regs = null, recallBrands = null;
   let current = null; // { car: garage entry or null, spec: {car,name,make,model,fuel,year,cons} }
 
   /* ---------- your cars ---------- */
@@ -190,6 +190,7 @@
       if (m.l_per_100km) facts.push(`${T.official}: ${num(m.l_per_100km)} ${T.unit("fuel")}`);
       if (m.co2_g_km != null) facts.push(`${T.co2}: ${m.co2_g_km} g/km`);
       if (m.power_kw) facts.push(`${T.power}: ${m.power_kw} kW`);
+      if (m.years && m.year && m.year < catalogYear) facts.push(T.sold(m.years[0], m.years[1], m.year));
     }
     const links = [];
     if (f === "electric") {
@@ -299,7 +300,7 @@
       soft(AlloSite.data("registrations", "models.json")),
       soft("/data/recalls/eu/brands.json"),
     ]);
-    catalog = cat.models; byId = new Map(catalog.map((m) => [m.id, m]));
+    catalogYear = cat.year || 0; catalog = cat.models; byId = new Map(catalog.map((m) => [m.id, m]));
     prices = { fuel, charge }; regs = rg; recallBrands = rb;
     const u = new URLSearchParams(location.search);
     if (u.get("car") && showModel(u.get("car"), Number(u.get("year")) || 0)) return;

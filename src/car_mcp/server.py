@@ -238,7 +238,8 @@ def build_server(db_path: str | Path | None = None, catalog: Catalog | None = No
     ) -> dict[str, Any]:
         """Official WLTP consumption of a car model from the EEA CO2 monitoring of new cars: kWh/100 km at the plug
         (charging losses included), L/100 km, CO2 g/km, power and mass, averaged over the versions registered in the
-        latest year, with the number registered. Official figures are lower than real-world use. Needs internet."""
+        latest year, with the number registered. Models no longer sold new (back to 2021) are included too (year = year of
+        the figures; years = first and last year sold new). Official figures are lower than real-world use. Needs internet."""
         try:
             return catalog.search(query, fuel, region, limit)
         except CatalogError as e:
