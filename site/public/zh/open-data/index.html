@@ -140,7 +140,11 @@
       <li><a href="/data/chargers/de/stations.csv"><code>/data/chargers/de/stations.csv</code></a>：每个站点的位置、功率、充电点、插头、运营商、地址和支付方式</li>
       <li><code>/data/chargers/de/cells/&lt;id&gt;.json</code>：一个 0.5 × 0.5 度方格内的站点，id = floor(lat × 2)_floor(lon × 2)，例如科隆附近的 <a href="/data/chargers/de/cells/101_13.json"><code>101_13</code></a></li>
       <li><a href="/data/chargers/de/overview.json"><code>/data/chargers/de/overview.json</code></a> 和 <a href="/data/chargers/de/places.json"><code>places.json</code></a>：0.1 度网格上的统计数字，以及邮政编码区和城镇的中心点</li>
+      <li><a href="/data/chargers/de/stats.json"><code>/data/chargers/de/stats.json</code></a>：<a href="/zh/chargers/stats/">统计数据</a>：各联邦州、县和城市（5 万居民以上）的充电点，附居民数、纯电动车数、每 10 万居民充电点、每个充电点的电动车和每辆电动车的 kW；按功率等级、插头和年份的充电点；最大的运营商</li>
+      <li><a href="/data/chargers/de/areas.json"><code>/data/chargers/de/areas.json</code></a>：每个联邦州、县和城市的功率等级、插头、年份和主要运营商，便于比较</li>
+      <li><a href="/data/chargers/de/districts.csv"><code>/data/chargers/de/districts.csv</code></a>：同样的县级数据表格</li>
     </ul>
+    <p>人口：联邦统计局（Destatis）市镇目录，2024 年 12 月 31 日。纯电动车：联邦机动车管理局（KBA）FZ1 按登记区的车辆保有量，1 月 1 日。两者均采用<a href="https://www.govdata.de/dl-de/by-2-0">德国数据许可 – 署名 – 2.0 版</a>。统计包含登记册中的每台充电设备，也包括地图上未显示的站点。</p>
     <p>地图图块 © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> 贡献者，由 OpenStreetMap 基金会提供。地图使用 <a href="https://leafletjs.com/">Leaflet</a>（BSD-2-Clause），从本站加载。</p>
   </section>
 
@@ -224,6 +228,7 @@
   <ul>
     <li><a href="/zh/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a></li>
     <li><a href="/zh/chargers/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>充电桩地图</span></a></li>
+    <li><a href="/zh/chargers/stats/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>充电桩统计</span></a></li>
     <li><a href="/zh/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>价格档案</span></a></li>
     <li><a href="/zh/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>最佳充电时段</span></a></li>
   </ul>

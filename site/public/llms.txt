@@ -11,6 +11,7 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 - [New car registrations by model](https://cars.allo.land/registrations/): monthly new registrations in Germany for every model since 2018, the top 20 and the electric share. Open a model with ?model=<slug>, e.g. ?model=volvo-ex30.
 - [Car recalls and used-car check](https://cars.allo.land/recalls/): official recalls for a car in Europe (EU Safety Gate, including every KBA recall) and the US (NHTSA), narrowed to the build window of a used car, with what to ask the seller, and recall statistics by year, component and brand (per 100,000 new cars registered in Germany). Link parameters: ?brand=<slug>&model=<name>&year=<first registration year>.
 - [Charger map](https://cars.allo.land/chargers/): every public charger in Germany. Link parameters: lat, lon, z (zoom; single chargers from 11), kw (0, 11, 50, 150), plug (type2,ccs,chademo), only (247,card,free,public). Example: https://cars.allo.land/chargers/?lat=50.9375&lon=6.9603&z=13&kw=150&plug=ccs
+- [Charging stations in numbers](https://cars.allo.land/chargers/stats/): rankings of towns, districts and states by charge points per 100,000 people, fast points, electric cars per charge point and kW per electric car; power classes, plugs, growth by year, operators. Link parameters: rank (towns, districts, states), by (per100k, points, fast, bev, kw), q (filter), areas (comma separated regional keys, e.g. 053150000000,053140000000 for Köln and Bonn together). Example: https://cars.allo.land/chargers/stats/?rank=districts&by=bev
 
 ## Data
 - [Ad-hoc EV charging prices, latest](https://cars.allo.land/data/charging-prices/latest.json): median, p10, p90 of the base energy price (EUR/kWh incl. VAT) over all published ad-hoc tariffs, overall and per data source.
@@ -21,6 +22,7 @@ Free car tools and open data for drivers in Germany, by Spiking Labs (part of al
 - [Fuel prices, latest week](https://cars.allo.land/data/fuel-prices/latest.json): this week per fuel, change on last week, 4- and 52-week averages. Other countries: /data/fuel-prices/<region>/ (list in /data/fuel-prices/index.json).
 - [Public chargers, counts](https://cars.allo.land/data/chargers/de/latest.json): locations, charge points, fast (50 kW+) and high-power (150 kW+) counts overall, per federal state and per operator, plus the plug and flag bit meanings and the list of cells.
 - [Public chargers, all locations](https://cars.allo.land/data/chargers/de/stations.csv): position, max kW, charge points, DC points, plugs, operator, address, 24/7, card payment, free, customers only, year opened.
+- [Public chargers, statistics](https://cars.allo.land/data/chargers/de/stats.json): totals, per state, per district (with population and battery electric cars) and per town of 50,000+ people; points per 100,000 people, electric cars per point, kW per electric car; points by power class, plug and year; top operators. Same per district as CSV: https://cars.allo.land/data/chargers/de/districts.csv. Power classes, plugs, years and top operators for every state, district and town: https://cars.allo.land/data/chargers/de/areas.json
 - Public chargers in one area: https://cars.allo.land/data/chargers/de/cells/<a>_<b>.json with a = floor(lat × 2), b = floor(lon × 2), e.g. cells/101_13.json for Cologne. Rows follow "fields"; operator is an index into "operators".
 - [Electricity prices today and tomorrow](https://cars.allo.land/data/electricity-prices/de/latest.json): day-ahead exchange prices for Germany in 15-minute steps, cheapest windows, estimated dynamic tariff price.
 - [Daily electricity prices since 2018](https://cars.allo.land/data/electricity-prices/de/daily.csv) and [hourly](https://cars.allo.land/data/electricity-prices/de/hourly.csv), EUR/MWh.
@@ -49,5 +51,6 @@ Every page is also in German under /de/ (for example https://cars.allo.land/de/e
 - [Car recalls](https://cars.allo.land/recalls/)
 - [New registrations by model](https://cars.allo.land/registrations/)
 - [Charger map](https://cars.allo.land/chargers/)
+- [Charging stations in numbers](https://cars.allo.land/chargers/stats/)
 - [Data and sources](https://cars.allo.land/open-data/)
 - [Imprint and privacy](https://cars.allo.land/legal/)
