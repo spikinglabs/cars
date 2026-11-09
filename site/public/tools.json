@@ -174,7 +174,7 @@
       "name": "charger_map",
       "title": "Charger map",
       "url": "https://cars.allo.land/chargers/",
-      "description": "Every public EV charger in Germany from the Bundesnetzagentur register on a map, filterable by power, plug and payment, with the closest locations to the map centre listed. All settings are URL query parameters.",
+      "description": "Every public EV charger in Germany from the Bundesnetzagentur register on a map, filterable by power, plug and payment, with the closest locations to the map centre listed. All settings are URL query parameters. Zoomed in on a place, it also says how easy living there without a wallbox is: public charge points within 1 and 3 km and the nearest fast charger (rules in https://cars.allo.land/chargers/here.js).",
       "parameters": {
         "lat": "map centre latitude",
         "lon": "map centre longitude",

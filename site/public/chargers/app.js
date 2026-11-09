@@ -7,6 +7,8 @@
      cells/<id>.json  stations of one 0.5 degree cell, id = floor(lat*2)_floor(lon*2)
      places.json      postcode and town centres for the search box
 
+   The "Can I live here without a wallbox?" card uses here.js (ChargeHere) on the stations around the map centre.
+
    Link parameters (all optional): lat, lon, z (zoom), kw (0, 11, 50, 150), plug (type2,ccs,chademo),
    only (247,card,free,public). Example: /chargers/?lat=50.94&lon=6.96&z=13&kw=150&plug=ccs */
 (() => {
@@ -27,6 +29,10 @@
     notFound: "找不到这个地点。试试邮政编码或其他拼写（地名请用德语或英语）。",
     locating: "正在获取你的位置 …", noLocate: "无法获取你的位置。请改为搜索地点。",
     you: "你在这里", stationsN: (n) => `${n.toLocaleString("zh-CN")} 个站点`,
+    hereZoom: "搜索你的街道、城市或邮编，或点“我的位置”，就能看到地图中心周围的充电情况。",
+    hereDesc: "以地图中心为准，不算仅限顾客的充电桩，不受上方筛选影响。",
+    verdict: { easy: "很方便：附近公共充电很多", ok: "可以，但要稍作规划", hard: "没有家里或公司的充电桩会比较难" },
+    p1: "1 km 内的充电点", fastNear: "最近的快充（50 kW 以上）", p3: "3 km 内的充电点", noneIn: (k) => `${k} km 内没有`,
     ask: (url, cell, f) => `我在德国给电动车找公共充电桩${f}。请使用地图 ${url} 和站点数据 ${cell}（字段名在 "fields" 中），列出附近最好的几个选择，包括功率、运营商和地址。`,
   } : de ? {
     locale: "de-DE", loading: "Lädt …", failed: "Die Daten konnten nicht geladen werden: ",
@@ -42,6 +48,10 @@
     notFound: "Ort nicht gefunden. Versuch es mit einer Postleitzahl oder einem anderen Ortsnamen.",
     locating: "Standort wird ermittelt …", noLocate: "Dein Standort ist nicht verfügbar. Such stattdessen einen Ort.",
     you: "Du bist hier", stationsN: (n) => n === 1 ? "1 Standort" : `${n.toLocaleString("de-DE")} Standorte`,
+    hereZoom: "Such deine Straße, Stadt oder Postleitzahl oder tipp auf „In meiner Nähe“, dann siehst du, wie gut man rund um die Kartenmitte laden kann.",
+    hereDesc: "Rund um die Kartenmitte, ohne Ladesäulen nur für Kunden und unabhängig von den Filtern oben.",
+    verdict: { easy: "Einfach: viele öffentliche Ladepunkte in der Nähe", ok: "Machbar, mit etwas Planung", hard: "Schwierig ohne Lademöglichkeit zu Hause oder bei der Arbeit" },
+    p1: "Ladepunkte im Umkreis von 1 km", fastNear: "nächster Schnelllader (ab 50 kW)", p3: "Ladepunkte im Umkreis von 3 km", noneIn: (k) => `keiner im Umkreis von ${k} km`,
     ask: (url, cell, f) => `Ich suche eine Ladesäule für mein E-Auto in Deutschland${f}. Bitte nutze die Karte ${url} und die Stationsdaten ${cell} (Felder stehen in "fields") und nenne mir die besten Optionen in der Nähe mit Leistung, Betreiber und Adresse.`,
   } : {
     locale: "en-GB", loading: "Loading …", failed: "Could not load data: ",
@@ -57,6 +67,10 @@
     notFound: "Place not found. Try a postcode or another spelling.",
     locating: "Finding your location …", noLocate: "Your location is not available. Search a place instead.",
     you: "You are here", stationsN: (n) => n === 1 ? "1 location" : `${n.toLocaleString("en-GB")} locations`,
+    hereZoom: "Search your street, town or postcode, or tap Near me, to see how easy charging is around the middle of the map.",
+    hereDesc: "Around the middle of the map, leaving out customer-only chargers, whatever the filters above.",
+    verdict: { easy: "Easy: plenty of public charging close by", ok: "Possible, with some planning", hard: "Hard without charging at home or at work" },
+    p1: "charge points within 1 km", fastNear: "nearest fast charger (50 kW and up)", p3: "charge points within 3 km", noneIn: (k) => `none within ${k} km`,
     ask: (url, cell, f) => `I'm looking for a public charger for my EV in Germany${f}. Please use the map ${url} and the station data ${cell} (field names are in "fields") and list the best nearby options with power, operator and address.`,
   };
   const $ = (id) => document.getElementById(id);
@@ -240,7 +254,28 @@
     }));
   }
 
+  /* ---------- can I live here without a wallbox? (here.js) ---------- */
+  const HERE_ZOOM = 12;
+  let hereToken = 0;
+  async function updateHere() {
+    const my = ++hereToken, out = $("here");
+    if (map.getZoom() < HERE_ZOOM) { $("heredesc").textContent = T.hereZoom; out.innerHTML = ""; out.className = "here"; return; }
+    const c = map.getCenter();
+    const box = { getSouth: () => c.lat - 0.05, getNorth: () => c.lat + 0.05, getWest: () => c.lng - 0.08, getEast: () => c.lng + 0.08 };
+    let lists;
+    try { lists = await Promise.all(cellsIn(box).map(loadCell)); } catch (e) { return; }
+    if (my !== hereToken) return;
+    const r = ChargeHere.summarize([].concat(...lists), c.lat, c.lng);
+    $("heredesc").textContent = T.hereDesc;
+    out.className = "here here--" + r.verdict;
+    out.innerHTML = `<p class="here__verdict">${esc(T.verdict[r.verdict])}</p><div class="ac-readouts">
+      <div class="ac-readout ac-readout--md"><span class="ac-readout__value">${num(r.points_1km)}</span><span class="ac-readout__basis">${T.p1}</span></div>
+      <div class="ac-readout ac-readout--md">${r.nearest_fast_km == null || r.nearest_fast_km > 5 ? `<span class="ac-readout__value small">${esc(T.noneIn(5))}</span>` : `<span class="ac-readout__value">${dist(r.nearest_fast_km)}</span>`}<span class="ac-readout__basis">${T.fastNear}</span></div>
+      <div class="ac-readout ac-readout--md"><span class="ac-readout__value">${num(r.points_3km)}</span><span class="ac-readout__basis">${T.p3}</span></div></div>`;
+  }
+
   function redraw() {
+    updateHere();
     const detail = map.getZoom() >= DETAIL_ZOOM;
     if (detail) { overviewLayer.clearLayers(); drawStations(); }
     else { token++; stationLayer.clearLayers(); drawn = []; drawOverview(); $("maphint").textContent = T.zoomIn; listNear(); }
