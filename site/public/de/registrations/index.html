@@ -26,6 +26,12 @@
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
 <script src="/assets/site.js?v=6247af2686"></script>
 <style>
+  #wave { display: grid; gap: 14px; min-width: 0; }
+  .wave-h { margin: 6px 0 0; font: 700 17px/22px var(--font-display); }
+  .wave-grow { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+  .wave-grow li span { color: var(--ink-muted); font-size: 14px; margin-left: 6px; }
+  .wave-grow li b { color: var(--success); }
+  #share-chart .grant { stroke: var(--ink-muted); stroke-dasharray: 4 4; }
   body { margin: 0; background: var(--surface-50); }
   main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
   h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
@@ -117,10 +123,14 @@
         </div>
       </section>
 
-      <section class="ac-card">
-        <h2 class="ac-card__title">Elektroanteil bei Neuwagen</h2>
-        <p class="ac-card__desc">Batterieelektrische Autos als Anteil aller neuen Pkw, pro Monat</p>
+      <section class="ac-card stack" id="wave">
+        <h2 class="ac-card__title">Die Elektro-Welle</h2>
+        <div class="ac-readouts" id="wave-out" aria-live="polite"></div>
+        <p class="ac-card__desc" style="margin:0">Anteil reiner E-Autos an allen neuen Pkw, pro Monat. Die gestrichelte Linie markiert den Start der E-Auto-Förderung (Januar 2026).</p>
         <div class="ac-chart" id="share-chart"></div>
+        <h3 class="wave-h">Am schnellsten wachsende E-Modelle</h3>
+        <p class="ac-caption" style="margin:0">Elektrische Neuzulassungen der letzten drei Monate gegenüber denselben Monaten ein Jahr zuvor, die meisten zusätzlichen Autos zuerst.</p>
+        <ol class="wave-grow" id="wave-grow"></ol>
       </section>
 
       <p class="ac-caption" style="margin:0"><span id="asof"></span> Neue Zahlen erscheinen etwa eine Woche nach Monatsende. Modellnamen wie in der Zulassungsstatistik. Quellen, Lizenz und Downloads: <a href="/de/open-data/#registrations">Daten und Quellen</a>.</p>
@@ -181,6 +191,7 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/registrations/app.js?v=86a993a883"></script>
+<script src="/registrations/wave.js?v=f9d5f95b13"></script>
+<script src="/registrations/app.js?v=7d1d4e86cd"></script>
 </body>
 </html>

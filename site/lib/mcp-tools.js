@@ -23,6 +23,7 @@ import Grant from "../public/ev-grant/grant.js";
 import ChargeHere from "../public/chargers/here.js";
 import Years from "../public/ev-cost/years.js";
 import Battery from "../public/recalls/battery.js";
+import Wave from "../public/registrations/wave.js";
 
 export class ToolError extends Error {}
 
@@ -284,7 +285,15 @@ async function getRegistrations(get, { model = null, months = 12 } = {}) {
   const latest = await load(get, "registrations/de/latest.json");
   const base = { month: latest.month, source: latest.source, licence: latest.licence, credit: latest.credit };
   if (!model) {
-    return { ...base, market: latest.market, top_models: latest.top_models, top_electric: latest.top_electric, page: `${SITE}/registrations/` };
+    let electric_wave = null;
+    try {
+      const lines = String(await get("registrations/de/market.csv")).trim().split(/\r?\n/);
+      const head = lines[0].split(",");
+      const rows = lines.slice(1).map((l) => Object.fromEntries(l.split(",").map((v, i) => [head[i], i ? Number(v) || 0 : v])));
+      const w = Wave.summarize(rows);
+      if (w) electric_wave = { ...w, grant_from: Wave.GRANT_FROM, note: "Battery electric (BEV) share of new passenger cars in Germany. since_grant compares the months since the E-Auto grant started with the 12 months before." };
+    } catch { electric_wave = null; }
+    return { ...base, market: latest.market, top_models: latest.top_models, top_electric: latest.top_electric, electric_wave, page: `${SITE}/registrations/` };
   }
   const models = (await load(get, "registrations/de/models.json")).models;
   const m = findReg(models, model);
@@ -849,7 +858,7 @@ export const TOOLS = [
   {
     name: "get_registrations",
     title: "New car registrations in Germany",
-    description: "Monthly new car registrations in Germany (official KBA figures since Dec 2018): one model's monthly counts with electric and plug-in hybrid splits and its rank, or, with no model, the latest month's market by drive type and the top 20 and top 10 electric models.",
+    description: "Monthly new car registrations in Germany (official KBA figures since Dec 2018): one model's monthly counts with electric and plug-in hybrid splits and its rank, or, with no model, the latest month's market by drive type, the top 20 and top 10 electric models, and the electric wave: electric share now and a year before, electric cars this year against last, and the share since the E-Auto grant started.",
     inputSchema: { type: "object", properties: {
       model: str("Make and model, e.g. 'Volvo EX30' or 'VW Golf'. Leave out for this month's top models."),
       months: int("How many recent months to return, 1-100.", { default: 12 }),

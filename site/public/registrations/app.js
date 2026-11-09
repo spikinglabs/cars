@@ -15,6 +15,8 @@
     other: "其他", change: (c) => c == null ? "新" : `${c > 0 ? "+" : ""}${c.toLocaleString("zh-CN")} %`,
     marketLine: (s) => `${month(s.month)}共有 ${num(s.market.total)} 辆新乘用车登记，其中 ${pct(s.market.share_pct.bev)} 为纯电动。`,
     asof: (m) => `最新月份：${m}。`,
+    wShare: (m) => `${m}纯电动占比`, wAgo: (v) => `一年前为 ${v}`, wYtd: (y, n) => `${y} 年前 ${n} 个月的纯电动新车`, wYtdVs: (c) => `比去年同期${c > 0 ? "多" : "少"} ${Math.abs(c).toLocaleString("zh-CN")} %`,
+    wGrant: "补贴开始以来的纯电动占比", wBefore: (v) => `之前 12 个月为 ${v}`, grant: "电动车补贴", wNew: "新的电动版本", wMore: (n) => `多 ${n} 辆`,
   } : de ? {
     locale: "de-DE", months: (n) => `${n} Monate`, failed: "Die Daten konnten nicht geladen werden: ",
     latest: (m) => `Neuzulassungen im ${m}`, rank: (r, n) => r ? `Platz ${r} von ${n} Modellen` : "nicht in der Rangliste",
@@ -25,6 +27,8 @@
     other: "Sonstige", change: (c) => c == null ? "neu" : `${c > 0 ? "+" : ""}${c.toLocaleString("de-DE")} %`,
     marketLine: (s) => `${num(s.market.total)} neue Pkw im ${month(s.month)}, ${pct(s.market.share_pct.bev)} davon elektrisch.`,
     asof: (m) => `Stand: ${m}.`,
+    wShare: (m) => `Elektroanteil im ${m}`, wAgo: (v) => `vor einem Jahr ${v}`, wYtd: (y, n) => `neue E-Autos in den ersten ${n} Monaten ${y}`, wYtdVs: (c) => `${c > 0 ? "+" : ""}${c.toLocaleString("de-DE")} % zum Vorjahr`,
+    wGrant: "Elektroanteil seit Start der Förderung", wBefore: (v) => `in den 12 Monaten davor ${v}`, grant: "E-Auto-Förderung", wNew: "neue Elektroversion", wMore: (n) => `${n} mehr`,
   } : {
     locale: "en-GB", months: (n) => `${n} months`, failed: "Could not load data: ",
     latest: (m) => `New registrations in ${m}`, rank: (r, n) => r ? `Rank ${r} of ${n} models` : "not ranked",
@@ -35,6 +39,8 @@
     other: "Other", change: (c) => c == null ? "new" : `${c > 0 ? "+" : ""}${c.toLocaleString("en-GB")} %`,
     marketLine: (s) => `${num(s.market.total)} new cars in ${month(s.month)}, ${pct(s.market.share_pct.bev)} of them electric.`,
     asof: (m) => `Latest month: ${m}.`,
+    wShare: (m) => `Electric share in ${m}`, wAgo: (v) => `a year before: ${v}`, wYtd: (y, n) => `new electric cars in the first ${n} months of ${y}`, wYtdVs: (c) => `${c > 0 ? "+" : ""}${c.toLocaleString("en-GB")} % on a year before`,
+    wGrant: "Electric share since the grant started", wBefore: (v) => `the 12 months before: ${v}`, grant: "E-Auto grant", wNew: "new electric version", wMore: (n) => `${n} more`,
   };
   const KEY = "allo-cars-registrations-model";
   const DEFAULT = "volvo-ex30";
@@ -105,6 +111,8 @@
       s += `<circle class="hit" cx="${x(i)}" cy="${y(p.bev_share)}" r="5"><title>${esc(T.tipShare(p))}</title></circle>`;
       if (p.month.endsWith("-01")) s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${p.month.slice(0, 4)}</text>`;
     });
+    const gi = window.EvWave ? pts.findIndex((p) => p.month === window.EvWave.GRANT_FROM) : -1;
+    if (gi >= 0) s += `<line class="grant" x1="${x(gi)}" x2="${x(gi)}" y1="${Tp}" y2="${H - B}"/><text x="${x(gi) - 6}" y="${Tp + 10}" text-anchor="end">${esc(T.grant)}</text>`;
     const last = pts[pts.length - 1];
     if (last) s += `<circle class="dot" cx="${x(pts.length - 1)}" cy="${y(last.bev_share)}" r="4"/><text x="${x(pts.length - 1) + 6}" y="${y(last.bev_share) + 4}" style="fill:var(--ink);font-weight:700">${pct(last.bev_share)}</text>`;
     return s + "</svg>";
@@ -139,6 +147,25 @@
     $("model-chart").innerHTML = bars(rows, T.chartModel(label(m)));
   }
 
+  // the electric wave: readouts from the market, and the fastest-growing electric models
+  function wave(market, s) {
+    const W = window.EvWave;
+    if (!W || !$("wave-out")) return;
+    const w = W.summarize(market);
+    if (!w) return;
+    const card = (v, basis, md) => `<div class="ac-readout${md ? " ac-readout--md" : ""}"><div class="ac-readout__value">${v}</div><div class="ac-readout__basis">${esc(basis)}</div></div>`;
+    let html = card(pct(w.share), T.wShare(month(w.month)) + (w.share_year_ago != null ? " · " + T.wAgo(pct(w.share_year_ago)) : ""));
+    html += card(num(w.ytd.bev), T.wYtd(w.ytd.year, w.ytd.months) + (w.ytd.change_pct != null ? " · " + T.wYtdVs(w.ytd.change_pct) : ""), true);
+    if (w.since_grant) html += card(pct(w.since_grant.share), T.wGrant + (w.since_grant.share_before != null ? " · " + T.wBefore(pct(w.since_grant.share_before)) : ""), true);
+    $("wave-out").innerHTML = html;
+    const picks = models.filter((m) => m.model !== "SONSTIGE" && (m.latest_bev || 0) >= 200).sort((a, b) => b.latest_bev - a.latest_bev).slice(0, 30);
+    Promise.all(picks.map((m) => fetch(AlloSite.data("registrations", m.file)).then((r) => r.json()).then((d) => ({ slug: m.slug, brand: m.brand, model: m.model, months: d.months })).catch(() => null)))
+      .then((series) => {
+        const g = W.growth(series.filter(Boolean), s.month, 3, 8);
+        $("wave-grow").innerHTML = g.map((r) => `<li><a href="?model=${encodeURIComponent(r.slug)}" data-slug="${esc(r.slug)}">${esc(label(r))}</a> <b>${esc(T.wMore(num(r.extra)))}</b><span>${num(r.bev_prev)} → ${num(r.bev)}${r.is_new ? " · " + esc(T.wNew) : r.change_pct != null ? " · " + esc(T.change(r.change_pct)) : ""}</span></li>`).join("");
+      });
+  }
+
   const shiftYear = (m) => `${+m.slice(0, 4) - 1}${m.slice(4)}`;
 
   async function load() {
@@ -153,6 +180,7 @@
     $("top-all").innerHTML = table(s.top_models, "total");
     $("top-ev").innerHTML = table(s.top_electric, "bev");
     $("share-chart").innerHTML = shareLine(market);
+    wave(market, s);
     const asked = new URLSearchParams(location.search).get("model");
     const start = [asked, local(KEY), DEFAULT].find((x) => x && models.some((m) => m.slug === x)) || (asked && find(models, asked)?.slug) || s.top_models[0].slug;
     await show(start, false);
