@@ -26,6 +26,14 @@ const FILES = {
     { id: "P1", models: "Polo", production: "2019", recall_code: "XX" },
     { id: "G3", type_approval: "Golf (CD1)", production: null },
   ] },
+  "ratings/public/de/ratings.json": {
+    euro_ncap: { models: [{ name: "Volkswagen Golf", make: "Volkswagen", model: "Golf", stars: 5, year: 2025, url: "https://www.euroncap.com/x/" }] },
+    green_ncap: { versions: [
+      { name: "Volkswagen Golf 2.0 TDI diesel", fuel: "diesel", stars: 3.5, year: 2026, url: "g1" },
+      { name: "VW Golf 1.5 TSI petrol", fuel: "petrol", stars: 3, year: 2021, url: "g2" },
+    ] },
+    adac_breakdowns: { calendar_year: 2024, source: "ADAC Pannenstatistik 2025", source_url: "a", registration_years: [2022, 2021], models: [{ name: "VW Golf", rates: { 2022: 2.6, 2021: 5.4 } }] },
+  },
   "fuel-prices/public/latest.json": { region: "DE", week: "2026-11-02", products: { euro_super_95: { eur_per_litre: 2.1 }, diesel: { eur_per_litre: 2.0 }, lpg: { eur_per_litre: 1.0 } } },
   "fuel-prices/public/weekly.csv": "date,euro_super_95,diesel,lpg\n2026-10-26,2.2,2.1,1.0\n2026-11-02,2.1,2.0,\n",
   "chargers/public/de/places.json": { places: [["Köln", "50667", 50.938, 6.952, 10], ["Köln", "50825", 50.95, 6.91, 30], ["Kölln", "25000", 54, 9, 1]] },
@@ -66,7 +74,7 @@ test("notifications get 202 and no body", async () => {
 test("tools/list has every tool, read-only, with a schema", async () => {
   const { body } = await post({ jsonrpc: "2.0", id: 2, method: "tools/list" });
   const names = body.result.tools.map((t) => t.name);
-  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "find_similar_cars", "get_registrations", "find_chargers"]);
+  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "find_similar_cars", "get_car_ratings", "get_registrations", "find_chargers"]);
   for (const t of body.result.tools) {
     assert.equal(t.annotations.readOnlyHint, true);
     assert.equal(t.inputSchema.type, "object");
@@ -123,6 +131,16 @@ test("rankings: cheapest per 100 km at this week's prices", async () => {
 test("rankings: bad list is a tool error", async () => {
   const r = await call("get_rankings", { list: "fastest" });
   assert.equal(r.isError, true);
+});
+test("ratings: Euro NCAP by model, Green NCAP of the same fuel, ADAC by series", async () => {
+  const r = (await call("get_car_ratings", { car: "vw-golf-petrol" })).structuredContent;
+  assert.equal(r.euro_ncap.stars, 5);
+  assert.equal(r.green_ncap.url, "g2");
+  assert.equal(r.adac_breakdowns.per_1000_cars_by_first_registration[2022], 2.6);
+  const d = (await call("get_car_ratings", { car: "vw-golf-diesel" })).structuredContent;
+  assert.equal(d.green_ncap.stars, 3.5);
+  const e = (await call("get_car_ratings", { car: "volvo-ex30" })).structuredContent;
+  assert.equal(e.euro_ncap, null);
 });
 test("consumption: bad fuel is a tool error", async () => {
   const r = await call("lookup_official_consumption", { query: "Golf", fuel: "steam" });

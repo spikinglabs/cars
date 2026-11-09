@@ -3,7 +3,7 @@
 Free car tools and open data for drivers in Germany, by Spiking Labs (part of allo.land). Tool inputs live in the URL, so a filled-in link reproduces a result. Machine-readable tool list: https://cars.allo.land/tools.json
 
 ## MCP server
-https://cars.allo.land/mcp is a read-only MCP server (streamable HTTP, no login) for AI assistants. Add it as a custom connector in Claude (Settings > Connectors) or any MCP client. Tools: lookup_official_consumption, get_recalls, check_used_car, get_recall_statistics, get_fuel_prices, get_charging_prices, get_cheapest_charging_time, compare_cars, get_rankings, find_similar_cars, get_registrations, find_chargers. Every result links to the matching page.
+https://cars.allo.land/mcp is a read-only MCP server (streamable HTTP, no login) for AI assistants. Add it as a custom connector in Claude (Settings > Connectors) or any MCP client. Tools: lookup_official_consumption, get_recalls, check_used_car, get_recall_statistics, get_fuel_prices, get_charging_prices, get_cheapest_charging_time, compare_cars, get_rankings, find_similar_cars, get_car_ratings, get_registrations, find_chargers. Every result links to the matching page.
 
 ## Tools
 - [My cars](https://cars.allo.land/cars/): one page per car model joining official consumption, cost per 100 km at today's prices, recalls matching the first registration year, German registrations, where it stands in the rankings and similar cars to compare. Link parameters: ?car=<vehicle catalog id, e.g. vw-golf-diesel>&year=<first registration year>. People keep several cars on their own device.

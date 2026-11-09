@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
 <script src="/assets/site.js?v=6247af2686"></script>
-<script src="/assets/garage.js?v=ba7aa12ff7"></script>
+<script src="/assets/garage.js?v=9f607867bf"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
   main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
@@ -52,6 +52,18 @@
   .head h2 { margin: 0; }
   .acts { display: flex; flex-wrap: wrap; gap: 8px; }
   .acts.cmp { margin-top: var(--space-3); }
+  .rrow { display: grid; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .rrow:last-of-type { border-bottom: 0; }
+  .rlabel { font: 600 13px/16px var(--font-sans); color: var(--ink-muted); }
+  .rrow small { color: var(--ink-muted); }
+  .stars { font-size: 20px; letter-spacing: 1px; color: var(--gold-ink); text-decoration: none; }
+  .stars .off { color: var(--border); }
+  .rrow a:has(.stars) { text-decoration: none; }
+  .adac { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+  .adac span { display: grid; justify-items: center; min-width: 44px; padding: 4px 6px; border-radius: 6px; background: var(--surface-50); font-variant-numeric: tabular-nums; }
+  .adac span.on { outline: 2px solid var(--gold); }
+  .adac b { font-weight: 800; }
+  .adac small { font-size: 11px; }
   .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
   .badges a { text-decoration: none; color: var(--ink); }
   .slist { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: 10px; }
@@ -189,6 +201,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/cars/app.js?v=36c6c55c62"></script>
+<script src="/cars/app.js?v=832fd48540"></script>
 </body>
 </html>

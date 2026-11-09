@@ -184,6 +184,38 @@
         .sort(function (a, b) { return a.d - b.d || (b.m.registrations || 0) - (a.m.registrations || 0); })
         .slice(0, n || 5).map(function (o) { return o.m; });
     },
+    // Ratings for a catalog model from /data/ratings/de/ratings.json: { euro, green, adac } or nulls.
+    // Euro NCAP by make and model; Green NCAP by the start of the tested version's name, preferring
+    // the same fuel, newest first; ADAC by model series, which may list several names
+    // ("BMW 2er-Reihe/2er-Reihe Active/Gran Tourer", "KIA Ceed/XCeed").
+    ratings: function (R, m) {
+      var out = { euro: null, green: null, adac: null };
+      if (!R || !m) return out;
+      var key = modelKey(m.make, m.model);
+      var e = R.euro_ncap ? R.euro_ncap.models.filter(function (x) { return modelKey(x.make, x.model) === key; }) : [];
+      out.euro = e.sort(function (a, b) { return b.year - a.year; })[0] || null;
+      var words = function (t) { return String(t || "").toLowerCase().replace(/volkswagen/g, "vw").replace(/mercedes-benz/g, "mercedes").split(/[\s]+/).map(norm).filter(Boolean); };
+      var want = words(m.make + " " + m.model), joined = want.join("");
+      var fuelKind = m.fuel === "electric" ? "electric" : /^phev/.test(m.fuel) ? "phev" : m.fuel === "diesel" ? "diesel" : "petrol";
+      var g = R.green_ncap ? R.green_ncap.versions.filter(function (v) {
+        var w = words(v.name);
+        for (var n = 1; n <= w.length; n++) { var j = w.slice(0, n).join(""); if (j === joined) return true; if (j.length >= joined.length) return false; }
+        return false;
+      }) : [];
+      out.green = g.sort(function (a, b) {
+        var fa = a.fuel === fuelKind || (fuelKind === "petrol" && a.fuel === "hybrid") ? 1 : 0, fb = b.fuel === fuelKind || (fuelKind === "petrol" && b.fuel === "hybrid") ? 1 : 0;
+        return fb - fa || b.year - a.year;
+      })[0] || null;
+      var A = R.adac_breakdowns;
+      if (A) {
+        out.adac = A.models.filter(function (x) {
+          var w = x.name.replace(/^Mercedes-Benz\s+/, "Mercedes ").replace(/\bNutzfahrzeuge\s+/, "").split(/\s+/);
+          var make = w.shift(), parts = w.join(" ").split("/");
+          return parts.some(function (p) { return modelKey(make, p.replace(/-Reihe\b/i, "").trim()) === key; });
+        })[0] || null;
+      }
+      return out;
+    },
     electric: function (fuel) { return fuel === "electric"; },
     plugIn: function (fuel) { return /^phev/.test(fuel); }
   };

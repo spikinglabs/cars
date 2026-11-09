@@ -347,9 +347,9 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
   }
   if (!picked.length) return { error: `No car model matches ${unknown.map((u) => `'${u}'`).join(", ")}. Use lookup_official_consumption to find catalog ids.` };
   const soft = (p) => get(p).catch(() => null);
-  const [fuel, charge, regs, brands] = await Promise.all([
+  const [fuel, charge, regs, brands, ratings] = await Promise.all([
     soft("fuel-prices/de/latest.json"), soft("charging-prices/de/latest.json"),
-    soft("registrations/de/models.json"), soft("recalls/eu/brands.json"),
+    soft("registrations/de/models.json"), soft("recalls/eu/brands.json"), soft("ratings/de/ratings.json"),
   ]);
   const pub = charge && charge.overall ? charge.overall.median : null;
   const brandFiles = new Map();
@@ -378,6 +378,10 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
       cost_per_year_eur: per100 == null ? null : Math.round(per100 * km / 100),
       registrations_last_12_months: r ? r.last_12_months ?? null : null, registrations_rank_latest_month: r ? r.rank ?? null : null,
       safety_gate_recalls: recalls,
+      ...(() => { const r = ratingsOf(ratings, m); return {
+        euro_ncap_stars: r.euro_ncap ? r.euro_ncap.stars : null, euro_ncap_year: r.euro_ncap ? r.euro_ncap.year : null,
+        green_ncap_stars: r.green_ncap ? r.green_ncap.stars : null, green_ncap_year: r.green_ncap ? r.green_ncap.year : null,
+        adac_breakdowns_per_1000: r.adac_breakdowns ? r.adac_breakdowns.per_1000_cars_by_first_registration : null }; })(),
       page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}`,
     });
   }
@@ -483,6 +487,47 @@ async function findSimilarCars(get, { car, limit = 5 } = {}) {
     similar: list,
     compare_page: `${SITE}/compare/?cars=${[m, ...list.slice(0, 3).map((x) => ({ id: x.catalog_id }))].map((x) => encodeURIComponent(x.id)).join(",")}`,
     rule: "Same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power, still sold new, other models only; closest first.",
+  };
+}
+
+// ---------- ratings (Euro NCAP, Green NCAP, ADAC breakdowns), as garage.js ratings() ----------
+
+function ratingsOf(R, m) {
+  const out = { euro_ncap: null, green_ncap: null, adac_breakdowns: null };
+  if (!R || !m) return out;
+  const key = modelKeyG(m.make, m.model);
+  out.euro_ncap = ((R.euro_ncap || {}).models || []).filter((x) => modelKeyG(x.make, x.model) === key).sort((a, b) => b.year - a.year)[0] || null;
+  const words = (t) => String(t || "").toLowerCase().replace(/volkswagen/g, "vw").replace(/mercedes-benz/g, "mercedes").split(/\s+/).map(normG).filter(Boolean);
+  const joined = words(`${m.make} ${m.model}`).join("");
+  const kind = m.fuel === "electric" ? "electric" : /^phev/.test(m.fuel) ? "phev" : m.fuel === "diesel" ? "diesel" : "petrol";
+  const fits = (v) => v.fuel === kind || (kind === "petrol" && v.fuel === "hybrid") ? 1 : 0;
+  out.green_ncap = ((R.green_ncap || {}).versions || []).filter((v) => {
+    const w = words(v.name);
+    for (let n = 1; n <= w.length; n++) { const j = w.slice(0, n).join(""); if (j === joined) return true; if (j.length >= joined.length) return false; }
+    return false;
+  }).sort((a, b) => fits(b) - fits(a) || b.year - a.year)[0] || null;
+  const A = R.adac_breakdowns;
+  if (A) {
+    const hit = (A.models || []).find((x) => {
+      const w = x.name.replace(/^Mercedes-Benz\s+/, "Mercedes ").replace(/\bNutzfahrzeuge\s+/, "").split(/\s+/);
+      const make = w.shift();
+      return w.join(" ").split("/").some((p) => modelKeyG(make, p.replace(/-Reihe\b/i, "").trim()) === key);
+    });
+    out.adac_breakdowns = hit ? { series: hit.name, per_1000_cars_by_first_registration: hit.rates, calendar_year: A.calendar_year, source: A.source, source_url: A.source_url } : null;
+  }
+  return out;
+}
+
+async function getCarRatings(get, { car } = {}) {
+  if (!car) throw new ToolError("Name a car model, e.g. 'Volvo EX30', or a catalog id.");
+  const cat = await load(get, "vehicle-catalog/de/models.json");
+  const m = resolveCar(cat.models || [], car);
+  if (!m) return { error: `No car model matches '${car}'. Use lookup_official_consumption to find catalog ids.` };
+  const R = await load(get, "ratings/de/ratings.json");
+  return {
+    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}` },
+    ...ratingsOf(R, m),
+    notes: "Headline facts only; follow each url for the full result. Euro NCAP tightens its tests every few years, so compare stars of similar years. Green NCAP rates one tested version. ADAC counts breakdowns its road patrol attended per 1,000 registered cars in the calendar year, by year of first registration.",
   };
 }
 
@@ -688,6 +733,13 @@ export const TOOLS = [
       limit: int("Most cars to return (1-10).", { default: 5 }),
     }, required: ["car"] },
     run: findSimilarCars,
+  },
+  {
+    name: "get_car_ratings",
+    title: "Safety, environment and breakdown ratings of a car model",
+    description: "Headline ratings of a car model with links to the full results: Euro NCAP safety stars and test year, Green NCAP environment stars of the closest tested version, and ADAC breakdowns per 1,000 cars by year of first registration (ADAC Pannenstatistik). Refreshed weekly.",
+    inputSchema: { type: "object", properties: { car: str("Make and model, e.g. 'VW Golf', or a vehicle catalog id.") }, required: ["car"] },
+    run: getCarRatings,
   },
   {
     name: "get_registrations",
