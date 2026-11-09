@@ -231,6 +231,12 @@
         setTimeout(function () { say(""); }, 4000);
       }, manual);
     });
+    // "More": the page description and the app links, closed until asked for.
+    var toggle = box.querySelector("[data-share-toggle]"), more = box.querySelector("[data-share-more]");
+    if (toggle && more) toggle.addEventListener("click", function () {
+      more.hidden = !more.hidden;
+      toggle.setAttribute("aria-expanded", more.hidden ? "false" : "true");
+    });
     // The phone's own share sheet (also in some desktop browsers), where the browser has one.
     var native = box.querySelector("[data-share-native]");
     if (native && navigator.share) {

@@ -36,8 +36,8 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=7eba08cbb5">
-<script src="/assets/site.js?v=7f0ef9c1d1"></script>
+<link rel="stylesheet" href="/assets/components/bundle.css?v=17f543275f">
+<script src="/assets/site.js?v=b92c9c36d3"></script>
 <script src="/assets/garage.js?v=9f607867bf"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
@@ -195,14 +195,19 @@
     <!-- chrome:footer -->
 <footer class="ac-foot">
   <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F" data-share-done="Link kopiert" data-share-manual="Diesen Link kopieren:">
-    <h2 id="share-h">Diese Seite teilen</h2>
-    <p class="ac-share__desc">Prüf ein Auto, neu oder gebraucht, auf offizielle Rückrufe: Marke, Modell und Jahr wählen, die Rückrufe für den Bauzeitraum sehen, was du den Verkäufer fragen solltest, und Rückruf-Statistiken nach Ursache und Marke. EU Safety Gate (mit allen KBA-Rückrufen) und NHTSA, täglich aktualisiert.</p>
     <div class="ac-share__row">
+      <h2 id="share-h">Diese Seite teilen</h2>
       <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Link kopieren</span></button>
       <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Teilen …</span></button>
-      <a href="https://wa.me/?text=R%C3%BCckrufe%20und%20Gebrauchtwagen-Check%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F&amp;text=R%C3%BCckrufe%20und%20Gebrauchtwagen-Check%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=R%C3%BCckrufe%20und%20Gebrauchtwagen-Check%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=R%C3%BCckrufe%20und%20Gebrauchtwagen-Check%20%C2%B7%20Allo%20Cars&amp;body=Pr%C3%BCf%20ein%20Auto%2C%20neu%20oder%20gebraucht%2C%20auf%20offizielle%20R%C3%BCckrufe%3A%20Marke%2C%20Modell%20und%20Jahr%20w%C3%A4hlen%2C%20die%20R%C3%BCckrufe%20f%C3%BCr%20den%20Bauzeitraum%20sehen%2C%20was%20du%20den%20Verk%C3%A4ufer%20fragen%20solltest%2C%20und%20R%C3%BCckruf-Statistiken%20nach%20Ursache%20und%20Marke.%20EU%20Safety%20Gate%20%28mit%20allen%20KBA-R%C3%BCckrufen%29%20und%20NHTSA%2C%20t%C3%A4glich%20aktualisiert.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F" data-share-link data-count="share_email">E-Mail</a>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>Mehr</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
     </div>
     <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">Prüf ein Auto, neu oder gebraucht, auf offizielle Rückrufe: Marke, Modell und Jahr wählen, die Rückrufe für den Bauzeitraum sehen, was du den Verkäufer fragen solltest, und Rückruf-Statistiken nach Ursache und Marke. EU Safety Gate (mit allen KBA-Rückrufen) und NHTSA, täglich aktualisiert.</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=R%C3%BCckrufe%20und%20Gebrauchtwagen-Check%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F&amp;text=R%C3%BCckrufe%20und%20Gebrauchtwagen-Check%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=R%C3%BCckrufe%20und%20Gebrauchtwagen-Check%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=R%C3%BCckrufe%20und%20Gebrauchtwagen-Check%20%C2%B7%20Allo%20Cars&amp;body=Pr%C3%BCf%20ein%20Auto%2C%20neu%20oder%20gebraucht%2C%20auf%20offizielle%20R%C3%BCckrufe%3A%20Marke%2C%20Modell%20und%20Jahr%20w%C3%A4hlen%2C%20die%20R%C3%BCckrufe%20f%C3%BCr%20den%20Bauzeitraum%20sehen%2C%20was%20du%20den%20Verk%C3%A4ufer%20fragen%20solltest%2C%20und%20R%C3%BCckruf-Statistiken%20nach%20Ursache%20und%20Marke.%20EU%20Safety%20Gate%20%28mit%20allen%20KBA-R%C3%BCckrufen%29%20und%20NHTSA%2C%20t%C3%A4glich%20aktualisiert.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fde%2Frecalls%2F" data-share-link data-count="share_email">E-Mail</a>
+      </div>
+    </div>
   </section>
   <p class="ac-foot__links"><a href="/de/electric/">E-Auto kaufen</a> · <a href="/de/cars/">Meine Autos</a> · <a href="/de/ev-grant/">E-Auto-Förderung</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/rankings/">Ranglisten</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>

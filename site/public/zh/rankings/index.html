@@ -34,8 +34,8 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=7eba08cbb5">
-<script src="/assets/site.js?v=7f0ef9c1d1"></script>
+<link rel="stylesheet" href="/assets/components/bundle.css?v=17f543275f">
+<script src="/assets/site.js?v=b92c9c36d3"></script>
 <script src="/assets/garage.js?v=9f607867bf"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
@@ -115,14 +115,20 @@
     <!-- chrome:footer -->
 <footer class="ac-foot">
   <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Fzh%2Frankings%2F" data-share-done="链接已复制" data-share-manual="复制这个链接：">
-    <h2 id="share-h">分享这个页面</h2>
-    <p class="ac-share__desc">基于官方数据的德国汽车排行榜：近 12 个月和本月销量榜、电动车销量榜、最省电的电动车、按本周价格每 100 公里最省钱的车，以及召回最少的品牌。</p>
     <div class="ac-share__row">
+      <h2 id="share-h">分享这个页面</h2>
       <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>复制链接</span></button>
       <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>分享…</span></button>
-      <a href="https://wa.me/?text=%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fzh%2Frankings%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Frankings%2F&amp;title=%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_weibo">微博</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Frankings%2F&amp;text=%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="mailto:?subject=%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%20%C2%B7%20Allo%20Cars&amp;body=%E5%9F%BA%E4%BA%8E%E5%AE%98%E6%96%B9%E6%95%B0%E6%8D%AE%E7%9A%84%E5%BE%B7%E5%9B%BD%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%9A%E8%BF%91%2012%20%E4%B8%AA%E6%9C%88%E5%92%8C%E6%9C%AC%E6%9C%88%E9%94%80%E9%87%8F%E6%A6%9C%E3%80%81%E7%94%B5%E5%8A%A8%E8%BD%A6%E9%94%80%E9%87%8F%E6%A6%9C%E3%80%81%E6%9C%80%E7%9C%81%E7%94%B5%E7%9A%84%E7%94%B5%E5%8A%A8%E8%BD%A6%E3%80%81%E6%8C%89%E6%9C%AC%E5%91%A8%E4%BB%B7%E6%A0%BC%E6%AF%8F%20100%20%E5%85%AC%E9%87%8C%E6%9C%80%E7%9C%81%E9%92%B1%E7%9A%84%E8%BD%A6%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%8F%AC%E5%9B%9E%E6%9C%80%E5%B0%91%E7%9A%84%E5%93%81%E7%89%8C%E3%80%82%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fzh%2Frankings%2F" data-share-link data-count="share_email">邮件</a>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>更多</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
     </div>
-    <p class="ac-share__note">分享到微信：复制链接后粘贴到聊天里，或在手机上点“分享…”。</p><p class="ac-share__status" data-share-status role="status"></p>
+    <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">基于官方数据的德国汽车排行榜：近 12 个月和本月销量榜、电动车销量榜、最省电的电动车、按本周价格每 100 公里最省钱的车，以及召回最少的品牌。</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fzh%2Frankings%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Frankings%2F&amp;title=%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_weibo">微博</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Frankings%2F&amp;text=%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="mailto:?subject=%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%20%C2%B7%20Allo%20Cars&amp;body=%E5%9F%BA%E4%BA%8E%E5%AE%98%E6%96%B9%E6%95%B0%E6%8D%AE%E7%9A%84%E5%BE%B7%E5%9B%BD%E6%B1%BD%E8%BD%A6%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%9A%E8%BF%91%2012%20%E4%B8%AA%E6%9C%88%E5%92%8C%E6%9C%AC%E6%9C%88%E9%94%80%E9%87%8F%E6%A6%9C%E3%80%81%E7%94%B5%E5%8A%A8%E8%BD%A6%E9%94%80%E9%87%8F%E6%A6%9C%E3%80%81%E6%9C%80%E7%9C%81%E7%94%B5%E7%9A%84%E7%94%B5%E5%8A%A8%E8%BD%A6%E3%80%81%E6%8C%89%E6%9C%AC%E5%91%A8%E4%BB%B7%E6%A0%BC%E6%AF%8F%20100%20%E5%85%AC%E9%87%8C%E6%9C%80%E7%9C%81%E9%92%B1%E7%9A%84%E8%BD%A6%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%8F%AC%E5%9B%9E%E6%9C%80%E5%B0%91%E7%9A%84%E5%93%81%E7%89%8C%E3%80%82%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fzh%2Frankings%2F" data-share-link data-count="share_email">邮件</a>
+      </div>
+      <p class="ac-share__note">分享到微信：复制链接后粘贴到聊天里，或在手机上点“分享…”。</p>
+    </div>
   </section>
   <p class="ac-foot__links"><a href="/zh/electric/">买电动车</a> · <a href="/zh/cars/">我的车</a> · <a href="/zh/ev-grant/">电动车补贴</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/rankings/">排行榜</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
   <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>

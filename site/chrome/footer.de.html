@@ -1,13 +1,18 @@
 <footer class="ac-foot">
   <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="{{share_url}}" data-share-done="Link kopiert" data-share-manual="Diesen Link kopieren:">
-    <h2 id="share-h">Diese Seite teilen</h2>
-    <p class="ac-share__desc">{{share_desc}}</p>
     <div class="ac-share__row">
+      <h2 id="share-h">Diese Seite teilen</h2>
       <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Link kopieren</span></button>
       <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Teilen …</span></button>
-      <a href="https://wa.me/?text={{share_title}}%20{{share_url}}" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url={{share_url}}&amp;text={{share_title}}" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text={{share_title}}&amp;url={{share_url}}" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u={{share_url}}" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject={{share_title}}&amp;body={{share_text}}%0A%0A{{share_url}}" data-share-link data-count="share_email">E-Mail</a>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>Mehr</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
     </div>
     <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">{{share_desc}}</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text={{share_title}}%20{{share_url}}" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url={{share_url}}&amp;text={{share_title}}" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text={{share_title}}&amp;url={{share_url}}" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u={{share_url}}" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject={{share_title}}&amp;body={{share_text}}%0A%0A{{share_url}}" data-share-link data-count="share_email">E-Mail</a>
+      </div>
+    </div>
   </section>
   <p class="ac-foot__links"><a href="/de/electric/">E-Auto kaufen</a> · <a href="/de/cars/">Meine Autos</a> · <a href="/de/ev-grant/">E-Auto-Förderung</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/rankings/">Ranglisten</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>

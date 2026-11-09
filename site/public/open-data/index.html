@@ -34,8 +34,8 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=7eba08cbb5">
-<script src="/assets/site.js?v=7f0ef9c1d1"></script>
+<link rel="stylesheet" href="/assets/components/bundle.css?v=17f543275f">
+<script src="/assets/site.js?v=b92c9c36d3"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
   .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
@@ -227,14 +227,19 @@
 <!-- chrome:footer -->
 <footer class="ac-foot">
   <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Fopen-data%2F" data-share-done="Link copied" data-share-manual="Copy this link:">
-    <h2 id="share-h">Share this page</h2>
-    <p class="ac-share__desc">Where Allo Cars gets its numbers, the open data files you can download, and how to use the tools from an AI assistant.</p>
     <div class="ac-share__row">
+      <h2 id="share-h">Share this page</h2>
       <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Copy link</span></button>
       <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Share…</span></button>
-      <a href="https://wa.me/?text=Data%20and%20sources%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fopen-data%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fopen-data%2F&amp;text=Data%20and%20sources%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Data%20and%20sources%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fopen-data%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fopen-data%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Data%20and%20sources%20%C2%B7%20Allo%20Cars&amp;body=Where%20Allo%20Cars%20gets%20its%20numbers%2C%20the%20open%20data%20files%20you%20can%20download%2C%20and%20how%20to%20use%20the%20tools%20from%20an%20AI%20assistant.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fopen-data%2F" data-share-link data-count="share_email">Email</a>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>More</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
     </div>
     <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">Where Allo Cars gets its numbers, the open data files you can download, and how to use the tools from an AI assistant.</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=Data%20and%20sources%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fopen-data%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fopen-data%2F&amp;text=Data%20and%20sources%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Data%20and%20sources%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fopen-data%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fopen-data%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Data%20and%20sources%20%C2%B7%20Allo%20Cars&amp;body=Where%20Allo%20Cars%20gets%20its%20numbers%2C%20the%20open%20data%20files%20you%20can%20download%2C%20and%20how%20to%20use%20the%20tools%20from%20an%20AI%20assistant.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fopen-data%2F" data-share-link data-count="share_email">Email</a>
+      </div>
+    </div>
   </section>
   <p class="ac-foot__links"><a href="/electric/">Buying electric</a> · <a href="/cars/">My cars</a> · <a href="/ev-grant/">EV grant</a> · <a href="/compare/">Compare cars</a> · <a href="/rankings/">Car rankings</a> · <a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
