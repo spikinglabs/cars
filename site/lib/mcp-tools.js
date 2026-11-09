@@ -22,6 +22,7 @@ const FLAGS = { open_24_7: 1, free: 2, card_payment: 4, customers_only: 8, plug_
 import Grant from "../public/ev-grant/grant.js";
 import ChargeHere from "../public/chargers/here.js";
 import Years from "../public/ev-cost/years.js";
+import Battery from "../public/recalls/battery.js";
 
 export class ToolError extends Error {}
 
@@ -145,7 +146,7 @@ function brandOf(text, brands) {
   return [find(brands, text, "brand"), ""];
 }
 
-async function checkUsedCar(get, { make, model = null, year = null, limit = 20 } = {}) {
+async function checkUsedCar(get, { make, model = null, year = null, km = null, limit = 20 } = {}) {
   if (!make) throw new ToolError("Name the brand, e.g. 'Volkswagen', or brand and model.");
   year = year ? Math.trunc(Number(year)) || null : null;
   const brands = (await load(get, "recalls/eu/brands.json")).brands;
@@ -180,6 +181,15 @@ async function checkUsedCar(get, { make, model = null, year = null, limit = 20 }
     recall_codes: [...new Set(hits.map((a) => a.recall_code).filter(Boolean))].sort(),
     eu: hits.slice(0, clamp(limit, 1, 100, 20)), us_campaigns: us === null ? null : us.length, us: (us || []).slice(0, clamp(limit, 1, 100, 20)),
     ask_the_seller: ask,
+    high_voltage_battery_recalls: hits.filter((a) => a.component === "hv_battery").length,
+    battery_warranty: (() => {
+      const c = Battery.cover(b.slug, year, km, new Date().getUTCFullYear());
+      if (!c.warranty) return null;
+      const w = c.warranty;
+      return { years: w.years, km: w.km, min_capacity_pct: w.soh, note: w.note ? Battery.NOTES[w.note] : undefined, covered_now: c.covered, until_year: c.until_year, km_left: c.km_left,
+        applies_to: "electric cars and plug-in hybrids' high-voltage battery; passes to the next owner", terms_as_of: Battery.AS_OF };
+    })(),
+    ask_about_an_electric_car: "Battery health (SoH) certificate or an independent battery test; how it was charged (mostly AC at home is gentlest); range on a full charge vs the official WLTP range; onboard AC charger and DC speed of the version; Type 2 cable included.",
     note: "Build window: a car is usually built in the year of first registration or the year before; alerts without production dates are kept. Whether this car is affected, and whether it was fixed, depends on its VIN.",
   };
 }
@@ -756,11 +766,12 @@ export const TOOLS = [
   {
     name: "check_used_car",
     title: "Recall check for a used car",
-    description: "Check a used car before buying: EU Safety Gate recalls (every KBA recall included) for the brand and model whose production dates cover a car first registered in `year`, the recall codes to ask the seller about, US NHTSA campaigns where available, and what to ask the seller or a garage. Refreshed daily.",
+    description: "Check a used car before buying: EU Safety Gate recalls (every KBA recall included) for the brand and model whose production dates cover a car first registered in `year`, the recall codes to ask the seller about, US NHTSA campaigns where available, what to ask the seller or a garage, and for electric cars the high-voltage battery recalls and whether the maker's battery warranty still covers the car. Refreshed daily.",
     inputSchema: { type: "object", properties: {
       make: str("Brand, e.g. 'Volkswagen', or brand and model, e.g. 'VW Golf'."),
       model: str("Model as written by the maker, e.g. 'Golf', 'ID.4', 'X5'."),
       year: int("Year the car was first registered (Erstzulassung)."),
+      km: num("Kilometres on the clock, for the battery warranty check of an electric car."),
       limit: int("Most alerts to return.", { default: 20 }),
     }, required: ["make"] },
     run: checkUsedCar,

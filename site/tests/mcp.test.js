@@ -166,6 +166,15 @@ test("used-car check keeps the build window and undated alerts, and asks about f
   assert.ok(r.ask_the_seller.some((q) => q.startsWith("Fire risk")));
   assert.equal(r.page, "https://cars.allo.land/recalls/?brand=volkswagen&model=golf&year=2019");
 });
+test("used-car check gives the battery warranty left", async () => {
+  const r = (await call("check_used_car", { make: "VW", model: "Golf", year: 2019, km: 150000 })).structuredContent;
+  assert.equal(r.battery_warranty.years, 8);
+  assert.equal(r.battery_warranty.until_year, 2027);
+  assert.equal(r.battery_warranty.km_left, 10000);
+  assert.equal(r.high_voltage_battery_recalls, 0);
+  const old = (await call("check_used_car", { make: "VW", year: 2010 })).structuredContent;
+  assert.equal(old.battery_warranty.covered_now, false);
+});
 test("fuel prices pick one fuel and the last weeks", async () => {
   const r = (await call("get_fuel_prices", { fuel: "lpg", weeks: 1 })).structuredContent;
   assert.deepEqual(Object.keys(r.products), ["lpg"]);

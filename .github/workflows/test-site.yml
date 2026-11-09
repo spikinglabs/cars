@@ -24,6 +24,8 @@ jobs:
         run: node --test site/tests/grant.test.js
       - name: Cost over the years tests
         run: node --test site/tests/years.test.js
+      - name: Used EV battery tests
+        run: node --test site/tests/battery.test.js
       - name: Charging near home tests
         run: node --test site/tests/here.test.js
       - name: Data function tests
