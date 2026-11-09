@@ -377,6 +377,7 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
     out.push({
       id: m.id, name: m.name, fuel: m.fuel, years_sold_new: m.years || null,
       kwh_per_100km: m.kwh_per_100km ?? null, l_per_100km: m.l_per_100km ?? null, co2_g_km: m.co2_g_km ?? null,
+      electric_range_km: m.range_km ?? null,
       power_kw: m.power_kw ?? null, mass_kg: m.mass_kg ?? null,
       cost_per_100km_eur: r2(per100), cost_per_100km_public_charging_eur: r2(per100Public),
       cost_per_year_eur: per100 == null ? null : Math.round(per100 * km / 100),
@@ -653,9 +654,10 @@ async function checkEvGrant(get, { drive = "bev", income = null, children = 0, c
     const hits = (data.models || []).filter((m) => /^phev/.test(m.fuel) && words.every((w) => (normC(m.name) + normC(m.id)).includes(w)))
       .sort((a, b) => (b.registrations || 0) - (a.registrations || 0));
     if (hits.length) {
-      model = { id: hits[0].id, name: hits[0].name, co2_g_km: hits[0].co2_g_km, year: hits[0].year,
+      model = { id: hits[0].id, name: hits[0].name, co2_g_km: hits[0].co2_g_km, electric_range_km: hits[0].range_km ?? null, year: hits[0].year,
         note: "Official WLTP average over the versions registered in Germany (EEA). The exact version's certificate of conformity decides." };
       co2_g_km = hits[0].co2_g_km;
+      if (electric_range_km == null && hits[0].range_km != null) electric_range_km = hits[0].range_km;
     }
   }
   const r = Grant.compute({ drive, income, kids: children, co2: co2_g_km, range_km: electric_range_km, reg: first_registration });
@@ -666,7 +668,7 @@ async function checkEvGrant(get, { drive = "bev", income = null, children = 0, c
   if (first_registration) q.set("reg", first_registration);
   if (model) q.set("car", model.id);
   else if (drive === "phev" && co2_g_km != null) q.set("co2", co2_g_km);
-  if (drive === "phev" && electric_range_km != null) q.set("range", electric_range_km);
+  if (drive === "phev" && electric_range_km != null && !(model && model.electric_range_km === electric_range_km)) q.set("range", electric_range_km);
   const R = Grant.RULES;
   const why = {
     income_over_cap: `Taxable household income above the limit of ${r.cap} EUR (80,000 plus 5,000 per child under 18, up to two).`,

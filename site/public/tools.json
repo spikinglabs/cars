@@ -57,7 +57,7 @@
       "name": "compare_cars",
       "title": "Compare car models side by side",
       "url": "https://cars.allo.land/compare/",
-      "description": "Up to four car models side by side: official WLTP consumption, CO2, power, mass and power per tonne (EEA catalog), cost per 100 km and per year at this week's German fuel price or charging prices, new registrations in Germany in the last 12 months and the latest rank (KBA), EU Safety Gate recalls that name each model, Euro NCAP and Green NCAP stars, and ADAC breakdowns per 1,000 cars. Rows that are the same can be hidden; the best value per row is marked.",
+      "description": "Up to four car models side by side: official WLTP consumption, CO2, electric range, power, mass and power per tonne (EEA catalog), cost per 100 km and per year at this week's German fuel price or charging prices, new registrations in Germany in the last 12 months and the latest rank (KBA), EU Safety Gate recalls that name each model, Euro NCAP and Green NCAP stars, and ADAC breakdowns per 1,000 cars. Rows that are the same can be hidden; the best value per row is marked.",
       "parameters": {
         "cars": "comma-separated vehicle catalog ids (id field of https://cars.allo.land/data/vehicle-catalog/de/models.json), 2 to 4",
         "km": "kilometres per year for the yearly cost (default 15000)",
@@ -219,7 +219,7 @@
       "name": "vehicle_catalog",
       "title": "Official consumption per car model",
       "url": "https://cars.allo.land/open-data/#vehicle-catalog",
-      "description": "Official WLTP consumption (kWh/100 km at the plug, L/100 km), CO2, power and mass for every car model and fuel type newly registered in Germany or the EU-27, averaged over the versions sold, with registration counts. From the EEA CO2 monitoring of new cars, refreshed monthly.",
+      "description": "Official WLTP consumption (kWh/100 km at the plug, L/100 km), CO2, electric range, power and mass for every car model and fuel type newly registered in Germany or the EU-27, averaged over the versions sold, with registration counts. From the EEA CO2 monitoring of new cars, refreshed monthly.",
       "data": {
         "models": "https://cars.allo.land/data/vehicle-catalog/de/models.json",
         "models_csv": "https://cars.allo.land/data/vehicle-catalog/de/models.csv",

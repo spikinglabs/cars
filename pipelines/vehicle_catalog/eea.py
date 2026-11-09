@@ -30,6 +30,7 @@ Z = "[Z (Wh/km)]"
 CO2 = "[Ewltp (g/km)]"
 POWER = "[Ep (KW)]"
 MASS = "[M (kg)]"
+RANGE = "Zr"  # electric range in km (WLTP), for electric cars and plug-in hybrids
 
 
 def query(sql: str, *, rows: int = 20000, page: int = 1, timeout: float = 300, retries: int = 4) -> list[dict]:
@@ -85,7 +86,7 @@ def find_table(year: int, *, newest_version: int = 45, oldest_version: int = 5, 
     raise LookupError(f"no co2cars table for {year}")
 
 
-FIGURES = {"z": Z, "fc": "Fc", "co2": CO2, "kw": POWER, "kg": MASS}
+FIGURES = {"z": Z, "fc": "Fc", "co2": CO2, "kw": POWER, "kg": MASS, "er": RANGE}
 
 
 def aggregate_sql(table: str) -> str:

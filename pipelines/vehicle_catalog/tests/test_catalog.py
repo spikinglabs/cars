@@ -6,23 +6,23 @@ from pipelines.charging_prices.storage import LocalStore
 from pipelines.vehicle_catalog import catalog, collect, eea
 
 
-def row(ms, mk, cn, ft, n, z=None, fc=None, co2=None):
+def row(ms, mk, cn, ft, n, z=None, fc=None, co2=None, er=None):
     r = {"ms": ms, "mk": mk, "cn": cn, "ft": ft, "n": n}
-    for key, val in (("z", z), ("fc", fc), ("co2", co2), ("kw", 100), ("kg", 1800)):
+    for key, val in (("z", z), ("fc", fc), ("co2", co2), ("kw", 100), ("kg", 1800), ("er", er)):
         r[f"{key}_sum"] = val * n if val is not None else None
         r[f"{key}_n"] = n if val is not None else 0
     return r
 
 
 ROWS = [
-    row("DE", "VOLVO", "EX30", "electric", 300, z=170),
-    row("DE", "VOLVO", "VOLVO EX30 TWIN", "electric", 100, z=190),
+    row("DE", "VOLVO", "EX30", "electric", 300, z=170, er=470),
+    row("DE", "VOLVO", "VOLVO EX30 TWIN", "electric", 100, z=190, er=450),
     row("FR", "VOLVO", "EX30", "electric", 1000, z=160),
     row("NO", "VOLVO", "EX30", "electric", 5000, z=150),
     row("DE", "VOLKSWAGEN, VW", "ID.3 PRO 150KW", "electric", 50, z=None),
     row("FR", "VOLKSWAGEN", "ID.3 PURE", "electric", 50, z=150),
     row("DE", "VOLKSWAGEN-VW", "GOLF 1.5 ETSI", "petrol", 80, fc=5.5, co2=125),
-    row("DE", "VOLKSWAGEN", "TIGUAN EHYBRID", "petrol/electric", 40, z=175, fc=0.5, co2=12),
+    row("DE", "VOLKSWAGEN", "TIGUAN EHYBRID", "petrol/electric", 40, z=175, fc=0.5, co2=12, er=120),
     row("DE", "TOYOTA", "TOYOTA YARIS", "unknown", 999, fc=4),
     row("DE", "", "NO MAKE", "petrol", 999, fc=4),
 ]
@@ -91,7 +91,13 @@ class Build(unittest.TestCase):
 
     def test_electric_compact(self):
         ev = catalog.electric(catalog.build(self.rows, "de", min_registrations=1))
-        self.assertEqual(ev[0], ["volvo-ex30", "Volvo EX30", 17.5, 17.0, 19.0, 400])
+        self.assertEqual(ev[0], ["volvo-ex30", "Volvo EX30", 17.5, 17.0, 19.0, 400, 465])
+
+    def test_electric_range(self):
+        by_id = {m["id"]: m for m in catalog.build(self.rows, "de", min_registrations=1)}
+        self.assertEqual((by_id["volvo-ex30"]["range_km"], by_id["volvo-ex30"]["range_span"]), (465, [450, 470]))
+        self.assertIsNone(by_id["vw-golf-petrol"]["range_km"])
+        self.assertEqual(by_id["vw-tiguan-phev-petrol"]["range_km"], 120)
 
 
 class Merge(unittest.TestCase):
@@ -179,7 +185,8 @@ class Publish(unittest.TestCase):
             store = LocalStore(tmp)
             found, fetched = [], []
             find = lambda y: found.append(y) or {2023: "co2cars_2023Fv27", 2024: "co2cars_2024Pv29"}[y]
-            fetch = lambda sql: fetched.append(sql) or [{}] * 1000
+            full = {f"{f}_n": 0 for f in eea.FIGURES}
+            fetch = lambda sql: fetched.append(sql) or [full] * 1000
             collect.FIRST_YEAR, first = 2023, collect.FIRST_YEAR
             try:
                 self.assertEqual([y for y, _ in collect.older_years(store, 2025, find, fetch)], [2023, 2024])
@@ -189,6 +196,14 @@ class Publish(unittest.TestCase):
                 collect.FIRST_YEAR = first
             self.assertEqual(found, [2023, 2024, 2024])  # the provisional year is looked up again
             self.assertEqual(len(fetched), 2)  # rows come from raw/ the second time
+            # rows stored before a figure was added are fetched once more
+            store.put("raw/eea-co2-cars/co2cars_2023Fv27.json", json.dumps([{"z_n": 0}] * 1000).encode(), "application/json")
+            collect.FIRST_YEAR = 2023
+            try:
+                collect.older_years(store, 2025, find, fetch)
+            finally:
+                collect.FIRST_YEAR = first
+            self.assertEqual(len(fetched), 3)
 
 
 if __name__ == "__main__":
