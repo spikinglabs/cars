@@ -50,6 +50,16 @@
   .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
   .dot { fill: var(--car-2); }
   .hit { fill: transparent; }
+  .pk-chip i, .cmp .sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 2px; flex: none; }
+  .cmp .sw { margin-right: 8px; vertical-align: baseline; }
+  #picked { margin: calc(-1 * var(--space-2)) 0 var(--space-4); }
+  #pick-note { margin: 0 0 var(--space-3); }
+  #modelseg { margin-bottom: var(--space-3); }
+  #picked[hidden], #modelseg[hidden], #model-legend[hidden] { display: none; }
+  .cmp-line { fill: none; stroke-width: 2.25; stroke-linejoin: round; }
+  .combo__list li.is-picked { background: var(--surface-200); }
+  .combo__list li.combo__more { justify-content: center; color: var(--ink); text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
+  @media (max-width: 520px) { .ac-table.cmp .rk { display: none; } }
   .grid { stroke: var(--chart-grid); }
   .ac-table { width: 100%; }
   .ac-table a { color: var(--ink); }
@@ -89,7 +99,7 @@
 <!-- /chrome:header -->
 
     <h1>Which cars are <span class="ac-hl">new on German roads</span>?</h1>
-    <p class="lead">Official monthly new registrations of every car model in Germany since 2019. Pick a model to see how many are registered each month and how many of them are electric. <span id="market-line"></span></p>
+    <p class="lead">Official monthly new registrations of every car model in Germany since 2019. Pick one model to see how many are registered each month and how many of them are electric, or several to compare them. <span id="market-line"></span></p>
 
     <div class="stack">
       <section class="ac-card">
@@ -98,11 +108,14 @@
             <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-list" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="Make and model, e.g. Volvo EX30" aria-label="Make and model">
             <ul id="q-list" class="combo__list" role="listbox" aria-label="Make and model" hidden></ul>
           </div>
-          <button class="ac-btn ac-btn--primary" type="submit">Show</button>
+          <button class="ac-btn ac-btn--primary" type="submit">Add</button>
         </form>
+        <div class="ac-chips" id="picked" aria-live="polite" hidden></div>
+        <p class="ac-caption" id="pick-note" role="status" hidden></p>
         <h2 class="ac-card__title" id="model-title">…</h2>
         <div id="model-out"><div class="ac-readouts"><div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">Loading</div></div></div></div>
-        <div class="ac-legend"><span><i style="border-color:var(--car-2);border-top-width:8px"></i>Electric (BEV)</span><span><i style="border-color:var(--fuel);border-top-width:8px;opacity:.55"></i>Petrol, diesel and hybrid</span></div>
+        <div class="ac-seg" id="modelseg" role="group" aria-label="Which registrations" hidden><button type="button" data-view="total" aria-pressed="true">All new cars</button><button type="button" data-view="bev" aria-pressed="false">Electric only</button></div>
+        <div class="ac-legend" id="model-legend"><span><i style="border-color:var(--car-2);border-top-width:8px"></i>Electric (BEV)</span><span><i style="border-color:var(--fuel);border-top-width:8px;opacity:.55"></i>Petrol, diesel and hybrid</span></div>
         <div class="ac-chart" id="model-chart"></div>
       </section>
 
@@ -192,6 +205,6 @@
   </main>
 </div>
 <script src="/registrations/wave.js?v=f9d5f95b13"></script>
-<script src="/registrations/app.js?v=7d1d4e86cd"></script>
+<script src="/registrations/app.js?v=82de6c6feb"></script>
 </body>
 </html>

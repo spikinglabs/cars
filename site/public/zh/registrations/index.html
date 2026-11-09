@@ -50,6 +50,16 @@
   .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
   .dot { fill: var(--car-2); }
   .hit { fill: transparent; }
+  .pk-chip i, .cmp .sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 2px; flex: none; }
+  .cmp .sw { margin-right: 8px; vertical-align: baseline; }
+  #picked { margin: calc(-1 * var(--space-2)) 0 var(--space-4); }
+  #pick-note { margin: 0 0 var(--space-3); }
+  #modelseg { margin-bottom: var(--space-3); }
+  #picked[hidden], #modelseg[hidden], #model-legend[hidden] { display: none; }
+  .cmp-line { fill: none; stroke-width: 2.25; stroke-linejoin: round; }
+  .combo__list li.is-picked { background: var(--surface-200); }
+  .combo__list li.combo__more { justify-content: center; color: var(--ink); text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
+  @media (max-width: 520px) { .ac-table.cmp .rk { display: none; } }
   .grid { stroke: var(--chart-grid); }
   .ac-table { width: 100%; }
   .ac-table a { color: var(--ink); }
@@ -89,7 +99,7 @@
 <!-- /chrome:header -->
 
     <h1>德国路上有哪些<span class="ac-hl">新车</span>？</h1>
-    <p class="lead">2019 年以来德国每款车型的官方每月新车登记量。选择一款车型，查看每月登记了多少辆，其中多少是电动车。<span id="market-line"></span></p>
+    <p class="lead">2019 年以来德国每款车型的官方每月新车登记量。选择一款车型，查看每月登记了多少辆，其中多少是电动车；也可以选择多款车型进行对比。<span id="market-line"></span></p>
 
     <div class="stack">
       <section class="ac-card">
@@ -98,11 +108,14 @@
             <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-list" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="品牌和车型，例如 Volvo EX30" aria-label="品牌和车型">
             <ul id="q-list" class="combo__list" role="listbox" aria-label="品牌和车型" hidden></ul>
           </div>
-          <button class="ac-btn ac-btn--primary" type="submit">显示</button>
+          <button class="ac-btn ac-btn--primary" type="submit">添加</button>
         </form>
+        <div class="ac-chips" id="picked" aria-live="polite" hidden></div>
+        <p class="ac-caption" id="pick-note" role="status" hidden></p>
         <h2 class="ac-card__title" id="model-title">…</h2>
         <div id="model-out"><div class="ac-readouts"><div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">加载中</div></div></div></div>
-        <div class="ac-legend"><span><i style="border-color:var(--car-2);border-top-width:8px"></i>纯电动 (BEV)</span><span><i style="border-color:var(--fuel);border-top-width:8px;opacity:.55"></i>汽油、柴油和混动</span></div>
+        <div class="ac-seg" id="modelseg" role="group" aria-label="哪些登记" hidden><button type="button" data-view="total" aria-pressed="true">全部新车</button><button type="button" data-view="bev" aria-pressed="false">仅纯电动</button></div>
+        <div class="ac-legend" id="model-legend"><span><i style="border-color:var(--car-2);border-top-width:8px"></i>纯电动 (BEV)</span><span><i style="border-color:var(--fuel);border-top-width:8px;opacity:.55"></i>汽油、柴油和混动</span></div>
         <div class="ac-chart" id="model-chart"></div>
       </section>
 
@@ -192,6 +205,6 @@
   </main>
 </div>
 <script src="/registrations/wave.js?v=f9d5f95b13"></script>
-<script src="/registrations/app.js?v=7d1d4e86cd"></script>
+<script src="/registrations/app.js?v=82de6c6feb"></script>
 </body>
 </html>
