@@ -10,6 +10,12 @@ numbers removed), client name and version from `initialize`, the first User-Agen
 whether it failed. No IP address, no session or user ID, nothing from the answer. Nothing under `mcp-usage/` is
 served on the web (only `<project>/public/` is).
 
+**Admin page.** On cars.allo.land the function also adds daily counts per country to the shared Allo usage
+counter (monitoring.admin.allo.land, site "Allo Cars connector (MCP)"): `session` per `initialize`,
+`tool_<name>` per tool call, `error` per failure. It goes through the service binding `COUNT` in
+`site/wrangler.toml` to the `Counter` entrypoint of the `allo-count` Worker (spikinglabs/alloland-rebirth,
+`workers/count`); that Worker must be deployed with the entrypoint before this binding is.
+
 **Rollup.** `.github/workflows/rollup-mcp-usage.yml` runs daily at 00:40 UTC:
 
 - `mcp-usage/derived/daily/<day>.ndjson`: every line of the day, sorted by time (production and previews, field `site`)
