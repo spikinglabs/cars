@@ -290,6 +290,247 @@ async function getRegistrations(get, { model = null, months = 12 } = {}) {
   };
 }
 
+// ---------- compare cars (the /compare/ page) ----------
+// Same rules as site/public/assets/garage.js and compare/app.js, so the tool and the page agree.
+
+const HOME_PRICE = 0.35, LOSS = 1.1;
+const FUEL_PRODUCT = { petrol: "euro_super_95", diesel: "diesel", lpg: "lpg", "phev-petrol": "euro_super_95", "phev-diesel": "diesel" };
+const normG = (s) => String(s || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]/g, "");
+const BRAND_G = { volkswagen: "vw", mercedesbenz: "mercedes", mercedesamg: "mercedes" };
+const brandKeyG = (b) => { b = normG(b); return BRAND_G[b] || b; };
+function modelKeyG(make, model) {
+  const b = brandKeyG(make);
+  let m = normG(model);
+  for (const p of [normG(make), b]) if (p && m.startsWith(p) && m.length > p.length) m = m.slice(p.length);
+  m = m.replace(/^(\d)series$/, "$1er").replace(/^(\w+)class$/, "$1klasse");
+  return `${b}|${m}`;
+}
+const recallBrandG = (make) => { const b = normG(make); return b === "vw" ? "volkswagen" : b === "mercedes" ? "mercedes-benz" : String(make || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); };
+function recallModelG(make, model) {
+  let m = normG(model);
+  for (const p of [normG(make), brandKeyG(make)]) if (p && m.startsWith(p) && m.length > p.length) m = m.slice(p.length);
+  return m;
+}
+function recallNamesG(a, make, model) {
+  const key = recallModelG(make, model), bn = normG(make), alt = modelKeyG(make, model).split("|")[1];
+  if (!key) return false;
+  const brand = a.brand || make;
+  return [a.models, a.type_approval].join(", ").replace(/&amp;/g, "&").replace(/\([^)]*\)/g, " ").split(/\s*(?:[,;/+&]|\band\b)\s*/i)
+    .map((p) => p.trim().replace(new RegExp("^" + esc(brand) + "\\s+", "i"), ""))
+    .filter((p) => p && p.length <= 40 && !/[*]|^e\d|^(?:null|undefined)$/i.test(p))
+    .some((p) => {
+      let n = normG(p); if (bn && n.startsWith(bn) && n.length > bn.length) n = n.slice(bn.length);
+      return n === key || n === alt || (n.startsWith(key) && !/^\d/.test(n.slice(key.length)));
+    });
+}
+function resolveCar(models, text) {
+  const t = String(text || "").trim();
+  const byId = models.find((m) => m.id === t.toLowerCase());
+  if (byId) return byId;
+  const words = t.split(/\s+/).map(normC).filter(Boolean);
+  if (!words.length) return null;
+  const joined = words.join("");
+  const hits = models.filter((m) => { const hay = normC(m.name) + normC(m.make) + normC(m.id) + normC(m.fuel); return words.every((w) => hay.includes(w)); });
+  hits.sort((a, b) => ((normC(a.name) === joined ? 0 : 1) - (normC(b.name) === joined ? 0 : 1)) || (b.registrations || 0) - (a.registrations || 0));
+  return hits[0] || null;
+}
+
+async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
+  if (typeof cars === "string") cars = cars.split(",");
+  if (!Array.isArray(cars) || cars.length < 1) throw new ToolError("Name 2 to 4 cars, e.g. ['Volvo EX30', 'Tesla Model Y'] or catalog ids.");
+  const km = Math.round(clamp(km_per_year, 1000, 100000, 15000));
+  const cat = await load(get, "vehicle-catalog/de/models.json");
+  const picked = [], unknown = [];
+  for (const c of cars.slice(0, 4)) {
+    const m = resolveCar(cat.models || [], c);
+    if (m && !picked.includes(m)) picked.push(m); else if (!m) unknown.push(String(c));
+  }
+  if (!picked.length) return { error: `No car model matches ${unknown.map((u) => `'${u}'`).join(", ")}. Use lookup_official_consumption to find catalog ids.` };
+  const soft = (p) => get(p).catch(() => null);
+  const [fuel, charge, regs, brands, ratings] = await Promise.all([
+    soft("fuel-prices/de/latest.json"), soft("charging-prices/de/latest.json"),
+    soft("registrations/de/models.json"), soft("recalls/eu/brands.json"), soft("ratings/de/ratings.json"),
+  ]);
+  const pub = charge && charge.overall ? charge.overall.median : null;
+  const brandFiles = new Map();
+  const out = [];
+  for (const m of picked) {
+    const fp = fuel && FUEL_PRODUCT[m.fuel] ? (fuel.products || {})[FUEL_PRODUCT[m.fuel]] : null;
+    let per100 = null, per100Public = null;
+    if (m.fuel === "electric" && m.kwh_per_100km) { per100 = m.kwh_per_100km * LOSS * HOME_PRICE; per100Public = pub ? m.kwh_per_100km * LOSS * pub : null; }
+    else if (/^phev/.test(m.fuel) && fp) per100 = (m.kwh_per_100km || 0) * LOSS * HOME_PRICE + (m.l_per_100km || 0) * fp.eur_per_litre;
+    else if (m.l_per_100km && fp) per100 = m.l_per_100km * fp.eur_per_litre;
+    const key = modelKeyG(m.make, m.model);
+    const r = regs ? (regs.models || []).find((x) => x.model !== "SONSTIGE" && modelKeyG(x.brand, x.model) === key) : null;
+    let recalls = null;
+    const b = brands ? (brands.brands || []).find((x) => x.slug === recallBrandG(m.make)) : null;
+    if (b) {
+      if (!brandFiles.has(b.file)) brandFiles.set(b.file, soft(`recalls/eu/${b.file}`));
+      const d = await brandFiles.get(b.file);
+      recalls = d ? (d.alerts || []).filter((a) => recallNamesG(a, m.make, m.model)).length : null;
+    } else if (brands) recalls = 0;
+    const r2 = (v) => (v == null ? null : Math.round(v * 100) / 100);
+    out.push({
+      id: m.id, name: m.name, fuel: m.fuel, years_sold_new: m.years || null,
+      kwh_per_100km: m.kwh_per_100km ?? null, l_per_100km: m.l_per_100km ?? null, co2_g_km: m.co2_g_km ?? null,
+      power_kw: m.power_kw ?? null, mass_kg: m.mass_kg ?? null,
+      cost_per_100km_eur: r2(per100), cost_per_100km_public_charging_eur: r2(per100Public),
+      cost_per_year_eur: per100 == null ? null : Math.round(per100 * km / 100),
+      registrations_last_12_months: r ? r.last_12_months ?? null : null, registrations_rank_latest_month: r ? r.rank ?? null : null,
+      safety_gate_recalls: recalls,
+      ...(() => { const r = ratingsOf(ratings, m); return {
+        euro_ncap_stars: r.euro_ncap ? r.euro_ncap.stars : null, euro_ncap_year: r.euro_ncap ? r.euro_ncap.year : null,
+        green_ncap_stars: r.green_ncap ? r.green_ncap.stars : null, green_ncap_year: r.green_ncap ? r.green_ncap.year : null,
+        adac_breakdowns_per_1000: r.adac_breakdowns ? r.adac_breakdowns.per_1000_cars_by_first_registration : null }; })(),
+      page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}`,
+    });
+  }
+  return {
+    km_per_year: km, cars: out, not_found: unknown,
+    page: `${SITE}/compare/?cars=${picked.map((m) => encodeURIComponent(m.id)).join(",")}${km !== 15000 ? `&km=${km}` : ""}`,
+    basis: {
+      home_charging_eur_per_kwh: HOME_PRICE, charging_losses: "10% added to the official figure", public_charging_median_eur_per_kwh: pub,
+      fuel_week: fuel ? fuel.week : null, fuel_eur_per_litre: fuel ? Object.fromEntries(Object.entries(fuel.products || {}).map(([k, v]) => [k, v.eur_per_litre])) : null,
+    },
+    notes: "Official WLTP figures from the EEA catalog (registration-weighted over the versions sold); real-world use is higher. Plug-in hybrid cost uses the official electric/fuel mix with home charging. Registrations count the KBA model with every drive type together. Recalls count EU Safety Gate alerts since 2019 that name the model; whether a car is affected depends on its VIN.",
+  };
+}
+
+// ---------- rankings (the /rankings/ page) ----------
+
+const RANKINGS = ["sellers", "month", "electric", "efficient", "cheapest", "recalls"];
+function catalogForG(models, brand, model, fuel) {
+  const key = modelKeyG(brand, model);
+  let best = null;
+  for (const m of models) {
+    if (modelKeyG(m.make, m.model) !== key) continue;
+    const score = (fuel && m.fuel === fuel ? 1e9 : 0) + (m.registrations || 0);
+    if (!best || score > best.s) best = { m, s: score };
+  }
+  return best && (!fuel || best.m.fuel === fuel) ? best.m : null;
+}
+function cost100G(m, fuel, charge) {
+  const fp = fuel && FUEL_PRODUCT[m.fuel] ? (fuel.products || {})[FUEL_PRODUCT[m.fuel]] : null;
+  if (m.fuel === "electric" && m.kwh_per_100km) return m.kwh_per_100km * LOSS * HOME_PRICE;
+  if (/^phev/.test(m.fuel) && fp) return (m.kwh_per_100km || 0) * LOSS * HOME_PRICE + (m.l_per_100km || 0) * fp.eur_per_litre;
+  if (m.l_per_100km && fp) return m.l_per_100km * fp.eur_per_litre;
+  return null;
+}
+
+async function getRankings(get, { list = "sellers", fuel = null, limit = 20 } = {}) {
+  if (!RANKINGS.includes(list)) throw new ToolError(`list must be one of ${RANKINGS.join(", ")}`);
+  if (fuel && !CATALOG_FUELS.includes(fuel)) throw new ToolError(`fuel must be one of ${CATALOG_FUELS.join(", ")}`);
+  const n = clamp(limit, 1, 100, 20);
+  const page = `${SITE}/rankings/?list=${list}${list === "cheapest" && fuel ? `&fuel=${fuel}` : ""}`;
+  const cat = await load(get, "vehicle-catalog/de/models.json");
+  const models = cat.models || [];
+  const year = cat.year || 0;
+  const current = models.filter((m) => m.year === year || (m.years && m.years[1] >= year - 1));
+  const carPage = (m) => `${SITE}/cars/?car=${encodeURIComponent(m.id)}`;
+  const kba = (r, extra, f) => {
+    const m = catalogForG(models, r.brand, r.model, f);
+    return { kba_model: `${r.brand} ${r.model}`, catalog_id: m ? m.id : null, ...extra, page: m ? carPage(m) : `${SITE}/registrations/?model=${r.slug}` };
+  };
+  let rows = [], about = {};
+  if (list === "sellers" || list === "electric") {
+    const regs = await load(get, "registrations/de/models.json");
+    const named = (regs.models || []).filter((r) => r.model !== "SONSTIGE");
+    rows = list === "sellers"
+      ? named.filter((r) => r.last_12_months).sort((a, b) => b.last_12_months - a.last_12_months).map((r) => kba(r, { registrations_last_12_months: r.last_12_months, rank_latest_month: r.rank ?? null }))
+      : named.filter((r) => r.latest_bev).sort((a, b) => b.latest_bev - a.latest_bev).map((r) => kba(r, { electric_registrations: r.latest_bev, all_registrations: r.latest ?? null }, "electric"));
+    about = { month: regs.latest_month, unit: list === "sellers" ? "new registrations in Germany over the last 12 months, every drive type" : "new electric registrations in Germany in the latest month", source: "Kraftfahrt-Bundesamt (FZ10)" };
+  } else if (list === "month") {
+    const latest = await load(get, "registrations/de/latest.json");
+    rows = (latest.top_models || []).map((r) => kba(r, { registrations: r.total, electric: r.bev, plug_in_hybrid: r.phev, change_vs_last_year_pct: r.change_vs_last_year_pct }));
+    about = { month: latest.month, unit: "new registrations in Germany in the month", source: "Kraftfahrt-Bundesamt (FZ10)" };
+  } else if (list === "efficient") {
+    rows = current.filter((m) => m.fuel === "electric" && m.kwh_per_100km && (m.registrations || 0) >= 500)
+      .sort((a, b) => a.kwh_per_100km - b.kwh_per_100km || (b.registrations || 0) - (a.registrations || 0))
+      .map((m) => ({ catalog_id: m.id, name: m.name, kwh_per_100km: m.kwh_per_100km, registrations: m.registrations, page: carPage(m) }));
+    about = { unit: "official WLTP kWh/100 km at the plug, models with 500+ new registrations in Germany in their year", source: cat.source };
+  } else if (list === "cheapest") {
+    const soft = (p) => get(p).catch(() => null);
+    const [fp, ch] = await Promise.all([soft("fuel-prices/de/latest.json"), soft("charging-prices/de/latest.json")]);
+    rows = current.filter((m) => (m.registrations || 0) >= 1000 && (!fuel || m.fuel === fuel))
+      .map((m) => [m, cost100G(m, fp, ch)]).filter((x) => x[1] != null).sort((a, b) => a[1] - b[1])
+      .map(([m, c]) => ({ catalog_id: m.id, name: m.name, fuel: m.fuel, cost_per_100km_eur: Math.round(c * 100) / 100, page: carPage(m) }));
+    about = { unit: "EUR per 100 km at this week's prices: electric charged at home (0.35 EUR/kWh + 10% losses), fuel at the national average, models with 1,000+ new registrations", fuel_week: fp ? fp.week : null };
+  } else {
+    const st = await load(get, "recalls/eu/stats.json");
+    rows = (st.brands || []).filter((b) => b.alerts_per_100k != null).sort((a, b) => a.alerts_per_100k - b.alerts_per_100k)
+      .map((b) => ({ brand: b.brand, car_recalls: b.car_alerts, per_100k_new_cars_de: b.alerts_per_100k, page: `${SITE}/recalls/?brand=${b.slug}` }));
+    about = { unit: "EU Safety Gate car recalls since 2019 per 100,000 new cars registered in Germany, fewest first; campaigns, not affected cars", since: st.since };
+  }
+  return { list, ...about, total: rows.length, rows: rows.slice(0, n).map((r, i) => ({ rank: i + 1, ...r })), page,
+    notes: "Official data; consumption figures are WLTP and lower than real driving. KBA counts each model with every drive type together." };
+}
+
+// ---------- similar cars (model pages) ----------
+
+async function findSimilarCars(get, { car, limit = 5 } = {}) {
+  if (!car) throw new ToolError("Name a car model, e.g. 'Volvo EX30', or a catalog id.");
+  const cat = await load(get, "vehicle-catalog/de/models.json");
+  const models = cat.models || [], year = cat.year || 0;
+  const m = resolveCar(models, car);
+  if (!m) return { error: `No car model matches '${car}'. Use lookup_official_consumption to find catalog ids.` };
+  const kind = (f) => (f === "electric" ? "e" : /^phev/.test(f) ? "p" : "f");
+  const key = modelKeyG(m.make, m.model);
+  const list = !m.mass_kg || !m.power_kw ? [] : models
+    .filter((x) => x.id !== m.id && kind(x.fuel) === kind(m.fuel) && (x.registrations || 0) >= 200 && x.mass_kg && x.power_kw
+      && (x.year === year || (x.years && x.years[1] >= year - 1)) && modelKeyG(x.make, x.model) !== key)
+    .map((x) => [x, 2 * Math.abs(Math.log(x.mass_kg / m.mass_kg)) + Math.abs(Math.log(x.power_kw / m.power_kw))])
+    .filter((x) => x[1] < 0.6).sort((a, b) => a[1] - b[1] || (b[0].registrations || 0) - (a[0].registrations || 0))
+    .slice(0, clamp(limit, 1, 10, 5)).map(([x]) => ({ catalog_id: x.id, name: x.name, fuel: x.fuel, power_kw: x.power_kw, mass_kg: x.mass_kg,
+      kwh_per_100km: x.kwh_per_100km ?? null, l_per_100km: x.l_per_100km ?? null, page: `${SITE}/cars/?car=${encodeURIComponent(x.id)}` }));
+  return {
+    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, power_kw: m.power_kw ?? null, mass_kg: m.mass_kg ?? null, page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}` },
+    similar: list,
+    compare_page: `${SITE}/compare/?cars=${[m, ...list.slice(0, 3).map((x) => ({ id: x.catalog_id }))].map((x) => encodeURIComponent(x.id)).join(",")}`,
+    rule: "Same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power, still sold new, other models only; closest first.",
+  };
+}
+
+// ---------- ratings (Euro NCAP, Green NCAP, ADAC breakdowns), as garage.js ratings() ----------
+
+function ratingsOf(R, m) {
+  const out = { euro_ncap: null, green_ncap: null, adac_breakdowns: null };
+  if (!R || !m) return out;
+  const key = modelKeyG(m.make, m.model);
+  out.euro_ncap = ((R.euro_ncap || {}).models || []).filter((x) => modelKeyG(x.make, x.model) === key).sort((a, b) => b.year - a.year)[0] || null;
+  const words = (t) => String(t || "").toLowerCase().replace(/volkswagen/g, "vw").replace(/mercedes-benz/g, "mercedes").split(/\s+/).map(normG).filter(Boolean);
+  const joined = words(`${m.make} ${m.model}`).join("");
+  const kind = m.fuel === "electric" ? "electric" : /^phev/.test(m.fuel) ? "phev" : m.fuel === "diesel" ? "diesel" : "petrol";
+  const fits = (v) => v.fuel === kind || (kind === "petrol" && v.fuel === "hybrid") ? 1 : 0;
+  out.green_ncap = ((R.green_ncap || {}).versions || []).filter((v) => {
+    const w = words(v.name);
+    for (let n = 1; n <= w.length; n++) { const j = w.slice(0, n).join(""); if (j === joined) return true; if (j.length >= joined.length) return false; }
+    return false;
+  }).sort((a, b) => fits(b) - fits(a) || b.year - a.year)[0] || null;
+  const A = R.adac_breakdowns;
+  if (A) {
+    const hit = (A.models || []).find((x) => {
+      const w = x.name.replace(/^Mercedes-Benz\s+/, "Mercedes ").replace(/\bNutzfahrzeuge\s+/, "").split(/\s+/);
+      const make = w.shift();
+      return w.join(" ").split("/").some((p) => modelKeyG(make, p.replace(/-Reihe\b/i, "").trim()) === key);
+    });
+    out.adac_breakdowns = hit ? { series: hit.name, per_1000_cars_by_first_registration: hit.rates, calendar_year: A.calendar_year, source: A.source, source_url: A.source_url } : null;
+  }
+  return out;
+}
+
+async function getCarRatings(get, { car } = {}) {
+  if (!car) throw new ToolError("Name a car model, e.g. 'Volvo EX30', or a catalog id.");
+  const cat = await load(get, "vehicle-catalog/de/models.json");
+  const m = resolveCar(cat.models || [], car);
+  if (!m) return { error: `No car model matches '${car}'. Use lookup_official_consumption to find catalog ids.` };
+  const R = await load(get, "ratings/de/ratings.json");
+  return {
+    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}` },
+    ...ratingsOf(R, m),
+    notes: "Headline facts only; follow each url for the full result. Euro NCAP tightens its tests every few years, so compare stars of similar years. Green NCAP rates one tested version. ADAC counts breakdowns its road patrol attended per 1,000 registered cars in the calendar year, by year of first registration.",
+  };
+}
+
 // ---------- chargers ----------
 
 function km(lat1, lon1, lat2, lon2) {
@@ -461,6 +702,44 @@ export const TOOLS = [
     description: "Cheapest 1 to 8 hour windows to charge at home in Germany today (and tomorrow once published, around 13:00), from day-ahead exchange prices (SMARD), with an estimated dynamic tariff price per kWh. Only matters on a dynamic tariff.",
     inputSchema: { type: "object", properties: { hours: int("Only windows of this length: 1, 2, 3, 4, 6 or 8 hours.", { enum: [1, 2, 3, 4, 6, 8] }) } },
     run: getCheapestChargingTime,
+  },
+  {
+    name: "compare_cars",
+    title: "Compare car models",
+    description: "Compare 2 to 4 car models side by side, as on cars.allo.land/compare/: official WLTP consumption, CO2, power and mass (EEA catalog), cost per 100 km and per year at this week's German fuel price or charging prices, new registrations in Germany in the last 12 months (KBA) and the number of EU Safety Gate recalls that name each model. Returns a link to the same comparison on the site.",
+    inputSchema: { type: "object", properties: {
+      cars: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 4, description: "Car models by make and model ('Volvo EX30', 'VW Golf diesel') or vehicle catalog id ('volvo-ex30', 'vw-golf-petrol')." },
+      km_per_year: int("Kilometres driven per year, for the yearly cost (1,000-100,000).", { default: 15000 }),
+    }, required: ["cars"] },
+    run: compareCars,
+  },
+  {
+    name: "get_rankings",
+    title: "Car rankings for Germany",
+    description: "Ranked lists of car models, as on cars.allo.land/rankings/: sellers (most new registrations over 12 months), month (top 20 of the latest month with the change on a year before), electric (electric best sellers of the latest month), efficient (lowest official kWh/100 km), cheapest (lowest cost per 100 km at this week's prices, optionally one fuel) and recalls (brands with the fewest Safety Gate recalls per 100,000 new cars). Rows link to the model page and carry the catalog id for compare_cars.",
+    inputSchema: { type: "object", properties: {
+      list: str("Which ranking.", { enum: RANKINGS, default: "sellers" }),
+      fuel: str("cheapest only: just this fuel.", { enum: CATALOG_FUELS }),
+      limit: int("Most rows to return (1-100).", { default: 20 }),
+    } },
+    run: getRankings,
+  },
+  {
+    name: "find_similar_cars",
+    title: "Cars similar to a model",
+    description: "Car models similar to a given one, as shown on its Allo Cars model page: the same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power, still sold new in Germany. Returns catalog ids for compare_cars and a ready comparison link.",
+    inputSchema: { type: "object", properties: {
+      car: str("Make and model, e.g. 'Volvo EX30', or a vehicle catalog id."),
+      limit: int("Most cars to return (1-10).", { default: 5 }),
+    }, required: ["car"] },
+    run: findSimilarCars,
+  },
+  {
+    name: "get_car_ratings",
+    title: "Safety, environment and breakdown ratings of a car model",
+    description: "Headline ratings of a car model with links to the full results: Euro NCAP safety stars and test year, Green NCAP environment stars of the closest tested version, and ADAC breakdowns per 1,000 cars by year of first registration (ADAC Pannenstatistik). Refreshed weekly.",
+    inputSchema: { type: "object", properties: { car: str("Make and model, e.g. 'VW Golf', or a vehicle catalog id.") }, required: ["car"] },
+    run: getCarRatings,
   },
   {
     name: "get_registrations",
