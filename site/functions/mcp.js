@@ -5,6 +5,7 @@
 // to a private usage log in R2 (no IP, no ID): see ../lib/mcp-usage.js.
 import { onRequestGet as readData } from "./data/[[path]].js";
 import { TOOLS, ToolError } from "../lib/mcp-tools.js";
+import { chartsFor, describeCharts, CHART_INSTRUCTIONS } from "../lib/mcp-charts.js";
 import { usageEvent, saveUsage } from "../lib/mcp-usage.js";
 
 const VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
@@ -15,7 +16,7 @@ const INSTRUCTIONS =
   "(EU Safety Gate incl. every KBA recall, and US NHTSA), the German E-Auto grant, electric vs fuel cost over the years, fuel, charging and electricity prices, new registrations " +
   "and public chargers. All tools are read-only and need no account. Results carry a page link to the same view on " +
   "cars.allo.land (also in German under /de/ and Chinese under /zh/); share it with the user. Prices are averages " +
-  "and estimates; recalls for one car depend on its VIN.";
+  "and estimates; recalls for one car depend on its VIN. " + CHART_INSTRUCTIONS;
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "POST, GET, OPTIONS",
@@ -67,7 +68,7 @@ export async function handle(msg, get) {
     case "ping":
       return ok(id, {});
     case "tools/list":
-      return ok(id, { tools: TOOLS.map(({ run, ...t }) => t) });
+      return ok(id, { tools: TOOLS.map(({ run, ...t }) => describeCharts(t)) });
     case "resources/list":
       return ok(id, { resources: [] });
     case "resources/templates/list":
@@ -79,6 +80,8 @@ export async function handle(msg, get) {
       if (!tool) return fail(id, -32602, `Unknown tool: ${params.name}`);
       try {
         const out = await tool.run(get, params.arguments || {});
+        const charts = await chartsFor(tool.name, params.arguments, out, get);
+        if (charts.length) out.charts = charts;
         return ok(id, {
           content: [{ type: "text", text: JSON.stringify(out) }],
           structuredContent: out,
