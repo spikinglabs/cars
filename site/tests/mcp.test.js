@@ -66,7 +66,7 @@ test("notifications get 202 and no body", async () => {
 test("tools/list has every tool, read-only, with a schema", async () => {
   const { body } = await post({ jsonrpc: "2.0", id: 2, method: "tools/list" });
   const names = body.result.tools.map((t) => t.name);
-  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "get_registrations", "find_chargers"]);
+  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "find_similar_cars", "get_registrations", "find_chargers"]);
   for (const t of body.result.tools) {
     assert.equal(t.annotations.readOnlyHint, true);
     assert.equal(t.inputSchema.type, "object");

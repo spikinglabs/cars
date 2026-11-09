@@ -13,7 +13,7 @@
       "name": "car_profile",
       "title": "My cars: one page per car model",
       "url": "https://cars.allo.land/cars/",
-      "description": "Everything Allo Cars knows about one car model: official WLTP consumption, CO2 and power (EEA catalog), cost per 100 km at today's German fuel price or charging prices, EU Safety Gate recalls that name the model and match its first registration year, and new registrations in Germany (KBA). People can keep several cars on their device; a link opens any model.",
+      "description": "Everything Allo Cars knows about one car model: official WLTP consumption, CO2 and power (EEA catalog), cost per 100 km at today's German fuel price or charging prices, EU Safety Gate recalls that name the model and match its first registration year, new registrations in Germany (KBA), where the model stands in the rankings and similar cars to compare. People can keep several cars on their device; a link opens any model.",
       "parameters": {
         "car": "vehicle catalog id from https://cars.allo.land/data/vehicle-catalog/de/models.json (id field), e.g. volvo-ex30, vw-golf-petrol, vw-golf-diesel",
         "year": "year of first registration, narrows recalls to the build window (optional)"

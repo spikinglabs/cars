@@ -461,6 +461,31 @@ async function getRankings(get, { list = "sellers", fuel = null, limit = 20 } = 
     notes: "Official data; consumption figures are WLTP and lower than real driving. KBA counts each model with every drive type together." };
 }
 
+// ---------- similar cars (model pages) ----------
+
+async function findSimilarCars(get, { car, limit = 5 } = {}) {
+  if (!car) throw new ToolError("Name a car model, e.g. 'Volvo EX30', or a catalog id.");
+  const cat = await load(get, "vehicle-catalog/de/models.json");
+  const models = cat.models || [], year = cat.year || 0;
+  const m = resolveCar(models, car);
+  if (!m) return { error: `No car model matches '${car}'. Use lookup_official_consumption to find catalog ids.` };
+  const kind = (f) => (f === "electric" ? "e" : /^phev/.test(f) ? "p" : "f");
+  const key = modelKeyG(m.make, m.model);
+  const list = !m.mass_kg || !m.power_kw ? [] : models
+    .filter((x) => x.id !== m.id && kind(x.fuel) === kind(m.fuel) && (x.registrations || 0) >= 200 && x.mass_kg && x.power_kw
+      && (x.year === year || (x.years && x.years[1] >= year - 1)) && modelKeyG(x.make, x.model) !== key)
+    .map((x) => [x, 2 * Math.abs(Math.log(x.mass_kg / m.mass_kg)) + Math.abs(Math.log(x.power_kw / m.power_kw))])
+    .filter((x) => x[1] < 0.6).sort((a, b) => a[1] - b[1] || (b[0].registrations || 0) - (a[0].registrations || 0))
+    .slice(0, clamp(limit, 1, 10, 5)).map(([x]) => ({ catalog_id: x.id, name: x.name, fuel: x.fuel, power_kw: x.power_kw, mass_kg: x.mass_kg,
+      kwh_per_100km: x.kwh_per_100km ?? null, l_per_100km: x.l_per_100km ?? null, page: `${SITE}/cars/?car=${encodeURIComponent(x.id)}` }));
+  return {
+    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, power_kw: m.power_kw ?? null, mass_kg: m.mass_kg ?? null, page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}` },
+    similar: list,
+    compare_page: `${SITE}/compare/?cars=${[m, ...list.slice(0, 3).map((x) => ({ id: x.catalog_id }))].map((x) => encodeURIComponent(x.id)).join(",")}`,
+    rule: "Same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power, still sold new, other models only; closest first.",
+  };
+}
+
 // ---------- chargers ----------
 
 function km(lat1, lon1, lat2, lon2) {
@@ -653,6 +678,16 @@ export const TOOLS = [
       limit: int("Most rows to return (1-100).", { default: 20 }),
     } },
     run: getRankings,
+  },
+  {
+    name: "find_similar_cars",
+    title: "Cars similar to a model",
+    description: "Car models similar to a given one, as shown on its Allo Cars model page: the same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power, still sold new in Germany. Returns catalog ids for compare_cars and a ready comparison link.",
+    inputSchema: { type: "object", properties: {
+      car: str("Make and model, e.g. 'Volvo EX30', or a vehicle catalog id."),
+      limit: int("Most cars to return (1-10).", { default: 5 }),
+    }, required: ["car"] },
+    run: findSimilarCars,
   },
   {
     name: "get_registrations",

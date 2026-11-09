@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
 <script src="/assets/site.js?v=6247af2686"></script>
-<script src="/assets/garage.js?v=48fb087777"></script>
+<script src="/assets/garage.js?v=ba7aa12ff7"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
   main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
@@ -52,6 +52,14 @@
   .head h2 { margin: 0; }
   .acts { display: flex; flex-wrap: wrap; gap: 8px; }
   .acts.cmp { margin-top: var(--space-3); }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+  .badges a { text-decoration: none; color: var(--ink); }
+  .slist { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: 10px; }
+  .slist li { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .slist a { color: var(--ink); font-weight: 600; }
+  .slist small { display: block; color: var(--ink-muted); }
+  .slist .ac-chip { min-height: 36px; white-space: nowrap; }
+  .slist .ac-chip[aria-pressed="true"] { color: var(--surface-100); }
   .acts.cmp:empty { display: none; }
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-5); }
   .ac-readouts { margin: var(--space-3) 0; }
@@ -181,6 +189,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/cars/app.js?v=2010544d60"></script>
+<script src="/cars/app.js?v=36c6c55c62"></script>
 </body>
 </html>

@@ -169,6 +169,21 @@
       });
       return best && (!fuel || best.m.fuel === fuel) ? best.m : null;
     },
+    // Cars like this one: same kind of drive (electric, plug-in hybrid, fuel), close in kerb weight and
+    // power, still sold new around the catalog year, other models only. Closest first.
+    similar: function (catalog, m, year, n) {
+      var kind = function (f) { return f === "electric" ? "e" : /^phev/.test(f) ? "p" : "f"; };
+      if (!m || !m.mass_kg || !m.power_kw) return [];
+      var k = kind(m.fuel), key = modelKey(m.make, m.model);
+      return catalog.filter(function (x) {
+        return x.id !== m.id && kind(x.fuel) === k && (x.registrations || 0) >= 200 && x.mass_kg && x.power_kw
+          && (x.year === year || (x.years && x.years[1] >= year - 1)) && modelKey(x.make, x.model) !== key;
+      }).map(function (x) {
+        return { m: x, d: 2 * Math.abs(Math.log(x.mass_kg / m.mass_kg)) + Math.abs(Math.log(x.power_kw / m.power_kw)) };
+      }).filter(function (o) { return o.d < 0.6; })
+        .sort(function (a, b) { return a.d - b.d || (b.m.registrations || 0) - (a.m.registrations || 0); })
+        .slice(0, n || 5).map(function (o) { return o.m; });
+    },
     electric: function (fuel) { return fuel === "electric"; },
     plugIn: function (fuel) { return /^phev/.test(fuel); }
   };
