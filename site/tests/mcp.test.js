@@ -9,6 +9,12 @@ const load = () => import(pathToFileURL(path.join(__dirname, "../functions/mcp.j
 // R2 keys are <project>/public/<region>/<file>, as the data function reads them.
 const FILES = {
   "registrations/public/de/latest.json": { month: "2026-03", source: "KBA", market: { total: 200 }, top_models: [], top_electric: [] },
+  "registrations/public/de/models.json": { models: [
+    { slug: "vw-golf", brand: "VW", model: "GOLF", file: "models/vw-golf.json", rank: 1, latest: 8000, last_12_months: 90000 },
+    { slug: "volvo-ex30", brand: "VOLVO", model: "EX30", file: "models/volvo-ex30.json", rank: 50, latest: 1500, last_12_months: 7000 },
+  ] },
+  "registrations/public/de/models/vw-golf.json": { months: [{ month: "2026-02", total: 7000, bev: 0 }, { month: "2026-03", total: 8000, bev: 0 }] },
+  "registrations/public/de/models/volvo-ex30.json": { months: [{ month: "2026-03", total: 1500, bev: 1500 }] },
   "registrations/public/de/market.csv": "month,total,diesel,hybrid,phev,bev,petrol_etc,bev_share\n2025-03,200,0,0,0,40,0,20\n2025-12,100,0,0,0,20,0,20\n2026-01,200,0,0,0,50,0,25\n2026-03,200,0,0,0,80,0,40\n",
   "vehicle-catalog/public/de/models.json": { region: "DE", year: 2025, models: [
     { id: "volvo-ex30", make: "Volvo", model: "EX30", name: "Volvo EX30", fuel: "electric", kwh_per_100km: 17.1, registrations: 9000, year: 2025 },
@@ -219,6 +225,14 @@ test("get_registrations: the electric wave since the grant", async () => {
   assert.equal(r.electric_wave.share_year_ago, 20);
   assert.equal(r.electric_wave.since_grant.bev, 130);
   assert.equal(r.electric_wave.grant_from, "2026-01");
+});
+test("get_registrations: several models side by side", async () => {
+  const r = (await call("get_registrations", { models: ["VW Golf", "Volvo EX30", "Nope Nothing"] })).structuredContent;
+  assert.deepEqual(r.models.map((m) => m.slug), ["vw-golf", "volvo-ex30"]);
+  assert.equal(r.models[0].last_12_months_total, 15000);
+  assert.equal(r.models[1].last_12_months_bev_share_pct, 100);
+  assert.deepEqual(r.not_found, ["Nope Nothing"]);
+  assert.equal(r.page, "https://cars.allo.land/registrations/?model=vw-golf,volvo-ex30");
 });
 test("used-car check gives the battery warranty left", async () => {
   const r = (await call("check_used_car", { make: "VW", model: "Golf", year: 2019, km: 150000 })).structuredContent;

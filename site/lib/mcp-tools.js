@@ -293,9 +293,38 @@ function findReg(models, text) {
   return loose.length ? loose.reduce((a, b) => ((b.last_12_months || 0) > (a.last_12_months || 0) ? b : a)) : null;
 }
 
-async function getRegistrations(get, { model = null, months = 12 } = {}) {
+function regSummary(m, rows, latest, months) {
+  const from = `${Number(latest.month.slice(0, 4)) - 1}${latest.month.slice(4)}`;
+  const last12 = rows.filter((r) => r.month > from);
+  const total12 = last12.reduce((s, r) => s + (r.total || 0), 0);
+  const bev12 = last12.reduce((s, r) => s + (r.bev || 0), 0);
+  return {
+    model: `${m.brand} ${m.model}`, slug: m.slug, page: `${SITE}/registrations/?model=${m.slug}`,
+    rank_latest_month: m.rank ?? null, latest_month_total: m.latest ?? null,
+    last_12_months_total: total12, last_12_months_bev_share_pct: total12 ? Math.round((bev12 / total12) * 1000) / 10 : null,
+    first_month: rows.length ? rows[0].month : null, months: rows.slice(-clamp(months, 1, 100, 12)),
+  };
+}
+
+async function getRegistrations(get, { model = null, models: several = null, months = 12 } = {}) {
   const latest = await load(get, "registrations/de/latest.json");
   const base = { month: latest.month, source: latest.source, licence: latest.licence, credit: latest.credit };
+  if (Array.isArray(several) && several.length) {
+    // several models side by side, like /registrations/?model=a,b
+    const list = (await load(get, "registrations/de/models.json")).models;
+    const found = [], missing = [];
+    for (const name of several.slice(0, 6)) {
+      const m = findReg(list, name);
+      if (!m) missing.push(name); else if (!found.includes(m)) found.push(m);
+    }
+    const out = await Promise.all(found.map(async (m) => regSummary(m, (await load(get, `registrations/de/${m.file}`)).months, latest, months)));
+    return {
+      ...base, models: out, not_found: missing,
+      page: found.length ? `${SITE}/registrations/?model=${found.map((m) => m.slug).join(",")}` : `${SITE}/registrations/`,
+      market_latest_month: latest.market.total,
+      note: "Counts are new passenger car registrations in Germany per month. hybrid includes plug-in hybrids (phev).",
+    };
+  }
   if (!model) {
     let electric_wave = null;
     try {
@@ -311,15 +340,8 @@ async function getRegistrations(get, { model = null, months = 12 } = {}) {
   const m = findReg(models, model);
   if (!m) return { ...base, error: `No model matches '${model}'. Try make and model as on the registration, e.g. 'VW Golf'.`, models_url: `${SITE}/data/registrations/de/models.json` };
   const rows = (await load(get, `registrations/de/${m.file}`)).months;
-  const from = `${Number(latest.month.slice(0, 4)) - 1}${latest.month.slice(4)}`;
-  const last12 = rows.filter((r) => r.month > from);
-  const total12 = last12.reduce((s, r) => s + (r.total || 0), 0);
-  const bev12 = last12.reduce((s, r) => s + (r.bev || 0), 0);
   return {
-    ...base, model: `${m.brand} ${m.model}`, slug: m.slug, page: `${SITE}/registrations/?model=${m.slug}`,
-    rank_latest_month: m.rank ?? null, latest_month_total: m.latest ?? null,
-    last_12_months_total: total12, last_12_months_bev_share_pct: total12 ? Math.round((bev12 / total12) * 1000) / 10 : null,
-    first_month: rows.length ? rows[0].month : null, months: rows.slice(-clamp(months, 1, 100, 12)),
+    ...base, ...regSummary(m, rows, latest, months),
     market_latest_month: latest.market.total,
     note: "Counts are new passenger car registrations in Germany per month. hybrid includes plug-in hybrids (phev).",
   };
@@ -996,9 +1018,10 @@ export const TOOLS = [
   {
     name: "get_registrations",
     title: "New car registrations in Germany",
-    description: "Monthly new car registrations in Germany (official KBA figures since Dec 2018): one model's monthly counts with electric and plug-in hybrid splits and its rank, or, with no model, the latest month's market by drive type, the top 20 and top 10 electric models, and the electric wave: electric share now and a year before, electric cars this year against last, and the share since the E-Auto grant started.",
+    description: "Monthly new car registrations in Germany (official KBA figures since Dec 2018): one model's monthly counts with electric and plug-in hybrid splits and its rank, up to 6 models side by side with models, or, with no model, the latest month's market by drive type, the top 20 and top 10 electric models, and the electric wave: electric share now and a year before, electric cars this year against last, and the share since the E-Auto grant started.",
     inputSchema: { type: "object", properties: {
       model: str("Make and model, e.g. 'Volvo EX30' or 'VW Golf'. Leave out for this month's top models."),
+      models: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 6, description: "Up to 6 makes and models to compare side by side, e.g. ['VW Golf', 'Tesla Model Y']. Used instead of model." },
       months: int("How many recent months to return, 1-100.", { default: 12 }),
     } },
     run: getRegistrations,
