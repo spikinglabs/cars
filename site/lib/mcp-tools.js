@@ -20,6 +20,7 @@ const PLUGS = { type2: 1, ccs: 2, chademo: 4, schuko: 8, mcs: 16, type1: 32 };
 const FLAGS = { open_24_7: 1, free: 2, card_payment: 4, customers_only: 8, plug_and_charge: 16 };
 
 import Grant from "../public/ev-grant/grant.js";
+import ChargeHere from "../public/chargers/here.js";
 
 export class ToolError extends Error {}
 
@@ -596,7 +597,14 @@ async function findChargers(get, { near = null, lat = null, lon = null, radius_k
   const minKw = Number(min_kw) || 0;
   const latest = await load(get, "chargers/de/latest.json");
   const known = new Set(latest.cells || []);
-  const cells = await Promise.all(cellsAround(lat, lon, radius).filter((c) => known.has(c)).map((c) => load(get, `chargers/de/cells/${c}.json`)));
+  const cells = await Promise.all(cellsAround(lat, lon, Math.max(radius, 5)).filter((c) => known.has(c)).map((c) => load(get, `chargers/de/cells/${c}.json`)));
+  // "can I live here without a wallbox?" from every charger around the centre, whatever the filters (here.js)
+  const all = [];
+  for (const c of cells) {
+    const f = Object.fromEntries(c.fields.map((k, i) => [k, i]));
+    for (const r of c.stations) all.push({ lat: r[f.lat], lon: r[f.lon], kw: r[f.kw], points: r[f.points], flags: r[f.flags] });
+  }
+  const around = ChargeHere.summarize(all, lat, lon);
   const wantPlug = (plugs || []).reduce((s, p) => s | (PLUGS[p] || 0), 0);
   const found = [];
   for (const c of cells) {
@@ -625,6 +633,7 @@ async function findChargers(get, { near = null, lat = null, lon = null, radius_k
   return {
     centre: { name: place ? place.name : null, lat: Math.round(lat * 1e5) / 1e5, lon: Math.round(lon * 1e5) / 1e5 },
     radius_km: radius, chargers: found.slice(0, clamp(limit, 1, 50, 10)),
+    living_without_wallbox: { ...around, rule: "easy: 6+ public charge points within 1 km and a fast charger (50 kW+) within 3 km; ok: 2+ points within 1 km or a fast charger within 5 km; else hard. Customer-only chargers are left out." },
     map: `${SITE}/chargers/?${q}`, register_date: latest.observed_at ?? null,
     source: "Bundesnetzagentur Ladesäulenregister (CC BY 4.0, Bundesnetzagentur.de) via cars.allo.land",
     note: "Distances are straight-line. Only chargers whose operators completed the Bundesnetzagentur notification are listed. No live availability or prices.",
@@ -817,7 +826,7 @@ export const TOOLS = [
   {
     name: "find_chargers",
     title: "Public chargers near a place",
-    description: "Public EV chargers near a town, postcode or position in Germany, closest first: operator, address, maximum power, charge points, plugs, payment and a directions link, plus a link to the same view on the Allo Cars map. From the Bundesnetzagentur charge point register. No live availability or prices.",
+    description: "Public EV chargers near a town, postcode or position in Germany, closest first: operator, address, maximum power, charge points, plugs, payment and a directions link, plus a link to the same view on the Allo Cars map, and a verdict on living there without a wallbox (charge points within 1 and 3 km, nearest fast charger). From the Bundesnetzagentur charge point register. No live availability or prices.",
     inputSchema: { type: "object", properties: {
       near: str("Town or 5-digit postcode in Germany, e.g. 'Köln' or '50667'."),
       lat: num("Latitude, instead of near."),

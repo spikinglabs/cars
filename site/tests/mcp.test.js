@@ -216,3 +216,11 @@ test("check_ev_grant: a plug-in hybrid is checked against its official CO2", asy
   assert.equal(no.grant_eur, 0);
   assert.equal(no.plug_in_hybrid_check, false);
 });
+
+test("find_chargers: says how easy living there without a wallbox is", async () => {
+  const out = JSON.parse((await call("find_chargers", { lat: 50.9384, lon: 6.955 })).content[0].text);
+  const a = out.living_without_wallbox;
+  assert.equal(a.points_1km, 2, "the 22 kW station next door");
+  assert.equal(a.verdict, "ok");
+  assert.ok(a.nearest_fast_km > 3 && a.nearest_fast_km < 5, "the 300 kW station in Ehrenfeld");
+});

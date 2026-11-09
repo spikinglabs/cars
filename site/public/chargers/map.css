@@ -65,3 +65,10 @@ h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -
 :root[data-theme="dark"] .leaflet-popup-content-wrapper, :root[data-theme="dark"] .leaflet-popup-tip { background: var(--surface-100); color: var(--ink); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .leaflet-popup-content-wrapper, :root:not([data-theme="light"]) .leaflet-popup-tip { background: var(--surface-100); color: var(--ink); } }
 .statslink { margin: 14px 0 0; font-weight: 700; font-size: 15px; }
+
+/* "Can I live here without a wallbox?" */
+.here__verdict { margin: 0 0 12px; font: 800 20px/26px var(--font-display); padding-left: 12px; border-left: 6px solid var(--border); }
+.here--easy .here__verdict { border-color: var(--success); }
+.here--ok .here__verdict { border-color: var(--gold); }
+.here--hard .here__verdict { border-color: var(--danger); }
+.here .ac-readout__value.small { font-size: 20px; line-height: 30px; }
