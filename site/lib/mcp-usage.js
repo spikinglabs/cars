@@ -19,7 +19,7 @@
 // No IP address, no session or user ID, no cookie, and nothing from the answer.
 //
 // Free-tier budget: one R2 write (class A operation) per POST, against 1 million a month for the whole
-// account. To stop logging, set MCP_USAGE = "off" under [vars] in site/wrangler.toml.
+// account, plus one counter call per session, tool call and error. To stop both, set MCP_USAGE = "off" under [vars] in site/wrangler.toml.
 
 const MAX_TEXT = 80;
 
@@ -115,10 +115,23 @@ export function rawKey(at = new Date(), rand = Math.random) {
   return `mcp-usage/raw/${day}/${time}-${id}.ndjson`;
 }
 
-// Adds request-wide fields and writes the lines to R2. Never throws: logging must not break an answer.
+// What the shared Allo usage counter (monitoring.admin.allo.land, site "cars-mcp") gets for one line:
+// "session" when an assistant connects, "tool_<name>" per tool call, and "error" when it failed.
+export function counterFeatures(ev) {
+  const out = [];
+  if (ev.method === "initialize") out.push("session");
+  if (ev.method === "tools/call") out.push(/^[a-z0-9_]{1,43}$/.test(ev.tool || "") ? `tool_${ev.tool}` : "tool_unknown");
+  if (ev.ok === false) out.push("error");
+  return out;
+}
+
+// Adds request-wide fields, writes the lines to R2 and, on cars.allo.land, adds daily counts to the shared
+// Allo usage counter (service binding COUNT, entrypoint Counter of the allo-count Worker in
+// spikinglabs/alloland-rebirth). Never throws: logging must not break an answer.
 export function saveUsage({ request, env, waitUntil, events, at = new Date() }) {
   try {
-    if (!events.length || !env || !env.DATA || typeof env.DATA.put !== "function") return;
+    const lines = events.filter(Boolean);
+    if (!lines.length || !env) return;
     if (String(env.MCP_USAGE || "").toLowerCase() === "off") return;
     const host = new URL(request.url).hostname;
     const shared = {
@@ -126,10 +139,16 @@ export function saveUsage({ request, env, waitUntil, events, at = new Date() }) 
       ua: userAgent(request),
       country: request.cf && typeof request.cf.country === "string" ? request.cf.country.slice(0, 2) : undefined,
     };
-    const body = events.filter(Boolean).map((ev) => JSON.stringify({ ...ev, ...shared })).join("\n") + "\n";
-    const write = env.DATA.put(rawKey(at), body, { httpMetadata: { contentType: "application/x-ndjson" } })
-      .catch(() => {});
-    if (waitUntil) waitUntil(write);
+    const jobs = [];
+    if (env.DATA && typeof env.DATA.put === "function") {
+      const body = lines.map((ev) => JSON.stringify({ ...ev, ...shared })).join("\n") + "\n";
+      jobs.push(env.DATA.put(rawKey(at), body, { httpMetadata: { contentType: "application/x-ndjson" } }));
+    }
+    if (shared.site === "prod" && env.COUNT && typeof env.COUNT.count === "function") {
+      for (const f of lines.flatMap(counterFeatures)) jobs.push(env.COUNT.count("cars-mcp", f, shared.country || "XX"));
+    }
+    const all = Promise.allSettled(jobs.map((j) => Promise.resolve(j)));
+    if (waitUntil) waitUntil(all);
   } catch {
     // ignore
   }

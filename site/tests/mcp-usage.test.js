@@ -121,3 +121,29 @@ test("a failing R2 write does not break the answer", async () => {
   assert.equal(res.status, 200);
   assert.deepEqual((await res.json()).result, {});
 });
+
+test("the shared usage counter gets sessions, tool calls and errors, only on cars.allo.land", async () => {
+  const counts = [];
+  const COUNT = { count: async (site, feature, country) => counts.push([site, feature, country]) };
+  const { post } = setup({ COUNT });
+  await post([
+    { jsonrpc: "2.0", id: 1, method: "initialize", params: { clientInfo: { name: "x" } } },
+    { jsonrpc: "2.0", id: 2, method: "tools/list" },
+    { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "find_chargers", arguments: { near: "Atlantis" } } },
+  ]);
+  assert.deepEqual(counts, [
+    ["cars-mcp", "session", "DE"],
+    ["cars-mcp", "tool_find_chargers", "DE"],
+    ["cars-mcp", "error", "DE"],
+  ]);
+  counts.length = 0;
+  await post({ jsonrpc: "2.0", id: 1, method: "initialize" }, { host: "pr-1.alloland-cars.pages.dev" });
+  assert.equal(counts.length, 0);
+});
+
+test("a failing counter does not stop the R2 log or the answer", async () => {
+  const { post, puts } = setup({ COUNT: { count: async () => { throw new Error("down"); } } });
+  const res = await post({ jsonrpc: "2.0", id: 1, method: "initialize" });
+  assert.equal(res.status, 200);
+  assert.equal(puts.length, 1);
+});
