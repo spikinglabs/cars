@@ -110,12 +110,14 @@
       "name": "car_recalls",
       "title": "Car recalls and used-car check",
       "url": "https://cars.allo.land/recalls/",
-      "description": "Official recalls for a car, new or used: EU Safety Gate motor vehicle alerts since 2019 (Germany's KBA reports every German vehicle recall there) and US NHTSA campaigns. Pick brand, model and year of first registration to see the recalls whose build window covers the car, with what to ask the seller or a garage, and statistics per year, per component and per brand normalised by German new car registrations. Updated daily. Link: ?brand=<slug>&model=<name>&year=<yyyy>; the older ?model=<slug> also works.",
+      "description": "Official recalls for a car, new or used: EU Safety Gate motor vehicle alerts since 2019 (Germany's KBA reports every German vehicle recall there) and US NHTSA campaigns. Pick brand, model and year of first registration to see the recalls whose build window covers the car, with what to ask the seller or a garage, a battery check for used electric cars (high-voltage battery recalls, how much of the maker's battery warranty is left, battery questions, warranty terms by brand), and statistics per year, per component and per brand normalised by German new car registrations. Updated daily. Link: ?brand=<slug>&model=<name>&year=<yyyy>; the older ?model=<slug> also works.",
       "parameters": {
         "brand": "slug from https://cars.allo.land/data/recalls/eu/brands.json, e.g. volkswagen",
         "model": "model name as Safety Gate writes it, e.g. ID.4 or Golf (letters and digits only are compared), or a slug from https://cars.allo.land/data/recalls/eu/models.json such as volvo-ex30",
-        "year": "year the car was first registered, e.g. 2021; recalls whose production dates touch that year or the year before are shown"
+        "year": "year the car was first registered, e.g. 2021; recalls whose production dates touch that year or the year before are shown",
+        "km": "kilometres on the clock, for the battery warranty check (optional)"
       },
+      "code": "https://cars.allo.land/recalls/battery.js",
       "data": {
         "latest": "https://cars.allo.land/data/recalls/eu/latest.json",
         "models": "https://cars.allo.land/data/recalls/eu/models.json",

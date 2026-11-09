@@ -230,6 +230,84 @@
       + `<p class="ask__links">${links.map(([u, t]) => `<a href="${u}" rel="noopener">${esc(t)}</a>`).join(" · ")}</p>`;
   }
 
+  /* ---------- used electric car: the battery (battery.js) ---------- */
+  const B = window.EvBattery;
+  const BAT = zh ? {
+    hv: "这款车型的高压电池和充电召回", hvNone: "这款车型没有高压电池或充电相关的召回", hvBrand: "这个品牌的高压电池和充电召回",
+    until: (y) => `电池质保到 ${y} 年左右`, over: "电池质保已过期", left: (y, k) => `${y < 1 ? "不到 1 年" : `还剩约 ${y} 年`}${k != null ? `、${k.toLocaleString("zh-CN")} 公里` : ""}`,
+    terms: (w) => `${w.years} 年或 ${w.km.toLocaleString("zh-CN")} 公里，容量至少 ${w.soh} %`, pick: "选择品牌和首次登记年份，看质保还剩多久", unknownBrand: "这个品牌的电池质保不在我们的列表中，请看车辆文件",
+    q: {
+      soh: "要一份电池健康度 (SoH) 证明，而不只是仪表上的续航。用了几年还在 90 % 以上很正常；低于质保的 70 % 时，厂商负责维修或更换。",
+      test: "没有证明？可以做一次独立的电池检测（例如检测机构 DEKRA、TÜV，或该品牌的授权维修站），不到一天就能完成。",
+      warranty: "看电池质保还剩多少：自首次登记起的年数和公里数都算（见下表）。质保会转给你。",
+      fast: "问一问车是怎么充电的。主要在家用交流电充最温和；出租车或租赁车每天快充，电池损耗更快。",
+      range: "试驾时尽量充满，把显示的续航和官方 WLTP 续航对比一下。冬天会少一些。",
+      charger: "查一下这个版本的车载充电机（交流 kW）和直流快充功率：较老或较便宜的版本充电慢很多。",
+      cable: "问清楚是否附带 Type 2 充电线，以及（如果原来有的话）便携充电器。",
+    },
+    notes: { tesla: "Tesla：Model 3 和 Model Y 长续航版和高性能版为 192,000 公里；Model S 和 X 为 240,000 公里。", toyota: "Toyota：每年在授权经销商做电池检查，质保最长可延至 10 年或 1,000,000 公里。" },
+    asof: (d) => `厂商公布的条款，截至 ${d}。`, yrs: (n) => `${n} 年电池质保`,
+  } : de ? {
+    hv: "Rückrufe zu Hochvoltbatterie und Laden für dieses Modell", hvNone: "Für dieses Modell gibt es keine Rückrufe zu Hochvoltbatterie oder Laden", hvBrand: "Rückrufe zu Hochvoltbatterie und Laden bei dieser Marke",
+    until: (y) => `Batteriegarantie bis etwa ${y}`, over: "Batteriegarantie abgelaufen", left: (y, k) => `${y < 1 ? "weniger als ein Jahr" : y === 1 ? "noch etwa 1 Jahr" : `noch etwa ${y} Jahre`}${k != null ? ` und ${k.toLocaleString("de-DE")} km` : ""}`,
+    terms: (w) => `${w.years} Jahre oder ${w.km.toLocaleString("de-DE")} km, mindestens ${w.soh} % Kapazität`, pick: "Wähl Marke und Erstzulassung, um zu sehen, wie lange die Garantie noch läuft", unknownBrand: "Die Batteriegarantie dieser Marke haben wir nicht in der Liste; schau in die Unterlagen des Autos",
+    q: {
+      soh: "Lass dir ein Zertifikat zum Batteriezustand (SoH) zeigen, nicht nur die Reichweite im Display. Über 90 % nach ein paar Jahren ist normal; unter den 70 % der Garantie repariert oder tauscht der Hersteller.",
+      test: "Kein Zertifikat? Ein unabhängiger Batterietest (etwa bei DEKRA, TÜV oder einer Vertragswerkstatt der Marke) dauert weniger als einen Tag.",
+      warranty: "Prüf, wie viel Batteriegarantie bleibt: Jahre seit Erstzulassung und Kilometer zählen beide (Tabelle unten). Die Garantie geht auf dich über.",
+      fast: "Frag, wie das Auto geladen wurde. Meist zu Hause mit Wechselstrom ist am schonendsten; ein Taxi- oder Mietwagenleben mit täglichem Schnellladen nutzt die Batterie stärker ab.",
+      range: "Lad bei der Probefahrt möglichst auf 100 % und vergleich die angezeigte Reichweite mit der offiziellen WLTP-Reichweite. Im Winter ist es weniger.",
+      charger: "Prüf das Bordladegerät (AC in kW) und die DC-Ladeleistung der Version: Ältere und günstigere Versionen laden deutlich langsamer.",
+      cable: "Frag nach dem Typ-2-Ladekabel und, falls dabei, dem mobilen Ladegerät.",
+    },
+    notes: { tesla: "Tesla: Model 3 und Model Y Long Range und Performance 192.000 km, Model S und X 240.000 km.", toyota: "Toyota: Mit jährlichem Batterie-Check beim Händler verlängert sich die Garantie auf bis zu 10 Jahre oder 1.000.000 km." },
+    asof: (d) => `Bedingungen der Hersteller, Stand ${d}.`, yrs: (n) => `${n} Jahre Batteriegarantie`,
+  } : {
+    hv: "High-voltage battery and charging recalls for this model", hvNone: "No high-voltage battery or charging recalls for this model", hvBrand: "High-voltage battery and charging recalls for this brand",
+    until: (y) => `Battery warranty until about ${y}`, over: "Battery warranty has run out", left: (y, k) => `${y < 1 ? "less than a year" : y === 1 ? "about 1 year" : `about ${y} years`}${k != null ? ` and ${k.toLocaleString("en-GB")} km` : ""} left`,
+    terms: (w) => `${w.years} years or ${w.km.toLocaleString("en-GB")} km, at least ${w.soh} % capacity`, pick: "Pick the brand and first registration to see how long the warranty runs", unknownBrand: "We do not have this brand's battery warranty; check the car's documents",
+    q: {
+      soh: "Ask for a battery health (SoH) certificate, not just the range on the dashboard. Above 90 % after a few years is normal; below the warranty's 70 % the maker repairs or replaces it.",
+      test: "No certificate? An independent battery test (for example at DEKRA, TÜV or a dealer of the brand) takes less than a day.",
+      warranty: "Check how much battery warranty is left: years since first registration and km both count (table below). It passes to you.",
+      fast: "Ask how the car was charged. Mostly at home on AC is gentlest; a taxi or rental life with daily fast charging wears the battery faster.",
+      range: "On the test drive, charge to 100 % if you can and compare the range shown with the official WLTP range. Expect less in winter.",
+      charger: "Check the version's onboard charger (AC kW) and DC charging speed: older and cheaper versions charge much more slowly.",
+      cable: "Ask for the Type 2 charging cable and, if it came with one, the portable charger.",
+    },
+    notes: { tesla: "Tesla: Model 3 and Model Y Long Range and Performance 192,000 km; Model S and X 240,000 km.", toyota: "Toyota: with a yearly battery check at a dealer the cover extends up to 10 years or 1,000,000 km." },
+    asof: (d) => `Terms published by the makers, as of ${d}.`, yrs: (n) => `${n}-year battery warranty`,
+  };
+  let batKm = (() => { const v = parseInt(new URLSearchParams(location.search).get("km"), 10); return v >= 0 && v < 1e6 ? v : null; })();
+  function battery(rows, brandRows) {
+    if (!B || !$("battery")) return;
+    const card = (v, basis, cls) => `<div class="ac-readout ac-readout--md"><span class="ac-readout__value${cls ? " " + cls : ""}">${v}</span><span class="ac-readout__basis">${esc(basis)}</span></div>`;
+    const hv = rows.filter((a) => a.component === "hv_battery").length;
+    const hvB = brandRows.filter((a) => a.component === "hv_battery").length;
+    const c = B.cover(state.brand, state.year || null, batKm, new Date().getFullYear());
+    let html = state.model ? card(String(hv), hv ? BAT.hv : BAT.hvNone, hv ? "bad" : "good") : card(String(hvB), BAT.hvBrand);
+    if (!c.warranty) html += card("–", BAT.unknownBrand);
+    else if (c.covered == null) html += card(esc(BAT.yrs(c.warranty.years)), BAT.terms(c.warranty) + " · " + BAT.pick);
+    else html += card(c.covered ? BAT.until(c.until_year) : BAT.over, (c.covered ? BAT.left(c.years_left, c.km_left) + " · " : "") + BAT.terms(c.warranty), c.covered ? "good" : "bad");
+    $("bat-out").innerHTML = html;
+    $("bat-ask").innerHTML = B.QUESTIONS.map((k) => `<li>${esc(BAT.q[k])}</li>`).join("");
+    const mine = c.warranty ? c.warranty.brand : null;
+    $("bat-body").innerHTML = B.WARRANTY.map((w) => `<tr${w.brand === mine ? ' class="is-mine"' : ""}><td>${esc(w.brand)}${w.note ? " *" : ""}</td><td class="num">${w.years}</td><td class="num">${w.km.toLocaleString(de ? "de-DE" : zh ? "zh-CN" : "en-GB")}</td><td class="num">${w.soh} %</td></tr>`).join("");
+    $("bat-notes").textContent = Object.keys(BAT.notes).map((k) => "* " + BAT.notes[k]).join(" ") + " " + BAT.asof(B.AS_OF);
+  }
+  if ($("bat-km")) {
+    if (batKm != null) $("bat-km").value = batKm;
+    $("bat-km").addEventListener("input", () => {
+      const v = parseInt($("bat-km").value, 10);
+      batKm = v >= 0 && v < 1e6 ? v : null;
+      const url = new URL(location.href);
+      if (batKm != null) url.searchParams.set("km", batKm); else url.searchParams.delete("km");
+      history.replaceState(null, "", url);
+      if (lastBat) battery(lastBat[0], lastBat[1]);
+    });
+  }
+  let lastBat = null;
+
   /* ---------- state ---------- */
   let followed = [], brands = [], brandData = null, stats = null, statMode = "per";
   const state = { brand: "", model: "", year: 0 };
@@ -288,6 +366,7 @@
     if (us) list($("us"), us, usItem, T.noUs);
     readouts(eu, us);
     advice(eu, state.brand);
+    lastBat = [eu, bd.alerts]; battery(eu, bd.alerts);
     if (stats) drawBrands();
   }
 

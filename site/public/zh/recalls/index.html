@@ -45,6 +45,12 @@
   .rc__meta { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
   .rc__tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .more { margin-top: 8px; }
+  .bat-more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
+  .bat-table { width: 100%; }
+  .bat-table tr.is-mine td { background: var(--gold-bg); color: var(--gold-ink); font-weight: 700; }
+  #battery .ac-readout__value.good { color: var(--success); } #battery .ac-readout__value.bad { color: var(--danger); }
+  #battery { display: grid; gap: 14px; min-width: 0; } #battery > *, .bat-more > * { min-width: 0; max-width: 100%; }
+  #battery .ac-param__box input { width: 9ch; }
   .ask { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 72ch; }
   .ask__codes { margin: 12px 0 0; font-size: 14px; }
   .ask__codes code { font: 600 13px/1 var(--font-sign); background: var(--surface-200); padding: 3px 6px; border-radius: 5px; margin: 2px 2px 0 0; display: inline-block; }
@@ -134,6 +140,23 @@
         <div id="ask"></div>
       </section>
 
+      <section class="ac-card stack" id="battery" aria-labelledby="bat-h">
+        <h2 class="ac-card__title" id="bat-h">买二手电动车？先查电池</h2>
+        <p class="ac-card__desc" style="margin:0">电池是电动车最贵的部件。大多数厂商提供 8 年质保，做一次简短的检测就能知道电池健康状况。</p>
+        <label class="ac-param"><span class="ac-param__label">行驶里程</span><span class="ac-param__box"><input id="bat-km" type="number" min="0" max="1000000" step="1000" inputmode="numeric" placeholder="–"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">可选，用于判断质保。</span></label>
+        <div class="ac-readouts" id="bat-out" aria-live="polite"></div>
+        <ol class="ask" id="bat-ask"></ol>
+        <details class="bat-more">
+          <summary>各品牌电池质保</summary>
+          <p class="ac-caption">自首次登记起的年数或公里数，以先到者为准，以及电池必须保持的容量。质保可转给下一任车主。以上为德国新车的标准条款，具体以车辆自身的质保文件为准。</p>
+          <div class="ac-table-wrap"><table class="ac-table bat-table">
+            <thead><tr><th>品牌</th><th class="num">年</th><th class="num">公里</th><th class="num">至少保持</th></tr></thead>
+            <tbody id="bat-body"></tbody>
+          </table></div>
+          <p class="ac-caption" id="bat-notes"></p>
+        </details>
+      </section>
+
       <section class="ac-card" id="stats">
         <h2 class="ac-card__title">召回数据统计</h2>
         <p class="ac-card__desc">2019 年以来 EU Safety Gate 中的全部车辆通报。一条通报就是一次召回行动，无论涉及多少辆车。</p>
@@ -212,6 +235,7 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/recalls/app.js?v=8a37527135"></script>
+<script src="/recalls/battery.js?v=e2bca17f60"></script>
+<script src="/recalls/app.js?v=851867b264"></script>
 </body>
 </html>
