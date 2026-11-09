@@ -203,6 +203,44 @@
     addEventListener("appinstalled", function () { if (box) box.hidden = true; closeHint(); });
   });
 
+  /* ---------- share this page ---------- */
+  // The share section at the bottom of every page (site/chrome/footer*.html). Plain links only: no
+  // share scripts or trackers from other sites. The links are written with the page's address; when
+  // one is used, the address shown takes its place, so the ?parameters (the car, the city, the
+  // tariff you picked) travel with it.
+  document.addEventListener("DOMContentLoaded", function () {
+    var box = document.querySelector("[data-share]");
+    if (!box) return;
+    var base = box.getAttribute("data-share-url");
+    var status = box.querySelector("[data-share-status]");
+    var desc = box.querySelector(".ac-share__desc");
+    var say = function (text) { if (status) status.textContent = text; };
+    var fresh = function (a) {
+      if (!a.hasAttribute("data-share-href")) a.setAttribute("data-share-href", a.getAttribute("href"));
+      a.setAttribute("href", a.getAttribute("data-share-href").split(base).join(encodeURIComponent(location.href)));
+    };
+    box.querySelectorAll("[data-share-link]").forEach(function (a) {
+      ["pointerdown", "focus", "click"].forEach(function (ev) { a.addEventListener(ev, function () { fresh(a); }); });
+    });
+    var copy = box.querySelector("[data-share-copy]");
+    var manual = function () { window.prompt(box.getAttribute("data-share-manual"), location.href); };
+    if (copy) copy.addEventListener("click", function () {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) return manual();
+      navigator.clipboard.writeText(location.href).then(function () {
+        say(box.getAttribute("data-share-done"));
+        setTimeout(function () { say(""); }, 4000);
+      }, manual);
+    });
+    // The phone's own share sheet (also in some desktop browsers), where the browser has one.
+    var native = box.querySelector("[data-share-native]");
+    if (native && navigator.share) {
+      native.hidden = false;
+      native.addEventListener("click", function () {
+        navigator.share({ title: document.title, text: desc ? desc.textContent : "", url: location.href }).catch(function () {});
+      });
+    }
+  });
+
   /* ---------- "More" sheet on phones ---------- */
   // The sheet is a native popover, so the browser opens and closes it. This closes it after a tap on a
   // link to the page already shown (e.g. #ai on the data page), and opens it in browsers without popover.

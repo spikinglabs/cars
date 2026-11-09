@@ -360,3 +360,16 @@
   .ac-foot { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 }
 .ac-readout__value small { white-space: nowrap; }
+
+/* share this page: the first part of the footer (site/chrome/footer*.html, behaviour in site.js) */
+.ac-share { margin: 0 0 20px; padding: 14px 16px 12px; border: 1px solid var(--border); background: var(--surface-100); border-radius: var(--radius-md); color: var(--ink); }
+.ac-share h2 { margin: 0 0 4px; font: 700 15px/20px var(--font-sans); }
+.ac-foot .ac-share__desc { margin: 0 0 12px; color: var(--ink-muted); font-size: 14px; line-height: 20px; }
+.ac-share__row { display: flex; flex-wrap: wrap; gap: 8px; }
+.ac-foot .ac-share__row > a, .ac-share__btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-50); color: var(--ink); font: 700 14px/18px var(--font-sans); text-decoration: none; cursor: pointer; }
+.ac-foot .ac-share__row > a:hover, .ac-share__btn:hover { border-color: var(--ink); }
+.ac-share__btn[hidden] { display: none; }
+.ac-share__btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ac-foot .ac-share__note { margin: 10px 0 0; color: var(--ink-muted); font-size: 13px; }
+.ac-foot .ac-share__status { margin: 8px 0 0; color: var(--ink); font-weight: 700; }
+.ac-foot .ac-share__status:empty { display: none; }
