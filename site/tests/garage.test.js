@@ -43,3 +43,23 @@ test("matches model names across datasets", () => {
   assert.strictEqual(G.recallBrand("VW"), "volkswagen");
   assert.strictEqual(G.recallBrand("Mercedes"), "mercedes-benz");
 });
+
+test("compare basket keeps up to four distinct cars, newest last; adding one again changes nothing", () => {
+  const G = load();
+  ["a", "b", "c", "d", "e", "b"].forEach((x) => G.compare.add(x));
+  assert.deepStrictEqual([...G.compare.list()], ["b", "c", "d", "e"]);
+  G.compare.toggle("c");
+  assert.strictEqual(G.compare.has("c"), false);
+  G.compare.remove("d");
+  assert.deepStrictEqual([...G.compare.list()], ["b", "e"]);
+});
+
+test("finds the recalls that name a model", () => {
+  const G = load();
+  assert.strictEqual(G.recallNames({ models: "Golf, Passat (B8)" }, "VW", "Golf"), true);
+  assert.strictEqual(G.recallNames({ models: "Polo" }, "VW", "Golf"), false);
+  assert.strictEqual(G.recallNames({ models: "XC40, EX30" }, "Volvo", "EX30"), true);
+  assert.strictEqual(G.recallNames({ models: "ID.3" }, "VW", "ID.7"), false);
+  assert.strictEqual(G.recallFits({ production: "2023 - 2024" }, 2025), true);
+  assert.strictEqual(G.recallFits({ production: "2019" }, 2025), false);
+});
