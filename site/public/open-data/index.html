@@ -161,7 +161,9 @@
       <li><a href="/data/vehicle-catalog/de/models.json"><code>/data/vehicle-catalog/de/models.json</code></a> and <a href="/data/vehicle-catalog/de/models.csv"><code>models.csv</code></a>: every model with at least 20 new registrations in Germany in a year since 2021, petrol, diesel, plug-in hybrid and electric</li>
       <li><a href="/data/vehicle-catalog/de/electric.json"><code>/data/vehicle-catalog/de/electric.json</code></a>: electric models only, compact</li>
       <li><a href="/data/vehicle-catalog/eu/models.json"><code>/data/vehicle-catalog/eu/models.json</code></a>: the same for all of the EU-27</li>
+      <li><a href="/data/vehicle-catalog/de/versions/index.json"><code>/data/vehicle-catalog/de/versions/&lt;make&gt;.json</code></a> and <a href="/data/vehicle-catalog/de/versions.csv"><code>versions.csv</code></a>: the versions (trims) of every model: trim, power, official figures, years sold, commercial names and variant codes (field D.2 of the German registration certificate)</li>
     </ul>
+    <p>A version is the trim in the commercial name plus the power, split again where the official electric range jumps (another battery under the same name, like the Volvo EX30 with 51 or 69 kWh). Each version lists the commercial names and variant codes it was registered under, so it can be looked up in the maker's specifications. The EEA data has no battery size, charging power or dimensions, so neither do we.</p>
     <p>Licence CC BY 4.0: credit the European Environment Agency. The provisional year can still change until the EEA publishes the final data.</p>
   </section>
 

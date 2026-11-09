@@ -161,7 +161,9 @@
       <li><a href="/data/vehicle-catalog/de/models.json"><code>/data/vehicle-catalog/de/models.json</code></a> and <a href="/data/vehicle-catalog/de/models.csv"><code>models.csv</code></a>：2021 年以来任一年在德国至少有 20 辆新登记的所有车型，包括汽油、柴油、插电混动和纯电动</li>
       <li><a href="/data/vehicle-catalog/de/electric.json"><code>/data/vehicle-catalog/de/electric.json</code></a>：仅电动车型，精简版</li>
       <li><a href="/data/vehicle-catalog/eu/models.json"><code>/data/vehicle-catalog/eu/models.json</code></a>：欧盟 27 国的同类数据</li>
+      <li><a href="/data/vehicle-catalog/de/versions/index.json"><code>/data/vehicle-catalog/de/versions/&lt;品牌&gt;.json</code></a> 和 <a href="/data/vehicle-catalog/de/versions.csv"><code>versions.csv</code></a>：每个车型的各个版本（配置）：配置名、功率、官方数据、销售年份、商品名和变体代码（德国行驶证 D.2 栏）</li>
     </ul>
+    <p>一个版本 = 商品名里的配置名 + 功率；如果官方纯电续航明显跳变（同名车换了电池，例如沃尔沃 EX30 的 51 或 69 kWh），再分开。每个版本都列出登记时的商品名和变体代码，方便在厂家的技术参数里查找。EEA 数据不含电池容量、充电功率和尺寸，所以我们也没有。</p>
     <p>许可 CC BY 4.0：请注明欧洲环境署。在 EEA 公布最终数据之前，临时年份的数据仍可能变化。</p>
   </section>
 

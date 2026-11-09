@@ -18,6 +18,9 @@ Bucket layout (the R2_BUCKET_EV bucket, folder ``vehicle-catalog/``):
                          from the newest year the model was sold new (year), and the years it was sold (years)
           models.csv     the same as a table
           electric.json  electric models only, compact, for the charging cost page
+          versions/<make>.json   the versions (trims) of each model of one make: trim, power, official figures,
+                         years sold, commercial names and variant codes
+          versions.csv   every version as a table
       runs/YYYY/MM/DD/<ts>.json          what each run did
 
 The EEA publishes a provisional year in spring or summer and the final one in autumn; a monthly run picks up the
@@ -36,7 +39,7 @@ from datetime import datetime, timezone
 from pipelines.charging_prices.normalize import to_csv
 from pipelines.charging_prices.storage import LocalStore, PrefixedStore, R2Store
 
-from . import catalog, eea
+from . import catalog, eea, versions
 
 REGIONS = {"de": "Germany", "eu": "EU-27"}
 FIRST_YEAR = 2021  # the first year with WLTP figures for every new car
@@ -62,8 +65,20 @@ def _compact(obj) -> bytes:
     return json.dumps(obj, ensure_ascii=False, separators=(",", ":")).encode()
 
 
-def publish(store, rows: list[dict], info: dict, now: datetime, older: list[tuple[int, list[dict]]] = ()) -> dict:
-    """older: (year, rows) of earlier data years, for models no longer sold new."""
+VERSION_NOTES = (
+    "Versions (trims) of a model: the trim words of the commercial name plus the power in kW, split again where the "
+    "official electric range jumps by more than 10 % (a bigger battery under the same name). Official figures are "
+    "registration-weighted means over all reporting countries; registrations count the region in the version's year. "
+    "codes are the type-approval variant codes (field D.2 on the German registration certificate) and names the "
+    "commercial names as registered, to look a version up in the maker's specifications. Battery size, charging "
+    "power and dimensions are not in the EEA data."
+)
+
+
+def publish(store, rows: list[dict], info: dict, now: datetime, older: list[tuple[int, list[dict]]] = (),
+            version_rows: list[tuple[int, list[dict]]] = ()) -> dict:
+    """older: (year, rows) of earlier data years, for models no longer sold new. version_rows: (year, rows of
+    eea.versions_sql) for every data year, for the versions files."""
     years = [(info["year"], catalog.by_scope(rows))] + [(y, catalog.by_scope(r)) for y, r in older]
     first = min(y for y, _ in years)
     index = {"dataset": "vehicle-catalog", "updated_at": now.isoformat(), "source": eea.PAGE_URL, **info,
@@ -91,12 +106,49 @@ def publish(store, rows: list[dict], info: dict, now: datetime, older: list[tupl
         store.put(f"public/{region}/electric.json",
                   _compact({**meta, "columns": ["id", "name", "kwh_per_100km", "kwh_min", "kwh_max", "registrations", "range_km"],
                          "models": ev}), "application/json")
+        vcount = publish_versions(store, region, models, version_rows, meta) if version_rows else {}
         current = [m for m in models if m["years"][1] == info["year"]]
         counts[region] = {"models": len(models), "older_models": len(models) - len(current), "electric": len(ev),
                           "registrations": sum(m["registrations"] for m in current if m["year"] == info["year"])}
-        index["regions"][region] = {"files": ["models.json", "models.csv", "electric.json"], **counts[region]}
+        counts[region].update(vcount)
+        files = ["models.json", "models.csv", "electric.json"] + (["versions.csv", "versions/<make>.json"] if vcount else [])
+        index["regions"][region] = {"files": files, **counts[region]}
     store.put("public/index.json", _json(index), "application/json")
     return counts
+
+
+def publish_versions(store, region: str, models: list[dict], version_rows, meta: dict) -> dict:
+    by_year = [(y, versions.clusters(r, region)) for y, r in version_rows]
+    known = {m["id"]: m for m in models}
+    vs = {mid: v for mid, v in versions.merge(by_year).items() if mid in known}
+    counts = {"versions": sum(len(v) for v in vs.values())}
+    by_make: dict[str, dict] = {}
+    for mid, v in vs.items():
+        by_make.setdefault(catalog.slug(known[mid]["make"]), {})[mid] = v
+    vmeta = {**meta, "notes": VERSION_NOTES}
+    for make, part in sorted(by_make.items()):
+        store.put(f"public/{region}/versions/{make}.json", _compact({**vmeta, "make": known[next(iter(part))]["make"],
+                                                                     "models": part}), "application/json")
+    store.put(f"public/{region}/versions.csv", to_csv(versions.csv_rows(vs), versions.CSV_FIELDS), "text/csv")
+    store.put(f"public/{region}/versions/index.json",
+              _compact({**vmeta, "makes": {k: len(v) for k, v in sorted(by_make.items())}}), "application/json")
+    return counts
+
+
+def version_years(store, tables: dict[int, str], fetch=eea.fetch_all) -> list[tuple[int, list[dict]]]:
+    """Rows per version for each data year; a final table's rows are kept in raw/ and fetched once."""
+    out = []
+    for year, table in sorted(tables.items()):
+        key = f"raw/eea-co2-cars/versions/{table}.json"
+        cached = store.get(key) if eea.table_info(table)["status"] == "final" else None
+        rows = json.loads(cached) if cached else None
+        if not rows:
+            rows = fetch(eea.versions_sql(table))
+            if len(rows) < 1000:
+                raise ValueError(f"only {len(rows)} version rows from {table}; refusing to publish")
+            store.put(key, json.dumps(rows, ensure_ascii=False, sort_keys=True).encode(), "application/json")
+        out.append((year, rows))
+    return out
 
 
 def older_years(store, latest_year: int, find=eea.find_table, fetch=eea.fetch_all) -> list[tuple[int, list[dict]]]:
@@ -146,7 +198,10 @@ def run(store, table: str | None = None) -> dict:
                          "observed_at": now.isoformat()}), "application/json")
 
     older = older_years(store, info["year"])
-    counts = publish(store, rows, info, now, older)
+    known = json.loads(store.get("raw/eea-co2-cars/tables.json") or b"{}")
+    tables = {int(y): t for y, t in known.items()} | {info["year"]: table}
+    vrows = version_years(store, tables)
+    counts = publish(store, rows, info, now, older, vrows)
     report = {"started_at": now.isoformat(), "store": str(store), **info, "rows": len(rows), "raw_stored": stored,
               "older_years": [y for y, _ in older], "regions": counts}
     store.put(f"runs/{now:%Y/%m/%d}/{ts}.json", _json(report), "application/json")
@@ -166,7 +221,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{report['table']} ({report['status']} {report['year']}): {report['rows']} rows, raw stored: {report['raw_stored']}")
     for region, c in report["regions"].items():
         print(f"  {region}: {c['models']} models ({c['older_models']} only in older years), {c['electric']} electric, "
-              f"{c['registrations']} registrations")
+              f"{c['registrations']} registrations, {c.get('versions', 0)} versions")
     return 0
 
 

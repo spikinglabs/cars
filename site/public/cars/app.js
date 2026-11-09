@@ -21,6 +21,7 @@
     recallsNone: "安全门 (Safety Gate) 中没有找到此车型的召回。", recallsBrand: (b) => `查看 ${b} 的全部召回`, recallsAll: "查看全部召回和购车前要问的问题",
     regs: "在德国的新车登记", regsYear: "过去 12 个月新登记", regsRank: (r) => `排名第 ${r}`, regsNone: "登记统计中没有单独列出此车型。", regsMore: "每月登记量和排名",
     perMonth: "每月新登记，近 24 个月", similar: "同类车型", similarDesc: "动力类型相同、重量和功率相近、仍在销售的车型。", cmpThese: "和它们对比", cmpShort: "+ 对比", cmpOn: "✓ 对比中", badgeEff: (n) => `最省电电动车第 ${n} 名`, badgeCheap: (n) => `每 100 公里最省钱第 ${n} 名`, badgeSell: (n) => `德国销量第 ${n} 名`, rankingsAll: "全部排行榜", ratings: "评级", euro: "Euro NCAP 安全", green: "Green NCAP 环保", adac: "ADAC 故障率", tested: (y) => `${y} 年测试`, testedV: (y, v) => `${y} 年测试：${v}`, notTested: "没有找到这个车型的测试结果。", adacUnit: "每 1,000 辆车的道路救援次数，按首次登记年份", adacYear: (y, v, c) => `首次登记 ${y} 年：每 1,000 辆 ${v} 次（${c} 年）`, adacNone: "ADAC 故障统计没有单独列出这个车型（车辆数太少或车型太新）。", ratingsNote: "只显示总评级和年份，完整结果请看来源网站。", cmpAdd: "+ 加入对比", cmpIn: "✓ 已加入对比", cmpGo: (n) => `对比 ${n} 款车`, unit: (f) => f === "electric" ? "kWh/100 km" : "升/100 km",
+    versions: "版本", versionsDesc: "按登记的每个版本及其官方数据。选择你的版本，费用和数据会按它计算。", allVersions: "所有版本（平均）", older: (n) => `另外 ${n} 个已停售的版本`, mass: "整备质量", names: "登记名称", codes: "变体代码（行驶证 D.2）",
   } : de ? {
     locale: "de-DE", failed: "Die Daten konnten nicht geladen werden: ", example: "Beispiel", addThis: "Zu meinen Autos", remove: "Entfernen", saved: "In deinen Autos",
     fuel: { electric: "Elektro", petrol: "Benzin", diesel: "Diesel", lpg: "Autogas", "phev-petrol": "Plug-in-Hybrid (Benzin)", "phev-diesel": "Plug-in-Hybrid (Diesel)", hydrogen: "Wasserstoff" },
@@ -33,6 +34,7 @@
     recallsNone: "Safety Gate nennt keine Rückrufe für dieses Modell.", recallsBrand: (b) => `Alle Rückrufe von ${b}`, recallsAll: "Alle Rückrufe und was du vor dem Kauf fragen solltest",
     regs: "Neuzulassungen in Deutschland", regsYear: "Neu in den letzten 12 Monaten", regsRank: (r) => `Platz ${r}`, regsNone: "Die Zulassungsstatistik führt dieses Modell nicht einzeln.", regsMore: "Zulassungen pro Monat und Rangliste",
     perMonth: "Neuzulassungen pro Monat, letzte 24 Monate", similar: "Ähnliche Autos", similarDesc: "Gleicher Antrieb, ähnliches Gewicht und ähnliche Leistung, noch neu zu kaufen.", cmpThese: "Mit diesen vergleichen", cmpShort: "+ Vergleich", cmpOn: "✓ Im Vergleich", badgeEff: (n) => `Platz ${n} der sparsamsten E-Autos`, badgeCheap: (n) => `Platz ${n} der günstigsten pro 100 km`, badgeSell: (n) => `Platz ${n} der Neuzulassungen`, rankingsAll: "Alle Ranglisten", ratings: "Bewertungen", euro: "Euro NCAP Sicherheit", green: "Green NCAP Umwelt", adac: "ADAC Pannenstatistik", tested: (y) => `getestet ${y}`, testedV: (y, v) => `getestet ${y}: ${v}`, notTested: "Kein Testergebnis für dieses Modell gefunden.", adacUnit: "Pannen pro 1.000 Autos nach Erstzulassungsjahr", adacYear: (y, v, c) => `Erstzulassung ${y}: ${v} Pannen pro 1.000 Autos (${c})`, adacNone: "Die ADAC-Pannenstatistik führt dieses Modell nicht (zu wenige Autos oder zu neu).", ratingsNote: "Nur die Gesamtwertung und das Jahr; das ganze Ergebnis steht beim jeweiligen Anbieter.", cmpAdd: "+ Vergleichen", cmpIn: "✓ Im Vergleich", cmpGo: (n) => `${n} Autos vergleichen`, unit: (f) => f === "electric" ? "kWh/100 km" : "l/100 km",
+    versions: "Versionen", versionsDesc: "Jede Version, wie sie zugelassen wurde, mit eigenen offiziellen Werten. Wähle deine, dann rechnen Kosten und Werte mit ihr.", allVersions: "Alle Versionen (Durchschnitt)", older: (n) => `${n} ältere Versionen, nicht mehr neu zu kaufen`, mass: "Leergewicht", names: "Zugelassen als", codes: "Variante (Feld D.2 im Fahrzeugschein)",
   } : {
     locale: "en-GB", failed: "Could not load data: ", example: "Example", addThis: "Add to my cars", remove: "Remove", saved: "In your cars",
     fuel: { electric: "Electric", petrol: "Petrol", diesel: "Diesel", lpg: "LPG", "phev-petrol": "Plug-in hybrid (petrol)", "phev-diesel": "Plug-in hybrid (diesel)", hydrogen: "Hydrogen" },
@@ -45,6 +47,7 @@
     recallsNone: "Safety Gate lists no recalls for this model.", recallsBrand: (b) => `All ${b} recalls`, recallsAll: "All recalls, and what to ask before you buy",
     regs: "New registrations in Germany", regsYear: "New in the last 12 months", regsRank: (r) => `Rank ${r}`, regsNone: "The registration statistics don't list this model on its own.", regsMore: "Registrations per month and rankings",
     perMonth: "New registrations per month, last 24 months", similar: "Similar cars", similarDesc: "Same kind of drive, close in weight and power, still sold new.", cmpThese: "Compare with these", cmpShort: "+ Compare", cmpOn: "✓ Comparing", badgeEff: (n) => `No. ${n} most efficient EV`, badgeCheap: (n) => `No. ${n} cheapest per 100 km`, badgeSell: (n) => `No. ${n} best seller in Germany`, rankingsAll: "All rankings", ratings: "Ratings", euro: "Euro NCAP safety", green: "Green NCAP environment", adac: "ADAC breakdowns", tested: (y) => `tested ${y}`, testedV: (y, v) => `tested ${y}: ${v}`, notTested: "No test result found for this model.", adacUnit: "Breakdowns per 1,000 cars by year of first registration", adacYear: (y, v, c) => `First registered ${y}: ${v} breakdowns per 1,000 cars (${c})`, adacNone: "The ADAC breakdown statistics don\u2019t list this model (too few cars or too new).", ratingsNote: "Only the overall rating and year; the full result is at each source.", cmpAdd: "+ Compare", cmpIn: "✓ In comparison", cmpGo: (n) => `Compare ${n} cars`, unit: (f) => f === "electric" ? "kWh/100 km" : "L/100 km",
+    versions: "Versions", versionsDesc: "Each version as registered, with its own official figures. Pick yours and the cost and figures use it.", allVersions: "All versions (average)", older: (n) => `${n} older versions, no longer sold new`, mass: "Kerb weight", names: "Registered as", codes: "Variant code (field D.2 of the German registration certificate)",
   };
   const G = window.AlloGarage;
   const HOME_PRICE = 0.35, LOSS = 1.1; // the charging cost tool's defaults
@@ -58,6 +61,19 @@
   const soft = (u) => json(u).catch(() => null);
 
   let catalogYear = 0, catalog = [], byId = new Map(), prices = { fuel: null, charge: null }, regs = null, recallBrands = null, ratings = null;
+  /* versions (trims) of each model, one file per make (pipelines/vehicle_catalog/versions.py) */
+  const versionFiles = new Map();
+  const makeSlug = (make) => String(make || "").toLowerCase().replace(/&/g, "and").replace(/#/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  function versionsOf(m) {
+    if (!m) return Promise.resolve([]);
+    const k = makeSlug(m.make);
+    if (!versionFiles.has(k)) versionFiles.set(k, soft(AlloSite.data("vehicle-catalog", `versions/${k}.json`)));
+    return versionFiles.get(k).then((d) => (d && d.models && d.models[m.id]) || []);
+  }
+  const vLabel = (v) => [v.trim, `${v.power_kw} kW`, v.range_km ? `${v.range_km.toLocaleString(T.locale)} km` : ""].filter(Boolean).join(" · ");
+  // a version's own official figures over the model's averages
+  const eff = (s) => s.ver ? { ...s.m, kwh_per_100km: s.ver.kwh_per_100km, l_per_100km: s.ver.l_per_100km, co2_g_km: s.ver.co2_g_km,
+    range_km: s.ver.range_km, power_kw: s.ver.power_kw, mass_kg: s.ver.mass_kg, years: s.ver.years, year: s.ver.year } : s.m;
   let current = null; // { car: garage entry or null, spec: {car,name,make,model,fuel,year,cons} }
 
   /* ---------- your cars ---------- */
@@ -143,7 +159,7 @@
   /* ---------- one car ---------- */
   function specOf(c) {
     const m = c.car ? byId.get(c.car) : null;
-    return { car: c.car, name: c.name || (m && m.name), make: c.make || (m && m.make), model: c.model || (m && m.model), fuel: c.fuel || (m && m.fuel), year: c.year || 0, cons: c.cons, m };
+    return { car: c.car, name: c.name || (m && m.name), make: c.make || (m && m.make), model: c.model || (m && m.model), fuel: c.fuel || (m && m.fuel), year: c.year || 0, cons: c.cons, m, v: c.v || "" };
   }
   function showSaved(c, push) {
     if (!c) return;
@@ -151,11 +167,11 @@
     if (push) setUrl(current.spec);
     draw();
   }
-  function showModel(id, year) {
+  function showModel(id, year, v = "") {
     const m = byId.get(id);
     if (!m) return false;
-    const mine = G.list().find((c) => c.car === id && (!year || c.year === year));
-    current = mine ? { car: mine, spec: specOf(mine) } : { car: null, spec: { car: m.id, name: m.name, make: m.make, model: m.model, fuel: m.fuel, year: year || 0, cons: null, m } };
+    const mine = G.list().find((c) => c.car === id && (!year || c.year === year) && (!v || c.v === v));
+    current = mine ? { car: mine, spec: specOf(mine) } : { car: null, spec: { car: m.id, name: m.name, make: m.make, model: m.model, fuel: m.fuel, year: year || 0, cons: null, m, v } };
     draw();
     return true;
   }
@@ -163,11 +179,12 @@
     const u = new URL(location.href);
     if (s.car) { u.searchParams.set("car", s.car); if (s.year) u.searchParams.set("year", s.year); else u.searchParams.delete("year"); }
     else { u.searchParams.delete("car"); u.searchParams.delete("year"); }
+    if (s.car && s.v) u.searchParams.set("v", s.v); else u.searchParams.delete("v");
     history.replaceState(null, "", u);
   }
 
   function costBlock(s) {
-    const m = s.m, f = s.fuel, rows = [];
+    const m = eff(s), f = s.fuel, rows = [];
     const off = m ? (f === "electric" ? m.kwh_per_100km : m.l_per_100km) : null;
     const use = s.cons || off;
     const fp = prices.fuel && FUEL_PRODUCT[f] ? prices.fuel.products[FUEL_PRODUCT[f]] : null;
@@ -207,6 +224,34 @@
     return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.cost)}</h3><div class="ac-readouts">${readouts}</div>
       ${facts.length ? `<p class="ac-caption" style="margin:0">${facts.map(esc).join(" · ")}</p>` : ""}${own}
       ${links.length ? `<ul class="links">${links.map((l) => `<li>${l}</li>`).join("")}</ul>` : ""}</section>`;
+  }
+
+  /* versions: pick a trim; the cost, figures and similar cars then use its official figures */
+  function versionBlock(s, list) {
+    if (!list.length) return "";
+    const latest = Math.max(...list.map((v) => v.years[1]));
+    const row = (v) => {
+      const on = s.ver === v;
+      const facts = [v.kwh_per_100km && s.fuel === "electric" ? `${num(v.kwh_per_100km)} kWh/100 km` : v.l_per_100km ? `${num(v.l_per_100km)} ${T.unit("fuel")}` : "",
+        v.years[0] === v.years[1] ? String(v.years[0]) : `${v.years[0]}–${v.years[1]}`].filter(Boolean);
+      return `<li><span><a href="?car=${encodeURIComponent(s.car)}&v=${encodeURIComponent(v.id)}" data-v="${esc(v.id)}"${on ? ' aria-current="true"' : ""}>${on ? "✓ " : ""}${esc(vLabel(v))}</a><small>${facts.map(esc).join(" · ")}</small></span></li>`;
+    };
+    const cur = list.filter((v) => v.years[1] >= latest - 1), old = list.filter((v) => v.years[1] < latest - 1);
+    const sel = s.ver && old.includes(s.ver);
+    const all = `<li><span><a href="?car=${encodeURIComponent(s.car)}" data-v=""${s.ver ? "" : ' aria-current="true"'}>${s.ver ? "" : "✓ "}${esc(T.allVersions)}</a></span></li>`;
+    return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.versions)}</h3><p class="ac-caption" style="margin:4px 0 0">${esc(T.versionsDesc)}</p>
+      <ul class="slist vlist">${all}${cur.map(row).join("")}</ul>
+      ${versionFacts(s)}
+      ${old.length ? `<details class="older"${sel ? " open" : ""}><summary>${esc(T.older(old.length))}</summary><ul class="slist vlist">${old.map(row).join("")}</ul></details>` : ""}</section>`;
+  }
+  function versionFacts(s) {
+    const v = s.ver;
+    if (!v) return "";
+    const f = [];
+    if (v.mass_kg) f.push(`${T.mass}: ${v.mass_kg.toLocaleString(T.locale)} kg`);
+    if (v.names && v.names.length) f.push(`${T.names}: ${v.names.join(", ")}`);
+    if (v.codes && v.codes.length) f.push(`${T.codes}: ${v.codes.slice(0, 4).join(", ")}`);
+    return f.length ? `<p class="ac-caption">${f.map(esc).join(" · ")}</p>` : "";
   }
 
   /* recalls: the brand's Safety Gate alerts that name this model, as on the recalls page (rules in garage.js) */
@@ -250,11 +295,12 @@
   }
 
   /* compare basket (garage.js): add this model, then open /compare/ */
+  const cmpId = (s) => s.car && s.ver ? `${s.car}:${s.ver.id}` : s.car;
   function cmpHtml(s) {
     if (!s.car) return "";
-    const ids = G.compare.list(), on = ids.includes(s.car);
+    const id = cmpId(s), ids = G.compare.list(), on = ids.includes(id);
     return `<button type="button" class="ac-btn ac-btn--ghost" id="cmp" aria-pressed="${on}">${esc(on ? T.cmpIn : T.cmpAdd)}</button>`
-      + (ids.length > 1 || (ids.length === 1 && !on) ? `<a class="ac-btn ac-btn--primary" href="${PRE}/compare/?cars=${(on ? ids : [...ids, s.car]).slice(-G.compare.MAX).map(encodeURIComponent).join(",")}">${esc(T.cmpGo(on ? ids.length : Math.min(ids.length + 1, G.compare.MAX)))}</a>` : "");
+      + (ids.length > 1 || (ids.length === 1 && !on) ? `<a class="ac-btn ac-btn--primary" href="${PRE}/compare/?cars=${(on ? ids : [...ids, id]).slice(-G.compare.MAX).map(encodeURIComponent).join(",")}">${esc(T.cmpGo(on ? ids.length : Math.min(ids.length + 1, G.compare.MAX)))}</a>` : "");
   }
   addEventListener("ac:compare", () => {
     const r = $("cmp-row"); if (r && current) r.innerHTML = cmpHtml(current.spec);
@@ -265,7 +311,7 @@
   /* model hub: cars like this one, and where it stands in the rankings (same rules as /rankings/) */
   const currentModels = () => catalog.filter((m) => m.year === catalogYear || (m.years && m.years[1] >= catalogYear - 1));
   function similarBlock(s) {
-    const list = s.m ? G.similar(catalog, s.m, catalogYear, 5) : [];
+    const list = s.m ? G.similar(catalog, eff(s), catalogYear, 5) : []; // a chosen version: cars close to its power and weight
     if (!list.length) return "";
     const basket = G.compare.list();
     const rows = list.map((m) => {
@@ -275,7 +321,7 @@
       return `<li><span><a href="${PRE}/cars/?car=${encodeURIComponent(m.id)}">${esc(m.name)}</a><small>${[T.fuel[m.fuel] || m.fuel, use, c != null ? `${eur(c)} / 100 km` : ""].filter(Boolean).map(esc).join(" · ")}</small></span>
         <button type="button" class="ac-chip" data-cmp="${esc(m.id)}" aria-pressed="${on}">${esc(on ? T.cmpOn : T.cmpShort)}</button></li>`;
     }).join("");
-    const ids = [s.m.id, ...list.slice(0, 3).map((m) => m.id)];
+    const ids = [cmpId(s), ...list.slice(0, 3).map((m) => m.id)];
     return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.similar)}</h3><p class="ac-caption" style="margin:4px 0 0">${esc(T.similarDesc)}</p>
       <ul class="slist">${rows}</ul><ul class="links"><li><a href="${PRE}/compare/?cars=${ids.map(encodeURIComponent).join(",")}">${esc(T.cmpThese)}</a></li></ul></section>`;
   }
@@ -322,7 +368,11 @@
   async function draw() {
     drawGarage();
     const s = current.spec, me = ++drawing;
-    const title = current.car && current.car.nick ? `${current.car.nick} · ${s.name}` : s.name;
+    const list = await versionsOf(s.m);
+    if (me !== drawing) return;
+    s.ver = (s.v && list.find((v) => v.id === s.v)) || null;
+    const vname = s.ver ? ` ${vLabel(s.ver)}` : "";
+    const title = (current.car && current.car.nick ? `${current.car.nick} · ${s.name}` : s.name) + vname;
     const sub = [T.fuel[s.fuel] || s.fuel, s.year ? T.reg(s.year) : "", !current.car && !G.list().length && !new URLSearchParams(location.search).get("car") ? T.example : ""].filter(Boolean).join(" · ");
     const acts = current.car
       ? `<span class="ac-status ac-status--ok">${esc(T.saved)}</span><button type="button" class="ac-btn ac-btn--ghost" id="remove">${esc(T.remove)}</button>`
@@ -332,13 +382,21 @@
     const [rc, rg] = await Promise.all([recallBlock(s).catch((e) => ""), regBlock(s).catch((e) => "")]);
     if (me !== drawing) return;
     const cards = $("profile").querySelector(".cards");
-    cards.innerHTML = costBlock(s) + ratingsBlock(s) + rc + rg + similarBlock(s);
+    cards.innerHTML = costBlock(s) + versionBlock(s, list) + ratingsBlock(s) + rc + rg + similarBlock(s);
   }
   $("profile").addEventListener("click", (e) => {
-    if (e.target.id === "cmp") { G.compare.toggle(current.spec.car); return; }
+    const va = e.target.closest("a[data-v]");
+    if (va) {
+      e.preventDefault();
+      current.spec.v = va.dataset.v;
+      if (current.car) G.update(current.car.id, { v: va.dataset.v });
+      setUrl(current.spec); draw();
+      return;
+    }
+    if (e.target.id === "cmp") { G.compare.toggle(cmpId(current.spec)); return; }
     const sc = e.target.closest("[data-cmp]");
     if (sc) { G.compare.toggle(sc.dataset.cmp); return; }
-    if (e.target.id === "keep") { const s = current.spec; showSaved(G.add({ car: s.car, name: s.name, make: s.make, model: s.model, fuel: s.fuel, year: s.year }), true); }
+    if (e.target.id === "keep") { const s = current.spec; showSaved(G.add({ car: s.car, name: s.name, make: s.make, model: s.model, fuel: s.fuel, year: s.year, v: s.v }), true); }
     if (e.target.id === "remove") {
       G.remove(current.car.id);
       const next = G.active();
@@ -364,7 +422,7 @@
     catalogYear = cat.year || 0; catalog = cat.models; byId = new Map(catalog.map((m) => [m.id, m]));
     prices = { fuel, charge }; regs = rg; recallBrands = rb; ratings = rt;
     const u = new URLSearchParams(location.search);
-    if (u.get("car") && showModel(u.get("car"), Number(u.get("year")) || 0)) return;
+    if (u.get("car") && showModel(u.get("car"), Number(u.get("year")) || 0, u.get("v") || "")) return;
     const a = G.active();
     if (a) return showSaved(a, false);
     showModel("volvo-ex30", 0) || showModel(catalog[0].id, 0);
