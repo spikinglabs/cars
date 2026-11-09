@@ -50,6 +50,17 @@
   .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
   .dot { fill: var(--car-2); }
   .hit { fill: transparent; }
+  .pk-chip i, .cmp .sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 2px; flex: none; }
+  .cmp .sw { margin-right: 8px; vertical-align: baseline; }
+  #picked { margin: calc(-1 * var(--space-2)) 0 var(--space-4); }
+  #pick-note { margin: 0 0 var(--space-3); }
+  #modelseg { margin-bottom: var(--space-3); }
+  #picked[hidden], #model-legend[hidden], #model-note[hidden] { display: none; }
+  #model-note { margin: 0 0 var(--space-2); }
+  .cmp-line { fill: none; stroke-width: 2.25; stroke-linejoin: round; }
+  .combo__list li.is-picked { background: var(--surface-200); }
+  .combo__list li.combo__more { justify-content: center; color: var(--ink); text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
+  @media (max-width: 520px) { .ac-table.cmp .rk { display: none; } }
   .grid { stroke: var(--chart-grid); }
   .ac-table { width: 100%; }
   .ac-table a { color: var(--ink); }
@@ -89,7 +100,7 @@
 <!-- /chrome:header -->
 
     <h1>Welche Autos sind <span class="ac-hl">neu auf deutschen Straßen</span>?</h1>
-    <p class="lead">Die amtlichen monatlichen Neuzulassungen jedes Pkw-Modells in Deutschland seit 2019. Wähle ein Modell und sieh, wie viele jeden Monat zugelassen werden und wie viele davon elektrisch sind. <span id="market-line"></span></p>
+    <p class="lead">Die amtlichen monatlichen Neuzulassungen jedes Pkw-Modells in Deutschland seit 2019. Wähle ein Modell und sieh, wie viele jeden Monat zugelassen werden und wie viele davon elektrisch sind, oder mehrere, um sie zu vergleichen. <span id="market-line"></span></p>
 
     <div class="stack">
       <section class="ac-card">
@@ -98,11 +109,15 @@
             <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-list" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="Marke und Modell, z. B. Volvo EX30" aria-label="Marke und Modell">
             <ul id="q-list" class="combo__list" role="listbox" aria-label="Marke und Modell" hidden></ul>
           </div>
-          <button class="ac-btn ac-btn--primary" type="submit">Zeigen</button>
+          <button class="ac-btn ac-btn--primary" type="submit">Hinzufügen</button>
         </form>
+        <div class="ac-chips" id="picked" aria-live="polite" hidden></div>
+        <p class="ac-caption" id="pick-note" role="status" hidden></p>
         <h2 class="ac-card__title" id="model-title">…</h2>
         <div id="model-out"><div class="ac-readouts"><div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">Lädt</div></div></div></div>
-        <div class="ac-legend"><span><i style="border-color:var(--car-2);border-top-width:8px"></i>Elektrisch (BEV)</span><span><i style="border-color:var(--fuel);border-top-width:8px;opacity:.55"></i>Benzin, Diesel und Hybrid</span></div>
+        <div class="ac-seg" id="modelseg" role="group" aria-label="Welche Zulassungen"></div>
+        <div class="ac-legend" id="model-legend"></div>
+        <p class="ac-caption" id="model-note" hidden></p>
         <div class="ac-chart" id="model-chart"></div>
       </section>
 
@@ -192,6 +207,6 @@
   </main>
 </div>
 <script src="/registrations/wave.js?v=f9d5f95b13"></script>
-<script src="/registrations/app.js?v=7d1d4e86cd"></script>
+<script src="/registrations/app.js?v=bc29ce8cda"></script>
 </body>
 </html>
