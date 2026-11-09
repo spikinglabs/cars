@@ -40,6 +40,10 @@
   .soon { border-style: dashed; box-shadow: none; background: transparent; }
   .spark { width: 100%; height: 90px; display: block; }
   code { font: 600 14px/20px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface-200); padding: 2px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+  .evband { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin: var(--space-5) 0 0; color: inherit; text-decoration: none; border-left: 6px solid var(--gold); }
+  .evband__text { display: grid; gap: 4px; flex: 1 1 320px; }
+  .evband__text b { font: 800 20px/26px var(--font-display); }
+  .evband__text span { color: var(--ink-muted); font-size: 14px; line-height: 20px; }
 </style>
 </head>
 <body>
@@ -91,6 +95,11 @@
       </a>
     </div>
   </section>
+
+  <a class="ac-card evband" href="/de/electric/">
+    <span class="evband__text"><b>Du willst ein E-Auto kaufen?</b><span>Deine Förderung, die Kosten gegenüber dem Benziner, Laden in deiner Nähe, die meistgekauften Modelle und der Gebrauchtwagen-Check, in fünf Schritten.</span></span>
+    <span class="ac-btn ac-btn--gold">Hier anfangen</span>
+  </a>
 
   <section class="block" aria-labelledby="tools-h">
     <h2 id="tools-h">Tools</h2>
@@ -187,7 +196,7 @@
 
 <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/de/cars/">Meine Autos</a> · <a href="/de/ev-grant/">E-Auto-Förderung</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/rankings/">Ranglisten</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p class="ac-foot__links"><a href="/de/electric/">E-Auto kaufen</a> · <a href="/de/cars/">Meine Autos</a> · <a href="/de/ev-grant/">E-Auto-Förderung</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/rankings/">Ranglisten</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Mehr von Allo</h2>
@@ -223,6 +232,7 @@
   </ul>
   <h3>Autos</h3>
   <ul>
+    <li><a href="/de/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>E-Auto kaufen</span></a></li>
     <li><a href="/de/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>Meine Autos</span></a></li>
     <li><a href="/de/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>E-Auto-Förderung</span></a></li>
     <li><a href="/de/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Autos vergleichen</span></a></li>
