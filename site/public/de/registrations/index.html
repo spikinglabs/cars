@@ -36,7 +36,7 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=17f543275f">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=46199bae30">
 <script src="/assets/site.js?v=b92c9c36d3"></script>
 <style>
   #wave { display: grid; gap: 14px; min-width: 0; }
@@ -132,6 +132,7 @@
         <div class="ac-legend" id="model-legend"></div>
         <p class="ac-caption" id="model-note" hidden></p>
         <div class="ac-chart" id="model-chart"></div>
+        <div id="model-range"></div>
       </section>
 
       <section class="ac-card">
@@ -156,6 +157,7 @@
         <div class="ac-readouts" id="wave-out" aria-live="polite"></div>
         <p class="ac-card__desc" style="margin:0">Anteil reiner E-Autos an allen neuen Pkw, pro Monat. Die gestrichelte Linie markiert den Start der E-Auto-Förderung (Januar 2026).</p>
         <div class="ac-chart" id="share-chart"></div>
+        <div id="share-range"></div>
         <h3 class="wave-h">Am schnellsten wachsende E-Modelle</h3>
         <p class="ac-caption" style="margin:0">Elektrische Neuzulassungen der letzten drei Monate gegenüber denselben Monaten ein Jahr zuvor, die meisten zusätzlichen Autos zuerst.</p>
         <ol class="wave-grow" id="wave-grow"></ol>
@@ -234,7 +236,8 @@
 <!-- /chrome:footer -->
   </main>
 </div>
+<script src="/assets/range.js?v=c74355bdeb"></script>
 <script src="/registrations/wave.js?v=f9d5f95b13"></script>
-<script src="/registrations/app.js?v=bc29ce8cda"></script>
+<script src="/registrations/app.js?v=10a653146d"></script>
 </body>
 </html>
