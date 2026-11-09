@@ -24,6 +24,9 @@ https://cars.allo.land/mcp is a read-only MCP server (streamable HTTP, no login)
 - [Ad-hoc EV charging prices, latest](https://cars.allo.land/data/charging-prices/latest.json): median, p10, p90 of the base energy price (EUR/kWh incl. VAT) over all published ad-hoc tariffs, overall and per data source.
 - [Daily price history](https://cars.allo.land/data/charging-prices/daily.csv): one row per day and source (date, source, tariffs, median, p10, p90, min, max). Collection started 2026-11-06.
 - [Current tariffs](https://cars.allo.land/data/charging-prices/tariffs.csv): every ad-hoc tariff with energy, time, parking and session prices.
+- [Charging prices by operator](https://cars.allo.land/data/charging-prices/operators.csv): median EUR/kWh per operator, overall and for AC, DC (below 150 kW) and high-power (150 kW+) charge points; latest.json has the same in by_operator and by_power.
+- [Daily prices by charger type](https://cars.allo.land/data/charging-prices/daily_power.csv): date, power (ac, dc, hpc), charge_points, median, p10, p90, min, max.
+- [Daily prices by operator](https://cars.allo.land/data/charging-prices/daily_operators.csv)
 - [Sources and licences](https://cars.allo.land/data/charging-prices/sources.json)
 - [Weekly fuel prices](https://cars.allo.land/data/fuel-prices/weekly.csv): date, euro_super_95, diesel, lpg in EUR per litre incl. taxes, weekly since 2005 (EU Weekly Oil Bulletin, CC BY 4.0).
 - [Fuel prices, latest week](https://cars.allo.land/data/fuel-prices/latest.json): this week per fuel, change on last week, 4- and 52-week averages. Other countries: /data/fuel-prices/<region>/ (list in /data/fuel-prices/index.json).

@@ -240,12 +240,24 @@ async function getFuelPrices(get, { region = "de", fuel = null, weeks = 12 } = {
   };
 }
 
-async function getChargingPrices(get) {
+async function getChargingPrices(get, { operator = null } = {}) {
   const d = await load(get, "charging-prices/de/latest.json");
+  const ops = d.by_operator || [];
+  let operators;
+  if (operator) {
+    const q = String(operator).trim().toLowerCase();
+    operators = ops.filter((o) => o.operator.toLowerCase().includes(q));
+  } else {
+    operators = ops.slice(0, 15);
+  }
   return {
     region: d.region, observed_at: d.observed_at, currency: d.currency, unit: d.unit,
-    overall: d.overall, by_source: d.by_source, note: d.note, source: d.source, licence: d.licence,
-    history: `${SITE}/data/charging-prices/de/daily.csv`, page: `${SITE}/charging-prices/`,
+    overall: d.overall, by_power: d.by_power, by_power_note: d.by_power_note,
+    operators, operators_total: ops.length, operators_shown: operator ? "matching the operator asked for" : "15 with the most priced charge points",
+    by_source: d.by_source, note: d.note, source: d.source, licence: d.licence,
+    history: `${SITE}/data/charging-prices/de/daily.csv`, history_by_power: `${SITE}/data/charging-prices/de/daily_power.csv`,
+    all_operators: `${SITE}/data/charging-prices/de/operators.csv`,
+    page: `${SITE}/charging-prices/${operator ? "?q=" + encodeURIComponent(operator) : ""}`,
     cost_tool: `${SITE}/ev-cost/?p=${d.overall && d.overall.median}`,
   };
 }
@@ -806,8 +818,10 @@ export const TOOLS = [
   {
     name: "get_charging_prices",
     title: "Public charging prices in Germany",
-    description: "Ad-hoc (no contract) public EV charging prices in Germany, collected every hour: median, 10th and 90th percentile, minimum and maximum of the energy price per kWh incl. VAT over all published tariffs, overall and per data source, with links to the daily history and the charging cost calculator.",
-    inputSchema: { type: "object", properties: {} },
+    description: "Ad-hoc (no contract) public EV charging prices in Germany, collected every hour: median, 10th and 90th percentile, minimum and maximum of the energy price per kWh incl. VAT over all published tariffs; per charger type (AC, DC below 150 kW, high-power from 150 kW, counted per charge point); per operator (AC/DC/150 kW+ medians); with links to the daily history and the charging cost calculator. Only operators with an open price feed are covered.",
+    inputSchema: { type: "object", properties: {
+      operator: str("Part of an operator's name, e.g. 'EnBW' or 'Stadtwerke'. Leave out for the 15 operators with the most charge points."),
+    } },
     run: getChargingPrices,
   },
   {

@@ -79,9 +79,12 @@
       <li><a href="/data/charging-prices/latest.json"><code>/data/charging-prices/latest.json</code></a>：今天的中位数、第 10 和第 90 百分位，总体及按来源</li>
       <li><a href="/data/charging-prices/daily.csv"><code>/data/charging-prices/daily.csv</code></a>：每天每个来源一行</li>
       <li><a href="/data/charging-prices/tariffs.csv"><code>/data/charging-prices/tariffs.csv</code></a>：当前所有即充即付资费，含电量、时长、停车和单次费用</li>
+      <li><a href="/data/charging-prices/operators.csv"><code>/data/charging-prices/operators.csv</code></a>：每家运营商的价格中位数，总体以及交流、直流（150 kW 以下）和超快充（150 kW 及以上）充电点</li>
+      <li><a href="/data/charging-prices/daily_power.csv"><code>/data/charging-prices/daily_power.csv</code></a>：每天每种充电类型（ac、dc、hpc）一行，按充电点计</li>
+      <li><a href="/data/charging-prices/daily_operators.csv"><code>/data/charging-prices/daily_operators.csv</code></a>：每天每家运营商一行</li>
       <li><a href="/data/charging-prices/sources.json"><code>/data/charging-prices/sources.json</code></a>：来源及其许可</li>
     </ul>
-    <p>价格是各即充即付资费的基础电价。单次费用和占位费见 <code>tariffs.csv</code>。签约价格通常更低。</p>
+    <p>价格是各即充即付资费的基础电价。单次费用和占位费见 <code>tariffs.csv</code>。签约价格通常更低。按充电类型和运营商的价格：我们把每种资费与其适用的充电点关联（OCPDB 资费关联），从充电点列表读取功率，从每周的站点列表读取运营商，每个充电点只计一次，按其最便宜的即充即付资费。</p>
     <p>再次使用这些数据时，请注明 <code>sources.json</code> 中列出的来源和许可。</p>
   </section>
 

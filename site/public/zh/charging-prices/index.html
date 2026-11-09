@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>充电价格档案 · Allo Cars</title>
-<meta name="description" content="德国电动车即充即付充电价格的历史变化，来自公开的 AFIR 数据。">
+<meta name="description" content="德国电动车即充即付充电价格的历史变化，按交流、直流快充和运营商分开，来自公开的 AFIR 数据。">
 <link rel="alternate" type="application/json" href="/data/charging-prices/latest.json" title="最新价格 (JSON)">
+<link rel="alternate" type="text/csv" href="/data/charging-prices/operators.csv" title="按运营商的价格（CSV）">
 <link rel="alternate" type="text/csv" href="/data/charging-prices/daily.csv" title="每日历史 (CSV)">
 <!-- chrome:head -->
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/charging-prices/">
@@ -35,6 +36,17 @@
   .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
   .dot { fill: var(--car-2); }
   .grid { stroke: var(--chart-grid); }
+  .series { margin: 4px 0 12px; }
+  .ops-controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; margin: 4px 0 12px; }
+  .ops-filter { display: grid; gap: 4px; }
+  .ops-filter input { min-height: 40px; padding: 0 10px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 600 15px/20px var(--font-sans); width: 200px; }
+  .ops td.name { white-space: normal; min-width: 140px; }
+  .ops .sub { display: block; font-size: 12px; line-height: 16px; color: var(--ink-muted); }
+  .ops[data-hl="2"] td:nth-child(2), .ops[data-hl="3"] td:nth-child(3), .ops[data-hl="4"] td:nth-child(4), .ops[data-hl="5"] td:nth-child(5) { font-weight: 700; }
+  .ops-more { margin: 12px 0 0; }
+  .ops-more[hidden], .ops-controls[hidden], .series[hidden], #by-type[hidden] { display: none; }
+  .ac-readout__basis b { color: var(--ink); }
+  @media (max-width: 560px) { .ops-filter { flex: 1 1 100%; } .ops-filter input { width: 100%; } }
 </style>
 </head>
 <body>
@@ -68,7 +80,7 @@
 <!-- /chrome:header -->
 
     <h1>在德国<span class="ac-hl">即充即付</span>要花多少钱？</h1>
-    <p class="lead">所有已公布的即充即付资费（无需签约直接付款），自 2026 年 11 月 6 日起每小时收集一次。价格为每 kWh 欧元，含增值税。</p>
+    <p class="lead">所有已公布的即充即付资费（无需签约直接付款），自 2026 年 11 月 6 日起每小时收集一次。价格为每 kWh 欧元，含增值税，并按交流、快充和运营商分开列出。</p>
 
     <div class="stack">
       <section class="ac-card">
@@ -77,9 +89,29 @@
         </div>
       </section>
 
+      <section class="ac-card" id="by-type">
+        <h2 class="ac-card__title">按充电类型</h2>
+        <p class="ac-card__desc">今天单个充电点的价格中位数。每个充电点只计一次，按其最便宜的即充即付资费。</p>
+        <div class="ac-readouts" id="power">
+          <div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">加载中</div></div>
+        </div>
+      </section>
+
+      <section class="ac-card" id="by-operator">
+        <h2 class="ac-card__title">按运营商</h2>
+        <p class="ac-card__desc">发布开放即充即付价格、且至少有 25 个有价格的充电点的运营商。每格显示价格中位数，下方是覆盖的充电点数量。没有开放价格数据的网络不在其中。</p>
+        <div class="ops-controls" id="opsctl">
+          <div class="ac-seg" id="opsort" role="group" aria-label="运营商排序"></div>
+          <label class="ops-filter"><span class="ac-param__label">查找运营商</span><input id="q" type="search" autocomplete="off"></label>
+        </div>
+        <div class="ac-table-wrap" id="ops"></div>
+        <p class="ops-more" hidden><button type="button" class="ac-btn" id="opsmore">显示全部</button></p>
+      </section>
+
       <section class="ac-card">
         <h2 class="ac-card__title">每日即充即付价格中位数</h2>
-        <p class="ac-card__desc">所有开放许可来源合计</p>
+        <p class="ac-card__desc" id="seriesdesc">所有开放许可来源合计</p>
+        <div class="ac-seg series" id="series" role="group" aria-label="图表数据" hidden></div>
         <div class="ac-legend"><span><i style="border-color:var(--car-2)"></i>中位数</span><span><i style="border-color:var(--car-1);border-top-width:8px;opacity:.5"></i>第 10 至第 90 百分位</span></div>
         <div class="ac-chart" id="chart"></div>
         <p class="ac-caption">更早的价格没有公开档案，所以数据从我们第一次收集开始。</p>
@@ -143,6 +175,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/charging-prices/app.js?v=6588560e6a"></script>
+<script src="/charging-prices/app.js?v=8f26bcb131"></script>
 </body>
 </html>
