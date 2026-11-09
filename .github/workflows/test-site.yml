@@ -20,6 +20,8 @@ jobs:
           node-version: "22"
       - name: Calculator tests
         run: node --test site/tests/calc.test.js
+      - name: E-Auto grant tests
+        run: node --test site/tests/grant.test.js
       - name: Data function tests
         run: node --test site/tests/data-function.test.js
       - name: MCP endpoint tests
