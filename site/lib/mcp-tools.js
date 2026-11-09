@@ -347,15 +347,9 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
   }
   if (!picked.length) return { error: `No car model matches ${unknown.map((u) => `'${u}'`).join(", ")}. Use lookup_official_consumption to find catalog ids.` };
   const soft = (p) => get(p).catch(() => null);
-<<<<<<< HEAD
   const [fuel, charge, regs, brands, ratings] = await Promise.all([
     soft("fuel-prices/de/latest.json"), soft("charging-prices/de/latest.json"),
     soft("registrations/de/models.json"), soft("recalls/eu/brands.json"), soft("ratings/de/ratings.json"),
-=======
-  const [fuel, charge, regs, brands] = await Promise.all([
-    soft("fuel-prices/de/latest.json"), soft("charging-prices/de/latest.json"),
-    soft("registrations/de/models.json"), soft("recalls/eu/brands.json"),
->>>>>>> origin/claude/project-thread-269eby
   ]);
   const pub = charge && charge.overall ? charge.overall.median : null;
   const brandFiles = new Map();
@@ -384,13 +378,10 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
       cost_per_year_eur: per100 == null ? null : Math.round(per100 * km / 100),
       registrations_last_12_months: r ? r.last_12_months ?? null : null, registrations_rank_latest_month: r ? r.rank ?? null : null,
       safety_gate_recalls: recalls,
-<<<<<<< HEAD
       ...(() => { const r = ratingsOf(ratings, m); return {
         euro_ncap_stars: r.euro_ncap ? r.euro_ncap.stars : null, euro_ncap_year: r.euro_ncap ? r.euro_ncap.year : null,
         green_ncap_stars: r.green_ncap ? r.green_ncap.stars : null, green_ncap_year: r.green_ncap ? r.green_ncap.year : null,
         adac_breakdowns_per_1000: r.adac_breakdowns ? r.adac_breakdowns.per_1000_cars_by_first_registration : null }; })(),
-=======
->>>>>>> origin/claude/project-thread-269eby
       page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}`,
     });
   }
@@ -405,7 +396,6 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
   };
 }
 
-<<<<<<< HEAD
 // ---------- rankings (the /rankings/ page) ----------
 
 const RANKINGS = ["sellers", "month", "electric", "efficient", "cheapest", "recalls"];
@@ -541,8 +531,6 @@ async function getCarRatings(get, { car } = {}) {
   };
 }
 
-=======
->>>>>>> origin/claude/project-thread-269eby
 // ---------- chargers ----------
 
 function km(lat1, lon1, lat2, lon2) {
@@ -726,7 +714,6 @@ export const TOOLS = [
     run: compareCars,
   },
   {
-<<<<<<< HEAD
     name: "get_rankings",
     title: "Car rankings for Germany",
     description: "Ranked lists of car models, as on cars.allo.land/rankings/: sellers (most new registrations over 12 months), month (top 20 of the latest month with the change on a year before), electric (electric best sellers of the latest month), efficient (lowest official kWh/100 km), cheapest (lowest cost per 100 km at this week's prices, optionally one fuel) and recalls (brands with the fewest Safety Gate recalls per 100,000 new cars). Rows link to the model page and carry the catalog id for compare_cars.",
@@ -755,8 +742,6 @@ export const TOOLS = [
     run: getCarRatings,
   },
   {
-=======
->>>>>>> origin/claude/project-thread-269eby
     name: "get_registrations",
     title: "New car registrations in Germany",
     description: "Monthly new car registrations in Germany (official KBA figures since Dec 2018): one model's monthly counts with electric and plug-in hybrid splits and its rank, or, with no model, the latest month's market by drive type and the top 20 and top 10 electric models.",

@@ -12,11 +12,7 @@
   const T = zh ? {
     locale: "zh-CN", failed: "无法加载数据：", remove: "移除", add: "添加车型", addPh: "品牌和车型，例如 VW Golf", noModel: "没有找到车型。", full: "最多比较 4 辆车。先移除一辆。",
     fuel: { electric: "纯电动", petrol: "汽油", diesel: "柴油", lpg: "LPG", cng: "天然气", "phev-petrol": "插电混动（汽油）", "phev-diesel": "插电混动（柴油）", hydrogen: "氢燃料", e85: "E85" },
-<<<<<<< HEAD
     g: { ratings: "评级", basics: "基本信息", energy: "官方能耗 (WLTP)", cost: "用车费用（本周德国价格）", de: "在德国", recalls: "召回" },
-=======
-    g: { basics: "基本信息", energy: "官方能耗 (WLTP)", cost: "用车费用（本周德国价格）", de: "在德国", recalls: "召回" },
->>>>>>> origin/claude/project-thread-269eby
     fuelRow: "能源类型", years: "新车销售年份", power: "功率", mass: "整备质量", kwPerT: "功率重量比", variants: "登记的版本数",
     kwh: "电耗", litre: "油耗", co2: "CO₂ 排放",
     c100: "每 100 公里（家充或加油）", cPub: "每 100 公里（公共充电）", cYear: (km) => `每年（${km} 公里）`,
@@ -25,19 +21,11 @@
     best: "最佳", only: "隐藏相同的项目", mark: "标出最佳值", km: "每年公里数",
     try: "常见比较", mine: "加入我的车", empty: "添加至少两辆车来比较。",
     basisHome: (p) => `家充 ${p}/kWh，含 10% 充电损耗`, basisPub: (p) => `公共即充即付中位数 ${p}/kWh`, basisFuel: (w) => `油价：${w} 当周全国平均`,
-<<<<<<< HEAD
     pair: (a, b) => `${a} 对比 ${b}`, euro: "Euro NCAP 安全星级", green: "Green NCAP 环保星级", adac: (y) => `ADAC 每 1,000 辆故障（${y} 年首次登记）`, rg: "评级",
   } : de ? {
     locale: "de-DE", failed: "Die Daten konnten nicht geladen werden: ", remove: "Entfernen", add: "Auto hinzufügen", addPh: "Marke und Modell, z. B. VW Golf", noModel: "Kein Modell gefunden.", full: "Bis zu 4 Autos. Entferne zuerst eins.",
     fuel: { electric: "Elektro", petrol: "Benzin", diesel: "Diesel", lpg: "Autogas", cng: "Erdgas", "phev-petrol": "Plug-in-Hybrid (Benzin)", "phev-diesel": "Plug-in-Hybrid (Diesel)", hydrogen: "Wasserstoff", e85: "E85" },
     g: { ratings: "Bewertungen", basics: "Grunddaten", energy: "Offizieller Verbrauch (WLTP)", cost: "Kosten (Preise dieser Woche in Deutschland)", de: "In Deutschland", recalls: "Rückrufe" },
-=======
-    pair: (a, b) => `${a} 对比 ${b}`,
-  } : de ? {
-    locale: "de-DE", failed: "Die Daten konnten nicht geladen werden: ", remove: "Entfernen", add: "Auto hinzufügen", addPh: "Marke und Modell, z. B. VW Golf", noModel: "Kein Modell gefunden.", full: "Bis zu 4 Autos. Entferne zuerst eins.",
-    fuel: { electric: "Elektro", petrol: "Benzin", diesel: "Diesel", lpg: "Autogas", cng: "Erdgas", "phev-petrol": "Plug-in-Hybrid (Benzin)", "phev-diesel": "Plug-in-Hybrid (Diesel)", hydrogen: "Wasserstoff", e85: "E85" },
-    g: { basics: "Grunddaten", energy: "Offizieller Verbrauch (WLTP)", cost: "Kosten (Preise dieser Woche in Deutschland)", de: "In Deutschland", recalls: "Rückrufe" },
->>>>>>> origin/claude/project-thread-269eby
     fuelRow: "Antrieb", years: "Neu verkauft", power: "Leistung", mass: "Leergewicht", kwPerT: "Leistung pro Tonne", variants: "Zugelassene Versionen",
     kwh: "Stromverbrauch", litre: "Kraftstoffverbrauch", co2: "CO₂-Ausstoß",
     c100: "Pro 100 km (zu Hause geladen oder getankt)", cPub: "Pro 100 km (öffentlich geladen)", cYear: (km) => `Pro Jahr (${km} km)`,
@@ -46,19 +34,11 @@
     best: "Bester Wert", only: "Gleiche Zeilen ausblenden", mark: "Besten Wert markieren", km: "Kilometer pro Jahr",
     try: "Oft verglichen", mine: "Meine Autos hinzufügen", empty: "Füge mindestens zwei Autos hinzu.",
     basisHome: (p) => `Zu Hause ${p}/kWh, mit 10 % Ladeverlust`, basisPub: (p) => `Median öffentlich ad hoc ${p}/kWh`, basisFuel: (w) => `Sprit: Bundesdurchschnitt der Woche ab ${w}`,
-<<<<<<< HEAD
     pair: (a, b) => `${a} oder ${b}`, euro: "Euro NCAP Sicherheit", green: "Green NCAP Umwelt", adac: (y) => `ADAC Pannen pro 1.000 (Erstzulassung ${y})`, rg: "Bewertungen",
   } : {
     locale: "en-GB", failed: "Could not load data: ", remove: "Remove", add: "Add a car", addPh: "Make and model, e.g. VW Golf", noModel: "No model found.", full: "Up to 4 cars. Remove one first.",
     fuel: { electric: "Electric", petrol: "Petrol", diesel: "Diesel", lpg: "LPG", cng: "Natural gas", "phev-petrol": "Plug-in hybrid (petrol)", "phev-diesel": "Plug-in hybrid (diesel)", hydrogen: "Hydrogen", e85: "E85" },
     g: { ratings: "Ratings", basics: "Basics", energy: "Official consumption (WLTP)", cost: "Running cost (this week's prices in Germany)", de: "In Germany", recalls: "Recalls" },
-=======
-    pair: (a, b) => `${a} oder ${b}`,
-  } : {
-    locale: "en-GB", failed: "Could not load data: ", remove: "Remove", add: "Add a car", addPh: "Make and model, e.g. VW Golf", noModel: "No model found.", full: "Up to 4 cars. Remove one first.",
-    fuel: { electric: "Electric", petrol: "Petrol", diesel: "Diesel", lpg: "LPG", cng: "Natural gas", "phev-petrol": "Plug-in hybrid (petrol)", "phev-diesel": "Plug-in hybrid (diesel)", hydrogen: "Hydrogen", e85: "E85" },
-    g: { basics: "Basics", energy: "Official consumption (WLTP)", cost: "Running cost (this week's prices in Germany)", de: "In Germany", recalls: "Recalls" },
->>>>>>> origin/claude/project-thread-269eby
     fuelRow: "Drive", years: "Sold new", power: "Power", mass: "Kerb weight", kwPerT: "Power per tonne", variants: "Versions registered",
     kwh: "Electricity", litre: "Fuel", co2: "CO₂",
     c100: "Per 100 km (home charging or pump)", cPub: "Per 100 km (public charging)", cYear: (km) => `Per year (${km} km)`,
@@ -67,18 +47,10 @@
     best: "Best", only: "Hide rows that are the same", mark: "Mark the best value", km: "Kilometres per year",
     try: "Often compared", mine: "Add my cars", empty: "Add at least two cars to compare.",
     basisHome: (p) => `Home ${p}/kWh, plus 10% charging losses`, basisPub: (p) => `Public ad-hoc median ${p}/kWh`, basisFuel: (w) => `Fuel: national average, week of ${w}`,
-<<<<<<< HEAD
     pair: (a, b) => `${a} vs ${b}`, euro: "Euro NCAP safety", green: "Green NCAP environment", adac: (y) => `ADAC breakdowns per 1,000 (first registered ${y})`, rg: "Ratings",
   };
   const G = window.AlloGarage;
   const HOME_PRICE = 0.35; // the charging cost tool's default, used in garage.js cost100
-=======
-    pair: (a, b) => `${a} vs ${b}`,
-  };
-  const G = window.AlloGarage;
-  const HOME_PRICE = 0.35, LOSS = 1.1; // the charging cost tool's defaults
-  const FUEL_PRODUCT = { petrol: "euro_super_95", diesel: "diesel", lpg: "lpg", "phev-petrol": "euro_super_95", "phev-diesel": "diesel" };
->>>>>>> origin/claude/project-thread-269eby
   const DEFAULT = ["volvo-ex30", "tesla-model-y", "vw-id-3"];
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -88,11 +60,7 @@
   const json = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: ${r.status}`); return r.json(); });
   const soft = (u) => json(u).catch(() => null);
 
-<<<<<<< HEAD
   let ratingsData = null, catalogYear = 0, catalog = [], byId = new Map(), prices = { fuel: null, charge: null }, regs = null, recallBrands = null;
-=======
-  let catalogYear = 0, catalog = [], byId = new Map(), prices = { fuel: null, charge: null }, regs = null, recallBrands = null;
->>>>>>> origin/claude/project-thread-269eby
   const recallCache = new Map(); // brand file -> alerts
   const u0 = new URLSearchParams(location.search);
   const st = {
@@ -103,20 +71,7 @@
   };
 
   /* ---------- what we know about one model ---------- */
-<<<<<<< HEAD
   const costs = (m) => G.cost100(m, prices.fuel, prices.charge);
-=======
-  function costs(m) {
-    const f = m.fuel, fp = prices.fuel && FUEL_PRODUCT[f] ? prices.fuel.products[FUEL_PRODUCT[f]] : null;
-    const pub = prices.charge && prices.charge.overall ? prices.charge.overall.median : null;
-    if (f === "electric" && m.kwh_per_100km) {
-      return { main: m.kwh_per_100km * LOSS * HOME_PRICE, pub: pub ? m.kwh_per_100km * LOSS * pub : null };
-    }
-    if (/^phev/.test(f) && fp) return { main: (m.kwh_per_100km || 0) * LOSS * HOME_PRICE + (m.l_per_100km || 0) * fp.eur_per_litre, pub: null };
-    if (m.l_per_100km && fp) return { main: m.l_per_100km * fp.eur_per_litre, pub: null };
-    return { main: null, pub: null };
-  }
->>>>>>> origin/claude/project-thread-269eby
   function regOf(m) {
     const key = G.modelKey(m.make, m.model);
     return regs ? regs.models.find((x) => x.model !== "SONSTIGE" && G.modelKey(x.brand, x.model) === key) || null : null;
@@ -133,13 +88,8 @@
   }
   async function info(id) {
     const m = byId.get(id);
-<<<<<<< HEAD
     const c = costs(m), r = regOf(m), rc = await recallsOf(m), rt = G.ratings(ratingsData, m);
     return { id, m, c, r, rc, rt };
-=======
-    const c = costs(m), r = regOf(m), rc = await recallsOf(m);
-    return { id, m, c, r, rc };
->>>>>>> origin/claude/project-thread-269eby
   }
 
   /* ---------- rows ---------- */
@@ -158,7 +108,6 @@
     { g: "cost", label: () => T.cYear(st.km.toLocaleString(T.locale)), value: (x) => x.c.main == null ? null : x.c.main * st.km / 100, fmt: (v) => eur(v, 0), better: "low" },
     { g: "de", label: () => T.regs12, value: (x) => x.r ? x.r.last_12_months || 0 : null, fmt: (v) => v.toLocaleString(T.locale), better: "high" },
     { g: "de", label: () => T.rank, value: (x) => x.r && x.r.rank ? x.r.rank : null, fmt: (v) => `#${v}` },
-<<<<<<< HEAD
     { g: "ratings", label: () => T.euro, value: (x) => x.rt.euro ? x.rt.euro.stars : null, fmt: (v) => "★".repeat(Math.floor(v)) + (v % 1 ? "½" : ""), better: "high", link: (x) => x.rt.euro && x.rt.euro.url, note: (x) => x.rt.euro && String(x.rt.euro.year) },
     { g: "ratings", label: () => T.green, value: (x) => x.rt.green ? x.rt.green.stars : null, fmt: (v) => "★".repeat(Math.floor(v)) + (v % 1 ? "½" : ""), better: "high", link: (x) => x.rt.green && x.rt.green.url, note: (x) => x.rt.green && `${x.rt.green.year} · ${x.rt.green.name}` },
     { g: "ratings", label: () => T.adac(adacYear(0)), value: (x) => adacRate(x, 0), fmt: (v) => num(v), better: "low" },
@@ -170,11 +119,6 @@
   const adacYear = (i) => { const A = ratingsData && ratingsData.adac_breakdowns; const ys = A ? [...A.registration_years].sort().reverse() : []; return ys[i] || ""; };
   const adacRate = (x, i) => { const y = adacYear(i); return y && x.rt.adac && x.rt.adac.rates[y] != null ? x.rt.adac.rates[y] : null; };
 
-=======
-    { g: "recalls", label: () => T.recalls, value: (x) => x.rc.n, fmt: (v) => String(v), better: "low", link: (x) => x.rc.href },
-  ];
-
->>>>>>> origin/claude/project-thread-269eby
   /* ---------- drawing ---------- */
   let infos = [];
   // best value of a row; consumption only counts against cars with the same fuel (a plug-in
@@ -192,12 +136,8 @@
     if (v == null) return `<td class="na">–</td>`;
     const text = typeof v === "number" && row.fmt ? row.fmt(v) : String(v);
     const rg = row.range ? row.range(x) : null;
-<<<<<<< HEAD
     const nt = row.note ? row.note(x) : null;
     const extra = rg && rg[0] !== rg[1] ? `<small>${num(rg[0])}–${num(rg[1])}</small>` : nt ? `<small>${esc(nt)}</small>` : "";
-=======
-    const extra = rg && rg[0] !== rg[1] ? `<small>${num(rg[0])}–${num(rg[1])}</small>` : "";
->>>>>>> origin/claude/project-thread-269eby
     const isBest = st.mark && best != null && v === best;
     const body = row.link ? `<a href="${esc(row.link(x))}">${esc(text)}</a>` : esc(text);
     return `<td${isBest ? ` class="best" title="${esc(T.best)}"` : ""}>${body}${isBest ? ` <span class="star" aria-hidden="true">★</span><span class="sr">(${esc(T.best)})</span>` : ""}${extra}</td>`;
@@ -305,26 +245,16 @@
   addEventListener("ac:garage", drawMine);
 
   async function load() {
-<<<<<<< HEAD
     const [cat, fuel, charge, rg, rb, rt] = await Promise.all([
-=======
-    const [cat, fuel, charge, rg, rb] = await Promise.all([
->>>>>>> origin/claude/project-thread-269eby
       json(AlloSite.data("vehicle-catalog", "models.json")),
       soft(AlloSite.data("fuel-prices", "latest.json")),
       soft(AlloSite.data("charging-prices", "latest.json")),
       soft(AlloSite.data("registrations", "models.json")),
       soft("/data/recalls/eu/brands.json"),
-<<<<<<< HEAD
       soft(AlloSite.data("ratings", "ratings.json")),
     ]);
     catalogYear = cat.year || 0; catalog = cat.models; byId = new Map(catalog.map((m) => [m.id, m]));
     prices = { fuel, charge }; regs = rg; recallBrands = rb; ratingsData = rt;
-=======
-    ]);
-    catalogYear = cat.year || 0; catalog = cat.models; byId = new Map(catalog.map((m) => [m.id, m]));
-    prices = { fuel, charge }; regs = rg; recallBrands = rb;
->>>>>>> origin/claude/project-thread-269eby
     drawTry();
     const fromUrl = (u0.get("cars") || "").split(",").map((s) => s.trim()).filter((id) => byId.has(id));
     if (fromUrl.length) return setIds(fromUrl, true);

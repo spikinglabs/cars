@@ -63,7 +63,6 @@ test("finds the recalls that name a model", () => {
   assert.strictEqual(G.recallFits({ production: "2023 - 2024" }, 2025), true);
   assert.strictEqual(G.recallFits({ production: "2019" }, 2025), false);
 });
-<<<<<<< HEAD
 
 test("similar cars: same drive, close weight and power, other models", () => {
   const G = load();
@@ -76,5 +75,3 @@ test("similar cars: same drive, close weight and power, other models", () => {
   ];
   assert.deepStrictEqual(G.similar(cat, cat[0], 2025, 5).map((m) => m.id), ["b"]);
 });
-=======
->>>>>>> origin/claude/project-thread-269eby

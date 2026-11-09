@@ -145,7 +145,6 @@
       add: function (id) { return cmpWrite(cmpRead().concat([id])); },
       remove: function (id) { return cmpWrite(cmpRead().filter(function (x) { return x !== id; })); },
       toggle: function (id) { var l = cmpRead(); return l.indexOf(id) >= 0 ? cmpWrite(l.filter(function (x) { return x !== id; })) : cmpWrite(l.concat([id])); }
-<<<<<<< HEAD
     },
     // What 100 km costs at the latest prices, as on My cars and Compare: electric at home (0.35 EUR/kWh
     // plus 10 % losses) and at the public ad-hoc median; fuel at the weekly national average; plug-in
@@ -216,8 +215,6 @@
         })[0] || null;
       }
       return out;
-=======
->>>>>>> origin/claude/project-thread-269eby
     },
     electric: function (fuel) { return fuel === "electric"; },
     plugIn: function (fuel) { return /^phev/.test(fuel); }
