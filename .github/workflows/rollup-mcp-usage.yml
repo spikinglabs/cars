@@ -1,0 +1,35 @@
+name: Roll up MCP usage
+
+# Merges each finished day of the hosted MCP server's usage log (mcp-usage/raw/ in the EV bucket, written by
+# site/lib/mcp-usage.js) into mcp-usage/derived/daily/<day>.ndjson and mcp-usage/derived/summary.json, then
+# deletes that day's raw objects. The run page shows a table of the last 14 days (totals only).
+on:
+  schedule:
+    - cron: "40 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rollup-mcp-usage
+  cancel-in-progress: false
+
+jobs:
+  rollup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      R2_BUCKET: ${{ vars.R2_BUCKET_EV }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r pipelines/charging_prices/requirements.txt
+      - name: Check bucket variable
+        run: test -n "$R2_BUCKET" || { echo "::error::Set the R2_BUCKET_EV repository variable"; exit 1; }
+      - run: python -m pipelines.mcp_usage.rollup --r2 "$R2_BUCKET"

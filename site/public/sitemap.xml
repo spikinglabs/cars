@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://cars.allo.land/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/"/>
+  </url>
+  <url><loc>https://cars.allo.land/cars/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/cars/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/cars/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/cars/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/cars/"/>
+  </url>
+  <url><loc>https://cars.allo.land/charge-times/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/charge-times/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/charge-times/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/charge-times/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charge-times/"/>
+  </url>
+  <url><loc>https://cars.allo.land/chargers/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/"/>
+  </url>
+  <url><loc>https://cars.allo.land/charging-prices/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/charging-prices/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/charging-prices/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/charging-prices/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charging-prices/"/>
+  </url>
+  <url><loc>https://cars.allo.land/compare/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/compare/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/compare/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/compare/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/compare/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/"/>
+  </url>
+  <url><loc>https://cars.allo.land/electric/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/electric/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/electric/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/electric/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/electric/"/>
+  </url>
+  <url><loc>https://cars.allo.land/ev-cost/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/ev-cost/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/ev-cost/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/ev-cost/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/ev-cost/"/>
+  </url>
+  <url><loc>https://cars.allo.land/ev-grant/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/ev-grant/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/ev-grant/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/ev-grant/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/ev-grant/"/>
+  </url>
+  <url><loc>https://cars.allo.land/fuel-prices/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/fuel-prices/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/fuel-prices/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/fuel-prices/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/fuel-prices/"/>
+  </url>
+  <url><loc>https://cars.allo.land/legal/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/legal/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/legal/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/legal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/legal/"/>
+  </url>
+  <url><loc>https://cars.allo.land/open-data/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/open-data/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/open-data/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/open-data/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/open-data/"/>
+  </url>
+  <url><loc>https://cars.allo.land/rankings/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/rankings/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/rankings/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/rankings/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/rankings/"/>
+  </url>
+  <url><loc>https://cars.allo.land/recalls/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/recalls/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/recalls/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/recalls/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/recalls/"/>
+  </url>
+  <url><loc>https://cars.allo.land/registrations/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/registrations/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/registrations/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/registrations/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/registrations/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/"/>
+  </url>
+  <url><loc>https://cars.allo.land/chargers/stats/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/stats/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/stats/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/stats/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/stats/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/cars/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/cars/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/cars/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/cars/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/cars/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/charge-times/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/charge-times/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/charge-times/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/charge-times/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charge-times/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/chargers/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/charging-prices/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/charging-prices/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/charging-prices/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/charging-prices/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charging-prices/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/compare/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/compare/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/compare/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/compare/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/compare/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/electric/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/electric/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/electric/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/electric/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/electric/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/ev-cost/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/ev-cost/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/ev-cost/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/ev-cost/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/ev-cost/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/ev-grant/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/ev-grant/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/ev-grant/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/ev-grant/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/ev-grant/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/fuel-prices/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/fuel-prices/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/fuel-prices/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/fuel-prices/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/fuel-prices/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/legal/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/legal/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/legal/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/legal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/legal/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/open-data/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/open-data/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/open-data/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/open-data/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/open-data/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/rankings/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/rankings/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/rankings/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/rankings/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/rankings/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/recalls/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/recalls/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/recalls/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/recalls/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/recalls/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/registrations/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/registrations/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/registrations/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/registrations/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/registrations/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/cars/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/cars/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/cars/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/cars/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/cars/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/charge-times/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/charge-times/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/charge-times/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/charge-times/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charge-times/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/chargers/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/charging-prices/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/charging-prices/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/charging-prices/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/charging-prices/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charging-prices/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/compare/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/compare/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/compare/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/compare/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/compare/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/electric/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/electric/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/electric/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/electric/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/electric/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/ev-cost/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/ev-cost/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/ev-cost/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/ev-cost/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/ev-cost/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/ev-grant/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/ev-grant/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/ev-grant/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/ev-grant/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/ev-grant/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/fuel-prices/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/fuel-prices/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/fuel-prices/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/fuel-prices/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/fuel-prices/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/legal/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/legal/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/legal/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/legal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/legal/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/open-data/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/open-data/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/open-data/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/open-data/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/open-data/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/rankings/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/rankings/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/rankings/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/rankings/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/rankings/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/recalls/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/recalls/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/recalls/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/recalls/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/recalls/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/registrations/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/registrations/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/registrations/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/registrations/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/registrations/"/>
+  </url>
+  <url><loc>https://cars.allo.land/de/chargers/stats/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/stats/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/stats/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/stats/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/stats/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/chargers/stats/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/stats/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/stats/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/stats/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/stats/"/>
+  </url>
+</urlset>

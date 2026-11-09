@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
 <script src="/assets/site.js?v=6247af2686"></script>
-<script src="/assets/garage.js?v=f530527487"></script>
+<script src="/assets/garage.js?v=9f607867bf"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
   main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
@@ -45,6 +45,12 @@
   .rc__meta { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
   .rc__tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .more { margin-top: 8px; }
+  .bat-more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
+  .bat-table { width: 100%; }
+  .bat-table tr.is-mine td { background: var(--gold-bg); color: var(--gold-ink); font-weight: 700; }
+  #battery .ac-readout__value.good { color: var(--success); } #battery .ac-readout__value.bad { color: var(--danger); }
+  #battery { display: grid; gap: 14px; min-width: 0; } #battery > *, .bat-more > * { min-width: 0; max-width: 100%; }
+  #battery .ac-param__box input { width: 9ch; }
   .ask { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 72ch; }
   .ask__codes { margin: 12px 0 0; font-size: 14px; }
   .ask__codes code { font: 600 13px/1 var(--font-sign); background: var(--surface-200); padding: 3px 6px; border-radius: 5px; margin: 2px 2px 0 0; display: inline-block; }
@@ -77,6 +83,7 @@
   <nav class="ac-topnav" aria-label="Allo Cars">
     <a href="/de/">Tools</a>
     <a href="/de/cars/">Meine Autos</a>
+    <a href="/de/compare/">Vergleich</a>
     <a href="/de/chargers/">Ladesäulen</a>
     <a href="/de/ev-cost/">Ladekosten</a>
     <a href="/de/charging-prices/">Preisarchiv</a>
@@ -133,6 +140,23 @@
         <div id="ask"></div>
       </section>
 
+      <section class="ac-card stack" id="battery" aria-labelledby="bat-h">
+        <h2 class="ac-card__title" id="bat-h">Gebrauchtes E-Auto? Prüf die Batterie</h2>
+        <p class="ac-card__desc" style="margin:0">Die Batterie ist das teuerste Teil eines E-Autos. Die meisten Hersteller geben 8 Jahre Garantie darauf, und ein kurzer Test zeigt, wie gesund sie ist.</p>
+        <label class="ac-param"><span class="ac-param__label">Kilometerstand</span><span class="ac-param__box"><input id="bat-km" type="number" min="0" max="1000000" step="1000" inputmode="numeric" placeholder="–"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">Optional, für den Garantie-Check.</span></label>
+        <div class="ac-readouts" id="bat-out" aria-live="polite"></div>
+        <ol class="ask" id="bat-ask"></ol>
+        <details class="bat-more">
+          <summary>Batteriegarantie nach Marke</summary>
+          <p class="ac-caption">Jahre oder Kilometer ab Erstzulassung, je nachdem was zuerst eintritt, und die Kapazität, die die Batterie behalten muss. Die Garantie geht auf den nächsten Halter über. Standardbedingungen für Neuwagen in Deutschland; maßgeblich sind die Unterlagen des Autos.</p>
+          <div class="ac-table-wrap"><table class="ac-table bat-table">
+            <thead><tr><th>Marke</th><th class="num">Jahre</th><th class="num">km</th><th class="num">Behält mindestens</th></tr></thead>
+            <tbody id="bat-body"></tbody>
+          </table></div>
+          <p class="ac-caption" id="bat-notes"></p>
+        </details>
+      </section>
+
       <section class="ac-card" id="stats">
         <h2 class="ac-card__title">Rückrufe in Zahlen</h2>
         <p class="ac-card__desc">Alle Fahrzeugmeldungen im EU Safety Gate seit 2019. Eine Meldung ist eine Rückrufaktion, egal wie viele Fahrzeuge sie betrifft.</p>
@@ -157,7 +181,7 @@
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/de/cars/">Meine Autos</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p class="ac-foot__links"><a href="/de/electric/">E-Auto kaufen</a> · <a href="/de/cars/">Meine Autos</a> · <a href="/de/ev-grant/">E-Auto-Förderung</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/rankings/">Ranglisten</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Mehr von Allo</h2>
@@ -193,7 +217,11 @@
   </ul>
   <h3>Autos</h3>
   <ul>
+    <li><a href="/de/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>E-Auto kaufen</span></a></li>
     <li><a href="/de/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>Meine Autos</span></a></li>
+    <li><a href="/de/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>E-Auto-Förderung</span></a></li>
+    <li><a href="/de/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Autos vergleichen</span></a></li>
+    <li><a href="/de/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>Ranglisten</span></a></li>
     <li><a href="/de/recalls/" aria-current="page" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Rückrufe</span></a></li>
     <li><a href="/de/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>Neuzulassungen</span></a></li>
     <li><a href="/de/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>Spritpreise</span></a></li>
@@ -207,6 +235,7 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/recalls/app.js?v=8a37527135"></script>
+<script src="/recalls/battery.js?v=e2bca17f60"></script>
+<script src="/recalls/app.js?v=851867b264"></script>
 </body>
 </html>

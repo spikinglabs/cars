@@ -24,6 +24,8 @@ Links to the site's own .css and .js files get ?v=<content hash>, so a browser t
 The nav link for the page's own section gets aria-current="page". Every page must exist in every
 language. Run after changing any part:
 
+It also writes public/sitemap.xml (every page with its language twins), which robots.txt points to.
+
     python site/chrome/apply.py          # rewrite pages
     python site/chrome/apply.py --check  # exit 1 if any page is out of date or has no twin (CI)
 """
@@ -190,9 +192,32 @@ def pages() -> list[Path]:
     return sorted(p for p in PUBLIC.rglob("index.html"))
 
 
+SITEMAP = PUBLIC / "sitemap.xml"
+
+
+def sitemap() -> str:
+    """sitemap.xml: every page in every language, each with its language twins (hreflang alternates)."""
+    out = ['<?xml version="1.0" encoding="UTF-8"?>',
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
+    for url in sorted({url_of(p) for p in pages()}, key=lambda u: (u.count("/"), u)):
+        urls = twins(url)
+        out.append(f"  <url><loc>{SITE}{url}</loc>")
+        for c in CODES:
+            out.append(f'    <xhtml:link rel="alternate" hreflang="{HTML_LANG[c]}" href="{SITE}{urls[c]}"/>')
+        out.append(f'    <xhtml:link rel="alternate" hreflang="x-default" href="{SITE}{urls["en"]}"/>')
+        out.append("  </url>")
+    out.append("</urlset>")
+    return "\n".join(out) + "\n"
+
+
 def main(argv: list[str]) -> int:
     check = "--check" in argv
     stale, lonely = [], []
+    want_map = sitemap()
+    if not SITEMAP.exists() or SITEMAP.read_text(encoding="utf-8") != want_map:
+        stale.append(SITEMAP.relative_to(PUBLIC))
+        if not check:
+            SITEMAP.write_text(want_map, encoding="utf-8")
     urls = {url_of(p) for p in pages()}
     for page in pages():
         missing = [u for u in twins(url_of(page)).values() if u not in urls]

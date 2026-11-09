@@ -1,0 +1,38 @@
+name: Collect car ratings
+
+# Euro NCAP safety stars, Green NCAP stars and ADAC breakdown statistics into R2 (ratings/), weekly.
+# Headline facts only (stars, test year, breakdowns per 1,000 cars) with a link to each source; new
+# pages are read once, 3 s apart, at most 400 per source in one run, so the first run takes an hour or two and later runs a minute.
+# Pushes that change the collector also run it. It only ever writes to the ratings/ folder.
+on:
+  schedule:
+    - cron: "37 4 * * 1"
+  workflow_dispatch:
+  push:
+    paths: ["pipelines/ratings/**", ".github/workflows/collect-ratings.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collect-ratings
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      R2_BUCKET: ${{ vars.R2_BUCKET_EV }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r pipelines/charging_prices/requirements.txt -r pipelines/ratings/requirements.txt
+      - name: Check bucket variable
+        run: test -n "$R2_BUCKET" || { echo "::error::Set the R2_BUCKET_EV repository variable"; exit 1; }
+      - run: python -m pipelines.ratings.collect --r2 "$R2_BUCKET" --prefix ratings

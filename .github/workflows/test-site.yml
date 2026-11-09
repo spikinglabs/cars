@@ -20,10 +20,22 @@ jobs:
           node-version: "22"
       - name: Calculator tests
         run: node --test site/tests/calc.test.js
+      - name: E-Auto grant tests
+        run: node --test site/tests/grant.test.js
+      - name: Cost over the years tests
+        run: node --test site/tests/years.test.js
+      - name: Used EV battery tests
+        run: node --test site/tests/battery.test.js
+      - name: Electric wave tests
+        run: node --test site/tests/wave.test.js
+      - name: Charging near home tests
+        run: node --test site/tests/here.test.js
       - name: Data function tests
         run: node --test site/tests/data-function.test.js
       - name: MCP endpoint tests
         run: node --test site/tests/mcp.test.js
+      - name: MCP usage log tests
+        run: node --test site/tests/mcp-usage.test.js
       - name: My cars store tests
         run: node --test site/tests/garage.test.js
       - name: Shared header and footer are up to date

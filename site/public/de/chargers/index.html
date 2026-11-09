@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
 <link rel="stylesheet" href="/assets/vendor/leaflet/leaflet.css?v=a783710282">
-<link rel="stylesheet" href="/chargers/map.css?v=26a587760e">
+<link rel="stylesheet" href="/chargers/map.css?v=a3c05c19a2">
 <script src="/assets/site.js?v=6247af2686"></script>
 </head>
 <body>
@@ -38,6 +38,7 @@
   <nav class="ac-topnav" aria-label="Allo Cars">
     <a href="/de/">Tools</a>
     <a href="/de/cars/">Meine Autos</a>
+    <a href="/de/compare/">Vergleich</a>
     <a href="/de/chargers/" aria-current="page">Ladesäulen</a>
     <a href="/de/ev-cost/">Ladekosten</a>
     <a href="/de/charging-prices/">Preisarchiv</a>
@@ -101,6 +102,12 @@
         </div>
       </section>
 
+      <section class="ac-card" aria-live="polite">
+        <h2 class="ac-card__title">Geht ein E-Auto hier ohne Wallbox?</h2>
+        <p class="ac-card__desc" id="heredesc"></p>
+        <div class="here" id="here"></div>
+      </section>
+
       <section class="ac-card">
         <h2 class="ac-card__title" id="neartitle">Am nächsten zur Kartenmitte</h2>
         <p class="ac-card__desc" id="neardesc">Hineinzoomen oder einen Ort suchen, um Ladesäulen aufzulisten.</p>
@@ -123,7 +130,7 @@
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/de/cars/">Meine Autos</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p class="ac-foot__links"><a href="/de/electric/">E-Auto kaufen</a> · <a href="/de/cars/">Meine Autos</a> · <a href="/de/ev-grant/">E-Auto-Förderung</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/rankings/">Ranglisten</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Mehr von Allo</h2>
@@ -159,7 +166,11 @@
   </ul>
   <h3>Autos</h3>
   <ul>
+    <li><a href="/de/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>E-Auto kaufen</span></a></li>
     <li><a href="/de/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>Meine Autos</span></a></li>
+    <li><a href="/de/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>E-Auto-Förderung</span></a></li>
+    <li><a href="/de/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Autos vergleichen</span></a></li>
+    <li><a href="/de/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>Ranglisten</span></a></li>
     <li><a href="/de/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Rückrufe</span></a></li>
     <li><a href="/de/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>Neuzulassungen</span></a></li>
     <li><a href="/de/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>Spritpreise</span></a></li>
@@ -174,6 +185,7 @@
   </main>
 </div>
 <script src="/assets/vendor/leaflet/leaflet.js?v=db49d009c8"></script>
-<script src="/chargers/app.js?v=484d6a3255"></script>
+<script src="/chargers/here.js?v=e0965e9e5f"></script>
+<script src="/chargers/app.js?v=d8647e8609"></script>
 </body>
 </html>

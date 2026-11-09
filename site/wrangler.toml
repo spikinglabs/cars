@@ -17,3 +17,11 @@ bucket_name = "__R2_BUCKET_EV__"
 [[r2_buckets]]
 binding = "ICE"
 bucket_name = "__R2_BUCKET_ICE__"
+
+# Daily counts for the MCP server (sessions, tool calls, errors per country) in the shared Allo usage
+# counter at monitoring.admin.allo.land: Worker allo-count in spikinglabs/alloland-rebirth, workers/count.
+# Its Counter entrypoint is only reachable through this binding.
+[[services]]
+binding = "COUNT"
+service = "allo-count"
+entrypoint = "Counter"

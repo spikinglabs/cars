@@ -59,7 +59,8 @@ claude mcp add car -- uvx --from git+https://github.com/spikinglabs/cars car-mcp
 (Settings → Connectors → Add custom connector) or any MCP client; `claude mcp add --transport http allo-cars
 https://cars.allo.land/mcp` in Claude Code. It runs as a Cloudflare Pages Function next to the site
 (`site/functions/mcp.js`, tools in `site/lib/mcp-tools.js`) and reads the same files as `/data/`. The logbook tools
-need your own data, so they stay in the local server below.
+need your own data, so they stay in the local server below. Usage is logged without IPs or IDs for later
+analysis; see [pipelines/mcp_usage](pipelines/mcp_usage/README.md).
 
 ### Remote, self-hosted (claude.ai custom connector, other clients)
 

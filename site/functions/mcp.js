@@ -1,15 +1,18 @@
 // Hosted, read-only MCP server at https://cars.allo.land/mcp (Streamable HTTP, stateless).
 // No sessions, no streaming, no login: every POST carries one JSON-RPC message (or a batch) and gets a
 // JSON answer. The tools read the same R2 files the /data/ function serves, so it costs nothing extra
-// beyond Pages Functions' free requests. Tools live in ../lib/mcp-tools.js.
+// beyond Pages Functions' free requests. Tools live in ../lib/mcp-tools.js. Each request adds a cleaned line
+// to a private usage log in R2 (no IP, no ID): see ../lib/mcp-usage.js.
 import { onRequestGet as readData } from "./data/[[path]].js";
 import { TOOLS, ToolError } from "../lib/mcp-tools.js";
+import { usageEvent, saveUsage } from "../lib/mcp-usage.js";
 
 const VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 const SERVER = { name: "allo-cars", title: "Allo Cars", version: "1.0.0", websiteUrl: "https://cars.allo.land/" };
 const INSTRUCTIONS =
-  "Allo Cars (cars.allo.land) has open data for drivers in Germany: official consumption per car model, recalls " +
-  "(EU Safety Gate incl. every KBA recall, and US NHTSA), fuel, charging and electricity prices, new registrations " +
+  "Allo Cars (cars.allo.land) has open data for drivers in Germany: official consumption per car model, side-by-side " +
+  "comparison and rankings of car models, Euro NCAP / Green NCAP stars and ADAC breakdown rates, recalls " +
+  "(EU Safety Gate incl. every KBA recall, and US NHTSA), the German E-Auto grant, electric vs fuel cost over the years, fuel, charging and electricity prices, new registrations " +
   "and public chargers. All tools are read-only and need no account. Results carry a page link to the same view on " +
   "cars.allo.land (also in German under /de/ and Chinese under /zh/); share it with the user. Prices are averages " +
   "and estimates; recalls for one car depend on its VIN.";
@@ -91,21 +94,41 @@ export async function handle(msg, get) {
   }
 }
 
-export async function onRequestPost({ request, env }) {
+// Answers one message and notes it for the usage log.
+async function answer(msg, get, events, slot = events.length) {
+  const start = Date.now();
+  const out = await handle(msg, get);
+  try {
+    events[slot] = usageEvent({ msg, answer: out, tools: TOOLS, ms: Date.now() - start });
+  } catch {
+    // logging never breaks an answer
+  }
+  return out;
+}
+
+export async function onRequestPost(context) {
+  const { request, env } = context;
+  const events = [];
+  const waitUntil = typeof context.waitUntil === "function" ? (p) => context.waitUntil(p) : null;
+  const done = (response) => {
+    saveUsage({ request, env, waitUntil, events });
+    return response;
+  };
   let body;
   try {
     body = await request.json();
   } catch {
-    return json(fail(null, -32700, "Parse error"), 400);
+    events.push({ t: new Date().toISOString(), method: "parse_error", ms: 0, ok: false, err: "rpc -32700" });
+    return done(json(fail(null, -32700, "Parse error"), 400));
   }
   const get = dataGetter(env);
   if (Array.isArray(body)) {
-    if (!body.length) return json(fail(null, -32600, "Invalid Request"), 400);
-    const out = (await Promise.all(body.map((m) => handle(m, get)))).filter(Boolean);
-    return out.length ? json(out) : json(null, 202);
+    if (!body.length) return done(json(fail(null, -32600, "Invalid Request"), 400));
+    const out = (await Promise.all(body.map((m, i) => answer(m, get, events, i)))).filter(Boolean);
+    return done(out.length ? json(out) : json(null, 202));
   }
-  const out = await handle(body, get);
-  return out ? json(out) : json(null, 202);
+  const out = await answer(body, get, events);
+  return done(out ? json(out) : json(null, 202));
 }
 
 export function onRequestOptions() {

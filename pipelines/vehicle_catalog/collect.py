@@ -13,7 +13,8 @@ Bucket layout (the R2_BUCKET_EV bucket, folder ``vehicle-catalog/``):
         index.json                       regions, files, data year and version
         <region>/                        de (registered in Germany), eu (EU-27)
           models.json    every model with at least 20 new registrations in a year since 2021: official WLTP
-                         kWh/100 km (electric energy at the plug), L/100 km, CO2 g/km, power, mass, registrations,
+                         kWh/100 km (electric energy at the plug), L/100 km, CO2 g/km, electric range km,
+                         power, mass, registrations,
                          from the newest year the model was sold new (year), and the years it was sold (years)
           models.csv     the same as a table
           electric.json  electric models only, compact, for the charging cost page
@@ -42,7 +43,9 @@ FIRST_YEAR = 2021  # the first year with WLTP figures for every new car
 NOTES = (
     "Official type-approval (WLTP) figures as reported for every new car registered in the year, averaged over the "
     "versions that were registered (weighted by registrations). kwh_per_100km is electric energy consumption at the "
-    "plug, so it already includes charging losses; for plug-in hybrids it is the weighted combined figure. "
+    "plug, so it already includes charging losses; for plug-in hybrids it is the weighted combined figure. range_km "
+    "is the official electric range (WLTP) of electric cars and plug-in hybrids, range_span its spread over the "
+    "versions. "
     "Real-world consumption is usually higher, most of all on the motorway and in winter. kwh_range and l_range span "
     "the versions that made up at least 1 % of a model's registrations. Models are kept from 2021 on, also when no "
     "longer sold new; year is the year of a model's figures and registrations (its newest year with at least a tenth "
@@ -86,7 +89,7 @@ def publish(store, rows: list[dict], info: dict, now: datetime, older: list[tupl
         store.put(f"public/{region}/models.csv", to_csv(catalog.csv_rows(models), catalog.FIELDS), "text/csv")
         ev = catalog.electric(models)
         store.put(f"public/{region}/electric.json",
-                  _compact({**meta, "columns": ["id", "name", "kwh_per_100km", "kwh_min", "kwh_max", "registrations"],
+                  _compact({**meta, "columns": ["id", "name", "kwh_per_100km", "kwh_min", "kwh_max", "registrations", "range_km"],
                          "models": ev}), "application/json")
         current = [m for m in models if m["years"][1] == info["year"]]
         counts[region] = {"models": len(models), "older_models": len(models) - len(current), "electric": len(ev),
@@ -108,9 +111,11 @@ def older_years(store, latest_year: int, find=eea.find_table, fetch=eea.fetch_al
         tables[str(year)] = table
         key = f"raw/eea-co2-cars/{table}.json"
         cached = store.get(key)
-        if cached:
-            rows = json.loads(cached)
-        else:
+        rows = json.loads(cached) if cached else None
+        # rows stored before a figure was added to the query are fetched again once
+        if rows and not all(f"{f}_n" in rows[0] for f in eea.FIGURES):
+            rows = None
+        if not rows:
             rows = fetch(eea.aggregate_sql(table))
             if len(rows) < 1000:
                 raise ValueError(f"only {len(rows)} rows from {table}; refusing to publish")

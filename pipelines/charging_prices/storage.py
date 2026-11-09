@@ -26,6 +26,16 @@ class LocalStore:
         files = [f for f in (self.root / prefix).rglob("*") if f.is_file()] if (self.root / prefix).exists() else []
         return sum(f.stat().st_size for f in files), len(files)
 
+    def list_keys(self, prefix: str = "") -> list[str]:
+        base = self.root / prefix
+        if not base.exists():
+            return []
+        return sorted(f.relative_to(self.root).as_posix() for f in base.rglob("*") if f.is_file())
+
+    def delete(self, keys: list[str]) -> None:
+        for key in keys:
+            (self.root / key).unlink(missing_ok=True)
+
     def __str__(self) -> str:
         return f"local:{self.root}"
 
@@ -79,6 +89,17 @@ class R2Store:
                 count += 1
         return size, count
 
+    def list_keys(self, prefix: str = "") -> list[str]:
+        keys = []
+        for page in self.client.get_paginator("list_objects_v2").paginate(Bucket=self.bucket, Prefix=prefix):
+            keys.extend(obj["Key"] for obj in page.get("Contents", []))
+        return sorted(keys)
+
+    def delete(self, keys: list[str]) -> None:
+        for i in range(0, len(keys), 1000):
+            batch = [{"Key": k} for k in keys[i : i + 1000]]
+            self.client.delete_objects(Bucket=self.bucket, Delete={"Objects": batch, "Quiet": True})
+
     def __str__(self) -> str:
         return f"r2:{self.bucket}"
 
@@ -102,6 +123,13 @@ class PrefixedStore:
     def total_bytes(self, prefix: str = "") -> tuple[int, int]:
         # Free-tier limits apply to the whole bucket, so measure all of it.
         return self.inner.total_bytes(prefix)
+
+    def list_keys(self, prefix: str = "") -> list[str]:
+        n = len(self.prefix)
+        return [k[n:] for k in self.inner.list_keys(self.prefix + prefix)]
+
+    def delete(self, keys: list[str]) -> None:
+        self.inner.delete([self.prefix + k for k in keys])
 
     def __str__(self) -> str:
         return f"{self.inner}/{self.prefix}"

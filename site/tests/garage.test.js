@@ -43,3 +43,35 @@ test("matches model names across datasets", () => {
   assert.strictEqual(G.recallBrand("VW"), "volkswagen");
   assert.strictEqual(G.recallBrand("Mercedes"), "mercedes-benz");
 });
+
+test("compare basket keeps up to four distinct cars, newest last; adding one again changes nothing", () => {
+  const G = load();
+  ["a", "b", "c", "d", "e", "b"].forEach((x) => G.compare.add(x));
+  assert.deepStrictEqual([...G.compare.list()], ["b", "c", "d", "e"]);
+  G.compare.toggle("c");
+  assert.strictEqual(G.compare.has("c"), false);
+  G.compare.remove("d");
+  assert.deepStrictEqual([...G.compare.list()], ["b", "e"]);
+});
+
+test("finds the recalls that name a model", () => {
+  const G = load();
+  assert.strictEqual(G.recallNames({ models: "Golf, Passat (B8)" }, "VW", "Golf"), true);
+  assert.strictEqual(G.recallNames({ models: "Polo" }, "VW", "Golf"), false);
+  assert.strictEqual(G.recallNames({ models: "XC40, EX30" }, "Volvo", "EX30"), true);
+  assert.strictEqual(G.recallNames({ models: "ID.3" }, "VW", "ID.7"), false);
+  assert.strictEqual(G.recallFits({ production: "2023 - 2024" }, 2025), true);
+  assert.strictEqual(G.recallFits({ production: "2019" }, 2025), false);
+});
+
+test("similar cars: same drive, close weight and power, other models", () => {
+  const G = load();
+  const cat = [
+    { id: "a", make: "Volvo", model: "EX30", fuel: "electric", mass_kg: 1800, power_kw: 200, registrations: 5000, year: 2025 },
+    { id: "b", make: "Smart", model: "#1", fuel: "electric", mass_kg: 1850, power_kw: 200, registrations: 3000, year: 2025 },
+    { id: "c", make: "Tesla", model: "Model X", fuel: "electric", mass_kg: 2500, power_kw: 500, registrations: 3000, year: 2025 },
+    { id: "d", make: "VW", model: "Golf", fuel: "petrol", mass_kg: 1800, power_kw: 200, registrations: 9000, year: 2025 },
+    { id: "e", make: "Kia", model: "Soul", fuel: "electric", mass_kg: 1800, power_kw: 200, registrations: 3000, year: 2021, years: [2021, 2022] },
+  ];
+  assert.deepStrictEqual(G.similar(cat, cat[0], 2025, 5).map((m) => m.id), ["b"]);
+});

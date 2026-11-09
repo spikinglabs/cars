@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
 <link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
 <script src="/assets/site.js?v=6247af2686"></script>
-<script src="/assets/garage.js?v=f530527487"></script>
+<script src="/assets/garage.js?v=9f607867bf"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
   .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px 64px; }
@@ -62,6 +62,13 @@
   #chart .lab--own { font-style: italic; }
   .be-table td:first-child { white-space: normal; }
   .be-table { width: 100%; }
+  .y-table { width: 100%; }
+  .y-table td.good { color: var(--success); font-weight: 700; }
+  .years .ac-readout__value.good { color: var(--success); }
+  .years .ac-param__box input { width: 7ch; }
+  .years .ac-seg { margin-top: 6px; }
+  .years .ac-param__label { display: block; }
+  @media (max-width: 520px) { .y-table th, .y-table td { padding-left: 6px; padding-right: 6px; font-size: 14px; } }
   .saved { margin: calc(-1 * var(--space-3)) 0 var(--space-5); font-size: 13px; color: var(--ink-muted); }
   .linkbtn { background: none; border: 0; padding: 0; font: inherit; color: var(--ink); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
   .ai-split { position: relative; display: inline-flex; }
@@ -116,6 +123,7 @@
   <nav class="ac-topnav" aria-label="Allo Cars">
     <a href="/zh/">工具</a>
     <a href="/zh/cars/">我的车</a>
+    <a href="/zh/compare/">对比</a>
     <a href="/zh/chargers/">充电桩地图</a>
     <a href="/zh/ev-cost/" aria-current="page">充电成本</a>
     <a href="/zh/charging-prices/">价格档案</a>
@@ -191,7 +199,7 @@
   <section class="ac-card answer" aria-labelledby="h-res">
     <h2 class="step" id="h-res"><span class="step__n step__n--res">=</span>你的结果</h2>
     <div id="readouts" class="answer__body" aria-live="polite"></div>
-    <p class="ac-caption" style="margin:0">仅为能源成本，不含购车价格、税费、保险和保养。</p>
+    <p class="ac-caption" style="margin:0">仅为能源成本。购车价格、补贴和税费见<a href="#h-years">多年总成本</a>。</p>
   </section>
 
   <section class="ac-card">
@@ -210,6 +218,35 @@
     </div>
   </section>
 
+  <section class="ac-card stack years" aria-labelledby="h-years">
+    <h2 class="ac-card__title" id="h-years">多年总成本</h2>
+    <p class="ac-card__desc" style="margin:0">每辆车一共要花多少钱：车价（电动车减去补贴），再加上每年的能源费用和车辆税。燃油车取第 3 步中的第一辆，能源费用来自上面的结果。</p>
+    <div class="row">
+      <label class="ac-param"><span class="ac-param__label">电动车价格</span><span class="ac-param__box"><input id="y-evp" type="number" min="0" max="300000" step="500" inputmode="numeric"><span class="ac-param__unit">€</span></span></label>
+      <label class="ac-param"><span class="ac-param__label">电动车补贴</span><span class="ac-param__box"><input id="y-grant" type="number" min="0" max="10000" step="500" inputmode="numeric"><span class="ac-param__unit">€</span></span><span class="ac-param__hint">你在<a href="/zh/ev-grant/" id="y-grantlink">补贴查询</a>中的金额。</span></label>
+      <label class="ac-param"><span class="ac-param__label">燃油车价格</span><span class="ac-param__box"><input id="y-fcp" type="number" min="0" max="300000" step="500" inputmode="numeric"><span class="ac-param__unit">€</span></span></label>
+      <label class="ac-param"><span class="ac-param__label">每年行驶里程</span><span class="ac-param__box"><input id="y-km" type="number" min="0" max="100000" step="1000" inputmode="numeric"><span class="ac-param__unit">km/年</span></span><span class="ac-param__hint">德国平均每年约 12,000 公里。</span></label>
+    </div>
+    <div><span class="ac-param__label">年数</span><div class="ac-seg" id="y-yrs" role="group" aria-label="年数"><button type="button" data-y="4">4</button><button type="button" data-y="5">5</button><button type="button" data-y="6">6</button><button type="button" data-y="7">7</button><button type="button" data-y="8">8</button></div></div>
+    <details class="more">
+      <summary>燃油车的车辆税</summary>
+      <div class="row">
+        <label class="ac-param"><span class="ac-param__label">排量</span><span class="ac-param__box"><input id="y-ccm" type="number" min="0" max="8000" step="1" inputmode="numeric"><span class="ac-param__unit">cm³</span></span></label>
+        <label class="ac-param"><span class="ac-param__label">CO2（WLTP）</span><span class="ac-param__box"><input id="y-co2" type="number" min="0" max="400" step="1" inputmode="numeric"><span class="ac-param__unit">g/km</span></span></label>
+      </div>
+      <p class="ac-caption" style="margin:10px 0 0" id="y-taxline"></p>
+      <p class="ac-caption" style="margin:4px 0 0">现在购买的电动车在 2035 年前免缴车辆税。</p>
+    </details>
+    <div class="ac-readouts" id="y-out" aria-live="polite"></div>
+    <div class="ac-table-wrap">
+      <table class="ac-table y-table">
+        <caption class="ac-caption">每年年底的累计金额：购车、能源和车辆税。</caption>
+        <thead><tr><th>年</th><th class="num">电动车</th><th class="num">燃油车</th><th class="num">差额</th></tr></thead>
+        <tbody id="y-body"></tbody>
+      </table>
+    </div>
+    <p class="ac-caption" style="margin:0">未包含：保险、保养、轮胎以及卖车时的残值。电动车的保养费用通常更低。</p>
+  </section>
 
   <section class="ac-aibar">
     <span class="ac-aibar__text"><b>交给 AI 使用。</b>打开一个已填好你数字的 AI 助手，或者复制这些数字。</span>
@@ -231,12 +268,12 @@
     <p class="ac-source__line" style="margin:0">公式：每 100 公里成本 = kWh/100 km × (1 + 损耗) × €/kWh。持平电价 = L/100 km × €/L ÷ (kWh/100 km × (1 + 损耗))。</p>
     <p class="ac-source__line" style="margin:0">燃油车：2025 年德国新车登记量最多的车型（<a href="https://www.kba.de/DE/Statistik/Fahrzeuge/Neuzulassungen/neuzulassungen_node.html">KBA</a>），外加马自达 CX-30 和 CX-5，每款都取最常见的发动机。油耗是根据 <a href="https://www.spritmonitor.de/">spritmonitor.de</a> 上车主记录取整的实际平均值，高于 WLTP 数值。电动车数据是大致的实际使用估算。官方能耗是德国每辆新登记汽车申报的 WLTP 插头端能耗，按人们实际购买的版本加权平均，来自<a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b">欧洲环境署 (EEA) 新车 CO2 监测</a>（CC BY 4.0）。没有估算值的车型，四种驾驶方式分别取该数值的 0.9、1、1.22 和 1.38 倍。</p>
     <p class="ac-source__line" style="margin:0" id="fuelsource"></p>
-    <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>仅为能源成本：不含购车价格、税费、保险和保养。你的资费、天气和驾驶方式都会影响实际成本。</span></div>
+    <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>结果和图表只计算能源成本。购车价格、补贴和车辆税见“多年总成本”；保险和保养均未计入。你的资费、天气和驾驶方式都会影响实际成本。</span></div>
   <p class="ac-source__line" style="margin:0"><a href="/zh/open-data/">Allo Cars 的全部数据来源</a></p>
   </details>
 <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/zh/cars/">我的车</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
+  <p class="ac-foot__links"><a href="/zh/electric/">买电动车</a> · <a href="/zh/cars/">我的车</a> · <a href="/zh/ev-grant/">电动车补贴</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/rankings/">排行榜</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
   <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Allo 的其他产品</h2>
@@ -272,7 +309,11 @@
   </ul>
   <h3>汽车</h3>
   <ul>
+    <li><a href="/zh/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>买电动车</span></a></li>
     <li><a href="/zh/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>我的车</span></a></li>
+    <li><a href="/zh/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>电动车补贴</span></a></li>
+    <li><a href="/zh/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>车型对比</span></a></li>
+    <li><a href="/zh/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>排行榜</span></a></li>
     <li><a href="/zh/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>召回</span></a></li>
     <li><a href="/zh/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>新车登记</span></a></li>
     <li><a href="/zh/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>油价</span></a></li>
@@ -289,6 +330,9 @@
 
 <script src="/assets/components/bundle.js?v=a59ccf037e"></script>
 <script src="/ev-cost/calc.js?v=01f73cec22"></script>
-<script src="/ev-cost/app.js?v=a50f36a4ea"></script>
+<script src="/ev-grant/grant.js?v=1adf9d7ece"></script>
+<script src="/ev-cost/years.js?v=829fc6dcc5"></script>
+<script src="/ev-cost/app.js?v=8c0d205a8c"></script>
+<script src="/ev-cost/years-app.js?v=977f747d60"></script>
 </body>
 </html>

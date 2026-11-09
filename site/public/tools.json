@@ -6,14 +6,26 @@
     "url": "https://cars.allo.land/mcp",
     "transport": "streamable-http",
     "auth": "none",
-    "description": "Read-only MCP server with the same data as tools: official consumption per model, recalls and used-car check, recall statistics, fuel, charging and electricity prices, new registrations and public chargers. Add it as a custom connector in Claude or any MCP client."
+    "description": "Read-only MCP server with the same data as tools: official consumption per model, the German E-Auto grant and electric vs fuel cost over the years, side-by-side comparison and rankings of models, safety, environment and breakdown ratings, recalls and used-car check, recall statistics, fuel, charging and electricity prices, new registrations and public chargers. Add it as a custom connector in Claude or any MCP client."
   },
   "tools": [
+    {
+      "name": "buying_electric",
+      "title": "Buying an electric car in Germany",
+      "url": "https://cars.allo.land/electric/",
+      "description": "Entry page for EV buyers: the E-Auto grant for an income and children, energy cost per 100 km of a typical electric car at home and public prices against a petrol car at this week's prices, public charging in numbers, the most registered electric models last month and recent high-voltage battery recalls, each linking to the full tool.",
+      "parameters": {
+        "income": "taxable household income in € a year",
+        "kids": "children under 18: 0, 1 or 2"
+      },
+      "url_de": "https://cars.allo.land/de/electric/",
+      "url_zh": "https://cars.allo.land/zh/electric/"
+    },
     {
       "name": "car_profile",
       "title": "My cars: one page per car model",
       "url": "https://cars.allo.land/cars/",
-      "description": "Everything Allo Cars knows about one car model: official WLTP consumption, CO2 and power (EEA catalog), cost per 100 km at today's German fuel price or charging prices, EU Safety Gate recalls that name the model and match its first registration year, and new registrations in Germany (KBA). People can keep several cars on their device; a link opens any model.",
+      "description": "Everything Allo Cars knows about one car model: official WLTP consumption, CO2 and power (EEA catalog), cost per 100 km at today's German fuel price or charging prices, EU Safety Gate recalls that name the model and match its first registration year, new registrations in Germany (KBA), Euro NCAP and Green NCAP stars and ADAC breakdowns per 1,000 cars by year (linked to the source), where the model stands in the rankings and similar cars to compare. People can keep several cars on their device; a link opens any model.",
       "parameters": {
         "car": "vehicle catalog id from https://cars.allo.land/data/vehicle-catalog/de/models.json (id field), e.g. volvo-ex30, vw-golf-petrol, vw-golf-diesel",
         "year": "year of first registration, narrows recalls to the build window (optional)"
@@ -23,11 +35,60 @@
       "url_zh": "https://cars.allo.land/zh/cars/"
     },
     {
+      "name": "ev_grant",
+      "title": "German E-Auto grant 2026",
+      "url": "https://cars.allo.land/ev-grant/",
+      "description": "How much of Germany's 2026 E-Auto grant (E-Auto-Förderung, applied for at BAFA) a household gets for a new electric car or plug-in hybrid: 1,500 to 6,000 € by taxable household income and children under 18, whether a plug-in hybrid qualifies (at most 60 g CO2/km or at least 80 km electric range), the deadline to apply and the official table. The rules are in grant.js.",
+      "parameters": {
+        "drive": "bev (fully electric) or phev (plug-in hybrid or range extender)",
+        "income": "taxable household income in € a year",
+        "kids": "children under 18: 0, 1 or 2 (two or more)",
+        "reg": "first registration date, YYYY-MM-DD",
+        "car": "vehicle catalog id of a plug-in hybrid, e.g. vw-tiguan-phev-petrol",
+        "co2": "plug-in hybrid CO2 in g/km",
+        "range": "plug-in hybrid electric range in km"
+      },
+      "code": "https://cars.allo.land/ev-grant/grant.js",
+      "mcp_tool": "check_ev_grant",
+      "url_de": "https://cars.allo.land/de/ev-grant/",
+      "url_zh": "https://cars.allo.land/zh/ev-grant/"
+    },
+    {
+      "name": "compare_cars",
+      "title": "Compare car models side by side",
+      "url": "https://cars.allo.land/compare/",
+      "description": "Up to four car models side by side: official WLTP consumption, CO2, electric range, power, mass and power per tonne (EEA catalog), cost per 100 km and per year at this week's German fuel price or charging prices, new registrations in Germany in the last 12 months and the latest rank (KBA), EU Safety Gate recalls that name each model, Euro NCAP and Green NCAP stars, and ADAC breakdowns per 1,000 cars. Rows that are the same can be hidden; the best value per row is marked.",
+      "parameters": {
+        "cars": "comma-separated vehicle catalog ids (id field of https://cars.allo.land/data/vehicle-catalog/de/models.json), 2 to 4",
+        "km": "kilometres per year for the yearly cost (default 15000)",
+        "same": "1 hides rows where every car has the same value",
+        "best": "0 turns off marking the best value"
+      },
+      "example": "https://cars.allo.land/compare/?cars=volvo-ex30,tesla-model-y,vw-golf-petrol&km=12000",
+      "url_de": "https://cars.allo.land/de/compare/",
+      "url_zh": "https://cars.allo.land/zh/compare/"
+    },
+    {
+      "name": "car_rankings",
+      "title": "Car rankings for Germany",
+      "url": "https://cars.allo.land/rankings/",
+      "description": "Ranked lists of car models from official data: best sellers over 12 months, the latest month's top 20 with the change on a year before, electric best sellers, the most efficient electric cars (WLTP kWh/100 km), the cheapest cars to run per 100 km at this week's German prices, and brands with the fewest Safety Gate recalls per 100,000 new cars. Rows open the model page or go into the comparison.",
+      "parameters": {
+        "list": "sellers, month, electric, efficient, cheapest or recalls",
+        "fuel": "cheapest only: electric, petrol, diesel or phev-petrol",
+        "n": "rows to show, 10 to 100 (default 20)"
+      },
+      "example": "https://cars.allo.land/rankings/?list=cheapest&fuel=electric",
+      "url_de": "https://cars.allo.land/de/rankings/",
+      "url_zh": "https://cars.allo.land/zh/rankings/"
+    },
+    {
       "name": "ev_charging_cost",
       "title": "EV charging cost per 100 km",
       "url": "https://cars.allo.land/ev-cost/",
       "spec": "https://cars.allo.land/ev-cost/spec.json",
-      "description": "Cost per 100 km of an electric car at any price per kWh, and the break-even electricity price against Germany's most registered petrol and diesel cars (or your own fuel car).",
+      "description": "Cost per 100 km of an electric car at any price per kWh, and the break-even electricity price against Germany's most registered petrol and diesel cars (or your own fuel car). Also the total cost over 4 to 8 years with purchase price, E-Auto grant and vehicle tax, and when the electric car pays for itself.",
+      "mcp_tool": "compare_cost_over_years",
       "url_de": "https://cars.allo.land/de/ev-cost/",
       "url_zh": "https://cars.allo.land/zh/ev-cost/"
     },
@@ -52,12 +113,14 @@
       "name": "car_recalls",
       "title": "Car recalls and used-car check",
       "url": "https://cars.allo.land/recalls/",
-      "description": "Official recalls for a car, new or used: EU Safety Gate motor vehicle alerts since 2019 (Germany's KBA reports every German vehicle recall there) and US NHTSA campaigns. Pick brand, model and year of first registration to see the recalls whose build window covers the car, with what to ask the seller or a garage, and statistics per year, per component and per brand normalised by German new car registrations. Updated daily. Link: ?brand=<slug>&model=<name>&year=<yyyy>; the older ?model=<slug> also works.",
+      "description": "Official recalls for a car, new or used: EU Safety Gate motor vehicle alerts since 2019 (Germany's KBA reports every German vehicle recall there) and US NHTSA campaigns. Pick brand, model and year of first registration to see the recalls whose build window covers the car, with what to ask the seller or a garage, a battery check for used electric cars (high-voltage battery recalls, how much of the maker's battery warranty is left, battery questions, warranty terms by brand), and statistics per year, per component and per brand normalised by German new car registrations. Updated daily. Link: ?brand=<slug>&model=<name>&year=<yyyy>; the older ?model=<slug> also works.",
       "parameters": {
         "brand": "slug from https://cars.allo.land/data/recalls/eu/brands.json, e.g. volkswagen",
         "model": "model name as Safety Gate writes it, e.g. ID.4 or Golf (letters and digits only are compared), or a slug from https://cars.allo.land/data/recalls/eu/models.json such as volvo-ex30",
-        "year": "year the car was first registered, e.g. 2021; recalls whose production dates touch that year or the year before are shown"
+        "year": "year the car was first registered, e.g. 2021; recalls whose production dates touch that year or the year before are shown",
+        "km": "kilometres on the clock, for the battery warranty check (optional)"
       },
+      "code": "https://cars.allo.land/recalls/battery.js",
       "data": {
         "latest": "https://cars.allo.land/data/recalls/eu/latest.json",
         "models": "https://cars.allo.land/data/recalls/eu/models.json",
@@ -98,7 +161,7 @@
       "name": "new_registrations_by_model",
       "title": "New car registrations by model",
       "url": "https://cars.allo.land/registrations/",
-      "description": "Monthly new passenger car registrations in Germany for every brand and model since December 2018 (KBA FZ10), with electric and plug-in hybrid counts, this month's top 20 and the electric share of the market. Open a model with ?model=<slug>, slugs are in models.json.",
+      "description": "Monthly new passenger car registrations in Germany for every brand and model since December 2018 (KBA FZ10), with electric and plug-in hybrid counts, this month's top 20, and the electric wave: the electric share per month with the start of the E-Auto grant marked, electric cars this year against last, and the fastest-growing electric models over the last three months. Open a model with ?model=<slug>, slugs are in models.json.",
       "parameters": {
         "model": "model slug from models.json, e.g. volvo-ex30"
       },
@@ -117,7 +180,7 @@
       "name": "charger_map",
       "title": "Charger map",
       "url": "https://cars.allo.land/chargers/",
-      "description": "Every public EV charger in Germany from the Bundesnetzagentur register on a map, filterable by power, plug and payment, with the closest locations to the map centre listed. All settings are URL query parameters.",
+      "description": "Every public EV charger in Germany from the Bundesnetzagentur register on a map, filterable by power, plug and payment, with the closest locations to the map centre listed. All settings are URL query parameters. Zoomed in on a place, it also says how easy living there without a wallbox is: public charge points within 1 and 3 km and the nearest fast charger (rules in https://cars.allo.land/chargers/here.js).",
       "parameters": {
         "lat": "map centre latitude",
         "lon": "map centre longitude",
@@ -161,7 +224,7 @@
       "name": "vehicle_catalog",
       "title": "Official consumption per car model",
       "url": "https://cars.allo.land/open-data/#vehicle-catalog",
-      "description": "Official WLTP consumption (kWh/100 km at the plug, L/100 km), CO2, power and mass for every car model and fuel type newly registered in Germany or the EU-27, averaged over the versions sold, with registration counts. From the EEA CO2 monitoring of new cars, refreshed monthly.",
+      "description": "Official WLTP consumption (kWh/100 km at the plug, L/100 km), CO2, electric range, power and mass for every car model and fuel type newly registered in Germany or the EU-27, averaged over the versions sold, with registration counts. From the EEA CO2 monitoring of new cars, refreshed monthly.",
       "data": {
         "models": "https://cars.allo.land/data/vehicle-catalog/de/models.json",
         "models_csv": "https://cars.allo.land/data/vehicle-catalog/de/models.csv",

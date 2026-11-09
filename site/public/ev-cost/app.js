@@ -185,8 +185,11 @@
   }
   function writeState() {
     var qs = query();
-    var keep = new URLSearchParams(location.search).get("country");
-    try { history.replaceState(null, "", location.pathname + "?" + qs + (keep ? "&country=" + encodeURIComponent(keep) : "")); } catch (e) {}
+    // other parameters in the link (country, and the "Cost over the years" card's own) stay as they are
+    var keep = new URLSearchParams(location.search), mine = new URLSearchParams(qs), extra = new URLSearchParams();
+    keep.forEach(function (v, k) { if (!mine.has(k) && ["petrol", "diesel", "own", "fl", "fp"].indexOf(k) < 0) extra.set(k, v); });
+    var ex = extra.toString();
+    try { history.replaceState(null, "", location.pathname + "?" + qs + (ex ? "&" + ex : "")); } catch (e) {}
     store(qs);
     // the language switch keeps your inputs
     document.querySelectorAll(".ac-lang").forEach(function (sw) { sw.href = sw.getAttribute("href").split("?")[0] + "?" + qs; });
@@ -500,6 +503,10 @@
         '<td class="num ' + (good ? "good" : "bad") + '">' + (good ? T.saveCell(eur(r.saving)) : T.moreCell(eur(-r.saving))) + "</td></tr>";
     }).join("");
 
+    // the "Cost over the years" card (years-app.js) follows the car, price and fuel car set here
+    window.__evCostLast = { state: S, result: R };
+    try { document.dispatchEvent(new CustomEvent("ev-cost:update", { detail: window.__evCostLast })); } catch (e) {}
+
     drawPriceChips();
     // the same question, filled in, for each assistant that takes one from a link
     var ask = encodeURIComponent(T.claude + summary() + "\n\n" + location.origin + location.pathname + "?" + query());
@@ -531,6 +538,8 @@
     R.rows.forEach(function (r) {
       results[T.out.be + " " + nameOf(r) + " (" + T.fuel[r.fuel] + ", " + A.num(r.l) + " L/100 km)"] = T.beOut(eur(r.breakEven), eur(r.cost));
     });
+    var yl = window.__evYears && window.__evYears.lines;
+    if (yl) Object.keys(yl).forEach(function (k) { results[k] = yl[k]; });
     return A.aiSummary(T.title, inputs, results);
   }
 
