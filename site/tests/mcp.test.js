@@ -14,6 +14,7 @@ const FILES = {
     { id: "vw-golf-diesel", make: "Volkswagen", model: "Golf", name: "Volkswagen Golf", fuel: "diesel", l_per_100km: 4.6, registrations: 20000, year: 2025 },
     { id: "vw-tiguan-phev-petrol", make: "VW", model: "Tiguan", name: "VW Tiguan", fuel: "phev-petrol", kwh_per_100km: 25, l_per_100km: 2, co2_g_km: 12, registrations: 15000, year: 2025 },
     { id: "bmw-x5-phev-petrol", make: "BMW", model: "X5", name: "BMW X5", fuel: "phev-petrol", kwh_per_100km: 30, l_per_100km: 3, co2_g_km: 75, registrations: 5000, year: 2025 },
+    { id: "mercedes-benz-glc-phev-petrol", make: "Mercedes-Benz", model: "GLC", name: "Mercedes-Benz GLC", fuel: "phev-petrol", kwh_per_100km: 30, l_per_100km: 3, co2_g_km: 70, range_km: 110, registrations: 4000, year: 2025 },
   ] },
   "recalls/public/eu/models.json": { models: [{ model: "Volvo EX30", slug: "volvo-ex30", file: "models/volvo-ex30.json", us_file: "x" }] },
   "recalls/public/eu/models/volvo-ex30.json": { alerts: [{ id: "A1", production: "2024 - 2025" }] },
@@ -212,6 +213,10 @@ test("check_ev_grant: a plug-in hybrid is checked against its official CO2", asy
   assert.match(ok.page, /car=vw-tiguan-phev-petrol/);
   const over = JSON.parse((await call("check_ev_grant", { drive: "phev", income: 40000, car: "BMW X5", })).content[0].text);
   assert.equal(over.plug_in_hybrid_check, null, "75 g/km alone is not a no: the range may still reach 80 km");
+  const glc = JSON.parse((await call("check_ev_grant", { drive: "phev", income: 40000, car: "GLC" })).content[0].text);
+  assert.equal(glc.plug_in_hybrid_check, true, "70 g/km but 110 km official electric range");
+  assert.equal(glc.car.electric_range_km, 110);
+  assert.equal(glc.grant_eur, 3500);
   const no = JSON.parse((await call("check_ev_grant", { drive: "phev", income: 40000, co2_g_km: 75, electric_range_km: 50 })).content[0].text);
   assert.equal(no.grant_eur, 0);
   assert.equal(no.plug_in_hybrid_check, false);

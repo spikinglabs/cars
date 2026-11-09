@@ -118,7 +118,7 @@ def slug(*parts: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
 
 
-FIGURES = ("z", "fc", "co2", "kw", "kg")
+FIGURES = ("z", "fc", "co2", "kw", "kg", "er")
 NON_EU = {"IS", "NO"}
 
 
@@ -164,7 +164,7 @@ def build(rows: list[dict], region: str, *, min_registrations: int = 20) -> list
         g = groups.setdefault((make, fam, fuel), {"n": 0, "variants": [], "sums": {}})
         g["n"] += r.get(f"n_{region}") or 0
         g["variants"].append(r)
-        for key in ("z", "fc", "co2", "kw", "kg"):
+        for key in FIGURES:
             for scope in (region, "all"):
                 acc = g["sums"].setdefault((key, scope), [0.0, 0])
                 acc[0] += r.get(f"{key}_sum_{scope}") or 0
@@ -181,7 +181,7 @@ def build(rows: list[dict], region: str, *, min_registrations: int = 20) -> list
                 s, n = g["sums"][(key, "all")]
             return _mean(s, n)
 
-        def spread(key, scale):
+        def spread(key, scale, digits=1):
             # the range over variants that sold at least 1 % of the model, using the same scope rule
             vals = []
             for v in g["variants"]:
@@ -192,9 +192,12 @@ def build(rows: list[dict], region: str, *, min_registrations: int = 20) -> list
                     m = _mean(v.get(f"{key}_sum_all") or 0, v.get(f"{key}_n_all") or 0)
                 if m:
                     vals.append(m * scale)
-            return [round(min(vals), 1), round(max(vals), 1)] if vals else None
+            if not vals:
+                return None
+            lo, hi = round(min(vals), digits), round(max(vals), digits)
+            return [int(lo), int(hi)] if digits == 0 else [lo, hi]
 
-        z, fc, co2, kw, kg = fig("z"), fig("fc"), fig("co2"), fig("kw"), fig("kg")
+        z, fc, co2, kw, kg, er = (fig(k) for k in FIGURES)
         uses_power = fuel == "electric" or fuel.startswith("phev")
         uses_fuel = fuel != "electric"
         kwh = round(z / 10, 1) if z and uses_power else None
@@ -217,6 +220,8 @@ def build(rows: list[dict], region: str, *, min_registrations: int = 20) -> list
             "co2_g_km": round(co2) if co2 is not None else None,
             "power_kw": round(kw) if kw else None,
             "mass_kg": round(kg) if kg else None,
+            "range_km": round(er) if er and uses_power else None,
+            "range_span": spread("er", 1, 0) if er and uses_power else None,
             "variants": len(g["variants"]),
         })
     out.sort(key=lambda m: (-m["registrations"], m["name"]))
@@ -224,7 +229,7 @@ def build(rows: list[dict], region: str, *, min_registrations: int = 20) -> list
 
 
 FIELDS = ["id", "make", "model", "name", "fuel", "registrations", "kwh_per_100km", "kwh_min", "kwh_max",
-          "l_per_100km", "l_min", "l_max", "co2_g_km", "power_kw", "mass_kg", "variants", "year", "first_year"]
+          "l_per_100km", "l_min", "l_max", "co2_g_km", "power_kw", "mass_kg", "range_km", "range_min", "range_max", "variants", "year", "first_year"]
 
 
 def csv_rows(models: list[dict]) -> list[dict]:
@@ -233,14 +238,15 @@ def csv_rows(models: list[dict]) -> list[dict]:
         r = dict(m)
         r["kwh_min"], r["kwh_max"] = m["kwh_range"] or (None, None)
         r["l_min"], r["l_max"] = m["l_range"] or (None, None)
+        r["range_min"], r["range_max"] = m.get("range_span") or (None, None)
         r["first_year"] = (m.get("years") or [None])[0]
         rows.append(r)
     return rows
 
 
 def electric(models: list[dict]) -> list[list]:
-    """Compact list for the charging cost page: [id, name, kWh/100 km, min, max, registrations]."""
-    return [[m["id"], m["name"], m["kwh_per_100km"], *(m["kwh_range"] or [None, None]), m["registrations"]]
+    """Compact list for the charging cost page: [id, name, kWh/100 km, min, max, registrations, electric range km]."""
+    return [[m["id"], m["name"], m["kwh_per_100km"], *(m["kwh_range"] or [None, None]), m["registrations"], m.get("range_km")]
             for m in models if m["fuel"] == "electric" and m["kwh_per_100km"]]
 
 

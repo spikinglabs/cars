@@ -22,8 +22,8 @@
       phev_emissions: () => "这辆插电混动车超过 60 g CO2/km，纯电续航也不到 80 km，所以没有补贴。",
       phev_unknown: () => "插电混动车只有在 CO2 不超过 60 g/km 或纯电续航至少 80 km 时才有补贴。请选择车型或填写数据。",
     },
-    verdictOk: (n, c, a) => `<b class="yes">符合条件</b>：${n}官方平均 ${c} g CO2/km${a}。`,
-    verdictNo: (n, c, a) => `<b class="no">按平均值不符合</b>：${n}官方平均 ${c} g CO2/km${a}。纯电续航至少 80 km 的版本仍然可以，请看合格证（CoC）。`,
+    verdictOk: (n, c, a, r) => `<b class="yes">符合条件</b>：${n}官方平均 ${c} g CO2/km${r ? `，纯电续航 ${r} km` : ""}${a}。`,
+    verdictNo: (n, c, a, r) => `<b class="no">按平均值不符合</b>：${n}官方平均 ${c} g CO2/km${r ? `，纯电续航 ${r} km` : ""}${a}。纯电续航至少 80 km 的版本仍然可以，请看合格证（CoC）。`,
     verdictOwnOk: "<b class=\"yes\">符合条件</b>：按你填写的数据。", verdictOwnNo: "<b class=\"no\">不符合条件</b>：CO2 超过 60 g/km，纯电续航也不到 80 km。",
     avgOf: (y) => `（${y} 年登记版本的平均值）`,
     tableDesc: { bev: "纯电动车（以及燃料电池车）。你的格子用黄色标出。", phev: "插电混动和增程车。你的格子用黄色标出。" },
@@ -46,8 +46,8 @@
       phev_emissions: () => "Dieser Plug-in-Hybrid liegt über 60 g CO2/km und unter 80 km elektrischer Reichweite, deshalb gibt es keine Förderung.",
       phev_unknown: () => "Plug-in-Hybride zählen nur mit höchstens 60 g CO2/km oder mindestens 80 km elektrischer Reichweite. Wähle das Modell oder trag die Werte ein.",
     },
-    verdictOk: (n, c, a) => `<b class="yes">Erfüllt</b>: ${n} im offiziellen Schnitt ${c} g CO2/km${a}.`,
-    verdictNo: (n, c, a) => `<b class="no">Im Schnitt nicht erfüllt</b>: ${n} im offiziellen Schnitt ${c} g CO2/km${a}. Versionen mit mindestens 80 km elektrischer Reichweite zählen trotzdem, siehe Übereinstimmungsbescheinigung (CoC).`,
+    verdictOk: (n, c, a, r) => `<b class="yes">Erfüllt</b>: ${n} im offiziellen Schnitt ${c} g CO2/km${r ? `, ${r} km elektrische Reichweite` : ""}${a}.`,
+    verdictNo: (n, c, a, r) => `<b class="no">Im Schnitt nicht erfüllt</b>: ${n} im offiziellen Schnitt ${c} g CO2/km${r ? `, ${r} km elektrische Reichweite` : ""}${a}. Versionen mit mindestens 80 km elektrischer Reichweite zählen trotzdem, siehe Übereinstimmungsbescheinigung (CoC).`,
     verdictOwnOk: "<b class=\"yes\">Erfüllt</b>, nach deinen Werten.", verdictOwnNo: "<b class=\"no\">Nicht erfüllt</b>: über 60 g CO2/km und unter 80 km elektrischer Reichweite.",
     avgOf: (y) => ` (Schnitt der ${y} zugelassenen Versionen)`,
     tableDesc: { bev: "Reine E-Autos (und Brennstoffzellenautos). Dein Feld ist gelb markiert.", phev: "Plug-in-Hybride und Range Extender. Dein Feld ist gelb markiert." },
@@ -70,8 +70,8 @@
       phev_emissions: () => "This plug-in hybrid is above 60 g CO2/km and below 80 km electric range, so it gets no grant.",
       phev_unknown: () => "Plug-in hybrids only count with at most 60 g CO2/km or at least 80 km electric range. Pick the model or type its figures.",
     },
-    verdictOk: (n, c, a) => `<b class="yes">Qualifies</b>: the ${n} averages ${c} g CO2/km officially${a}.`,
-    verdictNo: (n, c, a) => `<b class="no">Not on average</b>: the ${n} averages ${c} g CO2/km officially${a}. Versions with at least 80 km electric range still count; see the certificate of conformity (CoC).`,
+    verdictOk: (n, c, a, r) => `<b class="yes">Qualifies</b>: the ${n} averages ${c} g CO2/km${r ? `, ${r} km electric range` : ""} officially${a}.`,
+    verdictNo: (n, c, a, r) => `<b class="no">Not on average</b>: the ${n} averages ${c} g CO2/km${r ? `, ${r} km electric range` : ""} officially${a}. Versions with at least 80 km electric range still count; see the certificate of conformity (CoC).`,
     verdictOwnOk: "<b class=\"yes\">Qualifies</b>, with your figures.", verdictOwnNo: "<b class=\"no\">Does not qualify</b>: above 60 g CO2/km and below 80 km electric range.",
     avgOf: (y) => ` (average of the versions registered in ${y})`,
     tableDesc: { bev: "Fully electric cars (and fuel-cell cars). Your cell is marked in yellow.", phev: "Plug-in hybrids and range extenders. Your cell is marked in yellow." },
@@ -104,6 +104,7 @@
     if (S.drive !== "phev") ["car", "co2", "range"].forEach((k) => q.delete(k));
     const picked = carById(S.car);
     if (picked && String(picked.co2_g_km) === S.co2) q.delete("co2");
+    if (picked && picked.range_km && String(picked.range_km) === String(S.range)) q.delete("range");
     const s = q.toString();
     try { history.replaceState(null, "", location.pathname + (s ? "?" + s : "")); } catch (e) {}
     local(s);
@@ -123,7 +124,7 @@
       .sort((a, b) => (b.registrations || 0) - (a.registrations || 0));
     $("cars").innerHTML = phevs.map((m) => `<option value="${A.esc(m.name)}"></option>`).join("");
     const c = carById(S.car);
-    if (c) { $("car").value = c.name; if (S.co2 === "") S.co2 = String(c.co2_g_km); }
+    if (c) { $("car").value = c.name; if (S.co2 === "") S.co2 = String(c.co2_g_km); if (S.range === "" && c.range_km) S.range = String(c.range_km); }
     paintInputs(); update();
   }).catch(() => {});
 
@@ -142,7 +143,7 @@
   $("car").addEventListener("change", () => {
     const c = carByName($("car").value);
     S.car = c ? c.id : "";
-    if (c) { S.co2 = String(c.co2_g_km); S.range = ""; }
+    if (c) { S.co2 = String(c.co2_g_km); S.range = c.range_km ? String(c.range_km) : ""; }
     paintInputs(); update();
   });
 
@@ -175,8 +176,9 @@
     if (S.drive === "phev") {
       const c = carById(S.car);
       let v = "";
-      if (c && String(c.co2_g_km) === String(S.co2) && S.range === "") {
-        v = (G.phevOk(c.co2_g_km, null) ? T.verdictOk : T.verdictNo)(A.esc(c.name), c.co2_g_km, A.esc(T.avgOf(c.year || catalogYear)));
+      const carRange = c && c.range_km ? String(c.range_km) : "";
+      if (c && String(c.co2_g_km) === String(S.co2) && String(S.range) === carRange) {
+        v = (G.phevOk(c.co2_g_km, c.range_km) ? T.verdictOk : T.verdictNo)(A.esc(c.name), c.co2_g_km, A.esc(T.avgOf(c.year || catalogYear)), c.range_km);
       } else if (S.co2 !== "" || S.range !== "") {
         const ok = G.phevOk(S.co2, S.range);
         v = ok === true ? T.verdictOwnOk : ok === false ? T.verdictOwnNo : "";
