@@ -162,6 +162,16 @@
     <p>许可 CC BY 4.0：请注明欧洲环境署。在 EEA 公布最终数据之前，临时年份的数据仍可能变化。</p>
   </section>
 
+  <section class="ac-card" id="ratings">
+    <span class="ac-label">评级</span>
+    <h2>安全、环保和故障评级</h2>
+    <p>车型页面和对比页面以关键数据的形式显示三项独立评级，每项都链接到来源处的完整结果。<a href="https://www.euroncap.com/">Euro NCAP</a> 对新车进行碰撞测试，给出 0 到 5 星的安全评级；测试每隔几年就会更严格，因此请比较年份相近的星级。<a href="https://www.greenncap.com/">Green NCAP</a> 对一款车的一个测试版本按清洁空气、能耗和温室气体给出 0 到 5 星。<a href="https://www.adac.de/rund-ums-fahrzeug/unfall-schaden-panne/adac-pannenstatistik/">ADAC 故障统计</a>（Pannenstatistik）统计 ADAC 道路救援一年内每 1,000 辆注册车辆的出勤次数，按车系和首次注册年份划分。我们每周只读取星级、年份和故障率；报告本身仍归其发布者所有。</p>
+    <ul>
+      <li><a href="/data/ratings/de/ratings.json"><code>/data/ratings/de/ratings.json</code></a>：<code>euro_ncap.models</code>、<code>green_ncap.versions</code> 和 <code>adac_breakdowns</code>，均附来源链接</li>
+    </ul>
+    <p>无开放许可：评级归 Euro NCAP、Green NCAP 和 ADAC 所有。使用这些数据时请注明它们并链接到其结果。</p>
+  </section>
+
   <section class="ac-card" id="fuel-prices">
     <span class="ac-label">油价</span>
     <h2>汽油、柴油和液化石油气价格</h2>
@@ -200,7 +210,7 @@
 
 <!-- chrome:footer -->
 <footer class="ac-foot">
-  <p class="ac-foot__links"><a href="/zh/cars/">我的车</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
+  <p class="ac-foot__links"><a href="/zh/cars/">我的车</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/rankings/">排行榜</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
   <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Allo 的其他产品</h2>
@@ -238,6 +248,7 @@
   <ul>
     <li><a href="/zh/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>我的车</span></a></li>
     <li><a href="/zh/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>车型对比</span></a></li>
+    <li><a href="/zh/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>排行榜</span></a></li>
     <li><a href="/zh/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>召回</span></a></li>
     <li><a href="/zh/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>新车登记</span></a></li>
     <li><a href="/zh/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>油价</span></a></li>

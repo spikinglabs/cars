@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r pipelines/fuel_prices/requirements.txt -r pipelines/chargers/requirements.txt
+      - run: pip install -r pipelines/fuel_prices/requirements.txt -r pipelines/chargers/requirements.txt -r pipelines/ratings/requirements.txt
       - run: python -m unittest discover -s pipelines/charging_prices/tests -t . -v
       - run: python -m unittest discover -s pipelines/fuel_prices/tests -t . -v
       - run: python -m unittest discover -s pipelines/recalls/tests -t . -v
@@ -26,3 +26,4 @@ jobs:
       - run: python -m unittest discover -s pipelines/registrations/tests -t . -v
       - run: python -m unittest discover -s pipelines/chargers/tests -t . -v
       - run: python -m unittest discover -s pipelines/vehicle_catalog/tests -t . -v
+      - run: python -m unittest discover -s pipelines/ratings/tests -t . -v

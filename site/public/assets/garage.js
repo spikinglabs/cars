@@ -146,6 +146,76 @@
       remove: function (id) { return cmpWrite(cmpRead().filter(function (x) { return x !== id; })); },
       toggle: function (id) { var l = cmpRead(); return l.indexOf(id) >= 0 ? cmpWrite(l.filter(function (x) { return x !== id; })) : cmpWrite(l.concat([id])); }
     },
+    // What 100 km costs at the latest prices, as on My cars and Compare: electric at home (0.35 EUR/kWh
+    // plus 10 % losses) and at the public ad-hoc median; fuel at the weekly national average; plug-in
+    // hybrids with their official electric/fuel mix and home charging. { main, pub } in EUR or null.
+    cost100: function (m, fuel, charge) {
+      var HOME = 0.35, LOSS = 1.1, P = { petrol: "euro_super_95", diesel: "diesel", lpg: "lpg", "phev-petrol": "euro_super_95", "phev-diesel": "diesel" };
+      var fp = fuel && fuel.products && P[m.fuel] ? fuel.products[P[m.fuel]] : null;
+      var pub = charge && charge.overall ? charge.overall.median : null;
+      if (m.fuel === "electric" && m.kwh_per_100km) return { main: m.kwh_per_100km * LOSS * HOME, pub: pub ? m.kwh_per_100km * LOSS * pub : null };
+      if (/^phev/.test(m.fuel) && fp) return { main: (m.kwh_per_100km || 0) * LOSS * HOME + (m.l_per_100km || 0) * fp.eur_per_litre, pub: null };
+      if (m.l_per_100km && fp) return { main: m.l_per_100km * fp.eur_per_litre, pub: null };
+      return { main: null, pub: null };
+    },
+    // The catalog model for a model in the registration statistics (KBA counts every drive type
+    // together): the most registered catalog entry with the same make and model, or with fuel only one of that fuel.
+    catalogFor: function (catalog, brand, model, fuel) {
+      var key = modelKey(brand, model), best = null;
+      catalog.forEach(function (m) {
+        if (modelKey(m.make, m.model) !== key) return;
+        var score = (fuel && m.fuel === fuel ? 1e9 : 0) + (m.registrations || 0);
+        if (!best || score > best.s) best = { m: m, s: score };
+      });
+      return best && (!fuel || best.m.fuel === fuel) ? best.m : null;
+    },
+    // Cars like this one: same kind of drive (electric, plug-in hybrid, fuel), close in kerb weight and
+    // power, still sold new around the catalog year, other models only. Closest first.
+    similar: function (catalog, m, year, n) {
+      var kind = function (f) { return f === "electric" ? "e" : /^phev/.test(f) ? "p" : "f"; };
+      if (!m || !m.mass_kg || !m.power_kw) return [];
+      var k = kind(m.fuel), key = modelKey(m.make, m.model);
+      return catalog.filter(function (x) {
+        return x.id !== m.id && kind(x.fuel) === k && (x.registrations || 0) >= 200 && x.mass_kg && x.power_kw
+          && (x.year === year || (x.years && x.years[1] >= year - 1)) && modelKey(x.make, x.model) !== key;
+      }).map(function (x) {
+        return { m: x, d: 2 * Math.abs(Math.log(x.mass_kg / m.mass_kg)) + Math.abs(Math.log(x.power_kw / m.power_kw)) };
+      }).filter(function (o) { return o.d < 0.6; })
+        .sort(function (a, b) { return a.d - b.d || (b.m.registrations || 0) - (a.m.registrations || 0); })
+        .slice(0, n || 5).map(function (o) { return o.m; });
+    },
+    // Ratings for a catalog model from /data/ratings/de/ratings.json: { euro, green, adac } or nulls.
+    // Euro NCAP by make and model; Green NCAP by the start of the tested version's name, preferring
+    // the same fuel, newest first; ADAC by model series, which may list several names
+    // ("BMW 2er-Reihe/2er-Reihe Active/Gran Tourer", "KIA Ceed/XCeed").
+    ratings: function (R, m) {
+      var out = { euro: null, green: null, adac: null };
+      if (!R || !m) return out;
+      var key = modelKey(m.make, m.model);
+      var e = R.euro_ncap ? R.euro_ncap.models.filter(function (x) { return modelKey(x.make, x.model) === key; }) : [];
+      out.euro = e.sort(function (a, b) { return b.year - a.year; })[0] || null;
+      var words = function (t) { return String(t || "").toLowerCase().replace(/volkswagen/g, "vw").replace(/mercedes-benz/g, "mercedes").split(/[\s]+/).map(norm).filter(Boolean); };
+      var want = words(m.make + " " + m.model), joined = want.join("");
+      var fuelKind = m.fuel === "electric" ? "electric" : /^phev/.test(m.fuel) ? "phev" : m.fuel === "diesel" ? "diesel" : "petrol";
+      var g = R.green_ncap ? R.green_ncap.versions.filter(function (v) {
+        var w = words(v.name);
+        for (var n = 1; n <= w.length; n++) { var j = w.slice(0, n).join(""); if (j === joined) return true; if (j.length >= joined.length) return false; }
+        return false;
+      }) : [];
+      out.green = g.sort(function (a, b) {
+        var fa = a.fuel === fuelKind || (fuelKind === "petrol" && a.fuel === "hybrid") ? 1 : 0, fb = b.fuel === fuelKind || (fuelKind === "petrol" && b.fuel === "hybrid") ? 1 : 0;
+        return fb - fa || b.year - a.year;
+      })[0] || null;
+      var A = R.adac_breakdowns;
+      if (A) {
+        out.adac = A.models.filter(function (x) {
+          var w = x.name.replace(/^Mercedes-Benz\s+/, "Mercedes ").replace(/\bNutzfahrzeuge\s+/, "").split(/\s+/);
+          var make = w.shift(), parts = w.join(" ").split("/");
+          return parts.some(function (p) { return modelKey(make, p.replace(/-Reihe\b/i, "").trim()) === key; });
+        })[0] || null;
+      }
+      return out;
+    },
     electric: function (fuel) { return fuel === "electric"; },
     plugIn: function (fuel) { return /^phev/.test(fuel); }
   };
