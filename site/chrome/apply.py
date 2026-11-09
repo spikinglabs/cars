@@ -13,6 +13,13 @@ footer.html (English), and header.<lang>.html and footer.<lang>.html for the oth
     {{manifest}}         the web app manifest of the page's language
     {{regions}}          the selectable regions from public/regions.json, as JSON for site.js
     {{country_options}}  <option>s for the country selector at the bottom of the page
+    {{og}}               Open Graph and Twitter tags for link previews, from the page's <title> and
+                         <meta name="description">
+    {{share_desc}}       the page's description, shown in the share section of the footer
+    {{share_url}}        the page's address, URL-encoded, for the share links (site.js swaps in the
+                         address shown, with its ?parameters, when one is clicked)
+    {{share_title}}      the page's <title>, URL-encoded
+    {{share_text}}       the page's description, URL-encoded
 
 To add a page: write it in English, copy it to /de/<slug>/ and /zh/<slug>/, translate the text, add
 it to the nav parts of every language, and run this script. Page scripts are shared by all languages
@@ -32,10 +39,12 @@ It also writes public/sitemap.xml (every page with its language twins), which ro
 from __future__ import annotations
 
 import hashlib
+import html as htmllib
 import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 HERE = Path(__file__).resolve().parent
 PUBLIC = HERE.parent / "public"
@@ -51,6 +60,8 @@ LANGS = (
 CODES = tuple(c for c, *_ in LANGS)
 PREFIX = {c: p for c, p, *_ in LANGS}
 HTML_LANG = {c: h for c, _, h, *_ in LANGS}
+OG_LOCALE = {"en": "en_GB", "de": "de_DE", "zh": "zh_CN"}
+OG_IMAGE = "/icons/icon-512.png"
 
 
 ASSET = re.compile(r'((?:href|src)=")(/[^"?#]+\.(?:css|js))(?:\?v=[0-9a-f]*)?(")')
@@ -142,10 +153,47 @@ def lang_switch(lang: str, urls: dict[str, str]) -> str:
             f'{GLOBE}<span>{short[lang]}</span></summary><div class="ac-langmenu__list">{"".join(items)}</div></details>')
 
 
-def render(part: str, url: str) -> str:
+def page_meta(page: Path, html: str) -> dict[str, str]:
+    """The page's own <title> and description (outside the shared parts), HTML-escaped as written."""
+    title = re.search(r"<title>(.*?)</title>", html, re.S)
+    desc = re.search(r'<meta name="description" content="([^"]*)"', html)
+    if not title or not desc:
+        raise SystemExit(f"{page}: needs a <title> and a <meta name=\"description\">")
+    return {"title": title.group(1).strip(), "desc": desc.group(1).strip()}
+
+
+def og_tags(url: str, meta: dict[str, str]) -> str:
+    """Link preview tags (Open Graph, read by WhatsApp, Signal, Telegram, WeChat, X, Facebook and others)."""
+    lang = lang_of(url)
+    tags = [
+        '<meta property="og:type" content="website">',
+        '<meta property="og:site_name" content="Allo Cars">',
+        f'<meta property="og:title" content="{meta["title"]}">',
+        f'<meta property="og:description" content="{meta["desc"]}">',
+        f'<meta property="og:url" content="{SITE}{url}">',
+        f'<meta property="og:image" content="{SITE}{OG_IMAGE}">',
+        '<meta property="og:image:width" content="512">',
+        '<meta property="og:image:height" content="512">',
+        '<meta property="og:image:alt" content="Allo Cars">',
+        f'<meta property="og:locale" content="{OG_LOCALE[lang]}">',
+    ]
+    tags += [f'<meta property="og:locale:alternate" content="{OG_LOCALE[c]}">' for c in CODES if c != lang]
+    tags.append('<meta name="twitter:card" content="summary">')
+    return "\n".join(tags)
+
+
+def enc(text: str) -> str:
+    """URL-encode HTML-escaped text for a share link (the result is safe inside an href)."""
+    return quote(htmllib.unescape(text), safe="")
+
+
+def render(part: str, url: str, meta: dict[str, str]) -> str:
     lang = lang_of(url)
     urls = twins(url)
     html = part_file(part, lang).read_text(encoding="utf-8").strip()
+    html = (html.replace("{{og}}", og_tags(url, meta)).replace("{{share_desc}}", meta["desc"])
+            .replace("{{share_url}}", enc(SITE + url)).replace("{{share_title}}", enc(meta["title"]))
+            .replace("{{share_text}}", enc(meta["desc"])))
     html = (html.replace("{{lang}}", HTML_LANG[lang]).replace("{{site}}", SITE)
             .replace("{{hreflang}}", hreflang_tags(urls)).replace("{{langswitch}}", lang_switch(lang, urls))
             .replace("{{regions}}", regions_json()).replace("{{country_options}}", country_options(lang))
@@ -175,11 +223,14 @@ def apply(page: Path) -> tuple[str, str]:
     url = url_of(page)
     old = page.read_text(encoding="utf-8")
     new = old
+    # read the title and description from the page itself, not from inside the shared parts
+    own = re.sub(r"<!-- chrome:(\w+) -->.*?<!-- /chrome:\1 -->", "", old, flags=re.S)
+    meta = page_meta(page, own)
     for part in PARTS:
         pat = re.compile(rf"(<!-- chrome:{part} -->)(.*?)(<!-- /chrome:{part} -->)", re.S)
         if not pat.search(new):
             raise SystemExit(f"{page}: missing <!-- chrome:{part} --> markers")
-        new = pat.sub(lambda m: m.group(1) + "\n" + render(part, url) + "\n" + m.group(3), new, count=1)
+        new = pat.sub(lambda m: m.group(1) + "\n" + render(part, url, meta) + "\n" + m.group(3), new, count=1)
     new = version_assets(new)
     want = f'<html lang="{HTML_LANG[lang_of(url)]}"'
     if want not in new:

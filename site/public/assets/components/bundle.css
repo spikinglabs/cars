@@ -360,3 +360,22 @@
   .ac-foot { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 }
 .ac-readout__value small { white-space: nowrap; }
+
+/* share this page: the first part of the footer (site/chrome/footer*.html, behaviour in site.js).
+   One quiet line (copy link, the phone's share sheet); "More" opens the description and app links. */
+.ac-share { margin: 0 0 20px; padding: 10px 12px; border: 1px solid var(--border); background: var(--surface-100); border-radius: var(--radius-md); color: var(--ink); }
+.ac-share__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ac-share h2 { margin: 0 6px 0 2px; font: 700 14px/20px var(--font-sans); }
+.ac-foot .ac-share__row > a, .ac-share__btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-50); color: var(--ink); font: 700 13px/18px var(--font-sans); text-decoration: none; cursor: pointer; }
+.ac-foot .ac-share__row > a:hover, .ac-share__btn:hover { border-color: var(--ink); }
+.ac-share__btn[hidden], .ac-share__more[hidden] { display: none; }
+.ac-share__btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ac-share__toggle { background: transparent; border-color: transparent; color: var(--ink-muted); }
+.ac-share__toggle svg { transition: transform .15s; }
+.ac-share__toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.ac-share__more { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ac-foot .ac-share__desc { margin: 0 0 10px; color: var(--ink-muted); font-size: 14px; line-height: 20px; }
+.ac-foot .ac-share__note { margin: 10px 0 0; color: var(--ink-muted); font-size: 13px; }
+.ac-foot .ac-share__status { margin: 8px 0 0 2px; color: var(--ink); font-weight: 700; }
+.ac-foot .ac-share__status:empty { display: none; }
+@media (max-width: 480px) { .ac-share h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }

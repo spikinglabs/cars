@@ -8,6 +8,19 @@
 <link rel="alternate" type="application/json" href="/data/chargers/de/latest.json" title="Charger counts (JSON)">
 <link rel="alternate" type="text/csv" href="/data/chargers/de/stations.csv" title="All charging stations (CSV)">
 <!-- chrome:head -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Allo Cars">
+<meta property="og:title" content="Charger map · Allo Cars">
+<meta property="og:description" content="Every public EV charger in Germany on one map: filter by power, plug and payment, search a town or postcode, and find the nearest fast charger.">
+<meta property="og:url" content="https://cars.allo.land/chargers/">
+<meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Allo Cars">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta name="twitter:card" content="summary">
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/">
 <link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/">
 <link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/">
@@ -23,10 +36,10 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=17f543275f">
 <link rel="stylesheet" href="/assets/vendor/leaflet/leaflet.css?v=a783710282">
 <link rel="stylesheet" href="/chargers/map.css?v=a3c05c19a2">
-<script src="/assets/site.js?v=cf4b621b3a"></script>
+<script src="/assets/site.js?v=b92c9c36d3"></script>
 </head>
 <body>
 <div class="ac">
@@ -130,6 +143,21 @@
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
+  <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Fchargers%2F" data-share-done="Link copied" data-share-manual="Copy this link:">
+    <div class="ac-share__row">
+      <h2 id="share-h">Share this page</h2>
+      <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Copy link</span></button>
+      <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Share…</span></button>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>More</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
+    <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">Every public EV charger in Germany on one map: filter by power, plug and payment, search a town or postcode, and find the nearest fast charger.</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=Charger%20map%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fchargers%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fchargers%2F&amp;text=Charger%20map%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Charger%20map%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fchargers%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fchargers%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Charger%20map%20%C2%B7%20Allo%20Cars&amp;body=Every%20public%20EV%20charger%20in%20Germany%20on%20one%20map%3A%20filter%20by%20power%2C%20plug%20and%20payment%2C%20search%20a%20town%20or%20postcode%2C%20and%20find%20the%20nearest%20fast%20charger.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fchargers%2F" data-share-link data-count="share_email">Email</a>
+      </div>
+    </div>
+  </section>
   <p class="ac-foot__links"><a href="/electric/">Buying electric</a> · <a href="/cars/">My cars</a> · <a href="/ev-grant/">EV grant</a> · <a href="/compare/">Compare cars</a> · <a href="/rankings/">Car rankings</a> · <a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
   <nav class="ac-family" aria-labelledby="family-h">

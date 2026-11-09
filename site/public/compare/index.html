@@ -6,6 +6,19 @@
 <title>Compare cars · Allo Cars</title>
 <meta name="description" content="Put up to four car models side by side: official consumption, CO2, power and weight, what 100 km and a year cost at this week's German prices, new registrations in Germany and recalls. Hide rows that are the same and mark the best value.">
 <!-- chrome:head -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Allo Cars">
+<meta property="og:title" content="Compare cars · Allo Cars">
+<meta property="og:description" content="Put up to four car models side by side: official consumption, CO2, power and weight, what 100 km and a year cost at this week's German prices, new registrations in Germany and recalls. Hide rows that are the same and mark the best value.">
+<meta property="og:url" content="https://cars.allo.land/compare/">
+<meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Allo Cars">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta name="twitter:card" content="summary">
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/compare/">
 <link rel="alternate" hreflang="de" href="https://cars.allo.land/de/compare/">
 <link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/compare/">
@@ -21,8 +34,8 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
-<script src="/assets/site.js?v=cf4b621b3a"></script>
+<link rel="stylesheet" href="/assets/components/bundle.css?v=17f543275f">
+<script src="/assets/site.js?v=b92c9c36d3"></script>
 <script src="/assets/garage.js?v=d0a40d4c4b"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
@@ -63,8 +76,6 @@
   .carhead { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: start; }
   .carname { font: 800 16px/20px var(--font-display); color: var(--ink); }
   .carfuel { grid-column: 1; font-weight: 400; color: var(--ink-muted); font-size: 13px; }
-  .ver { grid-column: 1 / -1; display: block; margin-top: 4px; }
-  .ver select { width: 100%; max-width: 100%; min-height: 40px; padding: 0 6px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 600 13px/16px var(--font-sans); }
   .x { grid-row: 1 / span 2; grid-column: 2; width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 50%; background: var(--surface-100); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
   .x:hover { background: var(--surface-200); }
   .try { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -133,6 +144,21 @@
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
+  <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Fcompare%2F" data-share-done="Link copied" data-share-manual="Copy this link:">
+    <div class="ac-share__row">
+      <h2 id="share-h">Share this page</h2>
+      <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Copy link</span></button>
+      <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Share…</span></button>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>More</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
+    <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">Put up to four car models side by side: official consumption, CO2, power and weight, what 100 km and a year cost at this week's German prices, new registrations in Germany and recalls. Hide rows that are the same and mark the best value.</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=Compare%20cars%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fcompare%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fcompare%2F&amp;text=Compare%20cars%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Compare%20cars%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fcompare%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fcompare%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Compare%20cars%20%C2%B7%20Allo%20Cars&amp;body=Put%20up%20to%20four%20car%20models%20side%20by%20side%3A%20official%20consumption%2C%20CO2%2C%20power%20and%20weight%2C%20what%20100%20km%20and%20a%20year%20cost%20at%20this%20week%27s%20German%20prices%2C%20new%20registrations%20in%20Germany%20and%20recalls.%20Hide%20rows%20that%20are%20the%20same%20and%20mark%20the%20best%20value.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fcompare%2F" data-share-link data-count="share_email">Email</a>
+      </div>
+    </div>
+  </section>
   <p class="ac-foot__links"><a href="/electric/">Buying electric</a> · <a href="/cars/">My cars</a> · <a href="/ev-grant/">EV grant</a> · <a href="/compare/">Compare cars</a> · <a href="/rankings/">Car rankings</a> · <a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
   <nav class="ac-family" aria-labelledby="family-h">

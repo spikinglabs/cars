@@ -8,6 +8,19 @@
 <link rel="alternate" type="application/json" href="/data/fuel-prices/latest.json" title="Latest prices (JSON)">
 <link rel="alternate" type="text/csv" href="/data/fuel-prices/weekly.csv" title="Weekly prices (CSV)">
 <!-- chrome:head -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Allo Cars">
+<meta property="og:title" content="Fuel prices in Germany · Allo Cars">
+<meta property="og:description" content="Weekly petrol, diesel and LPG prices in Germany since 2005, national averages including all taxes.">
+<meta property="og:url" content="https://cars.allo.land/fuel-prices/">
+<meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Allo Cars">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta name="twitter:card" content="summary">
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/fuel-prices/">
 <link rel="alternate" hreflang="de" href="https://cars.allo.land/de/fuel-prices/">
 <link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/fuel-prices/">
@@ -23,8 +36,8 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
-<script src="/assets/site.js?v=cf4b621b3a"></script>
+<link rel="stylesheet" href="/assets/components/bundle.css?v=17f543275f">
+<script src="/assets/site.js?v=b92c9c36d3"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
   main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
@@ -94,6 +107,21 @@
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
+  <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Ffuel-prices%2F" data-share-done="Link copied" data-share-manual="Copy this link:">
+    <div class="ac-share__row">
+      <h2 id="share-h">Share this page</h2>
+      <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Copy link</span></button>
+      <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Share…</span></button>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>More</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
+    <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">Weekly petrol, diesel and LPG prices in Germany since 2005, national averages including all taxes.</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=Fuel%20prices%20in%20Germany%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Ffuel-prices%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Ffuel-prices%2F&amp;text=Fuel%20prices%20in%20Germany%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Fuel%20prices%20in%20Germany%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Ffuel-prices%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Ffuel-prices%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Fuel%20prices%20in%20Germany%20%C2%B7%20Allo%20Cars&amp;body=Weekly%20petrol%2C%20diesel%20and%20LPG%20prices%20in%20Germany%20since%202005%2C%20national%20averages%20including%20all%20taxes.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Ffuel-prices%2F" data-share-link data-count="share_email">Email</a>
+      </div>
+    </div>
+  </section>
   <p class="ac-foot__links"><a href="/electric/">Buying electric</a> · <a href="/cars/">My cars</a> · <a href="/ev-grant/">EV grant</a> · <a href="/compare/">Compare cars</a> · <a href="/rankings/">Car rankings</a> · <a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
   <nav class="ac-family" aria-labelledby="family-h">

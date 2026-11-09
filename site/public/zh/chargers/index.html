@@ -8,6 +8,19 @@
 <link rel="alternate" type="application/json" href="/data/chargers/de/latest.json" title="充电桩统计 (JSON)">
 <link rel="alternate" type="text/csv" href="/data/chargers/de/stations.csv" title="全部充电站 (CSV)">
 <!-- chrome:head -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Allo Cars">
+<meta property="og:title" content="充电桩地图 · Allo Cars">
+<meta property="og:description" content="一张地图看遍德国所有公共电动车充电桩：按功率、插头和支付方式筛选，搜索城镇或邮政编码，找到最近的快充桩。">
+<meta property="og:url" content="https://cars.allo.land/zh/chargers/">
+<meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Allo Cars">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_GB">
+<meta property="og:locale:alternate" content="de_DE">
+<meta name="twitter:card" content="summary">
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/">
 <link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/">
 <link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/">
@@ -23,10 +36,10 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=17f543275f">
 <link rel="stylesheet" href="/assets/vendor/leaflet/leaflet.css?v=a783710282">
 <link rel="stylesheet" href="/chargers/map.css?v=a3c05c19a2">
-<script src="/assets/site.js?v=cf4b621b3a"></script>
+<script src="/assets/site.js?v=b92c9c36d3"></script>
 </head>
 <body>
 <div class="ac">
@@ -130,6 +143,22 @@
     </div>
     <!-- chrome:footer -->
 <footer class="ac-foot">
+  <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Fzh%2Fchargers%2F" data-share-done="链接已复制" data-share-manual="复制这个链接：">
+    <div class="ac-share__row">
+      <h2 id="share-h">分享这个页面</h2>
+      <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>复制链接</span></button>
+      <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>分享…</span></button>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>更多</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
+    <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">一张地图看遍德国所有公共电动车充电桩：按功率、插头和支付方式筛选，搜索城镇或邮政编码，找到最近的快充桩。</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=%E5%85%85%E7%94%B5%E6%A1%A9%E5%9C%B0%E5%9B%BE%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fzh%2Fchargers%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Fchargers%2F&amp;title=%E5%85%85%E7%94%B5%E6%A1%A9%E5%9C%B0%E5%9B%BE%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_weibo">微博</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Fchargers%2F&amp;text=%E5%85%85%E7%94%B5%E6%A1%A9%E5%9C%B0%E5%9B%BE%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="mailto:?subject=%E5%85%85%E7%94%B5%E6%A1%A9%E5%9C%B0%E5%9B%BE%20%C2%B7%20Allo%20Cars&amp;body=%E4%B8%80%E5%BC%A0%E5%9C%B0%E5%9B%BE%E7%9C%8B%E9%81%8D%E5%BE%B7%E5%9B%BD%E6%89%80%E6%9C%89%E5%85%AC%E5%85%B1%E7%94%B5%E5%8A%A8%E8%BD%A6%E5%85%85%E7%94%B5%E6%A1%A9%EF%BC%9A%E6%8C%89%E5%8A%9F%E7%8E%87%E3%80%81%E6%8F%92%E5%A4%B4%E5%92%8C%E6%94%AF%E4%BB%98%E6%96%B9%E5%BC%8F%E7%AD%9B%E9%80%89%EF%BC%8C%E6%90%9C%E7%B4%A2%E5%9F%8E%E9%95%87%E6%88%96%E9%82%AE%E6%94%BF%E7%BC%96%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E6%9C%80%E8%BF%91%E7%9A%84%E5%BF%AB%E5%85%85%E6%A1%A9%E3%80%82%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fzh%2Fchargers%2F" data-share-link data-count="share_email">邮件</a>
+      </div>
+      <p class="ac-share__note">分享到微信：复制链接后粘贴到聊天里，或在手机上点“分享…”。</p>
+    </div>
+  </section>
   <p class="ac-foot__links"><a href="/zh/electric/">买电动车</a> · <a href="/zh/cars/">我的车</a> · <a href="/zh/ev-grant/">电动车补贴</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/rankings/">排行榜</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
   <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
