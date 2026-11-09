@@ -66,7 +66,7 @@ test("notifications get 202 and no body", async () => {
 test("tools/list has every tool, read-only, with a schema", async () => {
   const { body } = await post({ jsonrpc: "2.0", id: 2, method: "tools/list" });
   const names = body.result.tools.map((t) => t.name);
-  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "get_registrations", "find_chargers"]);
+  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_registrations", "find_chargers"]);
   for (const t of body.result.tools) {
     assert.equal(t.annotations.readOnlyHint, true);
     assert.equal(t.inputSchema.type, "object");
@@ -96,6 +96,21 @@ test("consumption: exact model first, then most registered", async () => {
   assert.deepEqual(r.structuredContent.models.map((m) => m.id), ["vw-golf-petrol", "vw-golf-diesel"]);
   assert.equal(r.structuredContent.models[0].page, "https://cars.allo.land/cars/?car=vw-golf-petrol");
   assert.deepEqual(JSON.parse(r.content[0].text), r.structuredContent);
+});
+test("compare: costs at this week's prices, recalls that name the model, a page link", async () => {
+  const r = (await call("compare_cars", { cars: ["vw-golf-petrol", "Volvo EX30", "Trabant"], km_per_year: 10000 })).structuredContent;
+  assert.deepEqual(r.cars.map((c) => c.id), ["vw-golf-petrol", "volvo-ex30"]);
+  assert.deepEqual(r.not_found, ["Trabant"]);
+  const [golf, ex30] = r.cars;
+  assert.equal(golf.cost_per_100km_eur, 11.76); // 5.6 L x 2.10
+  assert.equal(golf.cost_per_year_eur, 1176);
+  assert.equal(golf.safety_gate_recalls, 3); // G1, G2, G3 name the Golf, P1 does not
+  assert.equal(ex30.cost_per_100km_eur, 6.58); // 17.1 kWh + 10% at 0.35
+  assert.equal(r.page, "https://cars.allo.land/compare/?cars=vw-golf-petrol,volvo-ex30&km=10000");
+});
+test("compare: no known car is an answer with an error", async () => {
+  const r = (await call("compare_cars", { cars: ["Trabant"] })).structuredContent;
+  assert.match(r.error, /No car model matches/);
 });
 test("consumption: bad fuel is a tool error", async () => {
   const r = await call("lookup_official_consumption", { query: "Golf", fuel: "steam" });

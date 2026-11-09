@@ -290,6 +290,108 @@ async function getRegistrations(get, { model = null, months = 12 } = {}) {
   };
 }
 
+// ---------- compare cars (the /compare/ page) ----------
+// Same rules as site/public/assets/garage.js and compare/app.js, so the tool and the page agree.
+
+const HOME_PRICE = 0.35, LOSS = 1.1;
+const FUEL_PRODUCT = { petrol: "euro_super_95", diesel: "diesel", lpg: "lpg", "phev-petrol": "euro_super_95", "phev-diesel": "diesel" };
+const normG = (s) => String(s || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]/g, "");
+const BRAND_G = { volkswagen: "vw", mercedesbenz: "mercedes", mercedesamg: "mercedes" };
+const brandKeyG = (b) => { b = normG(b); return BRAND_G[b] || b; };
+function modelKeyG(make, model) {
+  const b = brandKeyG(make);
+  let m = normG(model);
+  for (const p of [normG(make), b]) if (p && m.startsWith(p) && m.length > p.length) m = m.slice(p.length);
+  m = m.replace(/^(\d)series$/, "$1er").replace(/^(\w+)class$/, "$1klasse");
+  return `${b}|${m}`;
+}
+const recallBrandG = (make) => { const b = normG(make); return b === "vw" ? "volkswagen" : b === "mercedes" ? "mercedes-benz" : String(make || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); };
+function recallModelG(make, model) {
+  let m = normG(model);
+  for (const p of [normG(make), brandKeyG(make)]) if (p && m.startsWith(p) && m.length > p.length) m = m.slice(p.length);
+  return m;
+}
+function recallNamesG(a, make, model) {
+  const key = recallModelG(make, model), bn = normG(make), alt = modelKeyG(make, model).split("|")[1];
+  if (!key) return false;
+  const brand = a.brand || make;
+  return [a.models, a.type_approval].join(", ").replace(/&amp;/g, "&").replace(/\([^)]*\)/g, " ").split(/\s*(?:[,;/+&]|\band\b)\s*/i)
+    .map((p) => p.trim().replace(new RegExp("^" + esc(brand) + "\\s+", "i"), ""))
+    .filter((p) => p && p.length <= 40 && !/[*]|^e\d|^(?:null|undefined)$/i.test(p))
+    .some((p) => {
+      let n = normG(p); if (bn && n.startsWith(bn) && n.length > bn.length) n = n.slice(bn.length);
+      return n === key || n === alt || (n.startsWith(key) && !/^\d/.test(n.slice(key.length)));
+    });
+}
+function resolveCar(models, text) {
+  const t = String(text || "").trim();
+  const byId = models.find((m) => m.id === t.toLowerCase());
+  if (byId) return byId;
+  const words = t.split(/\s+/).map(normC).filter(Boolean);
+  if (!words.length) return null;
+  const joined = words.join("");
+  const hits = models.filter((m) => { const hay = normC(m.name) + normC(m.make) + normC(m.id) + normC(m.fuel); return words.every((w) => hay.includes(w)); });
+  hits.sort((a, b) => ((normC(a.name) === joined ? 0 : 1) - (normC(b.name) === joined ? 0 : 1)) || (b.registrations || 0) - (a.registrations || 0));
+  return hits[0] || null;
+}
+
+async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
+  if (typeof cars === "string") cars = cars.split(",");
+  if (!Array.isArray(cars) || cars.length < 1) throw new ToolError("Name 2 to 4 cars, e.g. ['Volvo EX30', 'Tesla Model Y'] or catalog ids.");
+  const km = Math.round(clamp(km_per_year, 1000, 100000, 15000));
+  const cat = await load(get, "vehicle-catalog/de/models.json");
+  const picked = [], unknown = [];
+  for (const c of cars.slice(0, 4)) {
+    const m = resolveCar(cat.models || [], c);
+    if (m && !picked.includes(m)) picked.push(m); else if (!m) unknown.push(String(c));
+  }
+  if (!picked.length) return { error: `No car model matches ${unknown.map((u) => `'${u}'`).join(", ")}. Use lookup_official_consumption to find catalog ids.` };
+  const soft = (p) => get(p).catch(() => null);
+  const [fuel, charge, regs, brands] = await Promise.all([
+    soft("fuel-prices/de/latest.json"), soft("charging-prices/de/latest.json"),
+    soft("registrations/de/models.json"), soft("recalls/eu/brands.json"),
+  ]);
+  const pub = charge && charge.overall ? charge.overall.median : null;
+  const brandFiles = new Map();
+  const out = [];
+  for (const m of picked) {
+    const fp = fuel && FUEL_PRODUCT[m.fuel] ? (fuel.products || {})[FUEL_PRODUCT[m.fuel]] : null;
+    let per100 = null, per100Public = null;
+    if (m.fuel === "electric" && m.kwh_per_100km) { per100 = m.kwh_per_100km * LOSS * HOME_PRICE; per100Public = pub ? m.kwh_per_100km * LOSS * pub : null; }
+    else if (/^phev/.test(m.fuel) && fp) per100 = (m.kwh_per_100km || 0) * LOSS * HOME_PRICE + (m.l_per_100km || 0) * fp.eur_per_litre;
+    else if (m.l_per_100km && fp) per100 = m.l_per_100km * fp.eur_per_litre;
+    const key = modelKeyG(m.make, m.model);
+    const r = regs ? (regs.models || []).find((x) => x.model !== "SONSTIGE" && modelKeyG(x.brand, x.model) === key) : null;
+    let recalls = null;
+    const b = brands ? (brands.brands || []).find((x) => x.slug === recallBrandG(m.make)) : null;
+    if (b) {
+      if (!brandFiles.has(b.file)) brandFiles.set(b.file, soft(`recalls/eu/${b.file}`));
+      const d = await brandFiles.get(b.file);
+      recalls = d ? (d.alerts || []).filter((a) => recallNamesG(a, m.make, m.model)).length : null;
+    } else if (brands) recalls = 0;
+    const r2 = (v) => (v == null ? null : Math.round(v * 100) / 100);
+    out.push({
+      id: m.id, name: m.name, fuel: m.fuel, years_sold_new: m.years || null,
+      kwh_per_100km: m.kwh_per_100km ?? null, l_per_100km: m.l_per_100km ?? null, co2_g_km: m.co2_g_km ?? null,
+      power_kw: m.power_kw ?? null, mass_kg: m.mass_kg ?? null,
+      cost_per_100km_eur: r2(per100), cost_per_100km_public_charging_eur: r2(per100Public),
+      cost_per_year_eur: per100 == null ? null : Math.round(per100 * km / 100),
+      registrations_last_12_months: r ? r.last_12_months ?? null : null, registrations_rank_latest_month: r ? r.rank ?? null : null,
+      safety_gate_recalls: recalls,
+      page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}`,
+    });
+  }
+  return {
+    km_per_year: km, cars: out, not_found: unknown,
+    page: `${SITE}/compare/?cars=${picked.map((m) => encodeURIComponent(m.id)).join(",")}${km !== 15000 ? `&km=${km}` : ""}`,
+    basis: {
+      home_charging_eur_per_kwh: HOME_PRICE, charging_losses: "10% added to the official figure", public_charging_median_eur_per_kwh: pub,
+      fuel_week: fuel ? fuel.week : null, fuel_eur_per_litre: fuel ? Object.fromEntries(Object.entries(fuel.products || {}).map(([k, v]) => [k, v.eur_per_litre])) : null,
+    },
+    notes: "Official WLTP figures from the EEA catalog (registration-weighted over the versions sold); real-world use is higher. Plug-in hybrid cost uses the official electric/fuel mix with home charging. Registrations count the KBA model with every drive type together. Recalls count EU Safety Gate alerts since 2019 that name the model; whether a car is affected depends on its VIN.",
+  };
+}
+
 // ---------- chargers ----------
 
 function km(lat1, lon1, lat2, lon2) {
@@ -461,6 +563,16 @@ export const TOOLS = [
     description: "Cheapest 1 to 8 hour windows to charge at home in Germany today (and tomorrow once published, around 13:00), from day-ahead exchange prices (SMARD), with an estimated dynamic tariff price per kWh. Only matters on a dynamic tariff.",
     inputSchema: { type: "object", properties: { hours: int("Only windows of this length: 1, 2, 3, 4, 6 or 8 hours.", { enum: [1, 2, 3, 4, 6, 8] }) } },
     run: getCheapestChargingTime,
+  },
+  {
+    name: "compare_cars",
+    title: "Compare car models",
+    description: "Compare 2 to 4 car models side by side, as on cars.allo.land/compare/: official WLTP consumption, CO2, power and mass (EEA catalog), cost per 100 km and per year at this week's German fuel price or charging prices, new registrations in Germany in the last 12 months (KBA) and the number of EU Safety Gate recalls that name each model. Returns a link to the same comparison on the site.",
+    inputSchema: { type: "object", properties: {
+      cars: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 4, description: "Car models by make and model ('Volvo EX30', 'VW Golf diesel') or vehicle catalog id ('volvo-ex30', 'vw-golf-petrol')." },
+      km_per_year: int("Kilometres driven per year, for the yearly cost (1,000-100,000).", { default: 15000 }),
+    }, required: ["cars"] },
+    run: compareCars,
   },
   {
     name: "get_registrations",

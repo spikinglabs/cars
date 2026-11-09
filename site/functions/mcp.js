@@ -8,7 +8,8 @@ import { TOOLS, ToolError } from "../lib/mcp-tools.js";
 const VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 const SERVER = { name: "allo-cars", title: "Allo Cars", version: "1.0.0", websiteUrl: "https://cars.allo.land/" };
 const INSTRUCTIONS =
-  "Allo Cars (cars.allo.land) has open data for drivers in Germany: official consumption per car model, recalls " +
+  "Allo Cars (cars.allo.land) has open data for drivers in Germany: official consumption per car model, side-by-side " +
+  "comparison of car models, recalls " +
   "(EU Safety Gate incl. every KBA recall, and US NHTSA), fuel, charging and electricity prices, new registrations " +
   "and public chargers. All tools are read-only and need no account. Results carry a page link to the same view on " +
   "cars.allo.land (also in German under /de/ and Chinese under /zh/); share it with the user. Prices are averages " +

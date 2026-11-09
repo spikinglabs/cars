@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autos vergleichen · Allo Cars</title>
+<meta name="description" content="Bis zu vier Automodelle nebeneinander: offizieller Verbrauch, CO2, Leistung und Gewicht, was 100 km und ein Jahr zu den Preisen dieser Woche kosten, Neuzulassungen in Deutschland und Rückrufe. Gleiche Zeilen ausblenden, besten Wert markieren.">
+<!-- chrome:head -->
+<link rel="alternate" hreflang="en" href="https://cars.allo.land/compare/">
+<link rel="alternate" hreflang="de" href="https://cars.allo.land/de/compare/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/compare/">
+<link rel="alternate" hreflang="x-default" href="https://cars.allo.land/compare/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/de/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Allo Cars">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
+<!-- /chrome:head -->
+<link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=e0743447b2">
+<script src="/assets/site.js?v=6247af2686"></script>
+<script src="/assets/garage.js?v=b964b97fd3"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  main { max-width: 1080px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; }
+  .stack { display: grid; gap: var(--space-5); }
+  .stack > * { min-width: 0; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .tools { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; }
+  .fld { display: grid; gap: 4px; flex: 1 1 260px; min-width: 0; }
+  .fld--km { flex: 0 1 160px; }
+  .fld > span { font: 600 13px/16px var(--font-sans); }
+  .fld input { width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 600 16px/20px var(--font-sans); }
+  .fld[hidden] { display: none; }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .checks label { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; font-weight: 600; cursor: pointer; }
+  .checks input { width: 20px; height: 20px; accent-color: var(--ink); margin: 0; }
+  .combo { position: relative; }
+  .combo__list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; max-height: min(320px, 45vh); overflow-y: auto; background: var(--surface-100); border: 1.5px solid var(--ink); border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+  .combo__list li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 10px; min-height: 44px; box-sizing: border-box; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .combo__list li small { color: var(--ink-muted); font-weight: 400; white-space: nowrap; }
+  .combo__list li[aria-selected="true"], .combo__list li:hover { background: var(--surface-50); outline: 1.5px solid var(--ink); }
+  .combo__list li.combo__none { cursor: default; color: var(--ink-muted); outline: none; background: none; }
+  .scroll { position: relative; overflow-x: auto; margin: 0 calc(-1 * var(--space-4)); padding: 0 var(--space-4); -webkit-overflow-scrolling: touch; }
+  table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
+  .cmp th, .cmp td { padding: 10px 8px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+  .cmp tbody th[scope="row"] { font-weight: 600; color: var(--ink-muted); width: 26%; min-width: 96px; }
+  .cmp th[scope="row"], .cmp thead th.corner { position: sticky; left: 0; z-index: 1; background: var(--surface-100); }
+  .cmp thead th { vertical-align: bottom; border-bottom: 2px solid var(--ink); }
+  .cmp td { font-weight: 600; }
+  .cmp td small { display: block; font-weight: 400; color: var(--ink-muted); font-size: 12px; }
+  .cmp td.na { color: var(--ink-muted); font-weight: 400; }
+  .cmp tr.grp th { padding-top: var(--space-4); font: 800 13px/16px var(--font-sans); text-transform: uppercase; letter-spacing: .04em; color: var(--ink); background: none; border-bottom: 0; position: static; }
+  .cmp td.best { background: var(--gold-bg); box-shadow: inset 3px 0 0 var(--gold); }
+  .cmp td .star { color: var(--gold-ink); font-size: 12px; white-space: nowrap; }
+  .cmp td a { color: inherit; }
+  .carhead { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: start; }
+  .carname { font: 800 16px/20px var(--font-display); color: var(--ink); }
+  .carfuel { grid-column: 1; font-weight: 400; color: var(--ink-muted); font-size: 13px; }
+  .x { grid-row: 1 / span 2; grid-column: 2; width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 50%; background: var(--surface-100); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
+  .x:hover { background: var(--surface-200); }
+  .try { display: flex; flex-wrap: wrap; gap: 8px; }
+  .try .ac-chip { min-height: 40px; text-decoration: none; color: var(--ink); }
+  #empty[hidden], #mine[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div class="ac">
+  <div class="ac-flagbar"></div>
+  <main>
+    <!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/de/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/de/">Tools</a>
+    <a href="/de/cars/">Meine Autos</a>
+    <a href="/de/compare/" aria-current="page">Vergleich</a>
+    <a href="/de/chargers/">Ladesäulen</a>
+    <a href="/de/ev-cost/">Ladekosten</a>
+    <a href="/de/charging-prices/">Preisarchiv</a>
+    <a href="/de/charge-times/">Ladezeit</a>
+    <a href="/de/recalls/">Rückrufe</a>
+    <a href="/de/fuel-prices/">Spritpreise</a>
+  </nav>
+  <div class="ac-top__right">
+    <details class="ac-langmenu" data-langmenu><summary aria-label="Sprache" title="Sprache"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>DE</span></summary><div class="ac-langmenu__list"><a class="ac-lang" href="/compare/" hreflang="en" lang="en" data-lang="en">English</a><a class="ac-lang" href="/de/compare/" hreflang="de" lang="de" data-lang="de" aria-current="true">Deutsch</a><a class="ac-lang" href="/zh/compare/" hreflang="zh-Hans" lang="zh-Hans" data-lang="zh">简体中文</a></div></details>
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Hell / dunkel umschalten" title="Hell / dunkel umschalten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<aside class="ac-apphint" data-app-hint hidden>
+  <span class="ac-apphint__text" data-app-hint-text>Allo Cars lässt sich wie eine App auf den Startbildschirm legen.</span>
+  <button type="button" class="ac-apphint__go" data-app-hint-go hidden>Installieren</button>
+  <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="Ausblenden">×</button>
+</aside>
+<!-- /chrome:header -->
+    <h1>Autos <span class="ac-hl">vergleichen</span></h1>
+    <p class="lead">Stell bis zu vier Automodelle nebeneinander: offizieller Verbrauch, was 100 km und ein Jahr zu den Preisen dieser Woche kosten, wie viele in Deutschland neu zugelassen werden und wie viele Rückrufe sie nennen. Blende gleiche Zeilen aus, der beste Wert bekommt einen Stern.</p>
+    <div class="stack">
+      <section class="ac-card" aria-labelledby="pick-h">
+        <h2 class="ac-card__title sr" id="pick-h">Autos und Einstellungen</h2>
+        <div class="tools">
+          <label class="fld combo" id="add"><span>Auto hinzufügen</span>
+            <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-list" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Marke und Modell, z. B. VW Golf" autocomplete="off">
+            <ul id="q-list" class="combo__list" role="listbox" aria-label="Marke und Modell" hidden></ul>
+          </label>
+          <label class="fld fld--km"><span>Kilometer pro Jahr</span><input id="km" type="number" min="1000" max="100000" step="1000" inputmode="numeric"></label>
+          <button type="button" class="ac-btn ac-btn--ghost" id="mine" hidden>+ Meine Autos hinzufügen</button>
+        </div>
+        <div class="checks" style="margin-top:var(--space-3)">
+          <label><input type="checkbox" id="same"> Gleiche Zeilen ausblenden</label>
+          <label><input type="checkbox" id="mark" checked> Besten Wert markieren</label>
+        </div>
+      </section>
+      <section class="ac-card" aria-label="Vergleich">
+        <p class="ac-caption" id="empty" hidden>Füge mindestens zwei Autos hinzu.</p>
+        <div class="scroll"><table class="cmp" id="table"><caption class="ac-caption">…</caption></table></div>
+        <p class="ac-caption" id="basis" style="margin:var(--space-3) 0 0"></p>
+      </section>
+      <section class="ac-card" aria-labelledby="try-h">
+        <h2 class="ac-card__title" id="try-h">Oft verglichen</h2>
+        <p class="ac-caption" style="margin:0 0 var(--space-3)">Die meistzugelassenen Modelle in Deutschland, paarweise.</p>
+        <div class="try" id="try"></div>
+      </section>
+      <p class="ac-caption" style="margin:0">Offizieller Verbrauch und CO2 sind die EEA-Typgenehmigungswerte (WLTP), gemittelt über die Versionen eines Modells, die im neuesten Jahr zugelassen wurden; eine Spanne zeigt, wenn Versionen sich unterscheiden. Im Alltag ist der Verbrauch meist höher. Elektro: zu Hause geladen zu 0,35 €/kWh plus 10 % Ladeverlust; Plug-in-Hybride mit ihrem offiziellen Strom-/Kraftstoffmix. Zulassungen zählen das KBA-Modell mit allen Antrieben zusammen. Rückrufe sind Safety-Gate-Meldungen der EU seit 2019, die das Modell nennen; ob ein Auto betroffen ist, hängt von seiner FIN ab. Quellen und Lizenzen: <a href="/de/open-data/">Daten und Quellen</a>.</p>
+    </div>
+    <!-- chrome:footer -->
+<footer class="ac-foot">
+  <p class="ac-foot__links"><a href="/de/cars/">Meine Autos</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">Mehr von Allo</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>Familienausflüge und Veranstaltungen in deiner Nähe</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>Rückrufe von Baby- und Kinderprodukten, aus amtlichen Quellen</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>Ein privates Babytagebuch für Eltern</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>Ankommen und leben in Deutschland</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars ist ein Produkt von <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+  <p class="ac-country"><label for="ac-country">Land</label> <select id="ac-country" data-country><option value="de" selected>Deutschland</option></select></p>
+  <p class="ac-install" data-install hidden>
+    <button type="button" class="ac-btn ac-btn--gold" data-install-btn>App installieren</button>
+    <span class="ac-install__how" data-install-how role="status" hidden></span>
+  </p>
+</footer>
+<nav class="ac-tabs" aria-label="Allo Cars">
+  <a href="/de/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Tools</span></a>
+  <a href="/de/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Ladekosten</span></a>
+  <a href="/de/chargers/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>Ladesäulen</span></a>
+  <button type="button" class="ac-tabs__more" popovertarget="ac-more" aria-controls="ac-more" data-more-btn data-current><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>Mehr</span></button>
+</nav>
+<div class="ac-sheet" id="ac-more" popover role="dialog" aria-labelledby="ac-more-h">
+  <div class="ac-sheet__head"><h2 id="ac-more-h">Alle Seiten</h2><button type="button" class="ac-iconbtn" popovertarget="ac-more" popovertargetaction="hide" data-more-close aria-label="Schließen" title="Schließen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <h3>Laden</h3>
+  <ul>
+    <li><a href="/de/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Ladekosten</span></a></li>
+    <li><a href="/de/chargers/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>Ladesäulenkarte</span></a></li>
+    <li><a href="/de/chargers/stats/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>Ladesäulen in Zahlen</span></a></li>
+    <li><a href="/de/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>Preisarchiv</span></a></li>
+    <li><a href="/de/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Günstigste Ladezeit</span></a></li>
+  </ul>
+  <h3>Autos</h3>
+  <ul>
+    <li><a href="/de/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>Meine Autos</span></a></li>
+    <li><a href="/de/compare/" aria-current="page" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Autos vergleichen</span></a></li>
+    <li><a href="/de/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Rückrufe</span></a></li>
+    <li><a href="/de/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>Neuzulassungen</span></a></li>
+    <li><a href="/de/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>Spritpreise</span></a></li>
+  </ul>
+  <h3>Daten</h3>
+  <ul>
+    <li><a href="/de/open-data/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg><span>Daten und Quellen</span></a></li>
+    <li><a href="/de/open-data/#ai" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>Mit KI nutzen</span></a></li>
+  </ul>
+</div>
+<!-- /chrome:footer -->
+  </main>
+</div>
+<script src="/compare/app.js?v=efe9505642"></script>
+</body>
+</html>
