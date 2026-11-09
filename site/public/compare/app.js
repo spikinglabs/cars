@@ -3,7 +3,8 @@
    this week's German prices (fuel and charging data), new registrations in Germany (KBA) and
    Safety Gate recalls that name the model.
    One script for the English (/compare/), German (/de/compare/) and Chinese (/zh/compare/) page.
-   Link: ?cars=<catalog id>,<catalog id>,…&km=<km per year>&same=1 (hide rows that are the same).
+   Link: ?cars=<catalog id>,<catalog id>:<version id>,…&km=<km per year>&same=1 (hide rows that are the same);
+   a version (trim, pipelines/vehicle_catalog/versions.py) brings its own official figures.
    Without ?cars= the page shows the compare basket (AlloGarage.compare), else an example. */
 (() => {
   const lang = (document.documentElement.lang || "en").slice(0, 2);
@@ -22,6 +23,7 @@
     try: "常见比较", mine: "加入我的车", empty: "添加至少两辆车来比较。",
     basisHome: (p) => `家充 ${p}/kWh，含 10% 充电损耗`, basisPub: (p) => `公共即充即付中位数 ${p}/kWh`, basisFuel: (w) => `油价：${w} 当周全国平均`,
     pair: (a, b) => `${a} 对比 ${b}`, euro: "Euro NCAP 安全星级", green: "Green NCAP 环保星级", adac: (y) => `ADAC 每 1,000 辆故障（${y} 年首次登记）`, rg: "评级",
+    version: "版本", allVersions: "所有版本（平均）",
   } : de ? {
     locale: "de-DE", failed: "Die Daten konnten nicht geladen werden: ", remove: "Entfernen", add: "Auto hinzufügen", addPh: "Marke und Modell, z. B. VW Golf", noModel: "Kein Modell gefunden.", full: "Bis zu 4 Autos. Entferne zuerst eins.",
     fuel: { electric: "Elektro", petrol: "Benzin", diesel: "Diesel", lpg: "Autogas", cng: "Erdgas", "phev-petrol": "Plug-in-Hybrid (Benzin)", "phev-diesel": "Plug-in-Hybrid (Diesel)", hydrogen: "Wasserstoff", e85: "E85" },
@@ -35,6 +37,7 @@
     try: "Oft verglichen", mine: "Meine Autos hinzufügen", empty: "Füge mindestens zwei Autos hinzu.",
     basisHome: (p) => `Zu Hause ${p}/kWh, mit 10 % Ladeverlust`, basisPub: (p) => `Median öffentlich ad hoc ${p}/kWh`, basisFuel: (w) => `Sprit: Bundesdurchschnitt der Woche ab ${w}`,
     pair: (a, b) => `${a} oder ${b}`, euro: "Euro NCAP Sicherheit", green: "Green NCAP Umwelt", adac: (y) => `ADAC Pannen pro 1.000 (Erstzulassung ${y})`, rg: "Bewertungen",
+    version: "Version", allVersions: "Alle Versionen (Durchschnitt)",
   } : {
     locale: "en-GB", failed: "Could not load data: ", remove: "Remove", add: "Add a car", addPh: "Make and model, e.g. VW Golf", noModel: "No model found.", full: "Up to 4 cars. Remove one first.",
     fuel: { electric: "Electric", petrol: "Petrol", diesel: "Diesel", lpg: "LPG", cng: "Natural gas", "phev-petrol": "Plug-in hybrid (petrol)", "phev-diesel": "Plug-in hybrid (diesel)", hydrogen: "Hydrogen", e85: "E85" },
@@ -48,6 +51,7 @@
     try: "Often compared", mine: "Add my cars", empty: "Add at least two cars to compare.",
     basisHome: (p) => `Home ${p}/kWh, plus 10% charging losses`, basisPub: (p) => `Public ad-hoc median ${p}/kWh`, basisFuel: (w) => `Fuel: national average, week of ${w}`,
     pair: (a, b) => `${a} vs ${b}`, euro: "Euro NCAP safety", green: "Green NCAP environment", adac: (y) => `ADAC breakdowns per 1,000 (first registered ${y})`, rg: "Ratings",
+    version: "Version", allVersions: "All versions (average)",
   };
   const G = window.AlloGarage;
   const HOME_PRICE = 0.35; // the charging cost tool's default, used in garage.js cost100
@@ -70,6 +74,18 @@
     mark: u0.get("best") !== "0",
   };
 
+  /* ---------- versions (trims): one file per make, see pipelines/vehicle_catalog/versions.py ---------- */
+  const versionFiles = new Map();
+  const makeSlug = (make) => String(make || "").toLowerCase().replace(/&/g, "and").replace(/#/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  function versionsOf(m) {
+    const k = makeSlug(m.make);
+    if (!versionFiles.has(k)) versionFiles.set(k, soft(AlloSite.data("vehicle-catalog", `versions/${k}.json`)));
+    return versionFiles.get(k).then((d) => (d && d.models && d.models[m.id]) || []);
+  }
+  const vLabel = (v) => [v.trim, `${v.power_kw} kW`, v.range_km ? `${v.range_km} km` : ""].filter(Boolean).join(" · ");
+  const baseId = (id) => String(id).split(":")[0];
+  const known = (id) => byId.has(baseId(id));
+
   /* ---------- what we know about one model ---------- */
   const costs = (m) => G.cost100(m, prices.fuel, prices.charge);
   function regOf(m) {
@@ -87,9 +103,13 @@
     return { n: alerts ? alerts.filter((a) => G.recallNames(a, m.make, m.model)).length : null, href };
   }
   async function info(id) {
-    const m = byId.get(id);
-    const c = costs(m), r = regOf(m), rc = await recallsOf(m), rt = G.ratings(ratingsData, m);
-    return { id, m, c, r, rc, rt };
+    const base = byId.get(baseId(id)), list = await versionsOf(base);
+    const v = list.find((x) => x.id === String(id).split(":")[1]) || null;
+    // a version's own official figures over the model's averages
+    const m = v ? { ...base, kwh_per_100km: v.kwh_per_100km, l_per_100km: v.l_per_100km, co2_g_km: v.co2_g_km, range_km: v.range_km,
+      power_kw: v.power_kw, mass_kg: v.mass_kg, years: v.years, kwh_range: null, l_range: null, range_span: v.range_span } : base;
+    const c = costs(m), r = regOf(base), rc = await recallsOf(base), rt = G.ratings(ratingsData, base);
+    return { id: v ? `${base.id}:${v.id}` : base.id, m, v, list, c, r, rc, rt };
   }
 
   /* ---------- rows ---------- */
@@ -103,7 +123,7 @@
     { g: "energy", label: () => T.kwh, value: (x) => x.m.kwh_per_100km, fmt: (v) => `${num(v)} kWh/100 km`, better: "low", byFuel: true, range: (x) => x.m.kwh_range },
     { g: "energy", label: () => T.litre, value: (x) => x.m.l_per_100km, fmt: (v) => `${num(v)} ${de ? "l" : zh ? "升" : "L"}/100 km`, better: "low", byFuel: true, range: (x) => x.m.l_range },
     { g: "energy", label: () => T.co2, value: (x) => x.m.co2_g_km, fmt: (v) => `${v} g/km`, better: "low" },
-    { g: "energy", label: () => T.range, value: (x) => x.m.range_km, fmt: (v) => `${v.toLocaleString(T.locale)} km`, better: "high", byFuel: true, range: (x) => x.m.range_span },
+    { g: "energy", label: () => T.range, value: (x) => x.m.range_km, fmt: (v) => `${v.toLocaleString(T.locale)} km`, better: "high", byFuel: true, range: (x) => x.m.range_span, rangeDigits: 0 },
     { g: "cost", label: () => T.c100, value: (x) => x.c.main, fmt: (v) => eur(v), better: "low" },
     { g: "cost", label: () => T.cPub, value: (x) => x.c.pub, fmt: (v) => eur(v), better: "low" },
     { g: "cost", label: () => T.cYear(st.km.toLocaleString(T.locale)), value: (x) => x.c.main == null ? null : x.c.main * st.km / 100, fmt: (v) => eur(v, 0), better: "low" },
@@ -138,7 +158,7 @@
     const text = typeof v === "number" && row.fmt ? row.fmt(v) : String(v);
     const rg = row.range ? row.range(x) : null;
     const nt = row.note ? row.note(x) : null;
-    const extra = rg && rg[0] !== rg[1] ? `<small>${num(rg[0])}–${num(rg[1])}</small>` : nt ? `<small>${esc(nt)}</small>` : "";
+    const extra = rg && rg[0] !== rg[1] ? `<small>${num(rg[0], row.rangeDigits ?? 1)}–${num(rg[1], row.rangeDigits ?? 1)}</small>` : nt ? `<small>${esc(nt)}</small>` : "";
     const isBest = st.mark && best != null && v === best;
     const body = row.link ? `<a href="${esc(row.link(x))}">${esc(text)}</a>` : esc(text);
     return `<td${isBest ? ` class="best" title="${esc(T.best)}"` : ""}>${body}${isBest ? ` <span class="star" aria-hidden="true">★</span><span class="sr">(${esc(T.best)})</span>` : ""}${extra}</td>`;
@@ -147,8 +167,10 @@
     const n = infos.length;
     $("empty").hidden = n >= 2;
     const head = `<thead><tr><th scope="col" class="corner"><span class="sr">${esc(T.page)}</span></th>${infos.map((x) => `<th scope="col"><div class="carhead">
-        <a href="${PRE}/cars/?car=${encodeURIComponent(x.id)}" class="carname">${esc(x.m.name)}</a>
+        <a href="${PRE}/cars/?car=${encodeURIComponent(baseId(x.id))}${x.v ? `&v=${encodeURIComponent(x.v.id)}` : ""}" class="carname">${esc(x.m.name)}</a>
         <span class="carfuel">${esc(T.fuel[x.m.fuel] || x.m.fuel)}</span>
+        ${x.list.length ? `<label class="ver"><span class="sr">${esc(T.version)}: ${esc(x.m.name)}</span><select data-ver="${esc(baseId(x.id))}">
+          <option value=""${x.v ? "" : " selected"}>${esc(T.allVersions)}</option>${x.list.map((v) => `<option value="${esc(v.id)}"${x.v === v ? " selected" : ""}>${esc(vLabel(v))}${v.years ? ` (${v.years[0] === v.years[1] ? v.years[0] : `${v.years[0]}–${v.years[1]}`})` : ""}</option>`).join("")}</select></label>` : ""}
         <button type="button" class="x" data-remove="${esc(x.id)}" aria-label="${esc(T.remove)}: ${esc(x.m.name)}" title="${esc(T.remove)}">×</button></div></th>`).join("")}</tr></thead>`;
     let body = "", group = "";
     for (const row of ROWS) {
@@ -168,7 +190,7 @@
     drawMine();
   }
   function drawMine() {
-    const mine = G.list().map((c) => c.car).filter((id) => id && byId.has(id) && !st.ids.includes(id));
+    const mine = G.list().map((c) => (c.car && c.v ? `${c.car}:${c.v}` : c.car)).filter((id) => id && known(id) && !st.ids.includes(id));
     $("mine").hidden = !mine.length || st.ids.length >= G.compare.MAX;
   }
   function drawTry() {
@@ -188,16 +210,26 @@
   }
   let loading = 0;
   async function setIds(ids, remember = true) {
-    st.ids = [...new Set(ids.filter((id) => byId.has(id)))].slice(0, G.compare.MAX);
-    if (remember) G.compare.set(st.ids);
-    setUrl();
+    st.ids = [...new Set(ids.filter(known))].slice(0, G.compare.MAX);
     const me = ++loading;
     const got = await Promise.all(st.ids.map(info));
     if (me !== loading) return;
+    st.ids = got.map((x) => x.id); // a version that is not in the data falls back to the model
+    if (remember) G.compare.set(st.ids);
+    setUrl();
     infos = got; draw();
   }
 
   /* ---------- controls ---------- */
+  $("table").addEventListener("change", (e) => {
+    const sel = e.target.closest("select[data-ver]");
+    if (!sel) return;
+    const i = st.ids.findIndex((id) => baseId(id) === sel.dataset.ver);
+    if (i < 0) return;
+    const ids = st.ids.slice();
+    ids[i] = sel.value ? `${sel.dataset.ver}:${sel.value}` : sel.dataset.ver;
+    setIds(ids);
+  });
   $("table").addEventListener("click", (e) => {
     const b = e.target.closest("[data-remove]");
     if (b) setIds(st.ids.filter((id) => id !== b.dataset.remove));
@@ -208,7 +240,7 @@
   $("km").value = st.km;
   $("km").addEventListener("change", (e) => { st.km = Math.max(1000, Math.min(100000, Number(e.target.value) || 15000)); e.target.value = st.km; setUrl(); draw(); });
   $("mine").addEventListener("click", () => {
-    const mine = G.list().map((c) => c.car).filter((id) => id && byId.has(id));
+    const mine = G.list().map((c) => (c.car && c.v ? `${c.car}:${c.v}` : c.car)).filter((id) => id && known(id));
     setIds([...st.ids, ...mine.filter((id) => !st.ids.includes(id))]);
   });
 
@@ -218,7 +250,7 @@
   function matches(text) {
     const words = String(text).toLowerCase().replace("volkswagen", "vw").split(/\s+/).map(G.norm).filter(Boolean);
     const hits = (words.length ? catalog.filter((m) => { const h = G.norm(`${m.make} ${m.name} ${T.fuel[m.fuel] || m.fuel}`); return words.every((w) => h.includes(w)); }) : catalog)
-      .filter((m) => !st.ids.includes(m.id));
+      .filter((m) => !st.ids.some((id) => baseId(id) === m.id));
     return hits.slice().sort((a, b) => (b.registrations || 0) - (a.registrations || 0)).slice(0, 30);
   }
   function renderList() {
@@ -257,9 +289,9 @@
     catalogYear = cat.year || 0; catalog = cat.models; byId = new Map(catalog.map((m) => [m.id, m]));
     prices = { fuel, charge }; regs = rg; recallBrands = rb; ratingsData = rt;
     drawTry();
-    const fromUrl = (u0.get("cars") || "").split(",").map((s) => s.trim()).filter((id) => byId.has(id));
+    const fromUrl = (u0.get("cars") || "").split(",").map((s) => s.trim()).filter(known);
     if (fromUrl.length) return setIds(fromUrl, true);
-    const basket = G.compare.list().filter((id) => byId.has(id));
+    const basket = G.compare.list().filter(known);
     if (basket.length) return setIds(basket, false);
     return setIds(DEFAULT, false);
   }

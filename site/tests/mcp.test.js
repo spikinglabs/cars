@@ -24,6 +24,14 @@ const FILES = {
     { id: "bmw-x5-phev-petrol", make: "BMW", model: "X5", name: "BMW X5", fuel: "phev-petrol", kwh_per_100km: 30, l_per_100km: 3, co2_g_km: 75, registrations: 5000, year: 2025 },
     { id: "mercedes-benz-glc-phev-petrol", make: "Mercedes-Benz", model: "GLC", name: "Mercedes-Benz GLC", fuel: "phev-petrol", kwh_per_100km: 30, l_per_100km: 3, co2_g_km: 70, range_km: 110, registrations: 4000, year: 2025 },
   ] },
+  "vehicle-catalog/public/de/versions/volvo.json": { make: "Volvo", year: 2025, source: "EEA", models: { "volvo-ex30": [
+    { id: "200kw-475km", ref: "volvo-ex30:200kw-475km", trim: null, fuel: "electric", power_kw: 200, kwh_per_100km: 17, co2_g_km: 0, mass_kg: 1850, range_km: 475,
+      registrations: 2400, year: 2025, years: [2023, 2025], names: ["EX30"], codes: ["2ZEL"], },
+    { id: "315kw", ref: "volvo-ex30:315kw", trim: null, fuel: "electric", power_kw: 315, kwh_per_100km: 17.5, co2_g_km: 0, mass_kg: 1960, range_km: 449,
+      registrations: 1100, year: 2025, years: [2023, 2025], names: ["EX30"], codes: ["2ZEK"], },
+    { id: "200kw-337km", ref: "volvo-ex30:200kw-337km", trim: null, fuel: "electric", power_kw: 200, kwh_per_100km: 20, co2_g_km: 0, mass_kg: 1840, range_km: 337,
+      registrations: 800, year: 2025, years: [2024, 2025], names: ["EX30"], codes: ["2ZEM"], },
+  ] } },
   "recalls/public/eu/models.json": { models: [{ model: "Volvo EX30", slug: "volvo-ex30", file: "models/volvo-ex30.json", us_file: "x" }] },
   "recalls/public/eu/models/volvo-ex30.json": { alerts: [{ id: "A1", production: "2024 - 2025" }] },
   "recalls/public/us/models/volvo-ex30.json": { campaigns: [{ id: "U1", model_years: ["2025"] }] },
@@ -88,7 +96,7 @@ test("notifications get 202 and no body", async () => {
 test("tools/list has every tool, read-only, with a schema", async () => {
   const { body } = await post({ jsonrpc: "2.0", id: 2, method: "tools/list" });
   const names = body.result.tools.map((t) => t.name);
-  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "find_similar_cars", "get_car_ratings", "get_registrations", "check_ev_grant", "compare_cost_over_years", "find_chargers"]);
+  assert.deepEqual(names, ["lookup_official_consumption", "get_car_versions", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "find_similar_cars", "get_car_ratings", "get_registrations", "check_ev_grant", "compare_cost_over_years", "find_chargers"]);
   for (const t of body.result.tools) {
     assert.equal(t.annotations.readOnlyHint, true);
     assert.equal(t.inputSchema.type, "object");
@@ -129,6 +137,40 @@ test("compare: costs at this week's prices, recalls that name the model, a page 
   assert.equal(golf.safety_gate_recalls, 3); // G1, G2, G3 name the Golf, P1 does not
   assert.equal(ex30.cost_per_100km_eur, 6.58); // 17.1 kWh + 10% at 0.35
   assert.equal(r.page, "https://cars.allo.land/compare/?cars=vw-golf-petrol,volvo-ex30&km=10000");
+});
+test("versions: every trim of a model with filters, refs and page links", async () => {
+  const r = (await call("get_car_versions", { car: "Volvo EX30" })).structuredContent;
+  assert.equal(r.versions_total, 3);
+  assert.deepEqual(r.versions.map((v) => v.ref), ["volvo-ex30:200kw-475km", "volvo-ex30:315kw", "volvo-ex30:200kw-337km"]);
+  assert.deepEqual(r.versions[0].variant_codes, ["2ZEL"]);
+  assert.equal(r.versions[0].page, "https://cars.allo.land/cars/?car=volvo-ex30&v=200kw-475km");
+  assert.equal(r.versions[0].name, "Volvo EX30 200 kW · 475 km");
+  const small = (await call("get_car_versions", { car: "volvo-ex30", max_power_kw: 250, min_range_km: 400 })).structuredContent;
+  assert.deepEqual(small.versions.map((v) => v.ref), ["volvo-ex30:200kw-475km"]);
+  const byTrim = (await call("get_car_versions", { car: "EX30", trim: "315 kW" })).structuredContent;
+  assert.deepEqual(byTrim.versions.map((v) => v.ref), ["volvo-ex30:315kw"]);
+  const sold = (await call("get_car_versions", { car: "EX30", sold_in_year: 2023 })).structuredContent;
+  assert.equal(sold.matches, 2);
+  const none = (await call("get_car_versions", { car: "VW Golf" })).structuredContent;
+  assert.equal(none.versions_total, 0);
+});
+test("compare: a named trim or a version ref uses that version's figures", async () => {
+  const r = (await call("compare_cars", { cars: ["volvo-ex30:200kw-337km", "Volvo EX30 315 kW", "Volvo EX30"] })).structuredContent;
+  assert.deepEqual(r.cars.map((c) => c.id), ["volvo-ex30:200kw-337km", "volvo-ex30:315kw", "volvo-ex30"]);
+  const [small, twin, avg] = r.cars;
+  assert.equal(small.power_kw, 200);
+  assert.equal(small.cost_per_100km_eur, 7.7); // 20 kWh + 10% at 0.35
+  assert.equal(twin.power_kw, 315);
+  assert.equal(twin.mass_kg, 1960);
+  assert.match(avg.version.figures, /average/);
+  assert.equal(r.page, "https://cars.allo.land/compare/?cars=volvo-ex30%3A200kw-337km,volvo-ex30%3A315kw,volvo-ex30");
+});
+test("similar cars: a version is matched on its own power and weight", async () => {
+  const r = (await call("find_similar_cars", { car: "Volvo EX30 315 kW" })).structuredContent;
+  assert.equal(r.car.version_ref, "volvo-ex30:315kw");
+  assert.equal(r.car.power_kw, 315);
+  assert.equal(r.car.page, "https://cars.allo.land/cars/?car=volvo-ex30&v=315kw");
+  assert.match(r.compare_page, /cars=volvo-ex30%3A315kw/);
 });
 test("compare: no known car is an answer with an error", async () => {
   const r = (await call("compare_cars", { cars: ["Trabant"] })).structuredContent;

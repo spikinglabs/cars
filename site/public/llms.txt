@@ -3,7 +3,7 @@
 Free car tools and open data for drivers in Germany, by Spiking Labs (part of allo.land). Tool inputs live in the URL, so a filled-in link reproduces a result. Machine-readable tool list: https://cars.allo.land/tools.json
 
 ## MCP server
-https://cars.allo.land/mcp is a read-only MCP server (streamable HTTP, no login) for AI assistants. Add it as a custom connector in Claude (Settings > Connectors) or any MCP client. Tools: lookup_official_consumption, get_recalls, check_used_car, get_recall_statistics, get_fuel_prices, get_charging_prices, get_cheapest_charging_time, compare_cars, get_rankings, find_similar_cars, get_car_ratings, get_registrations, check_ev_grant, compare_cost_over_years, find_chargers. Every result links to the matching page.
+https://cars.allo.land/mcp is a read-only MCP server (streamable HTTP, no login) for AI assistants. Add it as a custom connector in Claude (Settings > Connectors) or any MCP client. Tools: lookup_official_consumption, get_car_versions, get_recalls, check_used_car, get_recall_statistics, get_fuel_prices, get_charging_prices, get_cheapest_charging_time, compare_cars, get_rankings, find_similar_cars, get_car_ratings, get_registrations, check_ev_grant, compare_cost_over_years, find_chargers. Every result links to the matching page.
 
 ## Tools
 - [Buying an electric car in Germany](https://cars.allo.land/electric/): the buyer's five questions with live numbers (grant, cost per 100 km against petrol, public charging, most registered EVs, battery recalls), each linking to the full tool. Link parameters: income=<€ a year>, kids=0|1|2.

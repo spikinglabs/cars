@@ -392,6 +392,103 @@ function resolveCar(models, text) {
   return hits[0] || null;
 }
 
+// ---------- versions (trims) of a model: vehicle-catalog/<region>/versions/<make>.json, see versions.py ----------
+
+const makeSlug = (make) => String(make || "").toLowerCase().replace(/&/g, "and").replace(/#/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+async function versionsOf(get, m, region = "de") {
+  try {
+    const d = await get(`vehicle-catalog/${region}/versions/${makeSlug(m.make)}.json`);
+    return { list: (d.models || {})[m.id] || [], meta: d };
+  } catch (e) {
+    return { list: [], meta: null };
+  }
+}
+const versionLabel = (v) => [v.trim, `${v.power_kw} kW`, v.range_km ? `${v.range_km} km` : null].filter(Boolean).join(" · ");
+// words a version can be found by: trim, "170 kW"/"170kw", range, commercial names, variant codes
+const versionHay = (v) => normC([v.trim, `${v.power_kw}kw`, v.range_km ? `${v.range_km}km` : "", ...(v.names || []), ...(v.codes || [])].join(" "));
+// the words of a request that are not part of the model's name: "VW ID.3 GTX" -> ["gtx"]
+function leftover(m, text) {
+  const hay = normC(m.name) + normC(m.make) + normC(m.id) + normC(m.fuel) + "volkswagen";
+  return String(text || "").split(/\s+/).map(normC).filter((w) => w && !hay.includes(w));
+}
+function pickVersion(list, words) {
+  if (!words.length) return null;
+  const hits = list.filter((v) => { const h = versionHay(v); return words.every((w) => h.includes(w)); });
+  return hits.sort((a, b) => (b.years[1] - a.years[1]) || (b.registrations || 0) - (a.registrations || 0))[0] || null;
+}
+function versionOut(m, v) {
+  return {
+    ref: v.ref, model_id: m.id, name: `${m.name} ${versionLabel(v)}`, trim: v.trim || null, fuel: v.fuel, power_kw: v.power_kw,
+    kwh_per_100km: v.kwh_per_100km ?? null, l_per_100km: v.l_per_100km ?? null, co2_g_km: v.co2_g_km ?? null,
+    electric_range_km: v.range_km ?? null, electric_range_span_km: v.range_span || null, mass_kg: v.mass_kg ?? null,
+    registrations: v.registrations, registrations_year: v.year, years_sold_new: v.years, commercial_names: v.names || [], variant_codes: v.codes || [],
+    page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}&v=${encodeURIComponent(v.id)}`,
+  };
+}
+const SPEC_NOTE = "Figures are official EEA type-approval data per version. Battery size, charging power and times, dimensions and boot space are not in this data: look them up on the maker's specification page for the version (search its commercial name, power and years), and say where they come from.";
+
+// A car request: a catalog id, an id with a version ("vw-id-3:gtx-210kw"), or words ("VW ID.3 GTX", "EX30 315 kW").
+async function resolveCarVersion(get, models, text) {
+  const t = String(text || "").trim();
+  const [mid, vid] = t.split(":");
+  if (vid) {
+    const m = models.find((x) => x.id === mid.toLowerCase());
+    if (!m) return { m: null };
+    const { list } = await versionsOf(get, m);
+    return { m, v: list.find((x) => x.id === vid.toLowerCase()) || null };
+  }
+  const m = resolveCar(models, t);
+  if (!m) {
+    // the model's name and a trim word: try the model words alone, longest first
+    const words = t.split(/\s+/);
+    for (let n = words.length - 1; n >= 1; n--) {
+      const mm = resolveCar(models, words.slice(0, n).join(" "));
+      if (mm) {
+        const { list } = await versionsOf(get, mm);
+        const v = pickVersion(list, leftover(mm, t));
+        if (v) return { m: mm, v };
+      }
+    }
+    return { m: null };
+  }
+  const rest = leftover(m, t);
+  if (!rest.length) return { m, v: null };
+  const { list } = await versionsOf(get, m);
+  return { m, v: pickVersion(list, rest) };
+}
+
+async function getCarVersions(get, { car, trim = null, min_power_kw = null, max_power_kw = null, min_range_km = null,
+  sold_in_year = null, current_only = false, region = "de", limit = 20 } = {}) {
+  if (!car) throw new ToolError("Name a car model, e.g. 'Volvo EX30', or a vehicle catalog id.");
+  if (!["de", "eu"].includes(region)) throw new ToolError("region must be one of de, eu");
+  const cat = await load(get, `vehicle-catalog/${region}/models.json`);
+  const models = cat.models || [];
+  const m = models.find((x) => x.id === String(car).toLowerCase().split(":")[0]) || resolveCar(models, car)
+    || (await resolveCarVersion(get, models, car)).m;
+  if (!m) return { error: `No car model matches '${car}'. Use lookup_official_consumption to find catalog ids.` };
+  const { list, meta } = await versionsOf(get, m, region);
+  const latest = Math.max(0, ...list.map((v) => v.years[1]));
+  const words = trim ? String(trim).split(/\s+/).map(normC).filter(Boolean) : [];
+  const n = (x) => (x == null || x === "" ? null : Number(x));
+  const rows = list.filter((v) => {
+    if (words.length && !words.every((w) => versionHay(v).includes(w))) return false;
+    if (n(min_power_kw) != null && v.power_kw < n(min_power_kw)) return false;
+    if (n(max_power_kw) != null && v.power_kw > n(max_power_kw)) return false;
+    if (n(min_range_km) != null && !(v.range_km >= n(min_range_km))) return false;
+    if (n(sold_in_year) != null && !(v.years[0] <= n(sold_in_year) && n(sold_in_year) <= v.years[1])) return false;
+    if (current_only && v.years[1] < latest) return false;
+    return true;
+  });
+  return {
+    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, years_sold_new: m.years || null, page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}` },
+    versions_total: list.length, matches: rows.length,
+    versions: rows.slice(0, clamp(limit, 1, 50, 20)).map((v) => versionOut(m, v)),
+    compare_page: rows.length > 1 ? `${SITE}/compare/?cars=${rows.slice(0, 4).map((v) => encodeURIComponent(v.ref)).join(",")}` : null,
+    source: meta ? meta.source : null, licence: meta ? meta.licence : null, data_year: meta ? meta.year : null,
+    notes: `A version is the trim in the commercial name plus the power, split again where the official electric range jumps (another battery). Registrations count ${region === "eu" ? "the EU-27" : "Germany"} in the version's year; variant_codes match field D.2 of the German registration certificate. ${SPEC_NOTE} Pass a ref to compare_cars to compare versions, or to find_similar_cars for cars like one version.`,
+  };
+}
+
 async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
   if (typeof cars === "string") cars = cars.split(",");
   if (!Array.isArray(cars) || cars.length < 1) throw new ToolError("Name 2 to 4 cars, e.g. ['Volvo EX30', 'Tesla Model Y'] or catalog ids.");
@@ -399,8 +496,13 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
   const cat = await load(get, "vehicle-catalog/de/models.json");
   const picked = [], unknown = [];
   for (const c of cars.slice(0, 4)) {
-    const m = resolveCar(cat.models || [], c);
-    if (m && !picked.includes(m)) picked.push(m); else if (!m) unknown.push(String(c));
+    const { m: base, v } = await resolveCarVersion(get, cat.models || [], c);
+    if (!base) { unknown.push(String(c)); continue; }
+    // a version: its own official figures over the model's averages
+    const m = v ? { ...base, kwh_per_100km: v.kwh_per_100km, l_per_100km: v.l_per_100km, co2_g_km: v.co2_g_km, range_km: v.range_km,
+      power_kw: v.power_kw, mass_kg: v.mass_kg, _v: v } : base;
+    const key = v ? v.ref : base.id;
+    if (!picked.some((p) => (p._v ? p._v.ref : p.id) === key)) picked.push(m);
   }
   if (!picked.length) return { error: `No car model matches ${unknown.map((u) => `'${u}'`).join(", ")}. Use lookup_official_consumption to find catalog ids.` };
   const soft = (p) => get(p).catch(() => null);
@@ -427,8 +529,10 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
       recalls = d ? (d.alerts || []).filter((a) => recallNamesG(a, m.make, m.model)).length : null;
     } else if (brands) recalls = 0;
     const r2 = (v) => (v == null ? null : Math.round(v * 100) / 100);
+    const v = m._v;
     out.push({
-      id: m.id, name: m.name, fuel: m.fuel, years_sold_new: m.years || null,
+      id: v ? v.ref : m.id, name: v ? `${m.name} ${versionLabel(v)}` : m.name, fuel: m.fuel, years_sold_new: v ? v.years : m.years || null,
+      version: v ? { trim: v.trim || null, figures: "this version", commercial_names: v.names || [], variant_codes: v.codes || [], registrations: v.registrations, registrations_year: v.year } : { figures: "average over every version; name a trim or use get_car_versions for one version" },
       kwh_per_100km: m.kwh_per_100km ?? null, l_per_100km: m.l_per_100km ?? null, co2_g_km: m.co2_g_km ?? null,
       electric_range_km: m.range_km ?? null,
       power_kw: m.power_kw ?? null, mass_kg: m.mass_kg ?? null,
@@ -440,17 +544,17 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
         euro_ncap_stars: r.euro_ncap ? r.euro_ncap.stars : null, euro_ncap_year: r.euro_ncap ? r.euro_ncap.year : null,
         green_ncap_stars: r.green_ncap ? r.green_ncap.stars : null, green_ncap_year: r.green_ncap ? r.green_ncap.year : null,
         adac_breakdowns_per_1000: r.adac_breakdowns ? r.adac_breakdowns.per_1000_cars_by_first_registration : null }; })(),
-      page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}`,
+      page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}${v ? `&v=${encodeURIComponent(v.id)}` : ""}`,
     });
   }
   return {
     km_per_year: km, cars: out, not_found: unknown,
-    page: `${SITE}/compare/?cars=${picked.map((m) => encodeURIComponent(m.id)).join(",")}${km !== 15000 ? `&km=${km}` : ""}`,
+    page: `${SITE}/compare/?cars=${picked.map((m) => encodeURIComponent(m._v ? m._v.ref : m.id)).join(",")}${km !== 15000 ? `&km=${km}` : ""}`,
     basis: {
       home_charging_eur_per_kwh: HOME_PRICE, charging_losses: "10% added to the official figure", public_charging_median_eur_per_kwh: pub,
       fuel_week: fuel ? fuel.week : null, fuel_eur_per_litre: fuel ? Object.fromEntries(Object.entries(fuel.products || {}).map(([k, v]) => [k, v.eur_per_litre])) : null,
     },
-    notes: "Official WLTP figures from the EEA catalog (registration-weighted over the versions sold); real-world use is higher. Plug-in hybrid cost uses the official electric/fuel mix with home charging. Registrations count the KBA model with every drive type together. Recalls count EU Safety Gate alerts since 2019 that name the model; whether a car is affected depends on its VIN.",
+    notes: "Official WLTP figures from the EEA catalog: a car named with its trim or power ('VW ID.3 GTX', 'Volvo EX30 315 kW') or a version ref from get_car_versions uses that version's figures, a bare model the average over the versions sold; real-world use is higher. Battery and charging specs are not in this data; see the maker's specifications for the version. Plug-in hybrid cost uses the official electric/fuel mix with home charging. Registrations count the KBA model with every drive type together. Recalls count EU Safety Gate alerts since 2019 that name the model; whether a car is affected depends on its VIN.",
   };
 }
 
@@ -529,8 +633,10 @@ async function findSimilarCars(get, { car, limit = 5 } = {}) {
   if (!car) throw new ToolError("Name a car model, e.g. 'Volvo EX30', or a catalog id.");
   const cat = await load(get, "vehicle-catalog/de/models.json");
   const models = cat.models || [], year = cat.year || 0;
-  const m = resolveCar(models, car);
-  if (!m) return { error: `No car model matches '${car}'. Use lookup_official_consumption to find catalog ids.` };
+  const { m: base, v } = await resolveCarVersion(get, models, car);
+  if (!base) return { error: `No car model matches '${car}'. Use lookup_official_consumption to find catalog ids.` };
+  // one version: cars close to its own power and weight
+  const m = v ? { ...base, power_kw: v.power_kw, mass_kg: v.mass_kg } : base;
   const kind = (f) => (f === "electric" ? "e" : /^phev/.test(f) ? "p" : "f");
   const key = modelKeyG(m.make, m.model);
   const list = !m.mass_kg || !m.power_kw ? [] : models
@@ -541,10 +647,11 @@ async function findSimilarCars(get, { car, limit = 5 } = {}) {
     .slice(0, clamp(limit, 1, 10, 5)).map(([x]) => ({ catalog_id: x.id, name: x.name, fuel: x.fuel, power_kw: x.power_kw, mass_kg: x.mass_kg,
       kwh_per_100km: x.kwh_per_100km ?? null, l_per_100km: x.l_per_100km ?? null, page: `${SITE}/cars/?car=${encodeURIComponent(x.id)}` }));
   return {
-    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, power_kw: m.power_kw ?? null, mass_kg: m.mass_kg ?? null, page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}` },
+    car: { catalog_id: m.id, version_ref: v ? v.ref : null, name: v ? `${m.name} ${versionLabel(v)}` : m.name, fuel: m.fuel, power_kw: m.power_kw ?? null, mass_kg: m.mass_kg ?? null,
+      page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}${v ? `&v=${encodeURIComponent(v.id)}` : ""}` },
     similar: list,
-    compare_page: `${SITE}/compare/?cars=${[m, ...list.slice(0, 3).map((x) => ({ id: x.catalog_id }))].map((x) => encodeURIComponent(x.id)).join(",")}`,
-    rule: "Same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power, still sold new, other models only; closest first.",
+    compare_page: `${SITE}/compare/?cars=${[v ? v.ref : m.id, ...list.slice(0, 3).map((x) => x.catalog_id)].map(encodeURIComponent).join(",")}`,
+    rule: `Same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power${v ? " to this version" : ""}, still sold new, other models only; closest first. The other cars' figures are their model averages; get_car_versions lists their versions.`,
   };
 }
 
@@ -787,7 +894,7 @@ export const TOOLS = [
   {
     name: "lookup_official_consumption",
     title: "Official consumption of a car model",
-    description: "Official WLTP consumption of a car model from the EEA CO2 monitoring of new cars: kWh/100 km at the plug (charging losses included), L/100 km, CO2 g/km, power and mass, averaged over the versions registered in the latest year, with the number registered and a link to the model's Allo Cars page. Official figures are lower than real-world use.",
+    description: "Official WLTP consumption of a car model from the EEA CO2 monitoring of new cars: kWh/100 km at the plug (charging losses included), L/100 km, CO2 g/km, power and mass, averaged over the versions registered in the latest year, with the number registered and a link to the model's Allo Cars page. For the trims or versions of a model use get_car_versions. Official figures are lower than real-world use.",
     inputSchema: { type: "object", properties: {
       query: str("Make and/or model, e.g. 'Volvo EX30', 'ID.3', 'Golf'. Empty lists the most registered models."),
       fuel: str("Only this fuel type.", { enum: CATALOG_FUELS }),
@@ -795,6 +902,23 @@ export const TOOLS = [
       limit: int("Most models to return (1-50).", { default: 10 }),
     } },
     run: lookupOfficialConsumption,
+  },
+  {
+    name: "get_car_versions",
+    title: "Versions (trims) of a car model",
+    description: "The versions of a car model sold in Germany (or the EU), as on its Allo Cars model page: trim, power, official WLTP consumption, CO2, electric range and mass per version (EEA type-approval data), registrations, years sold new, commercial names and variant codes (field D.2 of the German registration certificate). Filter by trim words, power, range or the year a car was sold. Each version has a ref for compare_cars and find_similar_cars. Battery size and charging specs are not included: look them up at the maker for the version.",
+    inputSchema: { type: "object", properties: {
+      car: str("Make and model, e.g. 'VW ID.3' or 'Volvo EX30', or a vehicle catalog id."),
+      trim: str("Only versions whose trim, power, range, commercial name or variant code contains these words, e.g. 'GTX', 'Pro S', '315 kW'."),
+      min_power_kw: num("Only versions with at least this power."),
+      max_power_kw: num("Only versions with at most this power."),
+      min_range_km: num("Only versions with at least this official electric range."),
+      sold_in_year: int("Only versions sold new in this year, e.g. the first registration year of a used car."),
+      current_only: { type: "boolean", description: "Only versions sold in the newest data year.", default: false },
+      region: str("de (Germany) or eu (EU-27).", { enum: ["de", "eu"], default: "de" }),
+      limit: int("Most versions to return (1-50).", { default: 20 }),
+    }, required: ["car"] },
+    run: getCarVersions,
   },
   {
     name: "get_recalls",
@@ -856,9 +980,9 @@ export const TOOLS = [
   {
     name: "compare_cars",
     title: "Compare car models",
-    description: "Compare 2 to 4 car models side by side, as on cars.allo.land/compare/: official WLTP consumption, CO2, power and mass (EEA catalog), cost per 100 km and per year at this week's German fuel price or charging prices, new registrations in Germany in the last 12 months (KBA) and the number of EU Safety Gate recalls that name each model. Returns a link to the same comparison on the site.",
+    description: "Compare 2 to 4 car models or versions side by side, as on cars.allo.land/compare/: official WLTP consumption, CO2, power and mass (EEA catalog; per version when a trim is named or a get_car_versions ref is given, else the model average), cost per 100 km and per year at this week's German fuel price or charging prices, new registrations in Germany in the last 12 months (KBA) and the number of EU Safety Gate recalls that name each model. Returns a link to the same comparison on the site.",
     inputSchema: { type: "object", properties: {
-      cars: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 4, description: "Car models by make and model ('Volvo EX30', 'VW Golf diesel') or vehicle catalog id ('volvo-ex30', 'vw-golf-petrol')." },
+      cars: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 4, description: "Car models by make and model ('Volvo EX30', 'VW Golf diesel'), with a trim or power for one version ('VW ID.3 GTX', 'Volvo EX30 315 kW'), a vehicle catalog id ('volvo-ex30') or a version ref from get_car_versions ('vw-id-3:gtx-210kw')." },
       km_per_year: int("Kilometres driven per year, for the yearly cost (1,000-100,000).", { default: 15000 }),
     }, required: ["cars"] },
     run: compareCars,
@@ -877,9 +1001,9 @@ export const TOOLS = [
   {
     name: "find_similar_cars",
     title: "Cars similar to a model",
-    description: "Car models similar to a given one, as shown on its Allo Cars model page: the same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power, still sold new in Germany. Returns catalog ids for compare_cars and a ready comparison link.",
+    description: "Car models similar to a given one or to one of its versions, as shown on its Allo Cars model page: the same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power, still sold new in Germany. Returns catalog ids for compare_cars and a ready comparison link.",
     inputSchema: { type: "object", properties: {
-      car: str("Make and model, e.g. 'Volvo EX30', or a vehicle catalog id."),
+      car: str("Make and model, e.g. 'Volvo EX30', a version ('VW ID.3 GTX', 'Volvo EX30 315 kW'), a vehicle catalog id or a version ref from get_car_versions."),
       limit: int("Most cars to return (1-10).", { default: 5 }),
     }, required: ["car"] },
     run: findSimilarCars,
