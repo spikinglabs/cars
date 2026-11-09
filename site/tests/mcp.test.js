@@ -28,6 +28,9 @@ const FILES = {
   ] },
   "fuel-prices/public/latest.json": { region: "DE", week: "2026-11-02", products: { euro_super_95: { eur_per_litre: 2.1 }, diesel: { eur_per_litre: 2.0 }, lpg: { eur_per_litre: 1.0 } } },
   "fuel-prices/public/weekly.csv": "date,euro_super_95,diesel,lpg\n2026-10-26,2.2,2.1,1.0\n2026-11-02,2.1,2.0,\n",
+  "charging-prices/public/de/latest.json": { region: "DE", observed_at: "2026-11-09T00:00:00+00:00", overall: { median: 0.57 },
+    by_power: { ac: { charge_points: 100, median: 0.49 }, hpc: { charge_points: 10, median: 0.69 } },
+    by_operator: [{ operator: "EnBW", charge_points: 50, ac: { charge_points: 40, median: 0.59 } }, { operator: "Stadtwerke Köln", charge_points: 30 }] },
   "chargers/public/de/places.json": { places: [["Köln", "50667", 50.938, 6.952, 10], ["Köln", "50825", 50.95, 6.91, 30], ["Kölln", "25000", 54, 9, 1]] },
   "chargers/public/de/latest.json": { observed_at: "2026-11-01", cells: ["101_13"] },
   "chargers/public/de/cells/101_13.json": {
@@ -126,6 +129,14 @@ test("fuel prices pick one fuel and the last weeks", async () => {
 });
 test("fuel prices for a region without data is a tool error", async () => {
   assert.equal((await call("get_fuel_prices", { region: "xx" })).isError, true);
+});
+test("charging prices by charger type, and operators filtered by name", async () => {
+  const all = (await call("get_charging_prices", {})).structuredContent;
+  assert.equal(all.by_power.ac.median, 0.49);
+  assert.equal(all.operators.length, 2);
+  const one = (await call("get_charging_prices", { operator: "köln" })).structuredContent;
+  assert.deepEqual(one.operators.map((o) => o.operator), ["Stadtwerke Köln"]);
+  assert.equal(one.page, "https://cars.allo.land/charging-prices/?q=k%C3%B6ln");
 });
 test("chargers near a town: within the radius, closest first, with filters", async () => {
   const all = (await call("find_chargers", { near: "Köln" })).structuredContent;

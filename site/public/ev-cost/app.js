@@ -11,7 +11,7 @@
     fuel: { petrol: "汽油", diesel: "柴油" },
     fuelPrice: { petrol: "汽油", diesel: "柴油" },
     own: "你的燃油车",
-    home: "家庭电价", median: "公共充电中位数", cheap: "最便宜的 10 %", dear: "最贵的 10 %",
+    home: "家庭电价", median: "公共充电中位数", pAc: "公共交流", pDc: "直流快充", pHpc: "150 kW 以上", cheap: "最便宜的 10 %", dear: "最贵的 10 %",
     perKwh: "/kWh", per100: "/100 km", per1000: "/1,000 km",
     costBasis: function (car, lvl, kwh) { return car + "，" + lvl + "，" + kwh + " kWh/100 km，含充电损耗"; },
     openIn: function (n) { return "在 " + n + " 中打开"; },
@@ -51,7 +51,7 @@
     fuel: { petrol: "Benzin", diesel: "Diesel" },
     fuelPrice: { petrol: "Super", diesel: "Diesel" },
     own: "Dein Verbrenner",
-    home: "Haushaltsstrom", median: "Öffentlich, Median", cheap: "Günstigste 10 %", dear: "Teuerste 10 %",
+    home: "Haushaltsstrom", median: "Öffentlich, Median", pAc: "Öffentlich AC", pDc: "Schnell DC", pHpc: "Ab 150 kW", cheap: "Günstigste 10 %", dear: "Teuerste 10 %",
     perKwh: "/kWh", per100: "/100 km", per1000: "/1.000 km",
     costBasis: function (car, lvl, kwh) { return car + ", " + lvl + ", " + kwh + " kWh/100 km inkl. Ladeverluste"; },
     openIn: function (n) { return "In " + n + " öffnen"; },
@@ -90,7 +90,7 @@
     fuel: { petrol: "Petrol", diesel: "Diesel" },
     fuelPrice: { petrol: "Petrol", diesel: "Diesel" },
     own: "Your fuel car",
-    home: "Home tariff", median: "Public median", cheap: "Cheapest 10 %", dear: "Dearest 10 %",
+    home: "Home tariff", median: "Public median", pAc: "Public AC", pDc: "Fast DC", pHpc: "150 kW+", cheap: "Cheapest 10 %", dear: "Dearest 10 %",
     perKwh: "/kWh", per100: "/100 km", per1000: "/1,000 km",
     costBasis: function (car, lvl, kwh) { return car + ", " + lvl.toLowerCase() + ", " + kwh + " kWh/100 km plus charging losses"; },
     openIn: function (n) { return "Open in " + n; },
@@ -267,7 +267,15 @@
 
   function drawPriceChips() {
     var chips = [{ n: T.home, p: HOME }];
-    if (live) chips.push({ n: T.cheap, p: live.p10 }, { n: T.median, p: live.median }, { n: T.dear, p: live.p90 });
+    if (live) {
+      var bp = live.power;
+      // by charger type when the archive has it: what a typical AC, fast and high-power point charges
+      var mid = bp ? [["ac", T.pAc], ["dc", T.pDc], ["hpc", T.pHpc]].filter(function (c) { return bp[c[0]] && bp[c[0]].median > 0; })
+        .map(function (c) { return { n: c[1], p: bp[c[0]].median }; }) : [];
+      chips.push({ n: T.cheap, p: live.p10 });
+      chips.push.apply(chips, mid.length ? mid : [{ n: T.median, p: live.median }]);
+      chips.push({ n: T.dear, p: live.p90 });
+    }
     $("pricechips").innerHTML = chips.map(function (c) {
       var p = Math.round(c.p * 100) / 100;
       return '<button type="button" class="ac-chip" data-p="' + p + '" aria-pressed="' + (Math.abs(p - S.p) < 0.001) + '">' + c.n + " " + eur(p) + "</button>";
@@ -514,7 +522,10 @@
     inputs[T.in.price] = eur(S.p) + "/kWh";
     inputs[T.in.loss] = S.loss + " %";
     inputs[T.in.fuels] = T.fuelIn(eur(S.petrol), eur(S.diesel));
-    if (live) inputs[T.in.live] = T.liveIn(eur(live.median), eur(live.p10), eur(live.p90));
+    if (live) {
+      inputs[T.in.live] = T.liveIn(eur(live.median), eur(live.p10), eur(live.p90));
+      if (live.power) [["ac", T.pAc], ["dc", T.pDc], ["hpc", T.pHpc]].forEach(function (c) { if (live.power[c[0]]) inputs[c[1]] = eur(live.power[c[0]].median) + "/kWh"; });
+    }
     var results = {};
     results[T.out.cost] = eur(R.cost);
     R.rows.forEach(function (r) {
@@ -543,7 +554,7 @@
   fetch(AlloSite.data("charging-prices", "latest.json")).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
     var o = j && j.overall;
     if (!o || o.median == null) return;
-    live = { median: o.median, p10: o.p10, p90: o.p90, n: o.tariffs || "", when: fmtDate(j.observed_at) };
+    live = { median: o.median, p10: o.p10, p90: o.p90, n: o.tariffs || "", when: fmtDate(j.observed_at), power: j.by_power || null };
     sources(); update();
   }).catch(function () {});
 

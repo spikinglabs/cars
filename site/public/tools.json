@@ -35,11 +35,14 @@
       "name": "charging_price_archive",
       "title": "Charging price archive",
       "url": "https://cars.allo.land/charging-prices/",
-      "description": "Ad-hoc public charging prices in Germany collected every hour: median, 10th and 90th percentile per day and per source.",
+      "description": "Ad-hoc public charging prices in Germany collected every hour: median, 10th and 90th percentile per day, per charger type (AC, DC, 150 kW+) and per operator. Links: ?type=ac|dc|hpc picks the chart, ?q=<operator> filters operators, ?sort=points|ac|dc|hpc.",
       "data": {
         "latest": "https://cars.allo.land/data/charging-prices/latest.json",
         "daily": "https://cars.allo.land/data/charging-prices/daily.csv",
         "tariffs": "https://cars.allo.land/data/charging-prices/tariffs.csv",
+        "operators": "https://cars.allo.land/data/charging-prices/operators.csv",
+        "daily_by_power": "https://cars.allo.land/data/charging-prices/daily_power.csv",
+        "daily_by_operator": "https://cars.allo.land/data/charging-prices/daily_operators.csv",
         "sources": "https://cars.allo.land/data/charging-prices/sources.json"
       },
       "url_de": "https://cars.allo.land/de/charging-prices/",

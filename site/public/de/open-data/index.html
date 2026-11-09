@@ -78,9 +78,12 @@
       <li><a href="/data/charging-prices/latest.json"><code>/data/charging-prices/latest.json</code></a>: Median, 10. und 90. Perzentil von heute, gesamt und je Quelle</li>
       <li><a href="/data/charging-prices/daily.csv"><code>/data/charging-prices/daily.csv</code></a>: eine Zeile pro Tag und Quelle</li>
       <li><a href="/data/charging-prices/tariffs.csv"><code>/data/charging-prices/tariffs.csv</code></a>: jeder aktuelle Ad-hoc-Tarif mit Energie-, Zeit-, Park- und Sitzungspreis</li>
+      <li><a href="/data/charging-prices/operators.csv"><code>/data/charging-prices/operators.csv</code></a>: Median-Preis je Betreiber, insgesamt und für AC-, DC- (unter 150 kW) und HPC-Ladepunkte (ab 150 kW)</li>
+      <li><a href="/data/charging-prices/daily_power.csv"><code>/data/charging-prices/daily_power.csv</code></a>: eine Zeile pro Tag und Ladeart (ac, dc, hpc), gezählt pro Ladepunkt</li>
+      <li><a href="/data/charging-prices/daily_operators.csv"><code>/data/charging-prices/daily_operators.csv</code></a>: eine Zeile pro Tag und Betreiber</li>
       <li><a href="/data/charging-prices/sources.json"><code>/data/charging-prices/sources.json</code></a>: Quellen und ihre Lizenzen</li>
     </ul>
-    <p>Die Preise sind der Grundpreis für die Energie jedes Ad-hoc-Tarifs. Sitzungs- und Blockiergebühren stehen in <code>tariffs.csv</code>. Mit Vertrag ist Laden meist günstiger.</p>
+    <p>Die Preise sind der Grundpreis für die Energie jedes Ad-hoc-Tarifs. Sitzungs- und Blockiergebühren stehen in <code>tariffs.csv</code>. Mit Vertrag ist Laden meist günstiger. Für die Preise nach Ladeart und Betreiber verbinden wir jeden Tarif mit den Ladepunkten, für die er gilt (OCPDB-Tarifzuordnungen), lesen ihre Leistung aus der Ladepunktliste und ihren Betreiber aus der wöchentlichen Standortliste und zählen jeden Ladepunkt einmal, mit seinem günstigsten Ad-hoc-Tarif.</p>
     <p>Wenn du die Daten weiterverwendest, nenne die Quellen und Lizenzen aus <code>sources.json</code>.</p>
   </section>
 

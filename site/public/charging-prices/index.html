@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Charging price archive · Allo Cars</title>
-<meta name="description" content="Ad-hoc EV charging prices in Germany over time, from open AFIR data.">
+<meta name="description" content="Ad-hoc EV charging prices in Germany over time, by AC, DC fast charging and operator, from open AFIR data.">
 <link rel="alternate" type="application/json" href="/data/charging-prices/latest.json" title="Latest prices (JSON)">
+<link rel="alternate" type="text/csv" href="/data/charging-prices/operators.csv" title="Prices by operator (CSV)">
 <link rel="alternate" type="text/csv" href="/data/charging-prices/daily.csv" title="Daily history (CSV)">
 <!-- chrome:head -->
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/charging-prices/">
@@ -35,6 +36,17 @@
   .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
   .dot { fill: var(--car-2); }
   .grid { stroke: var(--chart-grid); }
+  .series { margin: 4px 0 12px; }
+  .ops-controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; margin: 4px 0 12px; }
+  .ops-filter { display: grid; gap: 4px; }
+  .ops-filter input { min-height: 40px; padding: 0 10px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 600 15px/20px var(--font-sans); width: 200px; }
+  .ops td.name { white-space: normal; min-width: 140px; }
+  .ops .sub { display: block; font-size: 12px; line-height: 16px; color: var(--ink-muted); }
+  .ops[data-hl="2"] td:nth-child(2), .ops[data-hl="3"] td:nth-child(3), .ops[data-hl="4"] td:nth-child(4), .ops[data-hl="5"] td:nth-child(5) { font-weight: 700; }
+  .ops-more { margin: 12px 0 0; }
+  .ops-more[hidden], .ops-controls[hidden], .series[hidden], #by-type[hidden] { display: none; }
+  .ac-readout__basis b { color: var(--ink); }
+  @media (max-width: 560px) { .ops-filter { flex: 1 1 100%; } .ops-filter input { width: 100%; } }
 </style>
 </head>
 <body>
@@ -67,7 +79,7 @@
 <!-- /chrome:header -->
 
     <h1>What does <span class="ac-hl">ad-hoc charging</span> cost in Germany?</h1>
-    <p class="lead">Every published ad-hoc tariff (pay without a contract), collected every hour since 6 Nov 2026. Prices are € per kWh including VAT.</p>
+    <p class="lead">Every published ad-hoc tariff (pay without a contract), collected every hour since 6 Nov 2026. Prices are € per kWh including VAT, also split by AC and fast charging and by operator.</p>
 
     <div class="stack">
       <section class="ac-card">
@@ -76,9 +88,29 @@
         </div>
       </section>
 
+      <section class="ac-card" id="by-type">
+        <h2 class="ac-card__title">By charger type</h2>
+        <p class="ac-card__desc">Median price at a charge point today. Each charge point counts once, with its cheapest ad-hoc tariff.</p>
+        <div class="ac-readouts" id="power">
+          <div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">Loading</div></div>
+        </div>
+      </section>
+
+      <section class="ac-card" id="by-operator">
+        <h2 class="ac-card__title">By operator</h2>
+        <p class="ac-card__desc">Operators that publish open ad-hoc prices and have at least 25 priced charge points. Each cell shows the median price and, below it, how many charge points it covers. Networks without an open price feed are missing.</p>
+        <div class="ops-controls" id="opsctl">
+          <div class="ac-seg" id="opsort" role="group" aria-label="Sort operators"></div>
+          <label class="ops-filter"><span class="ac-param__label">Find an operator</span><input id="q" type="search" autocomplete="off"></label>
+        </div>
+        <div class="ac-table-wrap" id="ops"></div>
+        <p class="ops-more" hidden><button type="button" class="ac-btn" id="opsmore">Show all</button></p>
+      </section>
+
       <section class="ac-card">
         <h2 class="ac-card__title">Median ad-hoc price per day</h2>
-        <p class="ac-card__desc">All open-licence sources together</p>
+        <p class="ac-card__desc" id="seriesdesc">All open-licence sources together</p>
+        <div class="ac-seg series" id="series" role="group" aria-label="Chart series" hidden></div>
         <div class="ac-legend"><span><i style="border-color:var(--car-2)"></i>Median</span><span><i style="border-color:var(--car-1);border-top-width:8px;opacity:.5"></i>10th to 90th percentile</span></div>
         <div class="ac-chart" id="chart"></div>
         <p class="ac-caption">No open archive of earlier prices exists, so the series starts with our first collection.</p>
@@ -138,6 +170,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/charging-prices/app.js?v=6588560e6a"></script>
+<script src="/charging-prices/app.js?v=8f26bcb131"></script>
 </body>
 </html>

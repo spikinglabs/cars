@@ -174,3 +174,155 @@ def upsert_daily(existing_csv: bytes | None, date: str, summary: dict) -> bytes:
         rows.append({"date": date, "source": source, **stats})
     rows.sort(key=lambda r: (r["date"], r["source"] != "ALL", r["source"]))
     return to_csv(rows, DAILY_FIELDS)
+
+
+# ---------------------------------------------------------------------------
+# Prices by charger type and operator.
+#
+# A tariff applies to many charge points (EVSEs). OCPDB's tariff associations say
+# which EVSEs, the EVSE list says what each can deliver, and the weekly locations
+# say who operates it. We count charge points, not tariffs: the median of an
+# operator's AC points is what a driver pulling up to one of them typically pays.
+
+POWER_CLASSES = ("ac", "dc", "hpc")
+HPC_WATTS = 150_000  # "high-power charging" from 150 kW
+MIN_OPERATOR_POINTS = 25  # smaller operators are left out of the operator table
+
+
+def power_class(evse: dict) -> str | None:
+    """ac, dc (below 150 kW) or hpc (150 kW and more) from an EVSE's connectors."""
+    best = None
+    for c in evse.get("connectors") or []:
+        kind = str(c.get("power_type") or "").upper()
+        watts = c.get("max_electric_power") or 0
+        if kind == "DC":
+            cls = "hpc" if watts >= HPC_WATTS else "dc"
+        elif kind.startswith("AC"):
+            cls = "ac"
+        else:
+            continue
+        if best is None or POWER_CLASSES.index(cls) > POWER_CLASSES.index(best):
+            best = cls
+    return best
+
+
+def evse_classes(evses) -> dict[str, str]:
+    """EVSE uid -> power class, for every EVSE whose connectors say AC or DC."""
+    out = {}
+    for e in evses:
+        cls = power_class(e)
+        if cls and e.get("uid") is not None:
+            out[str(e["uid"])] = cls
+    return out
+
+
+def evse_operators(locations) -> dict[str, str]:
+    """EVSE uid -> operator name, from the locations list."""
+    out = {}
+    for loc in locations:
+        name = ((loc.get("operator") or {}).get("name") or (loc.get("owner") or {}).get("name") or "").strip()
+        if not name:
+            continue
+        for e in loc.get("evses") or []:
+            if e.get("uid") is not None:
+                out[str(e["uid"])] = name
+    return out
+
+
+def point_prices(rows: list[dict], associations, *, public_only: bool = True) -> dict[str, float]:
+    """EVSE uid -> lowest ad-hoc energy price (EUR/kWh) of the tariffs that apply to it."""
+    price = {}
+    for r in rows:
+        if r["energy_eur_per_kwh"] is None or r["currency"] not in (None, "EUR"):
+            continue
+        if public_only and r["licence"] not in OPEN_LICENCES:
+            continue
+        price[str(r["tariff_id"])] = r["energy_eur_per_kwh"]
+    out: dict[str, float] = {}
+    for a in associations:
+        p = price.get(str(a.get("id")))
+        if p is None:
+            continue
+        for e in a.get("evses") or []:
+            uid = str(e.get("evse_uid"))
+            if uid not in out or p < out[uid]:
+                out[uid] = p
+    return out
+
+
+def _point_stats(values: list[float]) -> dict:
+    s = _stats(values)
+    s["charge_points"] = s.pop("tariffs")
+    return s
+
+
+def summarize_points(points: dict[str, float], classes: dict[str, str], operators: dict[str, str]) -> dict:
+    """by_power: stats per power class; by_operator: operators with enough priced charge points."""
+    per_class: dict[str, list[float]] = {c: [] for c in POWER_CLASSES}
+    per_op: dict[str, dict[str, list[float]]] = {}
+    for uid, p in points.items():
+        cls = classes.get(uid)
+        if cls is None:
+            continue
+        per_class[cls].append(p)
+        op = operators.get(uid)
+        if op:
+            per_op.setdefault(op, {c: [] for c in POWER_CLASSES})[cls].append(p)
+    by_power = {c: _point_stats(v) for c, v in per_class.items() if v}
+    by_operator = []
+    for op, cls_values in per_op.items():
+        allv = [v for vs in cls_values.values() for v in vs]
+        if len(allv) < MIN_OPERATOR_POINTS:
+            continue
+        entry = {"operator": op, **_point_stats(allv)}
+        for c, v in cls_values.items():
+            entry[c] = {"charge_points": len(v), "median": round(statistics.median(v), 4)} if v else None
+        by_operator.append(entry)
+    by_operator.sort(key=lambda e: (-e["charge_points"], e["operator"]))
+    return {"by_power": by_power, "by_operator": by_operator}
+
+
+DAILY_POWER_FIELDS = ["date", "power", "charge_points", "median", "p10", "p90", "min", "max"]
+DAILY_OPERATOR_FIELDS = ["date", "operator", "charge_points", "median", "p10", "p90", "ac_median", "dc_median", "hpc_median"]
+OPERATOR_FIELDS = [
+    "operator", "charge_points", "median", "p10", "p90", "min", "max",
+    "ac_points", "ac_median", "dc_points", "dc_median", "hpc_points", "hpc_median",
+]
+
+
+def operator_rows(by_operator: list[dict]) -> list[dict]:
+    rows = []
+    for e in by_operator:
+        r = {k: e.get(k) for k in ("operator", "charge_points", "median", "p10", "p90", "min", "max")}
+        for c in POWER_CLASSES:
+            r[f"{c}_points"] = e[c]["charge_points"] if e.get(c) else 0
+            r[f"{c}_median"] = e[c]["median"] if e.get(c) else None
+        rows.append(r)
+    return rows
+
+
+def _upsert(existing_csv: bytes | None, date: str, new_rows: list[dict], fields: list[str], key: str) -> bytes:
+    rows = []
+    if existing_csv:
+        rows = [r for r in csv.DictReader(io.StringIO(existing_csv.decode())) if r["date"] != date]
+    rows.extend(new_rows)
+    rows.sort(key=lambda r: (r["date"], str(r[key])))
+    return to_csv(rows, fields)
+
+
+def upsert_daily_power(existing_csv: bytes | None, date: str, by_power: dict) -> bytes:
+    order = {c: i for i, c in enumerate(POWER_CLASSES)}
+    rows = [{"date": date, "power": c, **by_power[c]} for c in sorted(by_power, key=order.get)]
+    out = _upsert(existing_csv, date, rows, DAILY_POWER_FIELDS, "power")
+    # keep ac, dc, hpc order inside a day
+    head, *lines = out.decode().splitlines()
+    lines.sort(key=lambda l: (l.split(",")[0], order.get(l.split(",")[1], 9)))
+    return ("\n".join([head, *lines]) + "\n").encode()
+
+
+def upsert_daily_operators(existing_csv: bytes | None, date: str, by_operator: list[dict]) -> bytes:
+    rows = [
+        {"date": date, **{k: r[k] for k in ("operator", "charge_points", "median", "p10", "p90", "ac_median", "dc_median", "hpc_median")}}
+        for r in operator_rows(by_operator)
+    ]
+    return _upsert(existing_csv, date, rows, DAILY_OPERATOR_FIELDS, "operator")

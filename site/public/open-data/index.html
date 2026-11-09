@@ -78,9 +78,12 @@
       <li><a href="/data/charging-prices/latest.json"><code>/data/charging-prices/latest.json</code></a>: today's median, 10th and 90th percentile, overall and per source</li>
       <li><a href="/data/charging-prices/daily.csv"><code>/data/charging-prices/daily.csv</code></a>: one row per day and source</li>
       <li><a href="/data/charging-prices/tariffs.csv"><code>/data/charging-prices/tariffs.csv</code></a>: every current ad-hoc tariff with energy, time, parking and session prices</li>
+      <li><a href="/data/charging-prices/operators.csv"><code>/data/charging-prices/operators.csv</code></a>: median price per operator, overall and for AC, DC (below 150 kW) and high-power (150 kW and up) charge points</li>
+      <li><a href="/data/charging-prices/daily_power.csv"><code>/data/charging-prices/daily_power.csv</code></a>: one row per day and charger type (ac, dc, hpc), counted per charge point</li>
+      <li><a href="/data/charging-prices/daily_operators.csv"><code>/data/charging-prices/daily_operators.csv</code></a>: one row per day and operator</li>
       <li><a href="/data/charging-prices/sources.json"><code>/data/charging-prices/sources.json</code></a>: sources and their licences</li>
     </ul>
-    <p>Prices are the base energy price of each ad-hoc tariff. Session and blocking fees are in <code>tariffs.csv</code>. Contract prices are usually lower.</p>
+    <p>Prices are the base energy price of each ad-hoc tariff. Session and blocking fees are in <code>tariffs.csv</code>. Contract prices are usually lower. For prices by charger type and operator we join each tariff to the charge points it applies to (OCPDB tariff associations), read their power from the charge point list and their operator from the weekly locations list, and count every charge point once, with its cheapest ad-hoc tariff.</p>
     <p>When you reuse the data, credit the sources and licences listed in <code>sources.json</code>.</p>
   </section>
 

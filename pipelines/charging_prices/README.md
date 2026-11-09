@@ -37,10 +37,20 @@ the website serves only its `public/` subfolder at `/data/<project>/`
     public/                     -> cars.allo.land/data/charging-prices/
       index.json                regions and files
       de/                       latest.json, daily.csv, tariffs.csv, sources.json
+                                daily_power.csv, daily_operators.csv, operators.csv
     state/                      bookkeeping between runs
     runs/YYYY/MM/DD/            one report per run
   <other-project>/              same pattern: raw/, derived/, public/, state/, runs/
 ```
+
+## Prices by charger type and operator
+
+Each hourly run joins the ad-hoc tariffs to the charge points they apply to (`tariff_associations`),
+reads each charge point's power from the EVSE list it fetches anyway for the status history, and its
+operator from `state/evse_operators.json.gz`, which the weekly run rebuilds from the locations list.
+Every charge point counts once, with its cheapest ad-hoc tariff: `ac`, `dc` (below 150 kW) and `hpc`
+(150 kW and up). `latest.json` gets `by_power` and `by_operator` (operators with at least 25 priced
+charge points); `daily_power.csv` and `daily_operators.csv` keep the history.
 
 Only sources with an open licence go into `public/`. Full details are at the top of `collect.py`.
 

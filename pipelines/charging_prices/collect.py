@@ -28,8 +28,10 @@ pipeline writes lives under one top-level folder, ``charging-prices/``
         index.json                           regions, their files and last update
         de/                                  Germany (OCPDB covers Germany only)
           latest.json  daily.csv  tariffs.csv  sources.json   (open-licence sources only)
+          daily_power.csv  daily_operators.csv  operators.csv  prices by charger type and operator
       state/                                 bookkeeping between runs
         evse_status.json.gz  evse_status_day
+        evse_operators.json.gz               EVSE -> operator, from the weekly locations
       runs/YYYY/MM/DD/<ts>-<tier>.json       what each run did
 
 ``<ts>`` is the UTC run time, e.g. ``20261106T210552Z``.
@@ -109,7 +111,7 @@ STATUS_FIELDS = ["uid", "evse_id", "status", "status_last_updated", "presence"]
 CHANGE_FIELDS = ["uid", "evse_id", "old_status", "status", "status_last_updated"]
 
 
-def collect_evse_status(store, now: datetime, ts: str, log: list) -> None:
+def collect_evse_status(store, now: datetime, ts: str, log: list) -> list[dict] | None:
     """Keep charger status history compact: a full snapshot once a day, changes every run.
 
     EVSEs with status STATIC have no live data and are left out.
@@ -120,7 +122,7 @@ def collect_evse_status(store, now: datetime, ts: str, log: list) -> None:
     except Exception as exc:
         log.append({"dataset": "evse_status", "ok": False, "error": repr(exc)})
         traceback.print_exc()
-        return
+        return None
     live = [i for i in items if i.get("status") not in (None, "STATIC")]
     current = {i["uid"]: i for i in live}
 
@@ -172,12 +174,45 @@ def collect_evse_status(store, now: datetime, ts: str, log: list) -> None:
     }
     log.append(entry)
     print(f"evse_status: {entry}")
+    return items
+
+
+OPERATORS_KEY = "state/evse_operators.json.gz"
+
+
+def save_operators(store, locations: list[dict]) -> dict[str, str]:
+    """Keep a compact EVSE -> operator map from the weekly locations for the hourly runs."""
+    ops = normalize.evse_operators(locations)
+    store.put(OPERATORS_KEY, gzip.compress(json.dumps(ops, separators=(",", ":"), ensure_ascii=False).encode(), mtime=0), "application/json")
+    return ops
+
+
+def load_operators(store) -> dict[str, str]:
+    raw = store.get(OPERATORS_KEY)
+    if raw:
+        return json.loads(gzip.decompress(raw))
+    # First run after this was added: build the map from the last weekly raw copy.
+    manifest = store.get("raw/ocpdb/locations/latest.json")
+    body = manifest and store.get(json.loads(manifest)["key"])
+    if not body:
+        return {}
+    locations = [json.loads(line) for line in gzip.decompress(body).splitlines() if line.strip()]
+    return save_operators(store, locations)
 
 
 REGION = "de"  # OCPDB covers Germany only
 
 
-def publish_prices(store, now: datetime, ts: str, sources: list[dict], tariffs: list[dict]) -> dict:
+def publish_prices(
+    store,
+    now: datetime,
+    ts: str,
+    sources: list[dict],
+    tariffs: list[dict],
+    associations: list[dict] | None = None,
+    evses: list[dict] | None = None,
+    operators: dict[str, str] | None = None,
+) -> dict:
     licences = {s["uid"]: s.get("attribution_license") for s in sources}
     observed = now.isoformat()
     rows = normalize.flatten_tariffs(tariffs, licences, observed)
@@ -188,6 +223,11 @@ def publish_prices(store, now: datetime, ts: str, sources: list[dict], tariffs: 
     )
     public_rows = [r for r in rows if r["licence"] in normalize.OPEN_LICENCES]
     summary = normalize.summarize(rows)
+    split = None
+    if associations and evses:
+        points = normalize.point_prices(rows, associations)
+        split = normalize.summarize_points(points, normalize.evse_classes(evses), operators or {})
+        split["priced_charge_points"] = len(points)
     public_sources = [
         {
             "uid": s["uid"],
@@ -215,6 +255,17 @@ def publish_prices(store, now: datetime, ts: str, sources: list[dict], tariffs: 
         "data_source": "Open ChargePoint Database (MobiData BW), https://api.mobidata-bw.de/ocpdb/",
         **summary,
     }
+    files = ["latest.json", "daily.csv", "tariffs.csv", "sources.json"]
+    if split:
+        latest["by_power_note"] = (
+            "Per charge point: the lowest ad-hoc energy price of the tariffs that apply to it. "
+            "ac = AC, dc = DC below 150 kW, hpc = DC from 150 kW. "
+            f"Operators with fewer than {normalize.MIN_OPERATOR_POINTS} priced charge points are left out."
+        )
+        latest["priced_charge_points"] = split["priced_charge_points"]
+        latest["by_power"] = split["by_power"]
+        latest["by_operator"] = split["by_operator"]
+        files += ["daily_power.csv", "daily_operators.csv", "operators.csv"]
     pub = f"public/{REGION}"
     store.put(f"{pub}/latest.json", _json(latest), "application/json")
     store.put(f"{pub}/sources.json", _json(public_sources), "application/json")
@@ -227,10 +278,19 @@ def publish_prices(store, now: datetime, ts: str, sources: list[dict], tariffs: 
     # carry it over the first time.
     previous = store.get(f"{pub}/daily.csv") or store.get("public/daily.csv")
     store.put(f"{pub}/daily.csv", normalize.upsert_daily(previous, now.date().isoformat(), summary), "text/csv")
+    if split:
+        day = now.date().isoformat()
+        store.put(f"{pub}/daily_power.csv", normalize.upsert_daily_power(store.get(f"{pub}/daily_power.csv"), day, split["by_power"]), "text/csv")
+        store.put(
+            f"{pub}/daily_operators.csv",
+            normalize.upsert_daily_operators(store.get(f"{pub}/daily_operators.csv"), day, split["by_operator"]),
+            "text/csv",
+        )
+        store.put(f"{pub}/operators.csv", normalize.to_csv(normalize.operator_rows(split["by_operator"]), normalize.OPERATOR_FIELDS), "text/csv")
     index = {
         "dataset": "charging-prices",
         "updated_at": observed,
-        "regions": {REGION: {"files": ["latest.json", "daily.csv", "tariffs.csv", "sources.json"], "currency": "EUR", "updated_at": observed}},
+        "regions": {REGION: {"files": files, "currency": "EUR", "updated_at": observed}},
     }
     store.put("public/index.json", _json(index), "application/json")
     return summary
@@ -278,11 +338,25 @@ def run(store, tier: str, datasets: list[str] | None = None) -> dict:
     names = datasets or [d.name for d in ocpdb.DATASETS if d.tier == tier]
     fetched = collect_ocpdb(store, now, ts, [n for n in names if n != "evses"], log)
 
+    if "locations" in fetched:
+        save_operators(store, fetched["locations"])
+
+    evses = None
+    if (tier == "hourly" and not datasets) or (datasets and "evses" in datasets):
+        evses = collect_evse_status(store, now, ts, log)
     summary = None
     if "sources" in fetched and "tariffs_ocpi22" in fetched:
-        summary = publish_prices(store, now, ts, fetched["sources"], fetched["tariffs_ocpi22"])
-    if (tier == "hourly" and not datasets) or (datasets and "evses" in datasets):
-        collect_evse_status(store, now, ts, log)
+        operators = None
+        if evses and fetched.get("tariff_associations"):
+            try:
+                operators = load_operators(store)
+            except Exception as exc:  # prices still publish without the operator split
+                log.append({"step": "operators", "ok": False, "error": repr(exc)})
+                traceback.print_exc()
+        summary = publish_prices(
+            store, now, ts, fetched["sources"], fetched["tariffs_ocpi22"],
+            fetched.get("tariff_associations"), evses, operators,
+        )
     if tier == "daily" and not datasets:
         collect_bnetza(store, log)
         check_storage(store, log)

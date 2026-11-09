@@ -120,3 +120,49 @@ class Register(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def _evse(uid, *connectors):
+    return {"uid": uid, "connectors": [{"power_type": t, "max_electric_power": w} for t, w in connectors]}
+
+
+class ByCharger(unittest.TestCase):
+    def test_power_class(self):
+        self.assertEqual(normalize.power_class(_evse("1", ("AC_3_PHASE", 22000))), "ac")
+        self.assertEqual(normalize.power_class(_evse("1", ("DC", 50000))), "dc")
+        self.assertEqual(normalize.power_class(_evse("1", ("AC_3_PHASE", 22000), ("DC", 150000))), "hpc")
+        self.assertIsNone(normalize.power_class(_evse("1")))
+
+    def test_points_and_summary(self):
+        rows = [
+            {"tariff_id": "t1", "energy_eur_per_kwh": 0.49, "currency": "EUR", "licence": "cc-by/4.0"},
+            {"tariff_id": "t2", "energy_eur_per_kwh": 0.79, "currency": "EUR", "licence": "cc-by/4.0"},
+            {"tariff_id": "t3", "energy_eur_per_kwh": 0.10, "currency": "EUR", "licence": None},
+        ]
+        assoc = [
+            {"id": "t1", "evses": [{"evse_uid": f"a{i}"} for i in range(30)] + [{"evse_uid": "d1"}]},
+            {"id": "t2", "evses": [{"evse_uid": "d1"}, {"evse_uid": "h1"}]},
+            {"id": "t3", "evses": [{"evse_uid": "h1"}]},  # not openly licensed: ignored
+        ]
+        points = normalize.point_prices(rows, assoc)
+        self.assertEqual(points["d1"], 0.49)  # lowest tariff wins
+        self.assertEqual(points["h1"], 0.79)
+        classes = {f"a{i}": "ac" for i in range(30)} | {"d1": "dc", "h1": "hpc"}
+        ops = {f"a{i}": "Stadtwerk" for i in range(30)} | {"h1": "Tiny"}
+        s = normalize.summarize_points(points, classes, ops)
+        self.assertEqual(s["by_power"]["ac"]["charge_points"], 30)
+        self.assertEqual(s["by_power"]["hpc"]["median"], 0.79)
+        self.assertEqual([o["operator"] for o in s["by_operator"]], ["Stadtwerk"])  # Tiny is below the minimum
+        self.assertEqual(s["by_operator"][0]["ac"], {"charge_points": 30, "median": 0.49})
+        self.assertIsNone(s["by_operator"][0]["dc"])
+
+    def test_daily_power_upsert_keeps_class_order(self):
+        bp = {c: {"charge_points": 1, "median": 0.5, "p10": 0.5, "p90": 0.5, "min": 0.5, "max": 0.5} for c in ("hpc", "ac", "dc")}
+        out = normalize.upsert_daily_power(None, "2026-11-09", bp)
+        out = normalize.upsert_daily_power(out, "2026-11-09", bp)
+        lines = out.decode().splitlines()
+        self.assertEqual([l.split(",")[1] for l in lines[1:]], ["ac", "dc", "hpc"])
+
+    def test_operators_from_locations(self):
+        locs = [{"operator": {"name": " EnBW "}, "evses": [{"uid": 5}]}, {"operator": None, "owner": {"name": "X"}, "evses": [{"uid": "6"}]}]
+        self.assertEqual(normalize.evse_operators(locs), {"5": "EnBW", "6": "X"})

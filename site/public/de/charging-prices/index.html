@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ladepreis-Archiv · Allo Cars</title>
-<meta name="description" content="Ad-hoc-Ladepreise für E-Autos in Deutschland im Zeitverlauf, aus offenen AFIR-Daten.">
+<meta name="description" content="Ad-hoc-Ladepreise für E-Autos in Deutschland im Zeitverlauf, nach AC, DC-Schnellladen und Betreiber, aus offenen AFIR-Daten.">
 <link rel="alternate" type="application/json" href="/data/charging-prices/latest.json" title="Aktuelle Preise (JSON)">
+<link rel="alternate" type="text/csv" href="/data/charging-prices/operators.csv" title="Preise nach Betreiber (CSV)">
 <link rel="alternate" type="text/csv" href="/data/charging-prices/daily.csv" title="Tagesverlauf (CSV)">
 <!-- chrome:head -->
 <link rel="alternate" hreflang="en" href="https://cars.allo.land/charging-prices/">
@@ -35,6 +36,17 @@
   .line { fill: none; stroke: var(--car-2); stroke-width: 2.5; }
   .dot { fill: var(--car-2); }
   .grid { stroke: var(--chart-grid); }
+  .series { margin: 4px 0 12px; }
+  .ops-controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; margin: 4px 0 12px; }
+  .ops-filter { display: grid; gap: 4px; }
+  .ops-filter input { min-height: 40px; padding: 0 10px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 600 15px/20px var(--font-sans); width: 200px; }
+  .ops td.name { white-space: normal; min-width: 140px; }
+  .ops .sub { display: block; font-size: 12px; line-height: 16px; color: var(--ink-muted); }
+  .ops[data-hl="2"] td:nth-child(2), .ops[data-hl="3"] td:nth-child(3), .ops[data-hl="4"] td:nth-child(4), .ops[data-hl="5"] td:nth-child(5) { font-weight: 700; }
+  .ops-more { margin: 12px 0 0; }
+  .ops-more[hidden], .ops-controls[hidden], .series[hidden], #by-type[hidden] { display: none; }
+  .ac-readout__basis b { color: var(--ink); }
+  @media (max-width: 560px) { .ops-filter { flex: 1 1 100%; } .ops-filter input { width: 100%; } }
 </style>
 </head>
 <body>
@@ -67,7 +79,7 @@
 <!-- /chrome:header -->
 
     <h1>Was kostet <span class="ac-hl">Ad-hoc-Laden</span> in Deutschland?</h1>
-    <p class="lead">Jeder veröffentlichte Ad-hoc-Tarif (zahlen ohne Vertrag), jede Stunde gesammelt seit dem 6. November 2026. Preise in € pro kWh inklusive MwSt.</p>
+    <p class="lead">Jeder veröffentlichte Ad-hoc-Tarif (zahlen ohne Vertrag), jede Stunde gesammelt seit dem 6. November 2026. Preise in € pro kWh inklusive MwSt., auch getrennt nach AC- und Schnellladen und nach Betreiber.</p>
 
     <div class="stack">
       <section class="ac-card">
@@ -76,9 +88,29 @@
         </div>
       </section>
 
+      <section class="ac-card" id="by-type">
+        <h2 class="ac-card__title">Nach Ladeart</h2>
+        <p class="ac-card__desc">Median-Preis an einem Ladepunkt heute. Jeder Ladepunkt zählt einmal, mit seinem günstigsten Ad-hoc-Tarif.</p>
+        <div class="ac-readouts" id="power">
+          <div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">Wird geladen</div></div>
+        </div>
+      </section>
+
+      <section class="ac-card" id="by-operator">
+        <h2 class="ac-card__title">Nach Betreiber</h2>
+        <p class="ac-card__desc">Betreiber, die offene Ad-hoc-Preise veröffentlichen und mindestens 25 Ladepunkte mit Preis haben. Jede Zelle zeigt den Median-Preis und darunter, für wie viele Ladepunkte er gilt. Netze ohne offenen Preis-Feed fehlen.</p>
+        <div class="ops-controls" id="opsctl">
+          <div class="ac-seg" id="opsort" role="group" aria-label="Betreiber sortieren"></div>
+          <label class="ops-filter"><span class="ac-param__label">Betreiber suchen</span><input id="q" type="search" autocomplete="off"></label>
+        </div>
+        <div class="ac-table-wrap" id="ops"></div>
+        <p class="ops-more" hidden><button type="button" class="ac-btn" id="opsmore">Alle zeigen</button></p>
+      </section>
+
       <section class="ac-card">
         <h2 class="ac-card__title">Median-Preis fürs Ad-hoc-Laden pro Tag</h2>
-        <p class="ac-card__desc">Alle Quellen mit offener Lizenz zusammen</p>
+        <p class="ac-card__desc" id="seriesdesc">Alle Quellen mit offener Lizenz zusammen</p>
+        <div class="ac-seg series" id="series" role="group" aria-label="Datenreihe" hidden></div>
         <div class="ac-legend"><span><i style="border-color:var(--car-2)"></i>Median</span><span><i style="border-color:var(--car-1);border-top-width:8px;opacity:.5"></i>10. bis 90. Perzentil</span></div>
         <div class="ac-chart" id="chart"></div>
         <p class="ac-caption">Ein offenes Archiv früherer Preise gibt es nicht, darum beginnt die Reihe mit unserer ersten Erfassung.</p>
@@ -138,6 +170,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/charging-prices/app.js?v=6588560e6a"></script>
+<script src="/charging-prices/app.js?v=8f26bcb131"></script>
 </body>
 </html>
