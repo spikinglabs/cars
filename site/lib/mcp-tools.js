@@ -21,6 +21,7 @@ const FLAGS = { open_24_7: 1, free: 2, card_payment: 4, customers_only: 8, plug_
 
 import Grant from "../public/ev-grant/grant.js";
 import ChargeHere from "../public/chargers/here.js";
+import Years from "../public/ev-cost/years.js";
 
 export class ToolError extends Error {}
 
@@ -686,6 +687,40 @@ async function checkEvGrant(get, { drive = "bev", income = null, children = 0, c
   };
 }
 
+async function costOverYears(get, { ev_price, fuel_car_price, years = 6, km_per_year = 12000, grant_eur = null, income = null, children = 0,
+  ev_kwh_per_100km = 17, eur_per_kwh = 0.35, charging_loss_pct = 10, fuel = "petrol", fuel_litres_per_100km = 6.5, fuel_eur_per_litre = null,
+  engine_cc = 1500, co2_g_km = 130 } = {}) {
+  if (!(ev_price > 0) || !(fuel_car_price > 0)) throw new ToolError("ev_price and fuel_car_price are required, in EUR");
+  if (!["petrol", "diesel"].includes(fuel)) throw new ToolError("fuel must be petrol or diesel");
+  let grant = grant_eur, grantNote = "grant_eur as given";
+  if (grant == null && income != null) {
+    const g = Grant.compute({ drive: "bev", income, kids: children });
+    grant = g.amount || 0; grantNote = `E-Auto grant from income ${income} EUR and ${g.kids} children (rules as of ${Grant.RULES.as_of})`;
+  }
+  if (grant == null) { grant = 0; grantNote = "no grant counted: give grant_eur, or income (and children) to work it out"; }
+  let fuelPrice = fuel_eur_per_litre, fuelWeek = null;
+  if (fuelPrice == null) {
+    const fp = await get("fuel-prices/de/latest.json").catch(() => null);
+    const pr = fp && fp.products && fp.products[fuel === "diesel" ? "diesel" : "euro_super_95"];
+    fuelPrice = pr && pr.eur_per_litre ? pr.eur_per_litre : (fuel === "diesel" ? 2.26 : 2.11);
+    fuelWeek = fp ? fp.week : null;
+  }
+  const ev100 = ev_kwh_per_100km * (1 + charging_loss_pct / 100) * eur_per_kwh, fuel100 = fuel_litres_per_100km * fuelPrice;
+  const r = Years.compare({ years: clamp(years, 1, 15, 6), km: km_per_year, ev_price, grant, ev_per_100: ev100, fuel_price: fuel_car_price,
+    fuel_per_100: fuel100, fuel, ccm: engine_cc, co2: co2_g_km });
+  const q = new URLSearchParams({ p: eur_per_kwh, loss: charging_loss_pct, refs: "", own: `${fuel_litres_per_100km},${fuel}`,
+    evp: ev_price, grant, fcp: fuel_car_price, km: km_per_year, yrs: clamp(years, 4, 8, 6) });
+  return {
+    years: r.years.map((y) => ({ year: y.year, electric_total_eur: y.ev, fuel_total_eur: y.fuel, electric_cheaper_by_eur: y.diff })),
+    payback_years: r.payback_years, saving_after_all_years_eur: r.saving, saving_per_year_eur: r.saving_per_year,
+    electric: { price_after_grant_eur: r.ev_start, grant_eur: grant, grant_basis: grantNote, energy_per_year_eur: r.ev_energy_year, cost_per_100km_eur: Math.round(ev100 * 100) / 100, vehicle_tax_per_year_eur: 0 },
+    fuel_car: { price_eur: r.fuel_start, energy_per_year_eur: r.fuel_energy_year, cost_per_100km_eur: Math.round(fuel100 * 100) / 100, fuel_eur_per_litre: fuelPrice, fuel_price_week: fuelWeek, vehicle_tax_per_year_eur: r.fuel_tax },
+    page: `${SITE}/ev-cost/?${q}`,
+    tax_rules_as_of: Years.TAX.as_of, sources: Years.TAX.sources,
+    note: "Purchase price minus the grant, energy and German vehicle tax (Kfz-Steuer) only. Not included: insurance, servicing (usually lower for electric cars), tyres, financing and resale value. Electric cars first registered by 2030 pay no vehicle tax for up to ten years, until 2035 at the latest.",
+  };
+}
+
 // ---------- tool list ----------
 
 const str = (description, extra = {}) => ({ type: "string", description, ...extra });
@@ -822,6 +857,29 @@ export const TOOLS = [
       first_registration: str("Date of first registration, YYYY-MM-DD, for the deadlines."),
     } },
     run: checkEvGrant,
+  },
+  {
+    name: "compare_cost_over_years",
+    title: "Electric vs fuel car: cost over the years",
+    description: "Total cost of an electric car against a petrol or diesel car in Germany over 1 to 15 years: purchase price minus the E-Auto grant, energy and vehicle tax (Kfz-Steuer, worked out from engine size and CO2; electric cars are exempt), year by year, and after how many years the electric car has paid for itself. Fuel price defaults to this week's national average. Leaves out insurance, servicing and resale value.",
+    inputSchema: { type: "object", required: ["ev_price", "fuel_car_price"], properties: {
+      ev_price: num("Electric car price in EUR, before the grant."),
+      fuel_car_price: num("Fuel car price in EUR."),
+      years: int("How many years to compare.", { default: 6 }),
+      km_per_year: num("Kilometres driven a year.", { default: 12000 }),
+      grant_eur: num("E-Auto grant in EUR, if known."),
+      income: num("Taxable household income in EUR a year, to work out the grant when grant_eur is not given."),
+      children: int("Children under 18, for the grant.", { default: 0 }),
+      ev_kwh_per_100km: num("Electric car consumption in kWh/100 km at the battery.", { default: 17 }),
+      eur_per_kwh: num("Electricity price in EUR/kWh.", { default: 0.35 }),
+      charging_loss_pct: num("Charging losses in %.", { default: 10 }),
+      fuel: str("Fuel of the fuel car.", { enum: ["petrol", "diesel"], default: "petrol" }),
+      fuel_litres_per_100km: num("Fuel car consumption in L/100 km.", { default: 6.5 }),
+      fuel_eur_per_litre: num("Fuel price in EUR/L; defaults to this week's German average."),
+      engine_cc: num("Fuel car engine size in cm³, for the tax.", { default: 1500 }),
+      co2_g_km: num("Fuel car official CO2 in g/km (WLTP), for the tax.", { default: 130 }),
+    } },
+    run: costOverYears,
   },
   {
     name: "find_chargers",

@@ -12,7 +12,7 @@ const SERVER = { name: "allo-cars", title: "Allo Cars", version: "1.0.0", websit
 const INSTRUCTIONS =
   "Allo Cars (cars.allo.land) has open data for drivers in Germany: official consumption per car model, side-by-side " +
   "comparison and rankings of car models, Euro NCAP / Green NCAP stars and ADAC breakdown rates, recalls " +
-  "(EU Safety Gate incl. every KBA recall, and US NHTSA), the German E-Auto grant, fuel, charging and electricity prices, new registrations " +
+  "(EU Safety Gate incl. every KBA recall, and US NHTSA), the German E-Auto grant, electric vs fuel cost over the years, fuel, charging and electricity prices, new registrations " +
   "and public chargers. All tools are read-only and need no account. Results carry a page link to the same view on " +
   "cars.allo.land (also in German under /de/ and Chinese under /zh/); share it with the user. Prices are averages " +
   "and estimates; recalls for one car depend on its VIN.";

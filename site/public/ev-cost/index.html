@@ -62,6 +62,13 @@
   #chart .lab--own { font-style: italic; }
   .be-table td:first-child { white-space: normal; }
   .be-table { width: 100%; }
+  .y-table { width: 100%; }
+  .y-table td.good { color: var(--success); font-weight: 700; }
+  .years .ac-readout__value.good { color: var(--success); }
+  .years .ac-param__box input { width: 7ch; }
+  .years .ac-seg { margin-top: 6px; }
+  .years .ac-param__label { display: block; }
+  @media (max-width: 520px) { .y-table th, .y-table td { padding-left: 6px; padding-right: 6px; font-size: 14px; } }
   .saved { margin: calc(-1 * var(--space-3)) 0 var(--space-5); font-size: 13px; color: var(--ink-muted); }
   .linkbtn { background: none; border: 0; padding: 0; font: inherit; color: var(--ink); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
   .ai-split { position: relative; display: inline-flex; }
@@ -192,7 +199,7 @@
   <section class="ac-card answer" aria-labelledby="h-res">
     <h2 class="step" id="h-res"><span class="step__n step__n--res">=</span>Your result</h2>
     <div id="readouts" class="answer__body" aria-live="polite"></div>
-    <p class="ac-caption" style="margin:0">Energy cost only, without purchase price, tax, insurance or servicing.</p>
+    <p class="ac-caption" style="margin:0">Energy cost only. For purchase price, grant and tax, see <a href="#h-years">Cost over the years</a>.</p>
   </section>
 
   <section class="ac-card">
@@ -211,6 +218,35 @@
     </div>
   </section>
 
+  <section class="ac-card stack years" aria-labelledby="h-years">
+    <h2 class="ac-card__title" id="h-years">Cost over the years</h2>
+    <p class="ac-card__desc" style="margin:0">What each car costs you in total: the price (the electric car minus the grant), then energy and vehicle tax, year after year. The fuel car is the first one in step 3, and energy costs come from the result above.</p>
+    <div class="row">
+      <label class="ac-param"><span class="ac-param__label">Electric car price</span><span class="ac-param__box"><input id="y-evp" type="number" min="0" max="300000" step="500" inputmode="numeric"><span class="ac-param__unit">€</span></span></label>
+      <label class="ac-param"><span class="ac-param__label">E-Auto grant</span><span class="ac-param__box"><input id="y-grant" type="number" min="0" max="10000" step="500" inputmode="numeric"><span class="ac-param__unit">€</span></span><span class="ac-param__hint">Your amount from the <a href="/ev-grant/" id="y-grantlink">grant check</a>.</span></label>
+      <label class="ac-param"><span class="ac-param__label">Fuel car price</span><span class="ac-param__box"><input id="y-fcp" type="number" min="0" max="300000" step="500" inputmode="numeric"><span class="ac-param__unit">€</span></span></label>
+      <label class="ac-param"><span class="ac-param__label">Kilometres per year</span><span class="ac-param__box"><input id="y-km" type="number" min="0" max="100000" step="1000" inputmode="numeric"><span class="ac-param__unit">km/year</span></span><span class="ac-param__hint">The German average is about 12,000 km.</span></label>
+    </div>
+    <div><span class="ac-param__label">Years</span><div class="ac-seg" id="y-yrs" role="group" aria-label="Years"><button type="button" data-y="4">4</button><button type="button" data-y="5">5</button><button type="button" data-y="6">6</button><button type="button" data-y="7">7</button><button type="button" data-y="8">8</button></div></div>
+    <details class="more">
+      <summary>Vehicle tax of the fuel car</summary>
+      <div class="row">
+        <label class="ac-param"><span class="ac-param__label">Engine size</span><span class="ac-param__box"><input id="y-ccm" type="number" min="0" max="8000" step="1" inputmode="numeric"><span class="ac-param__unit">cm³</span></span></label>
+        <label class="ac-param"><span class="ac-param__label">CO2 (WLTP)</span><span class="ac-param__box"><input id="y-co2" type="number" min="0" max="400" step="1" inputmode="numeric"><span class="ac-param__unit">g/km</span></span></label>
+      </div>
+      <p class="ac-caption" style="margin:10px 0 0" id="y-taxline"></p>
+      <p class="ac-caption" style="margin:4px 0 0">Electric cars bought now pay no vehicle tax until 2035.</p>
+    </details>
+    <div class="ac-readouts" id="y-out" aria-live="polite"></div>
+    <div class="ac-table-wrap">
+      <table class="ac-table y-table">
+        <caption class="ac-caption">Running totals at the end of each year: purchase, energy and vehicle tax.</caption>
+        <thead><tr><th>Year</th><th class="num">Electric car</th><th class="num">Fuel car</th><th class="num">Difference</th></tr></thead>
+        <tbody id="y-body"></tbody>
+      </table>
+    </div>
+    <p class="ac-caption" style="margin:0">Not included: insurance, servicing, tyres and what the car is worth when you sell it. Electric cars usually cost less to service.</p>
+  </section>
 
   <section class="ac-aibar">
     <span class="ac-aibar__text"><b>Use this with AI.</b> Open an assistant with your numbers already filled in, or copy them.</span>
@@ -232,7 +268,7 @@
     <p class="ac-source__line" style="margin:0">Formula: cost per 100 km = kWh/100 km × (1 + losses) × €/kWh. Break-even = L/100 km × €/L ÷ (kWh/100 km × (1 + losses)).</p>
     <p class="ac-source__line" style="margin:0">Fuel cars: the most registered new models in Germany in 2025 (<a href="https://www.kba.de/DE/Statistik/Fahrzeuge/Neuzulassungen/neuzulassungen_node.html">KBA</a>) plus the Mazda CX-30 and CX-5, each with its most common engine. Consumption is a real-world average rounded from owner logs on <a href="https://www.spritmonitor.de/">spritmonitor.de</a>, higher than the WLTP figure. EV figures are rough real-world estimates. Official consumption is the WLTP figure at the plug reported for every new car registered in Germany, averaged over the versions people bought, from the <a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b">EEA CO2 monitoring of new cars</a> (CC BY 4.0). For cars without an estimate, the four driving levels are 0.9, 1, 1.22 and 1.38 times that figure.</p>
     <p class="ac-source__line" style="margin:0" id="fuelsource"></p>
-    <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>Energy only: purchase price, tax, insurance and servicing are not included. Your tariff, the weather and how you drive change the real cost.</span></div>
+    <div class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>The result and the chart count energy only. Purchase price, grant and vehicle tax are in Cost over the years; insurance and servicing are not included anywhere. Your tariff, the weather and how you drive change the real cost.</span></div>
   <p class="ac-source__line" style="margin:0"><a href="/open-data/">All Allo Cars data sources</a></p>
   </details>
 <!-- chrome:footer -->
@@ -294,6 +330,9 @@
 
 <script src="/assets/components/bundle.js?v=a59ccf037e"></script>
 <script src="/ev-cost/calc.js?v=01f73cec22"></script>
-<script src="/ev-cost/app.js?v=15a1712b99"></script>
+<script src="/ev-grant/grant.js?v=1adf9d7ece"></script>
+<script src="/ev-cost/years.js?v=829fc6dcc5"></script>
+<script src="/ev-cost/app.js?v=8afa4d5495"></script>
+<script src="/ev-cost/years-app.js?v=977f747d60"></script>
 </body>
 </html>
