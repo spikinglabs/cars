@@ -76,7 +76,7 @@ test("notifications get 202 and no body", async () => {
 test("tools/list has every tool, read-only, with a schema", async () => {
   const { body } = await post({ jsonrpc: "2.0", id: 2, method: "tools/list" });
   const names = body.result.tools.map((t) => t.name);
-  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "find_similar_cars", "get_car_ratings", "get_registrations", "check_ev_grant", "find_chargers"]);
+  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "find_similar_cars", "get_car_ratings", "get_registrations", "check_ev_grant", "compare_cost_over_years", "find_chargers"]);
   for (const t of body.result.tools) {
     assert.equal(t.annotations.readOnlyHint, true);
     assert.equal(t.inputSchema.type, "object");
@@ -215,6 +215,18 @@ test("check_ev_grant: a plug-in hybrid is checked against its official CO2", asy
   const no = JSON.parse((await call("check_ev_grant", { drive: "phev", income: 40000, co2_g_km: 75, electric_range_km: 50 })).content[0].text);
   assert.equal(no.grant_eur, 0);
   assert.equal(no.plug_in_hybrid_check, false);
+});
+
+test("compare_cost_over_years: grant from income, Kfz-Steuer and payback", async () => {
+  const out = JSON.parse((await call("compare_cost_over_years", { ev_price: 40000, fuel_car_price: 32000, income: 50000, years: 8, km_per_year: 10000,
+    ev_kwh_per_100km: 16, eur_per_kwh: 0.35, fuel_litres_per_100km: 6.5, fuel_eur_per_litre: 2, engine_cc: 1498, co2_g_km: 125 })).content[0].text);
+  assert.equal(out.electric.grant_eur, 4000);
+  assert.equal(out.electric.price_after_grant_eur, 36000);
+  assert.equal(out.fuel_car.vehicle_tax_per_year_eur, 92);
+  assert.equal(out.years.length, 8);
+  assert.ok(out.payback_years > 0 && out.payback_years < 8);
+  assert.match(out.page, /evp=40000/);
+  await assert.rejects(async () => { const r = await call("compare_cost_over_years", { ev_price: 40000 }); if (r.isError) throw new Error(r.content[0].text); });
 });
 
 test("find_chargers: says how easy living there without a wallbox is", async () => {

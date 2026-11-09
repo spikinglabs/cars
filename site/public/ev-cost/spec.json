@@ -15,7 +15,22 @@
     "petrol": { "type": "number", "default": 2.11, "unit": "EUR/L", "description": "Petrol price. Defaults to the latest German average (EU Weekly Oil Bulletin when available, else ADAC monthly average)." },
     "diesel": { "type": "number", "default": 2.26, "unit": "EUR/L", "description": "Diesel price, same source as petrol." },
     "refs": { "type": "string", "default": "golf,troc,tiguan,octavia,cx30,cx5", "description": "Fuel cars to compare with, comma separated ids.", "enum": ["golf", "troc", "tiguan", "corsa", "octavia", "passat", "cx30", "cx5"] },
-    "own": { "type": "string", "description": "Your own fuel car as litres_per_100km,fuel, for example 6.2,petrol or 5.5,diesel. Omit for none." }
+    "own": { "type": "string", "description": "Your own fuel car as litres_per_100km,fuel, for example 6.2,petrol or 5.5,diesel. Omit for none." },
+    "evp": { "type": "number", "default": 36000, "unit": "EUR", "description": "Cost over the years: electric car price before the grant." },
+    "grant": { "type": "number", "unit": "EUR", "description": "Cost over the years: E-Auto grant. Defaults to the amount from the grant check saved on this device, else 0. See https://cars.allo.land/ev-grant/" },
+    "fcp": { "type": "number", "default": 32000, "unit": "EUR", "description": "Cost over the years: price of the fuel car (the first one compared: your own car, else the first of refs)." },
+    "km": { "type": "number", "default": 12000, "unit": "km/year", "description": "Cost over the years: kilometres a year." },
+    "yrs": { "type": "integer", "default": 6, "enum": [4, 5, 6, 7, 8], "description": "Cost over the years: how many years." },
+    "ccm": { "type": "number", "unit": "cm3", "description": "Cost over the years: fuel car engine size for the vehicle tax, with co2 and tc. Built-in fuel cars have their own figures." },
+    "co2": { "type": "number", "unit": "g/km", "description": "Cost over the years: fuel car official CO2 (WLTP) for the vehicle tax." },
+    "tc": { "type": "string", "description": "Cost over the years: id of the fuel car that ccm and co2 belong to (own or a refs id)." }
+  },
+  "cost_over_years": {
+    "formula": "total_after_n_years = price (EV: minus grant) + n * (km / 100 * cost_per_100km + vehicle_tax); payback_years = (ev_price - grant - fuel_car_price) / yearly saving",
+    "vehicle_tax": "Kfz-Steuer for cars first registered from 2021: 2 EUR (petrol) or 9.50 EUR (diesel) per started 100 cm3, plus 2.00 to 4.00 EUR per g CO2/km above 95. Electric cars first registered by 2030 pay none for up to ten years, until 2035 at the latest.",
+    "not_included": "insurance, servicing, tyres, financing, resale value",
+    "code": "https://cars.allo.land/ev-cost/years.js",
+    "mcp_tool": "compare_cost_over_years"
   },
   "fuel_cars": {
     "golf": "VW Golf 1.5 TSI, petrol, 6.5 L/100 km",
