@@ -26,3 +26,4 @@ jobs:
       - run: python -m unittest discover -s pipelines/registrations/tests -t . -v
       - run: python -m unittest discover -s pipelines/chargers/tests -t . -v
       - run: python -m unittest discover -s pipelines/vehicle_catalog/tests -t . -v
+      - run: python -m unittest discover -s pipelines/mcp_usage/tests -t . -v
