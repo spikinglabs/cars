@@ -146,6 +146,29 @@
       remove: function (id) { return cmpWrite(cmpRead().filter(function (x) { return x !== id; })); },
       toggle: function (id) { var l = cmpRead(); return l.indexOf(id) >= 0 ? cmpWrite(l.filter(function (x) { return x !== id; })) : cmpWrite(l.concat([id])); }
     },
+    // What 100 km costs at the latest prices, as on My cars and Compare: electric at home (0.35 EUR/kWh
+    // plus 10 % losses) and at the public ad-hoc median; fuel at the weekly national average; plug-in
+    // hybrids with their official electric/fuel mix and home charging. { main, pub } in EUR or null.
+    cost100: function (m, fuel, charge) {
+      var HOME = 0.35, LOSS = 1.1, P = { petrol: "euro_super_95", diesel: "diesel", lpg: "lpg", "phev-petrol": "euro_super_95", "phev-diesel": "diesel" };
+      var fp = fuel && fuel.products && P[m.fuel] ? fuel.products[P[m.fuel]] : null;
+      var pub = charge && charge.overall ? charge.overall.median : null;
+      if (m.fuel === "electric" && m.kwh_per_100km) return { main: m.kwh_per_100km * LOSS * HOME, pub: pub ? m.kwh_per_100km * LOSS * pub : null };
+      if (/^phev/.test(m.fuel) && fp) return { main: (m.kwh_per_100km || 0) * LOSS * HOME + (m.l_per_100km || 0) * fp.eur_per_litre, pub: null };
+      if (m.l_per_100km && fp) return { main: m.l_per_100km * fp.eur_per_litre, pub: null };
+      return { main: null, pub: null };
+    },
+    // The catalog model for a model in the registration statistics (KBA counts every drive type
+    // together): the most registered catalog entry with the same make and model, or with fuel only one of that fuel.
+    catalogFor: function (catalog, brand, model, fuel) {
+      var key = modelKey(brand, model), best = null;
+      catalog.forEach(function (m) {
+        if (modelKey(m.make, m.model) !== key) return;
+        var score = (fuel && m.fuel === fuel ? 1e9 : 0) + (m.registrations || 0);
+        if (!best || score > best.s) best = { m: m, s: score };
+      });
+      return best && (!fuel || best.m.fuel === fuel) ? best.m : null;
+    },
     electric: function (fuel) { return fuel === "electric"; },
     plugIn: function (fuel) { return /^phev/.test(fuel); }
   };

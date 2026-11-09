@@ -6,7 +6,7 @@
     "url": "https://cars.allo.land/mcp",
     "transport": "streamable-http",
     "auth": "none",
-    "description": "Read-only MCP server with the same data as tools: official consumption per model, side-by-side comparison of models, recalls and used-car check, recall statistics, fuel, charging and electricity prices, new registrations and public chargers. Add it as a custom connector in Claude or any MCP client."
+    "description": "Read-only MCP server with the same data as tools: official consumption per model, side-by-side comparison and rankings of models, recalls and used-car check, recall statistics, fuel, charging and electricity prices, new registrations and public chargers. Add it as a custom connector in Claude or any MCP client."
   },
   "tools": [
     {
@@ -36,6 +36,20 @@
       "example": "https://cars.allo.land/compare/?cars=volvo-ex30,tesla-model-y,vw-golf-petrol&km=12000",
       "url_de": "https://cars.allo.land/de/compare/",
       "url_zh": "https://cars.allo.land/zh/compare/"
+    },
+    {
+      "name": "car_rankings",
+      "title": "Car rankings for Germany",
+      "url": "https://cars.allo.land/rankings/",
+      "description": "Ranked lists of car models from official data: best sellers over 12 months, the latest month's top 20 with the change on a year before, electric best sellers, the most efficient electric cars (WLTP kWh/100 km), the cheapest cars to run per 100 km at this week's German prices, and brands with the fewest Safety Gate recalls per 100,000 new cars. Rows open the model page or go into the comparison.",
+      "parameters": {
+        "list": "sellers, month, electric, efficient, cheapest or recalls",
+        "fuel": "cheapest only: electric, petrol, diesel or phev-petrol",
+        "n": "rows to show, 10 to 100 (default 20)"
+      },
+      "example": "https://cars.allo.land/rankings/?list=cheapest&fuel=electric",
+      "url_de": "https://cars.allo.land/de/rankings/",
+      "url_zh": "https://cars.allo.land/zh/rankings/"
     },
     {
       "name": "ev_charging_cost",

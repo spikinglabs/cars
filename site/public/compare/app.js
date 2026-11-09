@@ -50,8 +50,7 @@
     pair: (a, b) => `${a} vs ${b}`,
   };
   const G = window.AlloGarage;
-  const HOME_PRICE = 0.35, LOSS = 1.1; // the charging cost tool's defaults
-  const FUEL_PRODUCT = { petrol: "euro_super_95", diesel: "diesel", lpg: "lpg", "phev-petrol": "euro_super_95", "phev-diesel": "diesel" };
+  const HOME_PRICE = 0.35; // the charging cost tool's default, used in garage.js cost100
   const DEFAULT = ["volvo-ex30", "tesla-model-y", "vw-id-3"];
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -72,16 +71,7 @@
   };
 
   /* ---------- what we know about one model ---------- */
-  function costs(m) {
-    const f = m.fuel, fp = prices.fuel && FUEL_PRODUCT[f] ? prices.fuel.products[FUEL_PRODUCT[f]] : null;
-    const pub = prices.charge && prices.charge.overall ? prices.charge.overall.median : null;
-    if (f === "electric" && m.kwh_per_100km) {
-      return { main: m.kwh_per_100km * LOSS * HOME_PRICE, pub: pub ? m.kwh_per_100km * LOSS * pub : null };
-    }
-    if (/^phev/.test(f) && fp) return { main: (m.kwh_per_100km || 0) * LOSS * HOME_PRICE + (m.l_per_100km || 0) * fp.eur_per_litre, pub: null };
-    if (m.l_per_100km && fp) return { main: m.l_per_100km * fp.eur_per_litre, pub: null };
-    return { main: null, pub: null };
-  }
+  const costs = (m) => G.cost100(m, prices.fuel, prices.charge);
   function regOf(m) {
     const key = G.modelKey(m.make, m.model);
     return regs ? regs.models.find((x) => x.model !== "SONSTIGE" && G.modelKey(x.brand, x.model) === key) || null : null;

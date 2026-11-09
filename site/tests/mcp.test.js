@@ -9,9 +9,9 @@ const load = () => import(pathToFileURL(path.join(__dirname, "../functions/mcp.j
 // R2 keys are <project>/public/<region>/<file>, as the data function reads them.
 const FILES = {
   "vehicle-catalog/public/de/models.json": { region: "DE", year: 2025, models: [
-    { id: "volvo-ex30", make: "Volvo", model: "EX30", name: "Volvo EX30", fuel: "electric", kwh_per_100km: 17.1, registrations: 9000 },
-    { id: "vw-golf-petrol", make: "Volkswagen", model: "Golf", name: "Volkswagen Golf", fuel: "petrol", l_per_100km: 5.6, registrations: 50000 },
-    { id: "vw-golf-diesel", make: "Volkswagen", model: "Golf", name: "Volkswagen Golf", fuel: "diesel", l_per_100km: 4.6, registrations: 20000 },
+    { id: "volvo-ex30", make: "Volvo", model: "EX30", name: "Volvo EX30", fuel: "electric", kwh_per_100km: 17.1, registrations: 9000, year: 2025 },
+    { id: "vw-golf-petrol", make: "Volkswagen", model: "Golf", name: "Volkswagen Golf", fuel: "petrol", l_per_100km: 5.6, registrations: 50000, year: 2025 },
+    { id: "vw-golf-diesel", make: "Volkswagen", model: "Golf", name: "Volkswagen Golf", fuel: "diesel", l_per_100km: 4.6, registrations: 20000, year: 2025 },
   ] },
   "recalls/public/eu/models.json": { models: [{ model: "Volvo EX30", slug: "volvo-ex30", file: "models/volvo-ex30.json", us_file: "x" }] },
   "recalls/public/eu/models/volvo-ex30.json": { alerts: [{ id: "A1", production: "2024 - 2025" }] },
@@ -66,7 +66,7 @@ test("notifications get 202 and no body", async () => {
 test("tools/list has every tool, read-only, with a schema", async () => {
   const { body } = await post({ jsonrpc: "2.0", id: 2, method: "tools/list" });
   const names = body.result.tools.map((t) => t.name);
-  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_registrations", "find_chargers"]);
+  assert.deepEqual(names, ["lookup_official_consumption", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "get_registrations", "find_chargers"]);
   for (const t of body.result.tools) {
     assert.equal(t.annotations.readOnlyHint, true);
     assert.equal(t.inputSchema.type, "object");
@@ -111,6 +111,18 @@ test("compare: costs at this week's prices, recalls that name the model, a page 
 test("compare: no known car is an answer with an error", async () => {
   const r = (await call("compare_cars", { cars: ["Trabant"] })).structuredContent;
   assert.match(r.error, /No car model matches/);
+});
+test("rankings: cheapest per 100 km at this week's prices", async () => {
+  const r = (await call("get_rankings", { list: "cheapest" })).structuredContent;
+  assert.deepEqual(r.rows.map((x) => x.catalog_id), ["volvo-ex30", "vw-golf-diesel", "vw-golf-petrol"]);
+  assert.equal(r.rows[1].cost_per_100km_eur, 9.2); // 4.6 L x 2.00
+  assert.equal(r.page, "https://cars.allo.land/rankings/?list=cheapest");
+  const d = (await call("get_rankings", { list: "cheapest", fuel: "diesel" })).structuredContent;
+  assert.deepEqual(d.rows.map((x) => x.catalog_id), ["vw-golf-diesel"]);
+});
+test("rankings: bad list is a tool error", async () => {
+  const r = await call("get_rankings", { list: "fastest" });
+  assert.equal(r.isError, true);
 });
 test("consumption: bad fuel is a tool error", async () => {
   const r = await call("lookup_official_consumption", { query: "Golf", fuel: "steam" });
