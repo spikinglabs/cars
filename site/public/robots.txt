@@ -1,0 +1,6 @@
+# Allo Cars: everything may be read, by search engines and AI assistants alike.
+# Tools and data: https://cars.allo.land/tools.json · https://cars.allo.land/llms.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://cars.allo.land/sitemap.xml

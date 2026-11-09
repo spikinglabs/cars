@@ -6,7 +6,7 @@
     "url": "https://cars.allo.land/mcp",
     "transport": "streamable-http",
     "auth": "none",
-    "description": "Read-only MCP server with the same data as tools: official consumption per model, side-by-side comparison and rankings of models, safety, environment and breakdown ratings, recalls and used-car check, recall statistics, fuel, charging and electricity prices, new registrations and public chargers. Add it as a custom connector in Claude or any MCP client."
+    "description": "Read-only MCP server with the same data as tools: official consumption per model, the German E-Auto grant, side-by-side comparison and rankings of models, safety, environment and breakdown ratings, recalls and used-car check, recall statistics, fuel, charging and electricity prices, new registrations and public chargers. Add it as a custom connector in Claude or any MCP client."
   },
   "tools": [
     {
@@ -21,6 +21,25 @@
       "example": "https://cars.allo.land/cars/?car=vw-golf-diesel&year=2019",
       "url_de": "https://cars.allo.land/de/cars/",
       "url_zh": "https://cars.allo.land/zh/cars/"
+    },
+    {
+      "name": "ev_grant",
+      "title": "German E-Auto grant 2026",
+      "url": "https://cars.allo.land/ev-grant/",
+      "description": "How much of Germany's 2026 E-Auto grant (E-Auto-Förderung, applied for at BAFA) a household gets for a new electric car or plug-in hybrid: 1,500 to 6,000 € by taxable household income and children under 18, whether a plug-in hybrid qualifies (at most 60 g CO2/km or at least 80 km electric range), the deadline to apply and the official table. The rules are in grant.js.",
+      "parameters": {
+        "drive": "bev (fully electric) or phev (plug-in hybrid or range extender)",
+        "income": "taxable household income in € a year",
+        "kids": "children under 18: 0, 1 or 2 (two or more)",
+        "reg": "first registration date, YYYY-MM-DD",
+        "car": "vehicle catalog id of a plug-in hybrid, e.g. vw-tiguan-phev-petrol",
+        "co2": "plug-in hybrid CO2 in g/km",
+        "range": "plug-in hybrid electric range in km"
+      },
+      "code": "https://cars.allo.land/ev-grant/grant.js",
+      "mcp_tool": "check_ev_grant",
+      "url_de": "https://cars.allo.land/de/ev-grant/",
+      "url_zh": "https://cars.allo.land/zh/ev-grant/"
     },
     {
       "name": "compare_cars",

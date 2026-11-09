@@ -19,6 +19,8 @@ const FUELS = ["euro_super_95", "diesel", "lpg"];
 const PLUGS = { type2: 1, ccs: 2, chademo: 4, schuko: 8, mcs: 16, type1: 32 };
 const FLAGS = { open_24_7: 1, free: 2, card_payment: 4, customers_only: 8, plug_and_charge: 16 };
 
+import Grant from "../public/ev-grant/grant.js";
+
 export class ToolError extends Error {}
 
 const clamp = (n, lo, hi, dflt) => {
@@ -629,6 +631,52 @@ async function findChargers(get, { near = null, lat = null, lon = null, radius_k
   };
 }
 
+// ---------- E-Auto grant ----------
+
+async function checkEvGrant(get, { drive = "bev", income = null, children = 0, car = null, co2_g_km = null, electric_range_km = null, first_registration = null } = {}) {
+  if (!Grant.DRIVES.includes(drive)) throw new ToolError("drive must be bev (fully electric, also fuel cell) or phev (plug-in hybrid or range extender)");
+  if (first_registration && !/^\d{4}-\d{2}-\d{2}$/.test(first_registration)) throw new ToolError("first_registration must be a date like 2026-03-15");
+  let model = null;
+  if (drive === "phev" && car && co2_g_km == null) {
+    const data = await load(get, "vehicle-catalog/de/models.json");
+    const words = String(car).split(/\s+/).map(normC).filter(Boolean);
+    const hits = (data.models || []).filter((m) => /^phev/.test(m.fuel) && words.every((w) => (normC(m.name) + normC(m.id)).includes(w)))
+      .sort((a, b) => (b.registrations || 0) - (a.registrations || 0));
+    if (hits.length) {
+      model = { id: hits[0].id, name: hits[0].name, co2_g_km: hits[0].co2_g_km, year: hits[0].year,
+        note: "Official WLTP average over the versions registered in Germany (EEA). The exact version's certificate of conformity decides." };
+      co2_g_km = hits[0].co2_g_km;
+    }
+  }
+  const r = Grant.compute({ drive, income, kids: children, co2: co2_g_km, range_km: electric_range_km, reg: first_registration });
+  const q = new URLSearchParams();
+  if (drive !== "bev") q.set("drive", drive);
+  if (r.kids) q.set("kids", r.kids);
+  if (r.income != null) q.set("income", Math.round(r.income));
+  if (first_registration) q.set("reg", first_registration);
+  if (model) q.set("car", model.id);
+  else if (drive === "phev" && co2_g_km != null) q.set("co2", co2_g_km);
+  if (drive === "phev" && electric_range_km != null) q.set("range", electric_range_km);
+  const R = Grant.RULES;
+  const why = {
+    income_over_cap: `Taxable household income above the limit of ${r.cap} EUR (80,000 plus 5,000 per child under 18, up to two).`,
+    registered_too_early: "Only new cars first registered on or after 2026-01-01 qualify.",
+    phev_too_late: `Plug-in hybrids and range extenders only qualify when first registered by ${R.phev_until}.`,
+    phev_emissions: "Plug-in hybrid above 60 g CO2/km and below 80 km electric range: no grant.",
+    phev_unknown: "Plug-in hybrids need at most 60 g CO2/km or at least 80 km electric range; give the car or its figures to check.",
+  };
+  return {
+    grant_eur: r.amount, eligible: r.eligible, most_possible_eur: r.max, income_limit_eur: r.cap,
+    notes: r.reasons.map((k) => why[k]), plug_in_hybrid_check: drive === "phev" ? r.phev_ok : undefined, car: model || undefined,
+    apply_by: r.apply_by, keep_until: r.keep_until,
+    table: Grant.table(drive).map((t) => ({ income_from_eur: t.from, income_to_eur: t.to, no_child: t.amounts[0], one_child: t.amounts[1], two_or_more: t.amounts[2] })),
+    how_to_apply: `Online at ${R.portal} (BAFA) within ${R.apply_within_months} months of first registration, with BundID (eID or ELSTER certificate), the FIN, the last two income tax assessments, proof of child benefit for the child bonus and, for plug-in hybrids, the certificate of conformity. Keep the car ${R.keep_months} months. New cars only (bought or leased), first registered in the applicant's name from ${R.registered_from}. Hotline ${R.hotline}.`,
+    page: `${SITE}/ev-grant/${q.toString() ? "?" + q : ""}`,
+    rules_as_of: R.as_of, sources: R.sources,
+    note: "Estimate from the published rules; BAFA decides. Income = taxable household income (zu versteuerndes Einkommen), average of the last two tax assessments.",
+  };
+}
+
 // ---------- tool list ----------
 
 const str = (description, extra = {}) => ({ type: "string", description, ...extra });
@@ -750,6 +798,21 @@ export const TOOLS = [
       months: int("How many recent months to return, 1-100.", { default: 12 }),
     } },
     run: getRegistrations,
+  },
+  {
+    name: "check_ev_grant",
+    title: "German E-Auto grant (2026)",
+    description: "How much of Germany's 2026 E-Auto grant (E-Auto-Förderung, BAFA) a household gets for a new electric car or plug-in hybrid: 1,500 to 6,000 EUR by taxable household income and children under 18, whether a plug-in hybrid qualifies (at most 60 g CO2/km or at least 80 km electric range, checked against official figures), the deadline to apply and how long to keep the car, the official table and how to apply. Without an income it returns the table and the most possible.",
+    inputSchema: { type: "object", properties: {
+      drive: str("bev = fully electric (also fuel cell), phev = plug-in hybrid or range extender.", { enum: ["bev", "phev"], default: "bev" }),
+      income: num("Taxable household income in EUR a year (zu versteuerndes Einkommen, average of the last two tax assessments)."),
+      children: int("Children under 18 in the household (counted up to 2).", { default: 0 }),
+      car: str("Plug-in hybrid make and model, e.g. 'VW Tiguan', to check its official CO2."),
+      co2_g_km: num("Plug-in hybrid CO2 in g/km from its certificate of conformity."),
+      electric_range_km: num("Plug-in hybrid electric range in km from its certificate of conformity."),
+      first_registration: str("Date of first registration, YYYY-MM-DD, for the deadlines."),
+    } },
+    run: checkEvGrant,
   },
   {
     name: "find_chargers",
