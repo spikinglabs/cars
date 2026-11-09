@@ -161,7 +161,7 @@
       "name": "new_registrations_by_model",
       "title": "New car registrations by model",
       "url": "https://cars.allo.land/registrations/",
-      "description": "Monthly new passenger car registrations in Germany for every brand and model since December 2018 (KBA FZ10), with electric and plug-in hybrid counts, this month's top 20, and the electric wave: the electric share per month with the start of the E-Auto grant marked, electric cars this year against last, and the fastest-growing electric models over the last three months. Open a model with ?model=<slug>, slugs are in models.json.",
+      "description": "Monthly new passenger car registrations in Germany for every brand and model since December 2018 (KBA FZ10), with electric and plug-in hybrid counts, this month's top 20, and the electric wave: the electric share per month with the start of the E-Auto grant marked, electric cars this year against last, and the fastest-growing electric models over the last three months. Open a model with ?model=<slug>, slugs are in models.json. Time range: ?last=<months> for the latest months, or ?from=<yyyy-mm>&to=<yyyy-mm>.",
       "parameters": {
         "model": "model slug from models.json, e.g. volvo-ex30"
       },

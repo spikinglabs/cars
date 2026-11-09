@@ -108,18 +108,27 @@
     return { total: t, bev: e, phev: p, hev: h - p, diesel: d, petrol: Math.max(0, t - d - h - e) };
   };
 
-  function bars(rows, title, split) {
-    const W = 860, H = 260, L = 52, R = 12, Tp = 14, B = 28;
+  // Charts are drawn at the width they get on screen, so labels keep their size on a phone.
+  const size = (id, h) => { const w = Math.round(Math.min(860, Math.max(300, $(id)?.clientWidth || 860))); return [w, w < 600 ? Math.round(h * 0.85) : h]; };
+  const M = (m) => AlloRange.idx(m), mon = (i) => AlloRange.mon(i);
+  // x-axis labels for months[0..n) starting at from, between pixel x(i)
+  const xTicks = (from, n, x, px, H) => AlloRange.ticks(from, n, px).map(([i, t]) => `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${esc(t)}</text>`).join("");
+  const yStep = (max) => { const mag = Math.pow(10, Math.floor(Math.log10(max))), f = max / mag; return mag * (f > 5 ? 2 : f > 2 ? 1 : 0.5); };
+
+  // win: { from, to, months } from the time range under the chart; the bars of those months
+  function bars(rows, title, split, win, full) {
+    const [W, H] = size("model-chart", 260), L = 52, R = 12, Tp = 14, B = 28;
+    const a = M(win.from), n = win.months;
+    rows = rows.filter((r) => r.month >= win.from && r.month <= win.to);
     const max = Math.max(1, ...rows.map((r) => r.total || 0));
-    const step = Math.pow(10, Math.floor(Math.log10(max))) * (max / Math.pow(10, Math.floor(Math.log10(max))) > 5 ? 2 : max / Math.pow(10, Math.floor(Math.log10(max))) > 2 ? 1 : 0.5);
-    const top = Math.ceil(max / step) * step;
-    const bw = (W - L - R) / Math.max(rows.length, 36);  // few months: narrow bars, not one wide block
-    const x0 = W - R - bw * rows.length;
+    const step = yStep(max), top = Math.ceil(max / step) * step;
+    const bw = (W - L - R) / Math.max(n, full ? 36 : 1);  // few months of data: narrow bars, not one wide block
+    const x0 = W - R - bw * n;
     const y = (v) => Tp + (1 - v / top) * (H - Tp - B);
     let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">`;
     for (let v = 0; v <= top + 1e-9; v += step) s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${num(v)}</text>`;
-    rows.forEach((r, i) => {
-      const x = x0 + i * bw + bw * 0.12, w = Math.max(bw * 0.76, 1);
+    rows.forEach((r) => {
+      const x = x0 + (M(r.month) - a) * bw + bw * 0.12, w = Math.max(bw * 0.76, 1);
       const t = r.total || 0, e = Math.min(r.bev || 0, t);
       if (split === "fuel") {
         const pt = parts(r);
@@ -137,54 +146,53 @@
         if (e > 0) s += `<rect class="b-ev" x="${x}" y="${y(e)}" width="${w}" height="${y(0) - y(e)}"/>`;
         s += "</g>";
       }
-      if (r.month.endsWith("-01") || (i === 0 && rows.length < 12)) s += `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle">${r.month.slice(0, 4)}</text>`;
     });
+    s += xTicks(win.from, n, (i) => x0 + (i + 0.5) * bw, bw * n, H);
     return s + "</svg>";
   }
 
-  function shareLine(rows) {
-    const pts = rows.filter((r) => r.bev_share != null);
-    const W = 860, H = 220, L = 44, R = 46, Tp = 14, B = 28;
+  function shareLine(rows, win) {
+    const pts = rows.filter((r) => r.bev_share != null && r.month >= win.from && r.month <= win.to);
+    const [W, H] = size("share-chart", 220), L = 44, R = 46, Tp = 14, B = 28;
+    const a = M(win.from), n = win.months;
     const top = Math.max(10, Math.ceil(Math.max(...pts.map((p) => p.bev_share)) / 10) * 10);
-    const x = (i) => L + (i * (W - L - R)) / Math.max(pts.length - 1, 1);
+    const xi = (i) => L + (i * (W - L - R)) / Math.max(n - 1, 1);
+    const x = (p) => xi(M(p.month) - a);
     const y = (v) => Tp + (1 - v / top) * (H - Tp - B);
+    const tstep = top > 50 ? 20 : 10;
     let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(T.chartShare)}">`;
-    for (let v = 0; v <= top; v += 10) s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v} %</text>`;
-    s += `<polyline class="line" points="${pts.map((p, i) => `${x(i)},${y(p.bev_share)}`).join(" ")}"/>`;
-    pts.forEach((p, i) => {
-      s += `<circle class="hit" cx="${x(i)}" cy="${y(p.bev_share)}" r="5"><title>${esc(T.tipShare(p))}</title></circle>`;
-      if (p.month.endsWith("-01")) s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${p.month.slice(0, 4)}</text>`;
-    });
-    const gi = window.EvWave ? pts.findIndex((p) => p.month === window.EvWave.GRANT_FROM) : -1;
-    if (gi >= 0) s += `<line class="grant" x1="${x(gi)}" x2="${x(gi)}" y1="${Tp}" y2="${H - B}"/><text x="${x(gi) - 6}" y="${Tp + 10}" text-anchor="end">${esc(T.grant)}</text>`;
+    for (let v = 0; v <= top; v += tstep) s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v} %</text>`;
+    s += xTicks(win.from, n, xi, W - L - R, H);
+    s += `<polyline class="line" points="${pts.map((p) => `${x(p)},${y(p.bev_share)}`).join(" ")}"/>`;
+    pts.forEach((p) => { s += `<circle class="hit" cx="${x(p)}" cy="${y(p.bev_share)}" r="5"><title>${esc(T.tipShare(p))}</title></circle>`; });
+    const g = window.EvWave && pts.find((p) => p.month === window.EvWave.GRANT_FROM);
+    if (g) s += `<line class="grant" x1="${x(g)}" x2="${x(g)}" y1="${Tp}" y2="${H - B}"/><text x="${x(g) - 6}" y="${Tp + 10}" text-anchor="end">${esc(T.grant)}</text>`;
     const last = pts[pts.length - 1];
-    if (last) s += `<circle class="dot" cx="${x(pts.length - 1)}" cy="${y(last.bev_share)}" r="4"/><text x="${x(pts.length - 1) + 6}" y="${y(last.bev_share) + 4}" style="fill:var(--ink);font-weight:700">${pct(last.bev_share)}</text>`;
+    if (last) s += `<circle class="dot" cx="${x(last)}" cy="${y(last.bev_share)}" r="4"/><text x="${x(last) + 6}" y="${y(last.bev_share) + 4}" style="fill:var(--ink);font-weight:700">${pct(last.bev_share)}</text>`;
     return s + "</svg>";
   }
+
+  // months from a to b, "YYYY-MM"
+  const span = (a, b) => { const out = []; for (let i = M(a); i <= M(b); i++) out.push(mon(i)); return out; };
 
   // One line per picked model, on one scale. field "total" or "bev". Months before a model's first
-  // registration are left out; a month with no row after that counts as 0.
-  function lines(series, field, title) {
-    const W = 860, H = 280, L = 52, R = 12, Tp = 14, B = 28;
-    const end = summary.month;
-    const start = series.map((x) => x.rows[0]?.month).filter(Boolean).sort()[0] || end;
-    const months = [];
-    for (let y0 = +start.slice(0, 4), m0 = +start.slice(5); `${y0}-${String(m0).padStart(2, "0")}` <= end; m0 === 12 ? (y0++, m0 = 1) : m0++) months.push(`${y0}-${String(m0).padStart(2, "0")}`);
+  // registration are left out; a month with no row after that counts as 0. Only the months in win.
+  function lines(series, field, title, win) {
+    const [W, H] = size("model-chart", 280), L = 52, R = 12, Tp = 14, B = 28;
+    const months = span(win.from, win.to);
     const vals = series.map((x) => {
       // plug-in hybrids are only counted on their own since 2021: no line before that
       const by = Object.fromEntries(x.rows.map((r) => [r.month, field === "phev" && r.phev == null ? null : parts(r)[field] || 0]));
-      const first = x.rows[0]?.month || end;
+      const first = x.rows[0]?.month || summary.month;
       return months.map((mo) => mo < first ? null : mo in by ? by[mo] : 0);
     });
     const max = Math.max(1, ...vals.flat().filter((v) => v != null));
-    const mag = Math.pow(10, Math.floor(Math.log10(max))), f = max / mag;
-    const step = mag * (f > 5 ? 2 : f > 2 ? 1 : 0.5);
-    const top = Math.ceil(max / step) * step;
+    const step = yStep(max), top = Math.ceil(max / step) * step;
     const x = (i) => L + (i * (W - L - R)) / Math.max(months.length - 1, 1);
     const y = (v) => Tp + (1 - v / top) * (H - Tp - B);
     let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">`;
     for (let v = 0; v <= top + 1e-9; v += step) s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${num(v)}</text>`;
-    months.forEach((mo, i) => { if (mo.endsWith("-01") || (i === 0 && months.length < 12)) s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${mo.slice(0, 4)}</text>`; });
+    s += xTicks(win.from, months.length, x, W - L - R, H);
     vals.forEach((v, k) => {
       const pts = v.map((val, i) => val == null ? null : `${x(i).toFixed(1)},${y(val).toFixed(1)}`).filter(Boolean);
       s += `<polyline class="cmp-line" style="stroke:${color(k)}" points="${pts.join(" ")}"/>`;
@@ -231,6 +239,11 @@
     if (picked.length) u.searchParams.set("model", picked.join(",")); else u.searchParams.delete("model");
     if (split === "fuel") u.searchParams.set("by", "fuel"); else u.searchParams.delete("by");
     if (field !== "total") u.searchParams.set("fuel", field); else u.searchParams.delete("fuel");
+    // time range: ?last=12 (the latest months, moves on with new data) or ?from=2023-01&to=2024-12
+    ["last", "from", "to"].forEach((k) => u.searchParams.delete(k));
+    const w = range && range.get();
+    if (w && w.last > 0) u.searchParams.set("last", w.last);
+    else if (w && w.last < 0) { u.searchParams.set("from", w.from); u.searchParams.set("to", w.to); }
     history.replaceState(null, "", u.href.replace(/%2C/g, ","));  // slugs never hold a comma
   }
 
@@ -242,6 +255,19 @@
     $("picked").hidden = !picked.length;
     q.placeholder = picked.length ? T.addMore : q.dataset.placeholder;
   }
+
+  // The time range under the model chart. draw() repaints the chart for the range picked.
+  let range = null, rangeAsked = {}, draw = () => {};
+  function setRange(domain, values) {
+    if (!range) range = AlloRange.create($("model-range"), { domain, values, value: rangeAsked, onInput: () => draw(), onChange: () => save(true) });
+    return range.set(domain, values);
+  }
+  // one number per month from a to b, gaps as 0
+  const perMonth = (a, b, rowsList, f) => {
+    const sum = {};
+    rowsList.forEach((rows) => rows.forEach((r) => { sum[r.month] = (sum[r.month] || 0) + (f(r) || 0); }));
+    return span(a, b).map((mo) => sum[mo] || 0);
+  };
 
   let drawn = 0;
   async function show(push) {
@@ -264,7 +290,11 @@
       </div>`;
       seg(["ev", "fuel"], split, (k) => T.split[k], "split");
       legend(split === "fuel" ? FUELS.map((f) => [FCOL[f], T.fuels[f]]) : [["var(--car-2)", T.fuels.bev], ["var(--fuel)", T.rest, ".55"]], split === "fuel" && rows[0] && rows[0].month < "2021-01");
-      $("model-chart").innerHTML = bars(rows, m ? T.chartModel(label(m)) : T.chartAll, split);
+      const dom = rows.length ? [rows[0].month, rows[rows.length - 1].month] : [summary.month, summary.month];
+      const n = M(dom[1]) - M(dom[0]) + 1;
+      setRange(dom, perMonth(dom[0], dom[1], [rows], (r) => r.total));
+      draw = () => { const w = range.get(); $("model-chart").innerHTML = bars(rows, m ? T.chartModel(label(m)) : T.chartAll, split, w, w.months === n); };
+      draw();
       return;
     }
     $("model-title").textContent = T.cmpTitle(ms.length);
@@ -276,7 +306,11 @@
     $("model-out").innerHTML = `<div class="ac-table-wrap"><table class="ac-table cmp"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
     seg(LINE_FIELDS, field, (k) => T.fuels[k], "field");
     legend([], (field === "phev" || field === "hev") && all.some((r) => r[0] && r[0].month < "2021-01"));
-    $("model-chart").innerHTML = lines(ms.map((m, k) => ({ m, rows: all[k] })), field, T.chartCmp(field));
+    const series = ms.map((m, k) => ({ m, rows: all[k] }));
+    const dom = [all.map((r) => r[0]?.month).filter(Boolean).sort()[0] || summary.month, summary.month];
+    setRange(dom, perMonth(dom[0], dom[1], all, (r) => field === "total" ? r.total : parts(r)[field]));
+    draw = () => { $("model-chart").innerHTML = lines(series, field, T.chartCmp(field), range.get()); };
+    draw();
   }
 
   // the toggle above the chart, and the colour key under it
@@ -319,6 +353,11 @@
       });
   }
 
+  let shareDraw = () => {};
+  // charts follow the width they are shown at
+  let rz, lastW = innerWidth;
+  addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (innerWidth === lastW) return; lastW = innerWidth; draw(); shareDraw(); }, 200); });
+
   const shiftYear = (m) => `${+m.slice(0, 4) - 1}${m.slice(4)}`;
 
   // "a,b" -> known slugs; each part may also be a name like "VW Golf"
@@ -344,7 +383,13 @@
     $("market-line").textContent = T.marketLine(s);
     $("top-all").innerHTML = table(s.top_models, "total");
     $("top-ev").innerHTML = table(s.top_electric, "bev");
-    $("share-chart").innerHTML = shareLine(mk);
+    const sp = mk.filter((r) => r.bev_share != null);
+    if (sp.length) {
+      const paintShare = (w) => { $("share-chart").innerHTML = shareLine(mk, w); };
+      const sr = AlloRange.create($("share-range"), { domain: [sp[0].month, sp[sp.length - 1].month], values: sp.map((r) => r.bev_share), onInput: paintShare });
+      paintShare(sr.get());
+      shareDraw = () => paintShare(sr.get());
+    }
     wave(mk, s);
     const qs = new URLSearchParams(location.search);
     const asked = parse(qs.get("model") || qs.get("models"));
@@ -353,6 +398,9 @@
     picked = qs.has("model") || qs.has("models") ? asked : remembered.slice(0, MAX);
     if (qs.get("by") === "fuel") split = "fuel";
     if (LINE_FIELDS.includes(qs.get("fuel"))) field = qs.get("fuel");
+    const okM = (v) => /^\d{4}-\d{2}$/.test(v || "");
+    if (+qs.get("last") > 0) rangeAsked = { last: Math.round(+qs.get("last")) };
+    else if (okM(qs.get("from")) || okM(qs.get("to"))) rangeAsked = { from: okM(qs.get("from")) ? qs.get("from") : null, to: okM(qs.get("to")) ? qs.get("to") : null };
     await show(false);
   }
 
