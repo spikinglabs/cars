@@ -10,6 +10,18 @@
   },
   "tools": [
     {
+      "name": "buying_electric",
+      "title": "Buying an electric car in Germany",
+      "url": "https://cars.allo.land/electric/",
+      "description": "Entry page for EV buyers: the E-Auto grant for an income and children, energy cost per 100 km of a typical electric car at home and public prices against a petrol car at this week's prices, public charging in numbers, the most registered electric models last month and recent high-voltage battery recalls, each linking to the full tool.",
+      "parameters": {
+        "income": "taxable household income in € a year",
+        "kids": "children under 18: 0, 1 or 2"
+      },
+      "url_de": "https://cars.allo.land/de/electric/",
+      "url_zh": "https://cars.allo.land/zh/electric/"
+    },
+    {
       "name": "car_profile",
       "title": "My cars: one page per car model",
       "url": "https://cars.allo.land/cars/",
