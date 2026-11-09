@@ -55,7 +55,8 @@
   #picked { margin: calc(-1 * var(--space-2)) 0 var(--space-4); }
   #pick-note { margin: 0 0 var(--space-3); }
   #modelseg { margin-bottom: var(--space-3); }
-  #picked[hidden], #modelseg[hidden], #model-legend[hidden] { display: none; }
+  #picked[hidden], #model-legend[hidden], #model-note[hidden] { display: none; }
+  #model-note { margin: 0 0 var(--space-2); }
   .cmp-line { fill: none; stroke-width: 2.25; stroke-linejoin: round; }
   .combo__list li.is-picked { background: var(--surface-200); }
   .combo__list li.combo__more { justify-content: center; color: var(--ink); text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
@@ -114,8 +115,9 @@
         <p class="ac-caption" id="pick-note" role="status" hidden></p>
         <h2 class="ac-card__title" id="model-title">…</h2>
         <div id="model-out"><div class="ac-readouts"><div class="ac-readout"><div class="ac-readout__value">…</div><div class="ac-readout__basis">加载中</div></div></div></div>
-        <div class="ac-seg" id="modelseg" role="group" aria-label="哪些登记" hidden><button type="button" data-view="total" aria-pressed="true">全部新车</button><button type="button" data-view="bev" aria-pressed="false">仅纯电动</button></div>
-        <div class="ac-legend" id="model-legend"><span><i style="border-color:var(--car-2);border-top-width:8px"></i>纯电动 (BEV)</span><span><i style="border-color:var(--fuel);border-top-width:8px;opacity:.55"></i>汽油、柴油和混动</span></div>
+        <div class="ac-seg" id="modelseg" role="group" aria-label="哪些登记"></div>
+        <div class="ac-legend" id="model-legend"></div>
+        <p class="ac-caption" id="model-note" hidden></p>
         <div class="ac-chart" id="model-chart"></div>
       </section>
 
@@ -205,6 +207,6 @@
   </main>
 </div>
 <script src="/registrations/wave.js?v=f9d5f95b13"></script>
-<script src="/registrations/app.js?v=82de6c6feb"></script>
+<script src="/registrations/app.js?v=bc29ce8cda"></script>
 </body>
 </html>

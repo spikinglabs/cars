@@ -18,9 +18,13 @@
     wShare: (m) => `${m}纯电动占比`, wAgo: (v) => `一年前为 ${v}`, wYtd: (y, n) => `${y} 年前 ${n} 个月的纯电动新车`, wYtdVs: (c) => `比去年同期${c > 0 ? "多" : "少"} ${Math.abs(c).toLocaleString("zh-CN")} %`,
     wGrant: "补贴开始以来的纯电动占比", wBefore: (v) => `之前 12 个月为 ${v}`, grant: "电动车补贴", wNew: "新的电动版本", wMore: (n) => `多 ${n} 辆`,
     addMore: "添加车型进行对比", remove: (n) => `移除 ${n}`, more: (n) => `再显示 ${n} 款`, mo: "/ 12 个月", older: "较早数据",
-    cmpTitle: (n) => `${n} 款车型对比`, pickFirst: "在上方选择一款或多款车型。", full: (n) => `最多同时对比 ${n} 款车型。请先移除一款。`,
+    cmpTitle: (n) => `${n} 款车型对比`, full: (n) => `最多同时对比 ${n} 款车型。请先移除一款。`,
     thModel: "车型", thRank: "排名", thYear: "12 个月", thBev: "纯电占比",
-    chartCmp: (bev) => bev ? "每月纯电动新车登记量" : "每月新车登记量",
+    chartCmp: (f) => f === "total" ? "每月新车登记量" : `每月新车登记量：${T.fuels[f]}`,
+    all: "全部车型", chartAll: "每月新车登记量：全部车型", latestAll: (m) => `${m}新车登记`, segLabel: "显示内容",
+    split: { ev: "是否电动", fuel: "按动力类型" }, rest: "汽油、柴油和混动",
+    fuels: { total: "全部新车", bev: "纯电动 (BEV)", phev: "插电混动", hev: "其他混动", diesel: "柴油", petrol: "汽油及其他" },
+    phevNote: "2021 年以前的统计没有单独列出插电混动，它们算在“其他混动”里。",
   } : de ? {
     locale: "de-DE", months: (n) => `${n} Monate`, failed: "Die Daten konnten nicht geladen werden: ",
     latest: (m) => `Neuzulassungen im ${m}`, rank: (r, n) => r ? `Platz ${r} von ${n} Modellen` : "nicht in der Rangliste",
@@ -34,9 +38,13 @@
     wShare: (m) => `Elektroanteil im ${m}`, wAgo: (v) => `vor einem Jahr ${v}`, wYtd: (y, n) => `neue E-Autos in den ersten ${n} Monaten ${y}`, wYtdVs: (c) => `${c > 0 ? "+" : ""}${c.toLocaleString("de-DE")} % zum Vorjahr`,
     wGrant: "Elektroanteil seit Start der Förderung", wBefore: (v) => `in den 12 Monaten davor ${v}`, grant: "E-Auto-Förderung", wNew: "neue Elektroversion", wMore: (n) => `${n} mehr`,
     addMore: "Modell zum Vergleich", remove: (n) => `${n} entfernen`, more: (n) => `${n} weitere zeigen`, mo: "/ 12 Mon.", older: "ältere Daten",
-    cmpTitle: (n) => `${n} Modelle im Vergleich`, pickFirst: "Wähle oben ein oder mehrere Modelle.", full: (n) => `Höchstens ${n} Modelle auf einmal. Entferne erst eines.`,
+    cmpTitle: (n) => `${n} Modelle im Vergleich`, full: (n) => `Höchstens ${n} Modelle auf einmal. Entferne erst eines.`,
     thModel: "Modell", thRank: "Platz", thYear: "12 Monate", thBev: "Elektro",
-    chartCmp: (bev) => bev ? "Elektrische Neuzulassungen pro Monat" : "Neuzulassungen pro Monat",
+    chartCmp: (f) => f === "total" ? "Neuzulassungen pro Monat" : `Neuzulassungen pro Monat: ${T.fuels[f]}`,
+    all: "Alle Modelle", chartAll: "Neuzulassungen pro Monat, alle Modelle", latestAll: (m) => `Neue Pkw im ${m}`, segLabel: "Was zeigen",
+    split: { ev: "Elektrisch oder nicht", fuel: "Nach Antrieb" }, rest: "Benzin, Diesel und Hybrid",
+    fuels: { total: "Alle neuen Autos", bev: "Elektrisch (BEV)", phev: "Plug-in-Hybrid", hev: "Andere Hybride", diesel: "Diesel", petrol: "Benzin und Sonstige" },
+    phevNote: "Bis 2020 zählt die Statistik Plug-in-Hybride nicht getrennt, sie stecken in „Andere Hybride“.",
   } : {
     locale: "en-GB", months: (n) => `${n} months`, failed: "Could not load data: ",
     latest: (m) => `New registrations in ${m}`, rank: (r, n) => r ? `Rank ${r} of ${n} models` : "not ranked",
@@ -50,12 +58,15 @@
     wShare: (m) => `Electric share in ${m}`, wAgo: (v) => `a year before: ${v}`, wYtd: (y, n) => `new electric cars in the first ${n} months of ${y}`, wYtdVs: (c) => `${c > 0 ? "+" : ""}${c.toLocaleString("en-GB")} % on a year before`,
     wGrant: "Electric share since the grant started", wBefore: (v) => `the 12 months before: ${v}`, grant: "E-Auto grant", wNew: "new electric version", wMore: (n) => `${n} more`,
     addMore: "Add a model to compare", remove: (n) => `Remove ${n}`, more: (n) => `Show ${n} more`, mo: "/ 12 mo", older: "older data",
-    cmpTitle: (n) => `${n} models compared`, pickFirst: "Pick one or more models above.", full: (n) => `Up to ${n} models at once. Remove one first.`,
+    cmpTitle: (n) => `${n} models compared`, full: (n) => `Up to ${n} models at once. Remove one first.`,
     thModel: "Model", thRank: "Rank", thYear: "12 months", thBev: "Electric",
-    chartCmp: (bev) => bev ? "New electric registrations per month" : "New registrations per month",
+    chartCmp: (f) => f === "total" ? "New registrations per month" : `New registrations per month: ${T.fuels[f]}`,
+    all: "All models", chartAll: "New registrations per month, all models", latestAll: (m) => `New cars in ${m}`, segLabel: "What to show",
+    split: { ev: "Electric or not", fuel: "By fuel type" }, rest: "Petrol, diesel and hybrid",
+    fuels: { total: "All new cars", bev: "Electric (BEV)", phev: "Plug-in hybrid", hev: "Other hybrid", diesel: "Diesel", petrol: "Petrol and other" },
+    phevNote: "Before 2021 the statistics do not count plug-in hybrids on their own; they are in Other hybrid.",
   };
   const KEY = "allo-cars-registrations-model";
-  const DEFAULT = "volvo-ex30";
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const num = (v) => v == null ? "–" : Number(v).toLocaleString(T.locale);
@@ -88,7 +99,16 @@
     return has.sort((a, b) => (b.last_12_months || 0) - (a.last_12_months || 0))[0] || null;
   }
 
-  function bars(rows, title) {
+  // The KBA counts hybrid with plug-in hybrids in it (plug-ins on their own only since 2021) and
+  // gives no petrol column: petrol and other is what is left of the total.
+  const FUELS = ["bev", "phev", "hev", "diesel", "petrol"];
+  const FCOL = { bev: "var(--car-2)", phev: "var(--series-3)", hev: "var(--series-4)", diesel: "var(--fuel)", petrol: "var(--series-2)" };
+  const parts = (r) => {
+    const t = r.total || 0, d = r.diesel || 0, h = r.hybrid || 0, e = r.bev || 0, p = Math.min(r.phev || 0, h);
+    return { total: t, bev: e, phev: p, hev: h - p, diesel: d, petrol: Math.max(0, t - d - h - e) };
+  };
+
+  function bars(rows, title, split) {
     const W = 860, H = 260, L = 52, R = 12, Tp = 14, B = 28;
     const max = Math.max(1, ...rows.map((r) => r.total || 0));
     const step = Math.pow(10, Math.floor(Math.log10(max))) * (max / Math.pow(10, Math.floor(Math.log10(max))) > 5 ? 2 : max / Math.pow(10, Math.floor(Math.log10(max))) > 2 ? 1 : 0.5);
@@ -101,10 +121,22 @@
     rows.forEach((r, i) => {
       const x = x0 + i * bw + bw * 0.12, w = Math.max(bw * 0.76, 1);
       const t = r.total || 0, e = Math.min(r.bev || 0, t);
-      s += `<g><title>${esc(T.tipModel(r))}</title>`;
-      if (t - e > 0) s += `<rect class="b-rest" x="${x}" y="${y(t)}" width="${w}" height="${y(e) - y(t)}"/>`;
-      if (e > 0) s += `<rect class="b-ev" x="${x}" y="${y(e)}" width="${w}" height="${y(0) - y(e)}"/>`;
-      s += "</g>";
+      if (split === "fuel") {
+        const pt = parts(r);
+        s += `<g><title>${esc(`${month(r.month)}: ${num(t)}\n` + FUELS.map((f) => `${T.fuels[f]}: ${num(pt[f])}`).join("\n"))}</title>`;
+        let acc = 0;
+        for (const f of FUELS) {
+          if (pt[f] <= 0) continue;
+          s += `<rect x="${x}" y="${y(acc + pt[f])}" width="${w}" height="${y(acc) - y(acc + pt[f])}" style="fill:${FCOL[f]}"/>`;
+          acc += pt[f];
+        }
+        s += "</g>";
+      } else {
+        s += `<g><title>${esc(T.tipModel(r))}</title>`;
+        if (t - e > 0) s += `<rect class="b-rest" x="${x}" y="${y(t)}" width="${w}" height="${y(e) - y(t)}"/>`;
+        if (e > 0) s += `<rect class="b-ev" x="${x}" y="${y(e)}" width="${w}" height="${y(0) - y(e)}"/>`;
+        s += "</g>";
+      }
       if (r.month.endsWith("-01") || (i === 0 && rows.length < 12)) s += `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle">${r.month.slice(0, 4)}</text>`;
     });
     return s + "</svg>";
@@ -139,9 +171,10 @@
     const months = [];
     for (let y0 = +start.slice(0, 4), m0 = +start.slice(5); `${y0}-${String(m0).padStart(2, "0")}` <= end; m0 === 12 ? (y0++, m0 = 1) : m0++) months.push(`${y0}-${String(m0).padStart(2, "0")}`);
     const vals = series.map((x) => {
-      const by = Object.fromEntries(x.rows.map((r) => [r.month, r[field] || 0]));
+      // plug-in hybrids are only counted on their own since 2021: no line before that
+      const by = Object.fromEntries(x.rows.map((r) => [r.month, field === "phev" && r.phev == null ? null : parts(r)[field] || 0]));
       const first = x.rows[0]?.month || end;
-      return months.map((mo) => mo < first ? null : by[mo] || 0);
+      return months.map((mo) => mo < first ? null : mo in by ? by[mo] : 0);
     });
     const max = Math.max(1, ...vals.flat().filter((v) => v != null));
     const mag = Math.pow(10, Math.floor(Math.log10(max))), f = max / mag;
@@ -173,7 +206,9 @@
 
   const MAX = 6;
   const color = (k) => `var(--series-${k + 1})`;
-  let models = [], summary = null, picked = [], view = "total";
+  let models = [], summary = null, market = [], picked = [];
+  let split = "ev", field = "total";  // bars: electric or not / by fuel type; lines: which registrations
+  const LINE_FIELDS = ["total", ...FUELS];
   const cache = {};
   const monthsOf = (m) => cache[m.slug] || (cache[m.slug] = fetch(AlloSite.data("registrations", m.file)).then((r) => r.json()).then((d) => d.months));
   const bySlug = (slug) => models.find((x) => x.slug === slug);
@@ -194,6 +229,8 @@
     if (!push) return;
     const u = new URL(location.href);
     if (picked.length) u.searchParams.set("model", picked.join(",")); else u.searchParams.delete("model");
+    if (split === "fuel") u.searchParams.set("by", "fuel"); else u.searchParams.delete("by");
+    if (field !== "total") u.searchParams.set("fuel", field); else u.searchParams.delete("fuel");
     history.replaceState(null, "", u.href.replace(/%2C/g, ","));  // slugs never hold a comma
   }
 
@@ -212,26 +249,22 @@
     chips();
     const my = ++drawn;
     const ms = picked.map(bySlug);
-    if (!ms.length) {
-      $("model-title").textContent = T.pickFirst;
-      $("model-out").innerHTML = ""; $("model-chart").innerHTML = "";
-      $("model-legend").hidden = true; $("modelseg").hidden = true;
-      return;
-    }
     const all = await Promise.all(ms.map(monthsOf));
     if (my !== drawn) return;  // a newer pick came in while loading
     const ranked = models.filter((x) => x.rank).length;
-    if (ms.length === 1) {
-      const m = ms[0], rows = all[0], st = stats(m, rows);
-      $("model-title").textContent = label(m);
+    if (ms.length <= 1) {
+      // one model, or with none picked the whole market
+      const m = ms[0], rows = m ? all[0] : market, st = stats(m, rows);
+      $("model-title").textContent = m ? label(m) : T.all;
       $("model-out").innerHTML = `
       <div class="ac-readouts">
-        <div class="ac-readout"><div class="ac-readout__value">${num(st.current.total)}</div><div class="ac-readout__basis">${esc(T.latest(month(summary.month)))}. ${esc(T.rank(m.rank, ranked))}</div></div>
+        <div class="ac-readout"><div class="ac-readout__value">${num(st.current.total)}</div><div class="ac-readout__basis">${m ? `${esc(T.latest(month(summary.month)))}. ${esc(T.rank(m.rank, ranked))}` : esc(T.latestAll(month(summary.month)))}</div></div>
         <div class="ac-readout ac-readout--md"><div class="ac-readout__value">${num(st.year)}</div><div class="ac-readout__basis">${esc(T.year)}</div></div>
         <div class="ac-readout ac-readout--md"><div class="ac-readout__value">${st.yearBev ? pct(st.yearBev / st.year * 100) : "–"}</div><div class="ac-readout__basis">${esc(st.yearBev ? T.bev : T.bevNone)}</div></div>
       </div>`;
-      $("model-legend").hidden = false; $("modelseg").hidden = true;
-      $("model-chart").innerHTML = bars(rows, T.chartModel(label(m)));
+      seg(["ev", "fuel"], split, (k) => T.split[k], "split");
+      legend(split === "fuel" ? FUELS.map((f) => [FCOL[f], T.fuels[f]]) : [["var(--car-2)", T.fuels.bev], ["var(--fuel)", T.rest, ".55"]], split === "fuel" && rows[0] && rows[0].month < "2021-01");
+      $("model-chart").innerHTML = bars(rows, m ? T.chartModel(label(m)) : T.chartAll, split);
       return;
     }
     $("model-title").textContent = T.cmpTitle(ms.length);
@@ -241,9 +274,20 @@
       return `<tr><td><i class="sw" style="background:${color(k)}"></i>${esc(label(m))}</td><td class="num">${num(st.current.total)}</td><td class="num rk">${m.rank || "–"}</td><td class="num">${num(st.year)}</td><td class="num">${st.year ? pct(st.yearBev / st.year * 100) : "–"}</td></tr>`;
     }).join("");
     $("model-out").innerHTML = `<div class="ac-table-wrap"><table class="ac-table cmp"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
-    $("model-legend").hidden = true; $("modelseg").hidden = false;
-    document.querySelectorAll("#modelseg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
-    $("model-chart").innerHTML = lines(ms.map((m, k) => ({ m, rows: all[k] })), view, T.chartCmp(view === "bev"));
+    seg(LINE_FIELDS, field, (k) => T.fuels[k], "field");
+    legend([], (field === "phev" || field === "hev") && all.some((r) => r[0] && r[0].month < "2021-01"));
+    $("model-chart").innerHTML = lines(ms.map((m, k) => ({ m, rows: all[k] })), field, T.chartCmp(field));
+  }
+
+  // the toggle above the chart, and the colour key under it
+  function seg(keys, on, name, kind) {
+    $("modelseg").innerHTML = keys.map((k) => `<button type="button" data-${kind}="${k}" aria-pressed="${k === on}">${esc(name(k))}</button>`).join("");
+  }
+  function legend(items, note) {
+    $("model-legend").innerHTML = items.map(([c, t, o]) => `<span><i style="border-color:${c};border-top-width:8px${o ? `;opacity:${o}` : ""}"></i>${esc(t)}</span>`).join("");
+    $("model-legend").hidden = !items.length;
+    $("model-note").textContent = note ? T.phevNote : "";
+    $("model-note").hidden = !note;
   }
 
   // add a model (or say the list is full); picking one already there keeps it
@@ -290,22 +334,25 @@
   }
 
   async function load() {
-    const [idx, s, market] = await Promise.all([
+    const [idx, s, mk] = await Promise.all([
       fetch(AlloSite.data("registrations", "models.json")).then((r) => r.json()),
       fetch(AlloSite.data("registrations", "latest.json")).then((r) => r.json()),
       fetch(AlloSite.data("registrations", "market.csv")).then((r) => r.text()).then(parseCsv),
     ]);
-    models = idx.models; summary = s;
+    models = idx.models; summary = s; market = mk;
     $("asof").textContent = T.asof(month(s.month));
     $("market-line").textContent = T.marketLine(s);
     $("top-all").innerHTML = table(s.top_models, "total");
     $("top-ev").innerHTML = table(s.top_electric, "bev");
-    $("share-chart").innerHTML = shareLine(market);
-    wave(market, s);
+    $("share-chart").innerHTML = shareLine(mk);
+    wave(mk, s);
     const qs = new URLSearchParams(location.search);
     const asked = parse(qs.get("model") || qs.get("models"));
     const remembered = (local(KEY) || "").split(",").filter((x) => models.some((m) => m.slug === x));
-    picked = asked.length ? asked : remembered.length ? remembered.slice(0, MAX) : [models.some((m) => m.slug === DEFAULT) ? DEFAULT : s.top_models[0].slug];
+    // nothing picked shows all models
+    picked = qs.has("model") || qs.has("models") ? asked : remembered.slice(0, MAX);
+    if (qs.get("by") === "fuel") split = "fuel";
+    if (LINE_FIELDS.includes(qs.get("fuel"))) field = qs.get("fuel");
     await show(false);
   }
 
@@ -376,7 +423,13 @@
     remove(b.dataset.remove);
     show(true).catch(fail);
   });
-  document.querySelectorAll("#modelseg button").forEach((b) => b.addEventListener("click", () => { view = b.dataset.view; show(false).catch(fail); }));
+  $("modelseg").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.split) split = b.dataset.split;
+    if (b.dataset.field) field = b.dataset.field;
+    show(true).catch(fail);
+  });
   // a model named in the tables below joins the picked models
   document.addEventListener("click", (e) => {
     const a = e.target.closest && e.target.closest("a[data-slug]");
