@@ -56,11 +56,28 @@
     } catch (e) {}
   };
   // One "open" per page load, plus which section it was: /de/chargers/stats/ -> page_chargers.
+  // Sent once a person is plausibly there: after 3 s visible, or at the first tap, click, key or
+  // scroll, so scripts that load the page and leave aren't counted.
   (function () {
     var parts = location.pathname.split("/").filter(Boolean);
     if (parts[0] === "de" || parts[0] === "zh") parts.shift();
-    track("open");
-    track("page_" + (parts[0] ? parts[0].replace(/[^a-z0-9_-]/gi, "").toLowerCase().slice(0, 40) : "home"));
+    var events = ["pointerdown", "keydown", "scroll", "touchstart"], timer, sent = false;
+    function go() {
+      if (sent) return;
+      sent = true;
+      clearTimeout(timer);
+      events.forEach(function (e) { removeEventListener(e, go, true); });
+      document.removeEventListener("visibilitychange", onVisibility);
+      track("open");
+      track("page_" + (parts[0] ? parts[0].replace(/[^a-z0-9_-]/gi, "").toLowerCase().slice(0, 40) : "home"));
+    }
+    function onVisibility() {
+      clearTimeout(timer);
+      if (document.visibilityState === "visible") timer = setTimeout(go, 3000);
+    }
+    events.forEach(function (e) { addEventListener(e, go, { capture: true, passive: true }); });
+    document.addEventListener("visibilitychange", onVisibility);
+    onVisibility();
   })();
   document.addEventListener("click", function (e) {
     var el = e.target.closest && e.target.closest("[data-count], a[href]");
