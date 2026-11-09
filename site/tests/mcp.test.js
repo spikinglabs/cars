@@ -8,6 +8,8 @@ const load = () => import(pathToFileURL(path.join(__dirname, "../functions/mcp.j
 
 // R2 keys are <project>/public/<region>/<file>, as the data function reads them.
 const FILES = {
+  "registrations/public/de/latest.json": { month: "2026-03", source: "KBA", market: { total: 200 }, top_models: [], top_electric: [] },
+  "registrations/public/de/market.csv": "month,total,diesel,hybrid,phev,bev,petrol_etc,bev_share\n2025-03,200,0,0,0,40,0,20\n2025-12,100,0,0,0,20,0,20\n2026-01,200,0,0,0,50,0,25\n2026-03,200,0,0,0,80,0,40\n",
   "vehicle-catalog/public/de/models.json": { region: "DE", year: 2025, models: [
     { id: "volvo-ex30", make: "Volvo", model: "EX30", name: "Volvo EX30", fuel: "electric", kwh_per_100km: 17.1, registrations: 9000, year: 2025 },
     { id: "vw-golf-petrol", make: "Volkswagen", model: "Golf", name: "Volkswagen Golf", fuel: "petrol", l_per_100km: 5.6, registrations: 50000, year: 2025 },
@@ -165,6 +167,13 @@ test("used-car check keeps the build window and undated alerts, and asks about f
   assert.equal(r.eu[1].build_window_matches, null);
   assert.ok(r.ask_the_seller.some((q) => q.startsWith("Fire risk")));
   assert.equal(r.page, "https://cars.allo.land/recalls/?brand=volkswagen&model=golf&year=2019");
+});
+test("get_registrations: the electric wave since the grant", async () => {
+  const r = (await call("get_registrations", {})).structuredContent;
+  assert.equal(r.electric_wave.share, 40);
+  assert.equal(r.electric_wave.share_year_ago, 20);
+  assert.equal(r.electric_wave.since_grant.bev, 130);
+  assert.equal(r.electric_wave.grant_from, "2026-01");
 });
 test("used-car check gives the battery warranty left", async () => {
   const r = (await call("check_used_car", { make: "VW", model: "Golf", year: 2019, km: 150000 })).structuredContent;
