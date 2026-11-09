@@ -40,7 +40,8 @@
       fuel: String(c.fuel || "petrol").slice(0, 20),
       year: n(c.year, 1950, 2100) || 0,
       nick: String(c.nick || "").slice(0, 40),
-      cons: n(c.cons, 0.1, 60)
+      cons: n(c.cons, 0.1, 60),
+      v: String(c.v || "").slice(0, 80) // version (trim) id from the vehicle catalog, "" for every version
     };
   };
 

@@ -62,8 +62,8 @@ def make_name(raw: str) -> str | None:
     return " ".join(w.capitalize() if len(w) > 3 else w.capitalize() if not w.isalpha() else w.title() for w in words if w)
 
 
-def family(make: str, commercial_name: str) -> str | None:
-    """The model family in capitals, for example ID.7, MODEL Y, IONIQ 5, 3 SERIES, C3 AIRCROSS."""
+def name_words(make: str, commercial_name: str) -> list[str]:
+    """The commercial name in capitals, cleaned up and split into words, without leading words that repeat the make."""
     # "KONA. KAUAI", "GV60. GENESIS GV60", "KONA N.KAUAI N": the name, then the same in another language
     s = re.sub(r"(?<!\bID)\.(?:\s+|(?=[A-Z]{3}))", ",", ascii_upper(commercial_name))
     s = s.split(",")[0]
@@ -79,7 +79,13 @@ def family(make: str, commercial_name: str) -> str | None:
     mk = ascii_upper(make).replace(" ", "")
     while len(words) > 1 and (words[0] in MAKE_WORDS or words[0] == mk):
         words.pop(0)
-    if not words or not words[0]:
+    return [w for w in words if w]
+
+
+def family(make: str, commercial_name: str) -> str | None:
+    """The model family in capitals, for example ID.7, MODEL Y, IONIQ 5, 3 SERIES, C3 AIRCROSS."""
+    words = name_words(make, commercial_name)
+    if not words:
         return None
     first = re.sub(r"^E-(?=[A-Z]?\d)", "", words[0])  # E-208, E-C3: the electric one of a model
     if make == "BMW":

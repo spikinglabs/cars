@@ -115,3 +115,23 @@ def table_info(name: str) -> dict:
     stem = name.removeprefix("co2cars_")
     return {"table": name, "year": int(stem[:4]), "status": "final" if stem[4] == "F" else "provisional",
             "version": int(stem.split("v")[-1])}
+
+
+def versions_sql(table: str, *, min_registrations: int = 10) -> str:
+    """One row per make, commercial name, fuel type, variant code (Va) and power: the versions of a model.
+
+    Technical figures do not depend on the country, so they are summed over all countries; the registrations are
+    counted for Germany (n_de), the EU-27 (n_eu) and all countries (n). Range min/max show the spread from wheels and
+    options inside one version. Rows with fewer than `min_registrations` cars are mostly one-off imports with
+    placeholder figures and are left out."""
+    cols = ["Mk AS mk", "Cn AS cn", "Ft AS ft", "Va AS va", f"{POWER} AS kw", "SUM(R) AS n",
+            "SUM(CASE WHEN MS = 'DE' THEN R ELSE 0 END) AS n_de",
+            "SUM(CASE WHEN MS NOT IN ('IS', 'NO') THEN R ELSE 0 END) AS n_eu",
+            f"MIN({RANGE}) AS er_min", f"MAX({RANGE}) AS er_max"]
+    for key, col in FIGURES.items():
+        if key == "kw":
+            continue
+        cols.append(f"SUM(R * {col}) AS {key}_sum")
+        cols.append(f"SUM(CASE WHEN {col} IS NOT NULL THEN R ELSE 0 END) AS {key}_n")
+    return (f"SELECT {', '.join(cols)} FROM [CO2Emission].[latest].[{table}] "
+            f"WHERE Ft IS NOT NULL GROUP BY Mk, Cn, Ft, Va, {POWER} HAVING SUM(R) >= {min_registrations}")
