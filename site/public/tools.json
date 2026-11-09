@@ -6,7 +6,11 @@
     "url": "https://cars.allo.land/mcp",
     "transport": "streamable-http",
     "auth": "none",
+<<<<<<< HEAD
     "description": "Read-only MCP server with the same data as tools: official consumption per model, side-by-side comparison and rankings of models, safety, environment and breakdown ratings, recalls and used-car check, recall statistics, fuel, charging and electricity prices, new registrations and public chargers. Add it as a custom connector in Claude or any MCP client."
+=======
+    "description": "Read-only MCP server with the same data as tools: official consumption per model, side-by-side comparison of models, recalls and used-car check, recall statistics, fuel, charging and electricity prices, new registrations and public chargers. Add it as a custom connector in Claude or any MCP client."
+>>>>>>> origin/claude/project-thread-269eby
   },
   "tools": [
     {
@@ -26,7 +30,11 @@
       "name": "compare_cars",
       "title": "Compare car models side by side",
       "url": "https://cars.allo.land/compare/",
+<<<<<<< HEAD
       "description": "Up to four car models side by side: official WLTP consumption, CO2, power, mass and power per tonne (EEA catalog), cost per 100 km and per year at this week's German fuel price or charging prices, new registrations in Germany in the last 12 months and the latest rank (KBA), EU Safety Gate recalls that name each model, Euro NCAP and Green NCAP stars, and ADAC breakdowns per 1,000 cars. Rows that are the same can be hidden; the best value per row is marked.",
+=======
+      "description": "Up to four car models side by side: official WLTP consumption, CO2, power, mass and power per tonne (EEA catalog), cost per 100 km and per year at this week's German fuel price or charging prices, new registrations in Germany in the last 12 months and the latest rank (KBA), and EU Safety Gate recalls that name each model. Rows that are the same can be hidden; the best value per row is marked.",
+>>>>>>> origin/claude/project-thread-269eby
       "parameters": {
         "cars": "comma-separated vehicle catalog ids (id field of https://cars.allo.land/data/vehicle-catalog/de/models.json), 2 to 4",
         "km": "kilometres per year for the yearly cost (default 15000)",
@@ -38,6 +46,7 @@
       "url_zh": "https://cars.allo.land/zh/compare/"
     },
     {
+<<<<<<< HEAD
       "name": "car_rankings",
       "title": "Car rankings for Germany",
       "url": "https://cars.allo.land/rankings/",
@@ -52,6 +61,8 @@
       "url_zh": "https://cars.allo.land/zh/rankings/"
     },
     {
+=======
+>>>>>>> origin/claude/project-thread-269eby
       "name": "ev_charging_cost",
       "title": "EV charging cost per 100 km",
       "url": "https://cars.allo.land/ev-cost/",
