@@ -34,6 +34,8 @@ jobs:
         run: node --test site/tests/data-function.test.js
       - name: MCP endpoint tests
         run: node --test site/tests/mcp.test.js
+      - name: MCP chart series tests
+        run: node --test site/tests/mcp-charts.test.js
       - name: MCP usage log tests
         run: node --test site/tests/mcp-usage.test.js
       - name: My cars store tests
