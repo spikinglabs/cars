@@ -3,10 +3,8 @@ name: Collect charging data
 # Snapshots German EV charging prices and charger status into Cloudflare R2.
 # See pipelines/charging_prices/collect.py for what each tier stores.
 on:
-  schedule:
-    - cron: "7 * * * *"    # hourly: prices + charger status
-    - cron: "23 3 * * *"   # daily: Bundesnetzagentur register + storage check
-    - cron: "41 4 * * 1"   # weekly (Monday): locations + businesses
+  # Started on time by the Cloudflare cron Worker in workers/collect-cron (GitHub drops many
+  # scheduled runs); its SCHEDULE says when.
   workflow_dispatch:
     inputs:
       tier:
@@ -17,10 +15,9 @@ on:
 
 permissions:
   contents: read
-  actions: write # keepalive: re-enable this scheduled workflow
 
 concurrency:
-  group: collect-${{ github.event.schedule || inputs.tier }}
+  group: collect-${{ inputs.tier || 'hourly' }}
   cancel-in-progress: false
 
 env:
@@ -39,20 +36,5 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r pipelines/charging_prices/requirements.txt
-      - name: Pick tier
-        id: tier
-        run: |
-          case "${{ github.event.schedule }}" in
-            "23 3 * * *") echo "tier=daily" >> "$GITHUB_OUTPUT" ;;
-            "41 4 * * 1") echo "tier=weekly" >> "$GITHUB_OUTPUT" ;;
-            "") echo "tier=${{ inputs.tier || 'hourly' }}" >> "$GITHUB_OUTPUT" ;;
-            *) echo "tier=hourly" >> "$GITHUB_OUTPUT" ;;
-          esac
       - name: Collect
-        run: python -m pipelines.charging_prices.collect --tier ${{ steps.tier.outputs.tier }} --r2 "$R2_BUCKET" --prefix charging-prices
-      - name: Keep schedule alive
-        # GitHub disables schedules after 60 days without repo activity.
-        if: steps.tier.outputs.tier == 'daily'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/collect-charging-data.yml/enable"
+        run: python -m pipelines.charging_prices.collect --tier ${{ inputs.tier || 'hourly' }} --r2 "$R2_BUCKET" --prefix charging-prices

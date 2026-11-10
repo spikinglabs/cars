@@ -6,8 +6,8 @@ name: Collect vehicle catalog
 # Pushes that change the collector also run it, so a new version is checked against real data
 # before it is merged. It only ever writes to the vehicle-catalog/ folder.
 on:
-  schedule:
-    - cron: "17 5 3 * *"
+  # Started on time by the Cloudflare cron Worker in workers/collect-cron (GitHub drops many
+  # scheduled runs); its SCHEDULE says when.
   workflow_dispatch:
     inputs:
       table:

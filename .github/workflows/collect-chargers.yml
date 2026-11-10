@@ -5,10 +5,10 @@ name: Collect chargers
 # rebuilds the map files only when a newer file appears (about 1 minute, ~230 small files).
 # It also runs on pull requests that change the pipeline, so the site preview has data to show.
 on:
-  schedule:
-    - cron: "23 5 * * *"
   pull_request:
     paths: ["pipelines/chargers/**", ".github/workflows/collect-chargers.yml"]
+  # Started on time by the Cloudflare cron Worker in workers/collect-cron (GitHub drops many
+  # scheduled runs); its SCHEDULE says when.
   workflow_dispatch:
     inputs:
       force:

@@ -4,8 +4,8 @@ name: Collect electricity prices
 # shared EV bucket), for the cheapest time to charge at home. Tomorrow's prices are published around
 # 13:00 German time, so the job runs every hour in the afternoon and once after midnight.
 on:
-  schedule:
-    - cron: "25 0,11,12,13,14,15,16 * * *"
+  # Started on time by the Cloudflare cron Worker in workers/collect-cron (GitHub drops many
+  # scheduled runs); its SCHEDULE says when.
   workflow_dispatch:
 
 permissions:

@@ -1,0 +1,48 @@
+name: Deploy collect cron
+
+# Deploys the Cloudflare cron Worker that starts the collector workflows on time
+# (workers/collect-cron). Needs:
+#   - CLOUDFLARE_API_TOKEN with "Workers Scripts: Edit" (same token as the site deploy)
+#   - GH_DISPATCH_TOKEN: fine-grained GitHub token for spikinglabs/cars with
+#     "Actions: read and write"; stored as the Worker secret GITHUB_TOKEN
+on:
+  push:
+    branches: [main]
+    paths: ["workers/collect-cron/**", ".github/workflows/deploy-collect-cron.yml"]
+  pull_request:
+    paths: ["workers/collect-cron/**", ".github/workflows/deploy-collect-cron.yml", ".github/workflows/collect-*.yml", ".github/workflows/rollup-mcp-usage.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test workers/collect-cron/tests/schedule.test.js
+
+  deploy:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the dispatch token is set
+        env:
+          GH_DISPATCH_TOKEN: ${{ secrets.GH_DISPATCH_TOKEN }}
+        run: test -n "$GH_DISPATCH_TOKEN" || { echo "::error::Add the GH_DISPATCH_TOKEN repository secret (fine-grained token, Actions read and write)"; exit 1; }
+      - uses: cloudflare/wrangler-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_DISPATCH_TOKEN }}
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.R2_ACCOUNT_ID }}
+          workingDirectory: workers/collect-cron
+          command: deploy
+          secrets: |
+            GITHUB_TOKEN
