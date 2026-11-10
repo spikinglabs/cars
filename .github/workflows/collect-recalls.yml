@@ -4,8 +4,8 @@ name: Collect car recalls
 # for the models Allo Cars follows, into R2 (recalls/ in the shared EV bucket). The first runs work back
 # through older Safety Gate reports, about 12 minutes each, until 2019 is reached.
 on:
-  schedule:
-    - cron: "17 5 * * *"
+  # Started on time by the Cloudflare cron Worker in workers/collect-cron (GitHub drops many
+  # scheduled runs); its SCHEDULE says when.
   workflow_dispatch:
 
 permissions:

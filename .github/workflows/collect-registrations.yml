@@ -5,8 +5,8 @@ name: Collect car registrations
 # check finds it soon after. Only new or revised months are downloaded, 30 s apart as the
 # KBA's robots.txt asks, so the first run (every month since Dec 2018) takes about 50 minutes.
 on:
-  schedule:
-    - cron: "17 7 * * *"
+  # Started on time by the Cloudflare cron Worker in workers/collect-cron (GitHub drops many
+  # scheduled runs); its SCHEDULE says when.
   workflow_dispatch:
 
 permissions:

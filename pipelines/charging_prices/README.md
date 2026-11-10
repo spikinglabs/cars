@@ -13,11 +13,14 @@ The Bundesnetzagentur register files (CC BY 4.0) are archived as well.
 
 ## Schedule (`.github/workflows/collect-charging-data.yml`)
 
+Runs are started by the Cloudflare cron Worker in `workers/collect-cron` (GitHub's own
+schedule dropped most runs). The tier name "hourly" is kept, but it runs every two hours.
+
 | Tier | When | What is stored |
 | --- | --- | --- |
-| hourly | :07 every hour | sources, tariffs (OCPI 2.2 + 3.0), tariff associations (every fetch recorded: full copy when changed, otherwise a small `.same.json` pointer to the identical copy); charger status changes; first status snapshot of the day; public summary files |
-| daily | 03:23 UTC | new Bundesnetzagentur register files; storage usage check (fails above 8 GB) |
-| weekly | Monday 04:41 UTC | full locations and businesses |
+| hourly | every 2 hours at :37 UTC (even hours) | sources, tariffs (OCPI 2.2 + 3.0), tariff associations (EVSE and connector lists sorted, since the API shuffles them; every fetch recorded: full copy when changed, otherwise a small `.same.json` pointer to the identical copy); charger status changes; first status snapshot of the day; public summary files |
+| daily | 03:37 UTC | new Bundesnetzagentur register files; storage usage check (fails above 8 GB) |
+| weekly | Monday 05:37 UTC | full locations and businesses |
 
 ## Bucket layout
 

@@ -5,8 +5,8 @@ name: Collect car ratings
 # pages are read once, 3 s apart, at most 400 per source in one run, so the first run takes an hour or two and later runs a minute.
 # Pushes that change the collector also run it. It only ever writes to the ratings/ folder.
 on:
-  schedule:
-    - cron: "37 4 * * 1"
+  # Started on time by the Cloudflare cron Worker in workers/collect-cron (GitHub drops many
+  # scheduled runs); its SCHEDULE says when.
   workflow_dispatch:
   push:
     paths: ["pipelines/ratings/**", ".github/workflows/collect-ratings.yml"]

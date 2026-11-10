@@ -4,8 +4,8 @@ name: Collect fuel prices
 # into R2 (fuel-prices/). The bulletin updates once a week; a daily check
 # catches it soon after, and the raw workbook is stored only when it changed.
 on:
-  schedule:
-    - cron: "37 6 * * *"
+  # Started on time by the Cloudflare cron Worker in workers/collect-cron (GitHub drops many
+  # scheduled runs); its SCHEDULE says when.
   workflow_dispatch:
 
 permissions:

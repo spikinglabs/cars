@@ -1,0 +1,12 @@
+# Cron Worker that starts the collector workflows on time (see src/index.js).
+# Deployed by .github/workflows/deploy-collect-cron.yml.
+name = "allo-cars-collect-cron"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = false   # no public URL; it only runs on its schedule
+
+[triggers]
+crons = ["37 * * * *"]
+
+[observability]
+enabled = true
