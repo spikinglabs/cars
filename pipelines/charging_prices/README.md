@@ -15,7 +15,7 @@ The Bundesnetzagentur register files (CC BY 4.0) are archived as well.
 
 | Tier | When | What is stored |
 | --- | --- | --- |
-| hourly | :07 every hour | sources, tariffs (OCPI 2.2 + 3.0), tariff associations (only when changed); charger status changes; first status snapshot of the day; public summary files |
+| hourly | :07 every hour | sources, tariffs (OCPI 2.2 + 3.0), tariff associations (every fetch recorded: full copy when changed, otherwise a small `.same.json` pointer to the identical copy); charger status changes; first status snapshot of the day; public summary files |
 | daily | 03:23 UTC | new Bundesnetzagentur register files; storage usage check (fails above 8 GB) |
 | weekly | Monday 04:41 UTC | full locations and businesses |
 

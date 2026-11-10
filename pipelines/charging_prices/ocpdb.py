@@ -27,7 +27,7 @@ class Dataset:
 
 
 DATASETS: list[Dataset] = [
-    # Prices: fetched hourly, stored only when the content changed.
+    # Prices: fetched hourly; every fetch recorded, a full copy only when the content changed.
     Dataset("sources", "/v1/sources", "hourly", "Feeds merged into OCPDB, with licence and freshness"),
     Dataset("tariffs_ocpi22", "/ocpi/2.2/tariffs", "hourly", "Ad-hoc tariffs (OCPI 2.2 shape)"),
     Dataset("tariffs_ocpi30", "/ocpi/3.0/tariffs", "hourly", "Ad-hoc tariffs (OCPI 3.0 shape)"),
