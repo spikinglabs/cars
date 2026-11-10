@@ -4,7 +4,7 @@
     python -m pipelines.charging_prices.collect --tier daily --r2 <bucket> --prefix charging-prices
 
 Tiers:
-    hourly  prices (stored only when changed) + charger status changes
+    hourly  prices (every fetch recorded; full copy when changed) + charger status changes
     daily   Bundesnetzagentur register files + storage usage check
     weekly  full raw copy of locations and businesses
 
@@ -17,7 +17,8 @@ pipeline writes lives under one top-level folder, ``charging-prices/``
 
     charging-prices/
       raw/                                   source data exactly as fetched
-        ocpdb/<dataset>/YYYY/MM/DD/<ts>.jsonl.gz      every item, one per line
+        ocpdb/<dataset>/YYYY/MM/DD/<ts>.jsonl.gz      every item, one per line (when changed)
+        ocpdb/<dataset>/YYYY/MM/DD/<ts>.same.json     unchanged fetch: points to the identical copy
         ocpdb/<dataset>/latest.json                   manifest of the newest stored copy
         ocpdb/evse_status/YYYY/MM/DD/<ts>.csv.gz      first status snapshot of each day
         ocpdb/evse_status_changes/YYYY/MM/DD/<ts>.csv.gz   status changes since the last run
@@ -68,7 +69,11 @@ def _datepath(now: datetime) -> str:
 
 
 def collect_ocpdb(store, now: datetime, ts: str, names: list[str], log: list) -> dict[str, list[dict]]:
-    """Fetch raw datasets; store a copy only when it differs from the last stored one."""
+    """Fetch raw datasets and record every fetch.
+
+    A full copy is stored when the content differs from the last stored one; otherwise a
+    small ``<ts>.same.json`` pointer names the identical copy (same sha256).
+    """
     fetched: dict[str, list[dict]] = {}
     for name in names:
         ds = ocpdb.dataset(name)
@@ -83,9 +88,23 @@ def collect_ocpdb(store, now: datetime, ts: str, names: list[str], log: list) ->
         body = _gz_jsonl(items)
         digest = hashlib.sha256(body).hexdigest()
         previous = store.get(f"raw/ocpdb/{name}/latest.json")
-        if previous and json.loads(previous).get("sha256") == digest:
-            log.append({"dataset": name, "ok": True, "items": len(items), "stored": False, "reason": "unchanged"})
-            print(f"{name}: {len(items)} items, unchanged")
+        previous = json.loads(previous) if previous else None
+        if previous and previous.get("sha256") == digest:
+            # Same content as the last stored copy: record this snapshot as a small pointer
+            # instead of a duplicate copy, so every fetch is in the raw history.
+            pointer = {
+                "dataset": name,
+                "observed_at": now.isoformat(),
+                "items": len(items),
+                "total_count": total,
+                "same_as": previous["key"],
+                "sha256": digest,
+                "seconds": round(time.monotonic() - started, 1),
+            }
+            key = f"raw/ocpdb/{name}/{_datepath(now)}/{ts}.same.json"
+            store.put(key, _json(pointer), "application/json")
+            log.append({**pointer, "ok": True, "key": key, "stored": False, "reason": "unchanged"})
+            print(f"{name}: {len(items)} items, unchanged -> {key}")
             continue
         key = f"raw/ocpdb/{name}/{_datepath(now)}/{ts}.jsonl.gz"
         store.put(key, body, "application/x-ndjson")
