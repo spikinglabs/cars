@@ -24,7 +24,7 @@ pipeline writes lives under one top-level folder, ``charging-prices/``
         ocpdb/evse_status_changes/YYYY/MM/DD/<ts>.csv.gz   status changes since the last run
         bnetza/register/<original file name>          each register file once
       derived/                               our processed tables
-        tariffs/YYYY/MM/DD/<ts>.csv.gz                flat tariffs, all sources
+        tariffs/YYYY/MM/DD/<ts>.csv.gz                flat tariffs, all sources (when the tariffs changed)
       public/                                served at https://cars.allo.land/data/charging-prices/
         index.json                           regions, their files and last update
         de/                                  Germany (OCPDB covers Germany only)
@@ -68,6 +68,25 @@ def _datepath(now: datetime) -> str:
     return now.strftime("%Y/%m/%d")
 
 
+# Lists the API returns in a different order on every request. Their order carries no meaning,
+# so they are sorted before storing; otherwise every fetch would look changed.
+UNORDERED_LISTS = {"tariff_associations": ("evses", "connectors")}
+
+
+def canonical(name: str, items: list[dict]) -> list[dict]:
+    keys = UNORDERED_LISTS.get(name)
+    if not keys:
+        return items
+    out = []
+    for item in items:
+        item = dict(item)
+        for k in keys:
+            if isinstance(item.get(k), list):
+                item[k] = sorted(item[k], key=lambda v: json.dumps(v, sort_keys=True))
+        out.append(item)
+    return out
+
+
 def collect_ocpdb(store, now: datetime, ts: str, names: list[str], log: list) -> dict[str, list[dict]]:
     """Fetch raw datasets and record every fetch.
 
@@ -84,6 +103,7 @@ def collect_ocpdb(store, now: datetime, ts: str, names: list[str], log: list) ->
             log.append({"dataset": name, "ok": False, "error": repr(exc)})
             traceback.print_exc()
             continue
+        items = canonical(name, items)
         fetched[name] = items
         body = _gz_jsonl(items)
         digest = hashlib.sha256(body).hexdigest()
@@ -231,15 +251,17 @@ def publish_prices(
     associations: list[dict] | None = None,
     evses: list[dict] | None = None,
     operators: dict[str, str] | None = None,
+    tariffs_changed: bool = True,
 ) -> dict:
     licences = {s["uid"]: s.get("attribution_license") for s in sources}
     observed = now.isoformat()
     rows = normalize.flatten_tariffs(tariffs, licences, observed)
-    store.put(
-        f"derived/tariffs/{_datepath(now)}/{ts}.csv.gz",
-        gzip.compress(normalize.to_csv(rows, normalize.TARIFF_FIELDS), mtime=0),
-        "text/csv",
-    )
+    if tariffs_changed:  # derived from raw, so an unchanged copy adds nothing
+        store.put(
+            f"derived/tariffs/{_datepath(now)}/{ts}.csv.gz",
+            gzip.compress(normalize.to_csv(rows, normalize.TARIFF_FIELDS), mtime=0),
+            "text/csv",
+        )
     public_rows = [r for r in rows if r["licence"] in normalize.OPEN_LICENCES]
     summary = normalize.summarize(rows)
     split = None
@@ -375,6 +397,7 @@ def run(store, tier: str, datasets: list[str] | None = None) -> dict:
         summary = publish_prices(
             store, now, ts, fetched["sources"], fetched["tariffs_ocpi22"],
             fetched.get("tariff_associations"), evses, operators,
+            tariffs_changed=any(e.get("dataset") == "tariffs_ocpi22" and e.get("stored") for e in log),
         )
     if tier == "daily" and not datasets:
         collect_bnetza(store, log)

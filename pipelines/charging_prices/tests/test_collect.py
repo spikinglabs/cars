@@ -34,6 +34,21 @@ class RawSnapshotTest(unittest.TestCase):
             self.assertTrue(third["stored"])
             self.assertEqual(len(store.list_keys("raw/ocpdb/tariffs_ocpi22/2026/11/10")), 3)
 
+    def test_association_order_does_not_count_as_change(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = LocalStore(tmp)
+            when = datetime(2026, 11, 10, 1, 7, tzinfo=timezone.utc)
+            a = [{"id": "1", "evses": [{"evse_uid": "b"}, {"evse_uid": "a"}], "connectors": []}]
+            b = [{"id": "1", "evses": [{"evse_uid": "a"}, {"evse_uid": "b"}], "connectors": []}]
+            logs = []
+            for i, items in enumerate([a, b]):
+                log = []
+                with mock.patch.object(ocpdb, "fetch_all", return_value=(items, 1)):
+                    collect.collect_ocpdb(store, when.replace(hour=1 + i), f"T{i}", ["tariff_associations"], log)
+                logs.append(log[0])
+            self.assertTrue(logs[0]["stored"])
+            self.assertFalse(logs[1]["stored"])
+
 
 if __name__ == "__main__":
     unittest.main()
