@@ -427,3 +427,31 @@
 /* an inline box (home page, My cars): the list drops down over the page */
 .ac-find--inline .ac-find__list { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); padding: 4px; background: var(--surface-100); border: 1.5px solid var(--ink); border-radius: var(--radius-sm, 10px); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
 .ac-find--inline { scroll-margin-top: 12px; }
+
+/* ---------- Recall bell in the header (assets/notices.js), the same as the notices bell on Allo Outings ---------- */
+.ac-top__right:has(.ac-notices) { position: relative; }
+.ac-notices { flex: none; }
+.ac-notices[hidden] { display: none; }
+.ac-notices > summary { position: relative; display: grid; place-items: center; width: 36px; height: 36px; box-sizing: border-box; border: 1px solid var(--border); background: var(--surface-100); color: var(--ink-muted); border-radius: 999px; cursor: pointer; list-style: none; }
+.ac-notices > summary::-webkit-details-marker { display: none; }
+.ac-notices > summary:hover, .ac-notices[open] > summary { color: var(--ink); }
+.ac-notices > summary:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--gold); }
+.ac-notices > summary svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ac-notices__dot { position: absolute; top: 5px; right: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 2px var(--surface-100); }
+.ac-notices__dot[hidden] { display: none; }
+.ac-notices__dot span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ac-notices__panel { position: absolute; z-index: 60; top: calc(100% + 6px); right: 0; width: min(360px, calc(100vw - 32px)); max-height: min(70vh, 520px); overflow-y: auto; overflow-wrap: anywhere; box-sizing: border-box; padding: 4px 14px 12px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-100); color: var(--ink); box-shadow: 0 8px 28px rgba(0,0,0,.18); font-size: 14px; line-height: 20px; }
+.ac-notices__panel p { margin: 6px 0 0; }
+.ac-notices__h { display: flex; justify-content: space-between; gap: 8px; margin: 10px 0 2px !important; font-weight: 700; font-size: 15px; }
+.ac-notices__h a { white-space: nowrap; font-weight: 400; font-size: 13px; }
+.ac-notices__car { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 4px; }
+.ac-notices__name { font-weight: 700; }
+.ac-notices__n, .ac-notices__panel small, .ac-notices__note { color: var(--ink-muted); font-size: 13px; }
+.ac-notices__panel ul { margin: 4px 0 0; padding: 0; list-style: none; }
+.ac-notices__panel li { margin: 0; padding: 6px 0; }
+.ac-notices__panel li + li { border-top: 1px dashed var(--border); }
+.ac-notices__panel li small { display: block; }
+.ac-notices__new { color: var(--danger); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: .04em; }
+.ac-notices__more { font-size: 13px; }
+.ac-notices__note { border-top: 1px solid var(--border); margin-top: 8px !important; padding-top: 8px; }
+.ac-notices__note + .ac-notices__note { border-top: 0; padding-top: 0; margin-top: 4px !important; }
