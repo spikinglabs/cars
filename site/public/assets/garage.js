@@ -16,6 +16,7 @@
  */
 (function () {
   "use strict";
+  if (window.AlloGarage) return; // loaded by the page and again by the header (for the recall bell)
   var KEY = "allo-cars-garage";
   var read = function () {
     try {

@@ -12,6 +12,7 @@
     <a href="/fuel-prices/">Fuel prices</a>
   </nav>
   <div class="ac-top__right">
+    <details class="ac-notices" data-notices hidden><summary aria-label="Recalls for my cars" title="Recalls for my cars" data-count="notices_open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><i class="ac-notices__dot" data-notices-dot hidden><span class="ac-sr">new</span></i></summary><div class="ac-notices__panel" role="region" aria-label="Recalls for my cars" data-notices-panel></div></details>
     <button type="button" class="ac-iconbtn" popovertarget="ac-find" aria-controls="ac-find" aria-label="Find a car" title="Find a car (/)" data-count="find_open"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
     {{langswitch}}
     <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Switch light or dark" title="Switch light or dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
@@ -25,6 +26,8 @@
   </form>
 </div>
 <script src="/assets/search.js" defer></script>
+<script src="/assets/garage.js" defer></script>
+<script src="/assets/notices.js" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
   <span class="ac-apphint__text" data-app-hint-text>Add Allo Cars to your home screen, it works like an app.</span>
   <button type="button" class="ac-apphint__go" data-app-hint-go hidden>Install</button>
