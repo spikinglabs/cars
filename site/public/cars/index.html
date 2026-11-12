@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My cars · Allo Cars</title>
-<meta name="description" content="Look up any car sold in Germany, or keep the ones you drive: official consumption and versions, what 100 km costs today, the EV grant, Euro NCAP and ADAC ratings, recalls, registrations and rankings. Saved on your device, no account.">
+<meta name="description" content="Keep every car you drive in one place: official consumption, what 100 km costs at today's prices, recalls for its build year and how many are registered in Germany. Saved on your device, no account.">
 <!-- chrome:head -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Allo Cars">
 <meta property="og:title" content="My cars · Allo Cars">
-<meta property="og:description" content="Look up any car sold in Germany, or keep the ones you drive: official consumption and versions, what 100 km costs today, the EV grant, Euro NCAP and ADAC ratings, recalls, registrations and rankings. Saved on your device, no account.">
+<meta property="og:description" content="Keep every car you drive in one place: official consumption, what 100 km costs at today's prices, recalls for its build year and how many are registered in Germany. Saved on your device, no account.">
 <meta property="og:url" content="https://cars.allo.land/cars/">
 <meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
 <meta property="og:image:width" content="512">
@@ -144,35 +144,26 @@
   </div>
 </header>
 <div class="ac-find" id="ac-find" popover role="dialog" aria-label="Find a car">
-  <form class="ac-find__form" action="/cars/" role="search" data-find>
+  <form class="ac-find__form" action="/car/" role="search" data-find>
     <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="Make and model, e.g. VW ID.3" aria-label="Find a car" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
     <button type="button" class="ac-iconbtn" popovertarget="ac-find" popovertargetaction="hide" aria-label="Close" title="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <ul class="ac-find__list" data-find-list role="listbox" aria-label="Find a car" hidden></ul>
   </form>
 </div>
-<script src="/assets/search.js?v=9f7605469a" defer></script>
+<script src="/assets/search.js?v=5a1dded372" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
   <span class="ac-apphint__text" data-app-hint-text>Add Allo Cars to your home screen, it works like an app.</span>
   <button type="button" class="ac-apphint__go" data-app-hint-go hidden>Install</button>
   <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="Dismiss">×</button>
 </aside>
 <!-- /chrome:header -->
-    <h1>Everything about <span class="ac-hl">any car</span></h1>
-    <p class="lead">Look up any car sold new in Germany, or add the ones you drive. Each car shows what 100 km costs at today's prices, its official consumption and versions, the EV grant, safety ratings, recalls, how many are on German roads and where it ranks. Your cars stay on this device. There is no account.</p>
+    <h1>Everything about <span class="ac-hl">your cars</span></h1>
+    <p class="lead">Add each car you drive. For every one you see what 100 km costs at today's prices, its official consumption, recalls that match its build year, and how many are on German roads. Your cars stay on this device. There is no account.</p>
     <div class="stack">
-      <section class="ac-card findcard" aria-labelledby="find-h">
-        <h2 class="ac-card__title" id="find-h">Find a car</h2>
-        <form class="ac-find__form ac-find--inline" id="find-inline" action="" role="search" data-find>
-          <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="Make and model, e.g. VW ID.3" aria-label="Find a car" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
-          <button class="ac-btn ac-btn--primary" type="submit">Search</button>
-          <ul class="ac-find__list" data-find-list role="listbox" aria-label="Find a car" hidden></ul>
-        </form>
-      </section>
-      <section class="ac-card" id="results" aria-live="polite" hidden></section>
       <section class="ac-card" aria-labelledby="yours-h">
         <h2 class="ac-card__title" id="yours-h">Your cars</h2>
         <div class="garage" id="garage"><button type="button" class="ac-btn ac-btn--primary" id="add-open">+ Add a car</button></div>
-        <p class="ac-caption" id="garage-none" hidden>No cars yet. Add the ones you drive, or look at the example below.</p>
+        <p class="ac-caption" id="garage-none" hidden>No cars yet. Add the ones you drive. To look at any other car, use the search at the top.</p>
         <form class="addform" id="addform" hidden autocomplete="off">
           <div class="row" id="pickrow">
             <label class="fld fld--wide combo"><span>Make and model</span>
@@ -209,9 +200,9 @@
     </div>
     <p class="ac-share__status" data-share-status role="status"></p>
     <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
-      <p class="ac-share__desc">Look up any car sold in Germany, or keep the ones you drive: official consumption and versions, what 100 km costs today, the EV grant, Euro NCAP and ADAC ratings, recalls, registrations and rankings. Saved on your device, no account.</p>
+      <p class="ac-share__desc">Keep every car you drive in one place: official consumption, what 100 km costs at today's prices, recalls for its build year and how many are registered in Germany. Saved on your device, no account.</p>
       <div class="ac-share__row">
-        <a href="https://wa.me/?text=My%20cars%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fcars%2F&amp;text=My%20cars%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=My%20cars%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=My%20cars%20%C2%B7%20Allo%20Cars&amp;body=Look%20up%20any%20car%20sold%20in%20Germany%2C%20or%20keep%20the%20ones%20you%20drive%3A%20official%20consumption%20and%20versions%2C%20what%20100%20km%20costs%20today%2C%20the%20EV%20grant%2C%20Euro%20NCAP%20and%20ADAC%20ratings%2C%20recalls%2C%20registrations%20and%20rankings.%20Saved%20on%20your%20device%2C%20no%20account.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fcars%2F" data-share-link data-count="share_email">Email</a>
+        <a href="https://wa.me/?text=My%20cars%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fcars%2F&amp;text=My%20cars%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=My%20cars%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=My%20cars%20%C2%B7%20Allo%20Cars&amp;body=Keep%20every%20car%20you%20drive%20in%20one%20place%3A%20official%20consumption%2C%20what%20100%20km%20costs%20at%20today%27s%20prices%2C%20recalls%20for%20its%20build%20year%20and%20how%20many%20are%20registered%20in%20Germany.%20Saved%20on%20your%20device%2C%20no%20account.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fcars%2F" data-share-link data-count="share_email">Email</a>
       </div>
     </div>
   </section>
@@ -271,6 +262,6 @@
   </main>
 </div>
 <script src="/ev-grant/grant.js?v=1adf9d7ece"></script>
-<script src="/cars/app.js?v=d5ef3ba351"></script>
+<script src="/cars/app.js?v=d4d313eafc"></script>
 </body>
 </html>

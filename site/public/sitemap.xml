@@ -6,6 +6,12 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/"/>
   </url>
+  <url><loc>https://cars.allo.land/car/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/car/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/car/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/car/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/car/"/>
+  </url>
   <url><loc>https://cars.allo.land/cars/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/cars/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/cars/"/>
@@ -114,6 +120,12 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/stats/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/stats/"/>
   </url>
+  <url><loc>https://cars.allo.land/de/car/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/car/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/car/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/car/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/car/"/>
+  </url>
   <url><loc>https://cars.allo.land/de/cars/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/cars/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/cars/"/>
@@ -203,6 +215,12 @@
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/registrations/"/>
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/registrations/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/registrations/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/car/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/car/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/car/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/car/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/car/"/>
   </url>
   <url><loc>https://cars.allo.land/zh/cars/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/cars/"/>

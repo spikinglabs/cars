@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Car details · Allo Cars</title>
+<meta name="description" content="Everything about one car model sold in Germany: official consumption and versions, what 100 km costs today, the EV grant, Euro NCAP and ADAC ratings, recalls, registrations and where it ranks. Add it to your cars or to a comparison.">
+<!-- chrome:head -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Allo Cars">
+<meta property="og:title" content="Car details · Allo Cars">
+<meta property="og:description" content="Everything about one car model sold in Germany: official consumption and versions, what 100 km costs today, the EV grant, Euro NCAP and ADAC ratings, recalls, registrations and where it ranks. Add it to your cars or to a comparison.">
+<meta property="og:url" content="https://cars.allo.land/car/">
+<meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Allo Cars">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" hreflang="en" href="https://cars.allo.land/car/">
+<link rel="alternate" hreflang="de" href="https://cars.allo.land/de/car/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/car/">
+<link rel="alternate" hreflang="x-default" href="https://cars.allo.land/car/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Allo Cars">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
+<!-- /chrome:head -->
+<link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=7326b9b9e9">
+<script src="/assets/site.js?v=b92c9c36d3"></script>
+<script src="/assets/garage.js?v=bfc7d02247"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; }
+  .stack { display: grid; gap: var(--space-5); }
+  .garage { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .garage .ac-chip { min-height: 44px; font-weight: 700; }
+  .garage .ac-chip small { font-weight: 400; opacity: .75; }
+  .addform { display: grid; gap: 12px; margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+  .addform[hidden], .manual[hidden] { display: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+  .fld { display: grid; gap: 4px; flex: 1 1 160px; min-width: 0; }
+  .fld--wide { flex: 3 1 260px; }
+  .fld > span { font: 600 13px/16px var(--font-sans); }
+  .fld input, .fld select { width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 600 16px/20px var(--font-sans); }
+  .manual { display: grid; gap: 12px; }
+  .linkbtn { background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline; font: inherit; cursor: pointer; justify-self: start; }
+  .combo { position: relative; }
+  .combo__list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; max-height: min(320px, 45vh); overflow-y: auto; background: var(--surface-100); border: 1.5px solid var(--ink); border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+  .combo__list li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 10px; min-height: 44px; box-sizing: border-box; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .combo__list li small { color: var(--ink-muted); font-weight: 400; white-space: nowrap; }
+  .combo__list li[aria-selected="true"], .combo__list li:hover { background: var(--surface-50); outline: 1.5px solid var(--ink); }
+  .combo__list li.combo__none { cursor: default; color: var(--ink-muted); outline: none; background: none; }
+  .head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+  .head h2 { margin: 0; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .acts.cmp { margin-top: var(--space-3); }
+  .rrow { display: grid; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .rrow:last-of-type { border-bottom: 0; }
+  .rlabel { font: 600 13px/16px var(--font-sans); color: var(--ink-muted); }
+  .rrow small { color: var(--ink-muted); }
+  .stars { font-size: 20px; letter-spacing: 1px; color: var(--gold-ink); text-decoration: none; }
+  .stars .off { color: var(--border); }
+  .rrow a:has(.stars) { text-decoration: none; }
+  .adac { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+  .adac span { display: grid; justify-items: center; min-width: 44px; padding: 4px 6px; border-radius: 6px; background: var(--surface-50); font-variant-numeric: tabular-nums; }
+  .adac span.on { outline: 2px solid var(--gold); }
+  .adac b { font-weight: 800; }
+  .adac small { font-size: 11px; }
+  .rrow .pct { font: 800 20px/24px var(--font-sans); color: var(--ink); text-decoration: none; font-variant-numeric: tabular-nums; }
+  .kidtab { overflow-x: auto; margin: 6px 0 2px; }
+  .kidtab table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .kidtab th, .kidtab td { padding: 6px 4px; text-align: left; border-bottom: 1px solid var(--border); }
+  .kidtab thead th { font-weight: 600; color: var(--ink-muted); }
+  .kidtab tbody th { font-weight: 500; }
+  .fit--standard { font-weight: 700; }
+  .fit--none, .kidtab .na { color: var(--ink-muted); }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+  .badges a { text-decoration: none; color: var(--ink); }
+  .slist { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: 10px; }
+  .slist li { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .slist a { color: var(--ink); font-weight: 600; }
+  .slist small { display: block; color: var(--ink-muted); }
+  .slist .ac-chip { min-height: 36px; white-space: nowrap; }
+  .slist .ac-chip[aria-pressed="true"] { color: var(--surface-100); }
+  .acts.cmp:empty { display: none; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-5); }
+  .ac-readouts { margin: var(--space-3) 0; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+  .links a { color: var(--ink); font-weight: 600; }
+  .rlist { margin: var(--space-3) 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .rlist li { display: grid; gap: 2px; }
+  .rlist a { color: var(--ink); font-weight: 600; }
+  .rlist small { color: var(--ink-muted); }
+  .spark { width: 100%; height: 80px; display: block; margin-top: var(--space-3); }
+  .spark rect { fill: var(--car-2); }
+  .ownc { margin-top: var(--space-3); }
+  .findcard { padding-bottom: var(--space-4); }
+  .findcard .ac-find__form { margin-top: var(--space-2); }
+  #results[hidden] { display: none; }
+  .jump { display: flex; gap: 6px; overflow-x: auto; margin: var(--space-3) -4px 0; padding: 2px 4px 4px; scrollbar-width: none; }
+  .jump::-webkit-scrollbar { display: none; }
+  .jump .ac-chip { flex: none; text-decoration: none; color: var(--ink); min-height: 36px; }
+  [id="cost"], [id="versions"], [id="grant"], [id="ratings"], [id="children"], [id="recalls"], [id="registrations"], [id="rankings"], [id="similar"] { scroll-margin-top: 12px; }
+  .ranks li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .ranks li:last-child { border-bottom: 0; }
+  .ranks li > b { font: 700 15px/20px var(--font-sans); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+  .ranks li > b.muted { color: var(--ink-muted); font-weight: 400; }
+  .ranks .why { grid-column: 1 / -1; color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="ac">
+  <div class="ac-flagbar"></div>
+  <main>
+    <!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/">Tools</a>
+    <a href="/cars/">My cars</a>
+    <a href="/compare/">Compare</a>
+    <a href="/chargers/">Charger map</a>
+    <a href="/ev-cost/">Charging cost</a>
+    <a href="/charging-prices/">Price archive</a>
+    <a href="/charge-times/">Best time</a>
+    <a href="/recalls/">Recalls</a>
+    <a href="/fuel-prices/">Fuel prices</a>
+  </nav>
+  <div class="ac-top__right">
+    <button type="button" class="ac-iconbtn" popovertarget="ac-find" aria-controls="ac-find" aria-label="Find a car" title="Find a car (/)" data-count="find_open"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
+    <details class="ac-langmenu" data-langmenu><summary aria-label="Language" title="Language"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>EN</span></summary><div class="ac-langmenu__list"><a class="ac-lang" href="/car/" hreflang="en" lang="en" data-lang="en" aria-current="true">English</a><a class="ac-lang" href="/de/car/" hreflang="de" lang="de" data-lang="de">Deutsch</a><a class="ac-lang" href="/zh/car/" hreflang="zh-Hans" lang="zh-Hans" data-lang="zh">简体中文</a></div></details>
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Switch light or dark" title="Switch light or dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="ac-find" id="ac-find" popover role="dialog" aria-label="Find a car">
+  <form class="ac-find__form" action="/car/" role="search" data-find>
+    <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="Make and model, e.g. VW ID.3" aria-label="Find a car" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
+    <button type="button" class="ac-iconbtn" popovertarget="ac-find" popovertargetaction="hide" aria-label="Close" title="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <ul class="ac-find__list" data-find-list role="listbox" aria-label="Find a car" hidden></ul>
+  </form>
+</div>
+<script src="/assets/search.js?v=5a1dded372" defer></script>
+<aside class="ac-apphint" data-app-hint hidden>
+  <span class="ac-apphint__text" data-app-hint-text>Add Allo Cars to your home screen, it works like an app.</span>
+  <button type="button" class="ac-apphint__go" data-app-hint-go hidden>Install</button>
+  <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="Dismiss">×</button>
+</aside>
+<!-- /chrome:header -->
+    <h1 id="car-h1">Car details</h1>
+    <p class="lead">Official figures and today's prices for this model. Add it to your cars to keep it, with your own consumption, or add it to a comparison.</p>
+    <div class="stack">
+      <section class="ac-card" id="results" aria-live="polite" hidden></section>
+      <div id="profile" aria-live="polite"><section class="ac-card"><p class="ac-caption">…</p></section></div>
+      <section class="ac-card findcard" aria-labelledby="find-h">
+        <h2 class="ac-card__title" id="find-h">Find another car</h2>
+        <form class="ac-find__form ac-find--inline" id="find-inline" action="/car/" role="search" data-find>
+          <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="Make and model, e.g. VW ID.3" aria-label="Find a car" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
+          <button class="ac-btn ac-btn--primary" type="submit">Search</button>
+          <ul class="ac-find__list" data-find-list role="listbox" aria-label="Find a car" hidden></ul>
+        </form>
+      </section>
+      <p class="ac-caption" style="margin:0">Official consumption is the EEA type-approval (WLTP) average for cars of that model newly registered in 2025. Real driving usually uses more; enter your own figure for a better number. Prices: the latest weekly fuel average and the median public ad-hoc charging price. Sources and licences: <a href="/open-data/">Data and sources</a>.</p>
+    </div>
+    <!-- chrome:footer -->
+<footer class="ac-foot">
+  <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Fcar%2F" data-share-done="Link copied" data-share-manual="Copy this link:">
+    <div class="ac-share__row">
+      <h2 id="share-h">Share this page</h2>
+      <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Copy link</span></button>
+      <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Share…</span></button>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>More</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
+    <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">Everything about one car model sold in Germany: official consumption and versions, what 100 km costs today, the EV grant, Euro NCAP and ADAC ratings, recalls, registrations and where it ranks. Add it to your cars or to a comparison.</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=Car%20details%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fcar%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fcar%2F&amp;text=Car%20details%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Car%20details%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fcar%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fcar%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Car%20details%20%C2%B7%20Allo%20Cars&amp;body=Everything%20about%20one%20car%20model%20sold%20in%20Germany%3A%20official%20consumption%20and%20versions%2C%20what%20100%20km%20costs%20today%2C%20the%20EV%20grant%2C%20Euro%20NCAP%20and%20ADAC%20ratings%2C%20recalls%2C%20registrations%20and%20where%20it%20ranks.%20Add%20it%20to%20your%20cars%20or%20to%20a%20comparison.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fcar%2F" data-share-link data-count="share_email">Email</a>
+      </div>
+    </div>
+  </section>
+  <p class="ac-foot__links"><a href="/electric/">Buying electric</a> · <a href="/cars/">My cars</a> · <a href="/ev-grant/">EV grant</a> · <a href="/compare/">Compare cars</a> · <a href="/rankings/">Car rankings</a> · <a href="/children/">Children in the car</a> · <a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">More from Allo</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>Family outings and events around you</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>Recalls of baby and kids' products, from official sources</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>A private baby log for parents</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>Settle into life in Germany</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars is a product by <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+  <p class="ac-country"><label for="ac-country">Country</label> <select id="ac-country" data-country><option value="de" selected>Germany</option></select></p>
+  <p class="ac-install" data-install hidden>
+    <button type="button" class="ac-btn ac-btn--gold" data-install-btn>Install the app</button>
+    <span class="ac-install__how" data-install-how role="status" hidden></span>
+  </p>
+</footer>
+<nav class="ac-tabs" aria-label="Allo Cars">
+  <a href="/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Tools</span></a>
+  <a href="/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Charging cost</span></a>
+  <a href="/chargers/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>Charger map</span></a>
+  <button type="button" class="ac-tabs__more" popovertarget="ac-more" aria-controls="ac-more" data-more-btn><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>More</span></button>
+</nav>
+<div class="ac-sheet" id="ac-more" popover role="dialog" aria-labelledby="ac-more-h">
+  <div class="ac-sheet__head"><h2 id="ac-more-h">All pages</h2><button type="button" class="ac-iconbtn" popovertarget="ac-more" popovertargetaction="hide" data-more-close aria-label="Close" title="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <h3>Charging</h3>
+  <ul>
+    <li><a href="/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Charging cost</span></a></li>
+    <li><a href="/chargers/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>Charger map</span></a></li>
+    <li><a href="/chargers/stats/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>Charger statistics</span></a></li>
+    <li><a href="/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>Price archive</span></a></li>
+    <li><a href="/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Best time to charge</span></a></li>
+  </ul>
+  <h3>Cars</h3>
+  <ul>
+    <li><a href="/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>Buying electric</span></a></li>
+    <li><a href="/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>My cars</span></a></li>
+    <li><a href="/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>EV grant</span></a></li>
+    <li><a href="/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Compare cars</span></a></li>
+    <li><a href="/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>Car rankings</span></a></li>
+    <li><a href="/children/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="2.2"/><path d="M5 20v-5a4 4 0 0 1 8 0v5M15 11l4-1M17 10v9"/></svg><span>Children in the car</span></a></li>
+    <li><a href="/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Recalls</span></a></li>
+    <li><a href="/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>New registrations</span></a></li>
+    <li><a href="/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>Fuel prices</span></a></li>
+  </ul>
+  <h3>Data</h3>
+  <ul>
+    <li><a href="/open-data/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg><span>Data and sources</span></a></li>
+    <li><a href="/open-data/#ai" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>Use with AI</span></a></li>
+  </ul>
+</div>
+<!-- /chrome:footer -->
+  </main>
+</div>
+<script src="/ev-grant/grant.js?v=1adf9d7ece"></script>
+<script src="/cars/app.js?v=d4d313eafc"></script>
+</body>
+</html>

@@ -69,7 +69,7 @@ async function lookupOfficialConsumption(get, { query = "", fuel = null, region 
   return {
     region: data.region, year: data.year, status: data.status, source: data.source,
     licence: data.licence, notes: data.notes, matches: hits.length,
-    models: hits.slice(0, clamp(limit, 1, 50, 10)).map((h) => ({ ...h[2], page: `${SITE}/cars/?car=${encodeURIComponent(h[2].id)}` })),
+    models: hits.slice(0, clamp(limit, 1, 50, 10)).map((h) => ({ ...h[2], page: `${SITE}/car/?car=${encodeURIComponent(h[2].id)}` })),
   };
 }
 
@@ -423,7 +423,7 @@ function versionOut(m, v) {
     kwh_per_100km: v.kwh_per_100km ?? null, l_per_100km: v.l_per_100km ?? null, co2_g_km: v.co2_g_km ?? null,
     electric_range_km: v.range_km ?? null, electric_range_span_km: v.range_span || null, mass_kg: v.mass_kg ?? null,
     registrations: v.registrations, registrations_year: v.year, years_sold_new: v.years, commercial_names: v.names || [], variant_codes: v.codes || [],
-    page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}&v=${encodeURIComponent(v.id)}`,
+    page: `${SITE}/car/?car=${encodeURIComponent(m.id)}&v=${encodeURIComponent(v.id)}`,
   };
 }
 const SPEC_NOTE = "Figures are official EEA type-approval data per version. Battery size, charging power and times, dimensions and boot space are not in this data: look them up on the maker's specification page for the version (search its commercial name, power and years), and say where they come from.";
@@ -481,7 +481,7 @@ async function getCarVersions(get, { car, trim = null, min_power_kw = null, max_
     return true;
   });
   return {
-    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, years_sold_new: m.years || null, page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}` },
+    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, years_sold_new: m.years || null, page: `${SITE}/car/?car=${encodeURIComponent(m.id)}` },
     versions_total: list.length, matches: rows.length,
     versions: rows.slice(0, clamp(limit, 1, 50, 20)).map((v) => versionOut(m, v)),
     compare_page: rows.length > 1 ? `${SITE}/compare/?cars=${rows.slice(0, 4).map((v) => encodeURIComponent(v.ref)).join(",")}` : null,
@@ -547,7 +547,7 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
         euro_ncap_protocol: r.euro_ncap && r.euro_ncap.child ? r.euro_ncap.child.protocol ?? null : null,
         green_ncap_stars: r.green_ncap ? r.green_ncap.stars : null, green_ncap_year: r.green_ncap ? r.green_ncap.year : null,
         adac_breakdowns_per_1000: r.adac_breakdowns ? r.adac_breakdowns.per_1000_cars_by_first_registration : null }; })(),
-      page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}${v ? `&v=${encodeURIComponent(v.id)}` : ""}`,
+      page: `${SITE}/car/?car=${encodeURIComponent(m.id)}${v ? `&v=${encodeURIComponent(v.id)}` : ""}`,
     });
   }
   return {
@@ -594,7 +594,7 @@ async function getRankings(get, { list = "sellers", fuel = null, segment = null,
   const models = cat.models || [];
   const year = cat.year || 0;
   const current = models.filter((m) => m.year === year || (m.years && m.years[1] >= year - 1));
-  const carPage = (m) => `${SITE}/cars/?car=${encodeURIComponent(m.id)}`;
+  const carPage = (m) => `${SITE}/car/?car=${encodeURIComponent(m.id)}`;
   const kba = (r, extra, f) => {
     const m = catalogForG(models, r.brand, r.model, f);
     return { kba_model: `${r.brand} ${r.model}`, catalog_id: m ? m.id : null, ...extra, page: m ? carPage(m) : `${SITE}/registrations/?model=${r.slug}` };
@@ -659,10 +659,10 @@ async function findSimilarCars(get, { car, limit = 5 } = {}) {
     .map((x) => [x, 2 * Math.abs(Math.log(x.mass_kg / m.mass_kg)) + Math.abs(Math.log(x.power_kw / m.power_kw))])
     .filter((x) => x[1] < 0.6).sort((a, b) => a[1] - b[1] || (b[0].registrations || 0) - (a[0].registrations || 0))
     .slice(0, clamp(limit, 1, 10, 5)).map(([x]) => ({ catalog_id: x.id, name: x.name, fuel: x.fuel, power_kw: x.power_kw, mass_kg: x.mass_kg,
-      kwh_per_100km: x.kwh_per_100km ?? null, l_per_100km: x.l_per_100km ?? null, page: `${SITE}/cars/?car=${encodeURIComponent(x.id)}` }));
+      kwh_per_100km: x.kwh_per_100km ?? null, l_per_100km: x.l_per_100km ?? null, page: `${SITE}/car/?car=${encodeURIComponent(x.id)}` }));
   return {
     car: { catalog_id: m.id, version_ref: v ? v.ref : null, name: v ? `${m.name} ${versionLabel(v)}` : m.name, fuel: m.fuel, power_kw: m.power_kw ?? null, mass_kg: m.mass_kg ?? null,
-      page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}${v ? `&v=${encodeURIComponent(v.id)}` : ""}` },
+      page: `${SITE}/car/?car=${encodeURIComponent(m.id)}${v ? `&v=${encodeURIComponent(v.id)}` : ""}` },
     similar: list,
     compare_page: `${SITE}/compare/?cars=${[v ? v.ref : m.id, ...list.slice(0, 3).map((x) => x.catalog_id)].map(encodeURIComponent).join(",")}`,
     rule: `Same kind of drive (electric, plug-in hybrid or fuel), close in kerb weight and power${v ? " to this version" : ""}, still sold new, other models only; closest first. The other cars' figures are their model averages; get_car_versions lists their versions.`,
@@ -704,7 +704,7 @@ async function getCarRatings(get, { car } = {}) {
   if (!m) return { error: `No car model matches '${car}'. Use lookup_official_consumption to find catalog ids.` };
   const R = await load(get, "ratings/de/ratings.json");
   return {
-    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}` },
+    car: { catalog_id: m.id, name: m.name, fuel: m.fuel, page: `${SITE}/car/?car=${encodeURIComponent(m.id)}` },
     ...ratingsOf(R, m),
     notes: "Headline facts only; follow each url for the full result. Euro NCAP tightens its tests every few years, so compare stars of similar years. euro_ncap.child: the child occupant score in % (compare only within one protocol; the 2026 protocol has none) and, per seat, whether ISOFIX, i-Size and an integrated child seat were standard, optional or not available on the tested car (front = front passenger, row2 = 2nd row outer seats, row2_centre, row3, rear); the owner's manual says what a given version has. Green NCAP rates one tested version. ADAC counts breakdowns its road patrol attended per 1,000 registered cars in the calendar year, by year of first registration.",
   };

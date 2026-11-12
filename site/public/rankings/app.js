@@ -84,7 +84,7 @@
   function kbaRow(r, value, sub, fuel) {
     const m = G.catalogFor(catalog, r.brand, r.model, fuel);
     const name = `${nice(r.brand)} ${nice(r.model)}`;
-    return { name: m ? m.name : name, href: m ? `${PRE}/cars/?car=${encodeURIComponent(m.id)}` : `${PRE}/registrations/?model=${encodeURIComponent(r.slug)}`, car: m ? m.id : null, value, sub };
+    return { name: m ? m.name : name, href: m ? `${PRE}/car/?car=${encodeURIComponent(m.id)}` : `${PRE}/registrations/?model=${encodeURIComponent(r.slug)}`, car: m ? m.id : null, value, sub };
   }
   function rows() {
     const regs = D.regs ? D.regs.models.filter((m) => m.model !== "SONSTIGE") : [];
@@ -102,18 +102,18 @@
       case "efficient":
         return current.filter((m) => m.fuel === "electric" && m.kwh_per_100km && (m.registrations || 0) >= 500)
           .sort((a, b) => a.kwh_per_100km - b.kwh_per_100km || (b.registrations || 0) - (a.registrations || 0))
-          .map((m) => ({ name: m.name, href: `${PRE}/cars/?car=${encodeURIComponent(m.id)}`, car: m.id, value: `${num(m.kwh_per_100km)} kWh/100 km`, sub: T.regsN(int(m.registrations)) }));
+          .map((m) => ({ name: m.name, href: `${PRE}/car/?car=${encodeURIComponent(m.id)}`, car: m.id, value: `${num(m.kwh_per_100km)} kWh/100 km`, sub: T.regsN(int(m.registrations)) }));
       case "cheapest":
         return current.filter((m) => (m.registrations || 0) >= 1000 && (!st.fuel || m.fuel === st.fuel))
           .map((m) => ({ m, c: G.cost100(m, D.fuel, D.charge).main })).filter((x) => x.c != null).sort((a, b) => a.c - b.c)
-          .map(({ m, c }) => ({ name: m.name, href: `${PRE}/cars/?car=${encodeURIComponent(m.id)}`, car: m.id, value: eur(c), sub: T.fuel[m.fuel] || m.fuel }));
+          .map(({ m, c }) => ({ name: m.name, href: `${PRE}/car/?car=${encodeURIComponent(m.id)}`, car: m.id, value: eur(c), sub: T.fuel[m.fuel] || m.fuel }));
       case "child": {
         const p = childProto();
         return D.ratings ? D.ratings.euro_ncap.models.filter((x) => x.child && x.child.protocol === p && x.child.occupant_pct != null)
           .sort((a, b) => b.child.occupant_pct - a.child.occupant_pct || b.year - a.year)
           .map((x) => {
             const m = G.catalogFor(catalog, x.make, x.model);
-            return { name: m ? m.name : x.name, href: m ? `${PRE}/cars/?car=${encodeURIComponent(m.id)}#children` : x.url, car: m ? m.id : null, value: `${x.child.occupant_pct}%`, sub: T.tested(x.year) };
+            return { name: m ? m.name : x.name, href: m ? `${PRE}/car/?car=${encodeURIComponent(m.id)}#children` : x.url, car: m ? m.id : null, value: `${x.child.occupant_pct}%`, sub: T.tested(x.year) };
           }) : [];
       }
       case "recalls":
