@@ -101,7 +101,21 @@
     return ys.length ? [Math.min.apply(null, ys), Math.max.apply(null, ys)] : null;
   }
 
+  /* Rating stars as HTML: gold stars clipped to the score over five empty ones, plus "4.5/5" as text.
+   * n is 0..5 in steps of .5; small gives the compact size used in tables. */
+  function stars(n, small) {
+    var lang = (document.documentElement.lang || "en").slice(0, 2);
+    var v = Math.max(0, Math.min(5, Number(n) || 0));
+    var t = v.toLocaleString(lang === "de" ? "de-DE" : lang === "zh" ? "zh-CN" : "en-GB", { maximumFractionDigits: 1 });
+    var label = lang === "de" ? t + " von 5 Sternen" : lang === "zh" ? "5 星中的 " + t + " 星" : t + " out of 5 stars";
+    return '<span class="ac-stars' + (small ? " ac-stars--sm" : "") + '" role="img" aria-label="' + label + '">'
+      + '<span class="ac-stars__row" aria-hidden="true">\u2605\u2605\u2605\u2605\u2605'
+      + '<span class="ac-stars__on" style="width:' + (v * 20) + '%">\u2605\u2605\u2605\u2605\u2605</span></span>'
+      + '<span class="ac-stars__num" aria-hidden="true">' + t + '/5</span></span>';
+  }
+
   window.AlloGarage = {
+    stars: stars,
     KEY: KEY,
     list: function () { return read().cars; },
     get: function (id) { return read().cars.filter(function (c) { return c.id === id; })[0] || null; },
