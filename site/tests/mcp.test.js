@@ -46,7 +46,12 @@ const FILES = {
     { id: "G3", type_approval: "Golf (CD1)", production: null },
   ] },
   "ratings/public/de/ratings.json": {
-    euro_ncap: { models: [{ name: "Volkswagen Golf", make: "Volkswagen", model: "Golf", stars: 5, year: 2025, url: "https://www.euroncap.com/x/" }] },
+    euro_ncap: { models: [
+      { name: "Volkswagen Golf", make: "Volkswagen", model: "Golf", stars: 5, year: 2025, url: "https://www.euroncap.com/x/",
+        child: { protocol: "2023-2025", occupant_pct: 87, isofix: { front: "standard", row2: "standard" }, i_size: { row2: "standard" }, integrated_seat: {}, airbag_switch: "standard", presence_detection: "standard" } },
+      { name: "Kia EV4", make: "Kia", model: "EV4", stars: 5, year: 2025, url: "k", child: { protocol: "2023-2025", occupant_pct: 85 } },
+      { name: "Dacia Jogger", make: "Dacia", model: "Jogger", stars: 1, year: 2021, url: "d", child: { protocol: "2020-2022", occupant_pct: 90 } },
+    ] },
     green_ncap: { versions: [
       { name: "Volkswagen Golf 2.0 TDI diesel", fuel: "diesel", stars: 3.5, year: 2026, url: "g1" },
       { name: "VW Golf 1.5 TSI petrol", fuel: "petrol", stars: 3, year: 2021, url: "g2" },
@@ -184,6 +189,12 @@ test("rankings: cheapest per 100 km at this week's prices", async () => {
   const d = (await call("get_rankings", { list: "cheapest", fuel: "diesel" })).structuredContent;
   assert.deepEqual(d.rows.map((x) => x.catalog_id), ["vw-golf-diesel"]);
 });
+test("rankings: child occupant score within the newest protocol only", async () => {
+  const r = (await call("get_rankings", { list: "child" })).structuredContent;
+  assert.equal(r.protocol, "2023-2025");
+  assert.deepEqual(r.rows.map((x) => [x.name, x.child_occupant_pct]), [["Volkswagen Golf", 87], ["Kia EV4", 85]]);
+  assert.equal(r.rows[0].catalog_id, "vw-golf-petrol");
+});
 test("rankings: bad list is a tool error", async () => {
   const r = await call("get_rankings", { list: "fastest" });
   assert.equal(r.isError, true);
@@ -191,6 +202,8 @@ test("rankings: bad list is a tool error", async () => {
 test("ratings: Euro NCAP by model, Green NCAP of the same fuel, ADAC by series", async () => {
   const r = (await call("get_car_ratings", { car: "vw-golf-petrol" })).structuredContent;
   assert.equal(r.euro_ncap.stars, 5);
+  assert.equal(r.euro_ncap.child.occupant_pct, 87);
+  assert.equal(r.euro_ncap.child.isofix.front, "standard");
   assert.equal(r.green_ncap.url, "g2");
   assert.equal(r.adac_breakdowns.per_1000_cars_by_first_registration[2022], 2.6);
   const d = (await call("get_car_ratings", { car: "vw-golf-diesel" })).structuredContent;

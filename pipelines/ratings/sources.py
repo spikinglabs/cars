@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import html
 import io
+import json
 import re
 
 USER_AGENT = "Allo-Cars/0.1 (+https://cars.allo.land/open-data/)"
@@ -65,7 +66,107 @@ def parse_euro(page: str, url: str) -> dict | None:
     # Newer titles add the rating: "AION UT 2026 Safety Rating – 5 stars".
     name = re.sub(r"\s+(?:\d{4}\s+)?Safety Rating\b.*$", "", name, flags=re.I).strip()
     make, model = _split_name(name, m.group(1))
-    return {"name": name, "make": make, "model": model, "stars": int(stars.group(1)), "year": int(year.group(1)), "url": url}
+    out = {"name": name, "make": make, "model": model, "stars": int(stars.group(1)), "year": int(year.group(1)), "url": url}
+    child = parse_euro_child(page)
+    if child:
+        out["child"] = child
+    return out
+
+
+# ---------- Euro NCAP: child occupant facts ----------
+# The page embeds its data in Next.js flight chunks (self.__next_f.push([1,"<js string>"])). Kept: the child
+# occupant score in % (one of the four parts of the star rating up to the 2023-2025 protocol; the 2026
+# protocol has no separate child score) and, per seat, whether ISOFIX, i-Size, an integrated child seat,
+# the passenger airbag switch and child presence detection are standard, optional or not available.
+
+_FLIGHT = re.compile(r'self\.__next_f\.push\(\[1,("(?:[^"\\]|\\.)*")\]\)')
+_FITTED = {"fittedstandard": "standard", "standard": "standard", "optional": "optional", "fittedoptional": "optional",
+           "notavailable": "none", "notfitted": "none"}
+# seat names across protocols -> ours: front passenger, 2nd row outer seats, 2nd row centre, 3rd row, rear (2026)
+_SEAT = {"frontPassenger": "front", "seat3": "front", "row2Outboard": "row2", "row2": "row2", "row2Centre": "row2_centre",
+         "row3Outboard": "row3", "row3": "row3", "rearPassenger": "rear"}
+
+
+def _flight_text(page: str) -> str:
+    parts = []
+    for m in _FLIGHT.finditer(page):
+        try:
+            parts.append(json.loads(m.group(1)))
+        except ValueError:
+            continue
+    return "".join(parts)
+
+
+def _object_at(text: str, key: str):
+    m = re.search(r'"%s"\s*:\s*(?=\{)' % re.escape(key), text)
+    if not m:
+        return None
+    try:
+        return json.JSONDecoder().raw_decode(text, m.end())[0]
+    except ValueError:
+        return None
+
+
+def _fit(v) -> str | None:
+    return _FITTED.get(re.sub(r"[^a-z]", "", str(v or "").lower()))
+
+
+def _seats(*maps) -> dict:
+    """{seat: standard|optional|none}; the first source that names a seat wins, unknown and n/a seats are left out."""
+    out: dict = {}
+    for mp in maps:
+        for k, v in (mp or {}).items():
+            seat, fit = _SEAT.get(k), _fit(v)
+            if seat and fit and seat not in out:
+                out[seat] = fit
+    return out
+
+
+def _dig(obj, *path):
+    for k in path:
+        if not isinstance(obj, dict):
+            return None
+        obj = obj.get(k)
+    return obj
+
+
+def parse_euro_child(page: str) -> dict | None:
+    text = _flight_text(page) or page
+    data = _object_at(text, "assessmentData")
+    if not isinstance(data, dict):
+        return None
+    car = data.get("carSafety") or {}
+    cop = _dig(car, "safetyPerformance", "childOccupant") or {}
+    feats = _dig(cop, "safetyFeatures", "features") or {}
+    prot = _dig(car, "safetyEquipment", "childProtection") or {}
+    eq26 = _dig(data, "additionalData", "safetyEquipment") or {}
+    kid26 = _dig(eq26, "crashProtection", "childSafety") or {}
+    occ26 = _dig(eq26, "safeDriving", "occupantMonitoring") or {}
+    proto = re.search(r'"selectedOverview"\s*:\s*\{[^{}]*?"title"\s*:\s*"((?:19|20)\d\d(?:-(?:19|20)\d\d)?) Safety"', text)
+    pct = cop.get("normalisedScore")
+    child = {
+        "protocol": proto.group(1) if proto else None,
+        "occupant_pct": round(pct) if isinstance(pct, (int, float)) and cop.get("maxScore") else None,
+        "isofix": _seats(feats.get("isofix"), prot.get("isofix")),
+        "i_size": _seats(feats.get("iSize"), prot.get("iSize"), kid26.get("iSize")),
+        "integrated_seat": _seats(feats.get("IntegratedCRS"), prot.get("integratedChildSeat"), kid26.get("integratedCRS")),
+        "airbag_switch": _fit((prot.get("airbagCutOffSwitch") or {}).get("seat3")) or _fit(occ26.get("airbagCutoffSwitch")),
+        "presence_detection": _presence(feats.get("childPresenceDetection"), prot.get("childPresenceDetection"), occ26.get("childPresenceDetection")),
+    }
+    if child["occupant_pct"] is None and not any(child[k] for k in ("isofix", "i_size", "presence_detection")):
+        return None
+    return child
+
+
+def _presence(*vals) -> str | None:
+    """Child presence detection is listed per seat (older pages) or once (2026): standard if any seat has it."""
+    for v in vals:
+        fits = [_fit(x) for x in (v.values() if isinstance(v, dict) else [v])]
+        fits = [f for f in fits if f]
+        for want in ("standard", "optional", "none"):
+            if want in fits:
+                return want
+    return None
 
 
 def latest_per_model(items: list[dict]) -> list[dict]:

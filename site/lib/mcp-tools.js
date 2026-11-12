@@ -542,6 +542,8 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
       safety_gate_recalls: recalls,
       ...(() => { const r = ratingsOf(ratings, m); return {
         euro_ncap_stars: r.euro_ncap ? r.euro_ncap.stars : null, euro_ncap_year: r.euro_ncap ? r.euro_ncap.year : null,
+        euro_ncap_child_occupant_pct: r.euro_ncap && r.euro_ncap.child ? r.euro_ncap.child.occupant_pct ?? null : null,
+        euro_ncap_protocol: r.euro_ncap && r.euro_ncap.child ? r.euro_ncap.child.protocol ?? null : null,
         green_ncap_stars: r.green_ncap ? r.green_ncap.stars : null, green_ncap_year: r.green_ncap ? r.green_ncap.year : null,
         adac_breakdowns_per_1000: r.adac_breakdowns ? r.adac_breakdowns.per_1000_cars_by_first_registration : null }; })(),
       page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}${v ? `&v=${encodeURIComponent(v.id)}` : ""}`,
@@ -560,7 +562,7 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
 
 // ---------- rankings (the /rankings/ page) ----------
 
-const RANKINGS = ["sellers", "month", "electric", "efficient", "cheapest", "recalls"];
+const RANKINGS = ["sellers", "month", "electric", "efficient", "cheapest", "child", "recalls"];
 function catalogForG(models, brand, model, fuel) {
   const key = modelKeyG(brand, model);
   let best = null;
@@ -617,6 +619,13 @@ async function getRankings(get, { list = "sellers", fuel = null, limit = 20 } = 
       .map((m) => [m, cost100G(m, fp, ch)]).filter((x) => x[1] != null).sort((a, b) => a[1] - b[1])
       .map(([m, c]) => ({ catalog_id: m.id, name: m.name, fuel: m.fuel, cost_per_100km_eur: Math.round(c * 100) / 100, page: carPage(m) }));
     about = { unit: "EUR per 100 km at this week's prices: electric charged at home (0.35 EUR/kWh + 10% losses), fuel at the national average, models with 1,000+ new registrations", fuel_week: fp ? fp.week : null };
+  } else if (list === "child") {
+    const R = await load(get, "ratings/de/ratings.json");
+    const all = ((R.euro_ncap || {}).models || []).filter((x) => x.child && x.child.occupant_pct != null);
+    const proto = all.map((x) => x.child.protocol || "").filter(Boolean).sort().pop() || "";
+    rows = all.filter((x) => x.child.protocol === proto).sort((a, b) => b.child.occupant_pct - a.child.occupant_pct || b.year - a.year)
+      .map((x) => { const m = catalogForG(models, x.make, x.model); return { name: x.name, catalog_id: m ? m.id : null, child_occupant_pct: x.child.occupant_pct, tested: x.year, euro_ncap: x.url, page: m ? `${carPage(m)}#children` : x.url }; });
+    about = { unit: `Euro NCAP child occupant score in %, ${proto} test protocol only (scores from different protocols are not comparable; the 2026 protocol has no separate child score)`, protocol: proto, source: "Euro NCAP" };
   } else {
     const st = await load(get, "recalls/eu/stats.json");
     rows = (st.brands || []).filter((b) => b.alerts_per_100k != null).sort((a, b) => a.alerts_per_100k - b.alerts_per_100k)
@@ -692,7 +701,7 @@ async function getCarRatings(get, { car } = {}) {
   return {
     car: { catalog_id: m.id, name: m.name, fuel: m.fuel, page: `${SITE}/cars/?car=${encodeURIComponent(m.id)}` },
     ...ratingsOf(R, m),
-    notes: "Headline facts only; follow each url for the full result. Euro NCAP tightens its tests every few years, so compare stars of similar years. Green NCAP rates one tested version. ADAC counts breakdowns its road patrol attended per 1,000 registered cars in the calendar year, by year of first registration.",
+    notes: "Headline facts only; follow each url for the full result. Euro NCAP tightens its tests every few years, so compare stars of similar years. euro_ncap.child: the child occupant score in % (compare only within one protocol; the 2026 protocol has none) and, per seat, whether ISOFIX, i-Size and an integrated child seat were standard, optional or not available on the tested car (front = front passenger, row2 = 2nd row outer seats, row2_centre, row3, rear); the owner's manual says what a given version has. Green NCAP rates one tested version. ADAC counts breakdowns its road patrol attended per 1,000 registered cars in the calendar year, by year of first registration.",
   };
 }
 
@@ -990,7 +999,7 @@ export const TOOLS = [
   {
     name: "get_rankings",
     title: "Car rankings for Germany",
-    description: "Ranked lists of car models, as on cars.allo.land/rankings/: sellers (most new registrations over 12 months), month (top 20 of the latest month with the change on a year before), electric (electric best sellers of the latest month), efficient (lowest official kWh/100 km), cheapest (lowest cost per 100 km at this week's prices, optionally one fuel) and recalls (brands with the fewest Safety Gate recalls per 100,000 new cars). Rows link to the model page and carry the catalog id for compare_cars.",
+    description: "Ranked lists of car models, as on cars.allo.land/rankings/: sellers (most new registrations over 12 months), month (top 20 of the latest month with the change on a year before), electric (electric best sellers of the latest month), efficient (lowest official kWh/100 km), cheapest (lowest cost per 100 km at this week's prices, optionally one fuel), child (highest Euro NCAP child occupant score within the newest protocol that has one) and recalls (brands with the fewest Safety Gate recalls per 100,000 new cars). Rows link to the model page and carry the catalog id for compare_cars.",
     inputSchema: { type: "object", properties: {
       list: str("Which ranking.", { enum: RANKINGS, default: "sellers" }),
       fuel: str("cheapest only: just this fuel.", { enum: CATALOG_FUELS }),
@@ -1011,7 +1020,7 @@ export const TOOLS = [
   {
     name: "get_car_ratings",
     title: "Safety, environment and breakdown ratings of a car model",
-    description: "Headline ratings of a car model with links to the full results: Euro NCAP safety stars and test year, Green NCAP environment stars of the closest tested version, and ADAC breakdowns per 1,000 cars by year of first registration (ADAC Pannenstatistik). Refreshed weekly.",
+    description: "Headline ratings of a car model with links to the full results: Euro NCAP safety stars and test year with the child occupant score and the ISOFIX / i-Size child seat fittings per seat, Green NCAP environment stars of the closest tested version, and ADAC breakdowns per 1,000 cars by year of first registration (ADAC Pannenstatistik). Refreshed weekly.",
     inputSchema: { type: "object", properties: { car: str("Make and model, e.g. 'VW Golf', or a vehicle catalog id.") }, required: ["car"] },
     run: getCarRatings,
   },

@@ -3,9 +3,10 @@
     python -m pipelines.ratings.collect --local ./out
     python -m pipelines.ratings.collect --r2 <bucket> --prefix ratings
 
-Only the headline facts are kept (stars and test year, breakdowns per 1,000 cars) with a link to the
-source page for the full result; none of the sources has an open licence, so no report text,
-scores breakdown or images are copied. New pages are read once, a few seconds apart; the ADAC
+Only the headline facts are kept (stars and test year, breakdowns per 1,000 cars; for Euro NCAP also
+the child occupant score and which child seat fittings each seat has) with a link to the source page
+for the full result; none of the sources has an open licence, so no report text, other score
+breakdowns or images are copied. New pages are read once, a few seconds apart; the ADAC
 report is read again only when a new yearly PDF appears.
 
 Bucket layout (the R2_BUCKET_EV bucket, folder ``ratings/``):
@@ -48,14 +49,20 @@ def _fetch(url: str) -> bytes:
     return get_bytes(url, timeout=90, user_agent=S.USER_AGENT)
 
 
-def _crawl(store, key, urls, parse, fetch, delay, limit, failed):
+def _crawl(store, key, urls, parse, fetch, delay, limit, failed, version=1):
+    """Read pages not read yet, and pages read by an older parser (a state entry carrying "v" below
+    ``version``; entries without "v" count as version 1), newest first."""
     state = json.loads(store.get(key) or b"{}")
+    old = lambda u: u in state and state[u] is not None and state[u].get("v", 1) < version  # noqa: E731
     todo = [u for u in reversed(urls) if u not in state][:limit]  # newest first
+    todo += [u for u in reversed(urls) if old(u)][:max(0, limit - len(todo))]
     for i, u in enumerate(todo):
         if i:
             time.sleep(delay)
         try:
             state[u] = parse(fetch(u).decode("utf-8", "replace"), u)
+            if state[u] is not None and version > 1:
+                state[u]["v"] = version
         except Exception as exc:  # noqa: BLE001 (one page must not stop the rest)
             failed.append({"url": u, "error": str(exc)[:200]})
             continue
@@ -77,6 +84,11 @@ def build(euro: list[dict], green: list[dict], adac: dict | None, now: str) -> d
         "euro_ncap": {
             "source": "Euro NCAP", "source_url": "https://www.euroncap.com/",
             "unit": "safety rating, 0 to 5 stars, and the year of the rating",
+            "child": "child: the protocol (Euro NCAP raises its bar with each protocol, so compare within one), the "
+                     "child occupant score in % (up to the 2023-2025 protocol; the 2026 protocol has no separate child "
+                     "score) and per seat whether ISOFIX, i-Size and an integrated child seat are standard, optional or "
+                     "none, as fitted to the tested car; front = front passenger, row2 = 2nd row outer seats, "
+                     "row2_centre, row3, rear (2026 protocol). airbag_switch = front passenger airbag can be switched off.",
             "models": S.latest_per_model(euro),
         },
         "green_ncap": {
@@ -99,7 +111,7 @@ def run(store, fetch=_fetch, delay: float = DELAY, limit: int = 400) -> dict:
     failed: list[dict] = []
 
     euro_urls = S.euro_urls(fetch(S.EURO_SITEMAP).decode("utf-8", "replace"))
-    euro_state, euro_new = _crawl(store, "state/euro-ncap.json", euro_urls, S.parse_euro, fetch, delay, limit, failed)
+    euro_state, euro_new = _crawl(store, "state/euro-ncap.json", euro_urls, S.parse_euro, fetch, delay, limit, failed, EURO_PARSER)
     green_urls = S.green_urls(fetch(S.GREEN_LIST).decode("utf-8", "replace"))
     green_state, green_new = _crawl(store, "state/green-ncap.json", green_urls, S.parse_green, fetch, delay, limit, failed)
 
@@ -118,7 +130,7 @@ def run(store, fetch=_fetch, delay: float = DELAY, limit: int = 400) -> dict:
     except Exception as exc:  # noqa: BLE001 (keep the last good report)
         failed.append({"url": S.ADAC_PAGE, "error": str(exc)[:200]})
 
-    euro = [v for v in euro_state.values() if v]
+    euro = [{k: x for k, x in v.items() if k != "v"} for v in euro_state.values() if v]
     green = [v for v in green_state.values() if v]
     if len(euro) < 50:
         raise ValueError(f"only {len(euro)} Euro NCAP ratings parsed; failures: {failed[:5]}")
@@ -134,6 +146,7 @@ def run(store, fetch=_fetch, delay: float = DELAY, limit: int = 400) -> dict:
 
 
 PARSER = 1
+EURO_PARSER = 2  # 2: child occupant facts (Euro NCAP pages read again once)
 
 
 def main(argv: list[str] | None = None) -> int:
