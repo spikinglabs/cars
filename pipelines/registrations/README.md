@@ -2,7 +2,8 @@
 
 New passenger car registrations in Germany by brand and model, every month since December 2018, from the
 Kraftfahrt-Bundesamt's statistic [FZ10](https://www.kba.de/DE/Statistik/Produktkatalog/produkte/Fahrzeuge/fz10/fz10_gentab.html)
-("Neuzulassungen von Personenkraftwagen nach Marken und Modellreihen"). © Kraftfahrt-Bundesamt, Flensburg,
+("Neuzulassungen von Personenkraftwagen nach Marken und Modellreihen"), plus each model's KBA segment from the
+newest workbook of statistic [FZ11](https://www.kba.de/DE/Statistik/Produktkatalog/produkte/Fahrzeuge/fz11/fz11_gentab.html) ("nach Segmenten und Modellreihen", same licence). © Kraftfahrt-Bundesamt, Flensburg,
 under the [Datenlizenz Deutschland – Namensnennung – 2.0](https://www.govdata.de/dl-de/by-2-0). No API key needed.
 
 Runs daily via `.github/workflows/collect-registrations.yml` (a new month appears about a week after it ends)

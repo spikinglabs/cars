@@ -302,6 +302,9 @@
       state.only.map((o) => ({ 247: T.open247, card: T.card, free: T.free, public: de ? "öffentlich" : zh ? "非仅限顾客" : "public" })[o]).join(", ")].filter(Boolean).join(", ");
     const prompt = T.ask(ORIGIN + location.pathname + "?" + p.toString(), ORIGIN + data(`cells/${cellId(c.lat, c.lng)}.json`), filt ? ` (${filt})` : "");
     $("aigo").href = "https://claude.ai/new?q=" + encodeURIComponent(prompt);
+    // the same spot on Allo Outings' map, with its charger layer on
+    const o = $("outings");
+    if (o) o.href = `https://outings.allo.land/${de ? "de" : zh ? "zh" : "en"}/?lat=${c.lat.toFixed(4)}&lon=${c.lng.toFixed(4)}&ev=1#map`;
   }
 
   /* ---------- filters ---------- */

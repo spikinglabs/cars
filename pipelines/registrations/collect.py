@@ -7,6 +7,9 @@ Bucket layout (the R2_BUCKET_EV bucket, folder ``registrations/``):
 
     registrations/
       raw/kba-fz10/YYYY-MM/<ts>.xlsx       each monthly workbook, stored again only when KBA revises it
+      raw/kba-fz11/YYYY-MM/<ts>.xlsx       the newest FZ11 workbook (segments), when it changes
+      state/segments.json                  {month, url, sha256, key} of the stored FZ11 workbook
+      derived/segments.json                {month, segments: {model slug: segment key}}
       state/months.json                    {month: {url, sha256, key}} of the stored workbooks
       derived/months/YYYY-MM.json          one parsed month (models, brands, market)
       public/                              served at https://cars.allo.land/data/registrations/
@@ -69,8 +72,12 @@ def _petrol_etc(c: dict) -> int | None:
     return max(c["total"] - c["diesel"] - c["hybrid"] - c["bev"], 0)
 
 
-def build(months: list[dict], now: str) -> dict[str, bytes]:
-    """Public files (path under public/ -> bytes) from parsed months, oldest first."""
+def build(months: list[dict], now: str, segments: dict | None = None) -> dict[str, bytes]:
+    """Public files (path under public/ -> bytes) from parsed months, oldest first.
+
+    segments: {"month", "segments": {model slug: segment key}} from the newest FZ11 workbook, or None.
+    """
+    seg_of = (segments or {}).get("segments") or {}
     months = sorted(months, key=lambda d: d["month"])
     last = months[-1]
     by_month = {d["month"]: d for d in months}
@@ -111,17 +118,24 @@ def build(months: list[dict], now: str) -> dict[str, bytes]:
             "first_month": min(mm), "last_month": max(mm),
             "latest": cur.get("total"), "latest_bev": cur.get("bev"), "rank": rank.get(e["slug"]),
             "last_12_months": sum((mm.get(k) or {}).get("total") or 0 for k in last12),
+            **({"segment": seg_of[e["slug"]]} if e["slug"] in seg_of else {}),
         })
         rows = [{"month": k, **v} for k, v in sorted(mm.items())]
         out[f"{REGION}/models/{e['slug']}.json"] = _json({
             "dataset": "registrations", "region": REGION.upper(), "brand": e["brand"], "model": e["model"],
             "slug": e["slug"], "page": f"{PAGE}?model={e['slug']}", "updated_at": now,
+            "segment": seg_of.get(e["slug"]),
             "unit": "new passenger car registrations per month", "fields": kba.FIELDS, "months": rows,
             "source": "Kraftfahrt-Bundesamt, FZ10", "licence": kba.LICENCE, "credit": kba.CREDIT,
         })
     out[f"{REGION}/models.json"] = _json({
         "dataset": "registrations", "region": REGION.upper(), "latest_month": last["month"], "updated_at": now,
-        "notes": "Model names as the KBA writes them. 'SONSTIGE' is a brand's other models and has no rank.",
+        "notes": "Model names as the KBA writes them. 'SONSTIGE' is a brand's other models and has no rank. "
+                 "segment is the KBA segment of the model series in segments_month (FZ11), only for models "
+                 "listed there.",
+        "segments_month": (segments or {}).get("month"),
+        "segments": {k: v for v, k in kba.SEGMENTS.items()},
+        "segments_source": kba.SEGMENT_LIST_URL,
         "models": index,
     })
 
@@ -195,6 +209,37 @@ def build(months: list[dict], now: str) -> dict[str, bytes]:
     return out
 
 
+def _segments(store, fetch, delay, now, ts, failed) -> tuple[dict | None, bool]:
+    """The newest FZ11 segment mapping: downloaded when KBA lists a newer or revised workbook, else stored."""
+    stored = json.loads(store.get("derived/segments.json") or b"null")
+    state = json.loads(store.get("state/segments.json") or b"{}")
+    try:
+        time.sleep(delay)
+        available = kba.list_segment_months(fetch(kba.SEGMENT_LIST_URL).decode("utf-8", "replace"))
+        if not available:
+            raise ValueError("no FZ11 workbooks found on the KBA list page")
+        month, url = max(available.items())
+        if state.get("url") == url and state.get("parser") == kba.PARSER and stored:
+            return stored, False
+        time.sleep(delay)
+        xlsx = fetch(url)
+        mapping = kba.parse_segments(xlsx)
+    except Exception as exc:  # noqa: BLE001 (segments are extra; keep the stored ones)
+        failed.append({"month": "segments", "error": str(exc)[:300]})
+        return stored, False
+    digest = hashlib.sha256(xlsx).hexdigest()
+    key = state.get("key")
+    if state.get("sha256") != digest:
+        key = f"raw/kba-fz11/{month}/{ts}.xlsx"
+        store.put(key, xlsx, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    segments = {"month": month, "segments": dict(sorted(mapping.items()))}
+    store.put("derived/segments.json", _json(segments), "application/json")
+    store.put("state/segments.json", _pretty({"month": month, "url": url, "sha256": digest, "key": key,
+                                              "parser": kba.PARSER, "checked_at": now.isoformat()}),
+              "application/json")
+    return segments, segments != stored
+
+
 def run(store, max_downloads: int = 200, delay: float = kba.CRAWL_DELAY, fetch=_fetch) -> dict:
     now = datetime.now(UTC).replace(microsecond=0)
     ts = now.strftime("%Y%m%dT%H%M%SZ")
@@ -243,6 +288,8 @@ def run(store, max_downloads: int = 200, delay: float = kba.CRAWL_DELAY, fetch=_
     if changed:
         store.put("state/months.json", _pretty(dict(sorted(state.items()))), "application/json")
 
+    segments, seg_changed = _segments(store, fetch, delay, now, ts, failed)
+
     months = []
     for month in sorted(state):
         raw = store.get(f"derived/months/{month}.json")
@@ -250,13 +297,14 @@ def run(store, max_downloads: int = 200, delay: float = kba.CRAWL_DELAY, fetch=_
             months.append(json.loads(raw))
     if not months:
         raise ValueError(f"no months parsed; failures: {failed}")
-    if changed or not store.exists(f"public/{REGION}/latest.json"):
-        for path, data in build(months, now.isoformat()).items():
+    if changed or seg_changed or not store.exists(f"public/{REGION}/latest.json"):
+        for path, data in build(months, now.isoformat(), segments).items():
             ctype = "text/csv" if path.endswith(".csv") else "application/json"
             store.put(f"public/{path}", data, ctype)
 
     report = {"started_at": now.isoformat(), "store": str(store), "available": len(available),
               "fetched": fetched, "changed": changed, "failed": failed,
+              "segments_month": (segments or {}).get("month"), "segments_changed": seg_changed,
               "months": len(months), "first_month": months[0]["month"], "latest_month": months[-1]["month"]}
     store.put(f"runs/{now:%Y/%m/%d}/{ts}.json", _pretty(report), "application/json")
     return report

@@ -75,3 +75,19 @@ test("similar cars: same drive, close weight and power, other models", () => {
   ];
   assert.deepStrictEqual(G.similar(cat, cat[0], 2025, 5).map((m) => m.id), ["b"]);
 });
+
+test("child recalls: ISOFIX, child locks, child seat airbag switch; not hood latches or brake boosters", () => {
+  const G = load();
+  const yes = [
+    "A defective weld on the ISOFIX bar may break in the event of an accident.",
+    "The child safety lock on the rear doors could come loose unnoticed.",
+    "The passenger airbag could be triggered even if it has been deactivated because a child seat is being used.",
+    "The back seat LATCH (lower anchors and tethers for children) may be faulty.",
+  ];
+  const no = [
+    "Excessive cable tension can result in unexpected latch opening of the bonnet.",
+    "Two brake booster nuts are not tightened with the correct torque.",
+  ];
+  yes.forEach((h) => assert.equal(G.childRecall({ hazard: h }), true, h));
+  no.forEach((h) => assert.equal(G.childRecall({ hazard: h }), false, h));
+});

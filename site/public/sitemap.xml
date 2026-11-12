@@ -30,6 +30,12 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/charging-prices/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charging-prices/"/>
   </url>
+  <url><loc>https://cars.allo.land/children/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/children/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/children/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/children/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/children/"/>
+  </url>
   <url><loc>https://cars.allo.land/compare/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/compare/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/compare/"/>
@@ -132,6 +138,12 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/charging-prices/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charging-prices/"/>
   </url>
+  <url><loc>https://cars.allo.land/de/children/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/children/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/children/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/children/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/children/"/>
+  </url>
   <url><loc>https://cars.allo.land/de/compare/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/compare/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/compare/"/>
@@ -215,6 +227,12 @@
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/charging-prices/"/>
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/charging-prices/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/charging-prices/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/children/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/children/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/children/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/children/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/children/"/>
   </url>
   <url><loc>https://cars.allo.land/zh/compare/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/compare/"/>

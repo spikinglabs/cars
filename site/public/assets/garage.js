@@ -189,6 +189,12 @@
     // Euro NCAP by make and model; Green NCAP by the start of the tested version's name, preferring
     // the same fuel, newest first; ADAC by model series, which may list several names
     // ("BMW 2er-Reihe/2er-Reihe Active/Gran Tourer", "KIA Ceed/XCeed").
+    // A Safety Gate alert about children's safety in the car: ISOFIX / i-Size / LATCH anchors, child locks,
+    // child seats and restraints, the passenger airbag switch for rear-facing seats (official hazard text).
+    childRecall: function (a) {
+      var t = String((a && a.hazard) || "");
+      return /\b(isofix|i-size)\b|child[- ]?(seat|restraint|lock|safety lock|-proof|proof)|rear-facing child|child presence/i.test(t) || /\bLATCH\b/.test(t);
+    },
     ratings: function (R, m) {
       var out = { euro: null, green: null, adac: null };
       if (!R || !m) return out;
