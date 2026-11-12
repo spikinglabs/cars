@@ -23,12 +23,14 @@
     },
     {
       "name": "car_profile",
-      "title": "My cars: one page per car model",
+      "title": "Car pages: search any model, one page per model",
       "url": "https://cars.allo.land/cars/",
-      "description": "Everything Allo Cars knows about one car model: official WLTP consumption, CO2 and power (EEA catalog), cost per 100 km at today's German fuel price or charging prices, EU Safety Gate recalls that name the model and match its first registration year, new registrations in Germany (KBA), Euro NCAP and Green NCAP stars and ADAC breakdowns per 1,000 cars by year (linked to the source), where the model stands in the rankings and similar cars to compare. People can keep several cars on their device; a link opens any model.",
+      "description": "Everything Allo Cars knows about one car model: official WLTP consumption, CO2 and power (EEA catalog), cost per 100 km at today's German fuel price or charging prices, EU Safety Gate recalls that name the model and match its first registration year, new registrations in Germany (KBA), Euro NCAP and Green NCAP stars and ADAC breakdowns per 1,000 cars by year (linked to the source), the E-Auto grant (electric cars, and per version for plug-in hybrids), the model's position in every ranking list, the cost per year at 15,000 km and similar cars to compare. Sections have anchors (#cost, #versions, #grant, #ratings, #children, #recalls, #registrations, #rankings, #similar). People can keep several cars on their device; a link opens any model, and ?q= searches by make and model.",
       "parameters": {
         "car": "vehicle catalog id from https://cars.allo.land/data/vehicle-catalog/de/models.json (id field), e.g. volvo-ex30, vw-golf-petrol, vw-golf-diesel",
-        "year": "year of first registration, narrows recalls to the build window (optional)"
+        "year": "year of first registration, narrows recalls to the build window (optional)",
+        "v": "version (trim) id from the model's versions (optional)",
+        "q": "search text instead of car, e.g. 'golf diesel' or 'ex30': lists the matching models and opens the best match (optional)"
       },
       "example": "https://cars.allo.land/cars/?car=vw-golf-diesel&year=2019",
       "url_de": "https://cars.allo.land/de/cars/",
