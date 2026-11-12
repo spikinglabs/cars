@@ -12,10 +12,19 @@
     <a href="/de/fuel-prices/">Spritpreise</a>
   </nav>
   <div class="ac-top__right">
+    <button type="button" class="ac-iconbtn" popovertarget="ac-find" aria-controls="ac-find" aria-label="Auto suchen" title="Auto suchen (/)" data-count="find_open"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
     {{langswitch}}
     <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Hell / dunkel umschalten" title="Hell / dunkel umschalten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
   </div>
 </header>
+<div class="ac-find" id="ac-find" popover role="dialog" aria-label="Auto suchen">
+  <form class="ac-find__form" action="/de/cars/" role="search" data-find>
+    <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="Marke und Modell, z. B. VW ID.3" aria-label="Auto suchen" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
+    <button type="button" class="ac-iconbtn" popovertarget="ac-find" popovertargetaction="hide" aria-label="Schließen" title="Schließen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <ul class="ac-find__list" data-find-list role="listbox" aria-label="Auto suchen" hidden></ul>
+  </form>
+</div>
+<script src="/assets/search.js" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
   <span class="ac-apphint__text" data-app-hint-text>Allo Cars lässt sich wie eine App auf den Startbildschirm legen.</span>
   <button type="button" class="ac-apphint__go" data-app-hint-go hidden>Installieren</button>

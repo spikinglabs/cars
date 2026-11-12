@@ -49,8 +49,45 @@
     perMonth: "New registrations per month, last 24 months", similar: "Similar cars", similarDesc: "Same kind of drive, close in weight and power, still sold new.", cmpThese: "Compare with these", cmpShort: "+ Compare", cmpOn: "✓ Comparing", badgeEff: (n) => `No. ${n} most efficient EV`, badgeCheap: (n) => `No. ${n} cheapest per 100 km`, badgeSell: (n) => `No. ${n} best seller in Germany`, rankingsAll: "All rankings", ratings: "Ratings", euro: "Euro NCAP safety", green: "Green NCAP environment", adac: "ADAC breakdowns", tested: (y) => `tested ${y}`, testedV: (y, v) => `tested ${y}: ${v}`, notTested: "No test result found for this model.", adacUnit: "Breakdowns per 1,000 cars by year of first registration", adacYear: (y, v, c) => `First registered ${y}: ${v} breakdowns per 1,000 cars (${c})`, adacNone: "The ADAC breakdown statistics don\u2019t list this model (too few cars or too new).", ratingsNote: "Only the overall rating and year; the full result is at each source.", cmpAdd: "+ Compare", cmpIn: "✓ In comparison", cmpGo: (n) => `Compare ${n} cars`, unit: (f) => f === "electric" ? "kWh/100 km" : "L/100 km",
     versions: "Versions", versionsDesc: "Each version as registered, with its own official figures. Pick yours and the cost and figures use it.", allVersions: "All versions (average)", older: (n) => `${n} older versions, no longer sold new`, mass: "Kerb weight", names: "Registered as", codes: "Variant code (field D.2 of the German registration certificate)",
   };
+  /* words for the sections added to make each car page complete: jump links, grant, rankings, search results */
+  const W = zh ? {
+    jump: "本页内容", sec: { cost: "费用", versions: "版本", ratings: "评级", children: "带娃", recalls: "召回", registrations: "登记量", grant: "补贴", rankings: "排名", similar: "相似车型" },
+    perYear: (c, km) => `每年约 ${c}（${km} 公里）`,
+    grant: "电动车补贴（2026）", bev: "2026 年 1 月 1 日起首次登记的纯电动新车可以申请。", amount: (a, b) => `按家庭收入 ${a} 到 ${b}`, perChild: (p, n) => `每个孩子再加 ${p}，最多 ${n} 个`,
+    phevOk: (c, r) => `这个版本符合条件：${c}。插电混动需要不超过 60 g CO₂/km 或纯电续航至少 80 km。`, phevNo: (c, r) => `这个版本不符合条件：${c}。插电混动需要不超过 60 g CO₂/km 或纯电续航至少 80 km。`,
+    phevSome: (n, m) => `${m} 个版本中有 ${n} 个符合条件（不超过 60 g CO₂/km 或纯电续航至少 80 km）。在“版本”里选你的版本。`, phevAvg: "按官方平均值", phevUntil: (d) => `插电混动须在 ${d} 前首次登记。`,
+    tooEarly: (y) => `你的车 ${y} 年首次登记：补贴只适用于 2026 年 1 月 1 日起首次登记的车。`, grantGo: "算算你能拿多少", grantNone: (f) => `${f}车没有购车补贴。`,
+    ranks: "排名", pos: (i, n) => `第 ${i} 名，共 ${n}`, notRanked: "未上榜", rankAll: "全部排行榜",
+    rk: { sellers: "德国销量榜（近 12 个月）", electric: "电动车销量榜", efficient: "最省电的电动车", cheapest: "每 100 公里最省钱", cheapestFuel: (f) => `每 100 公里最省钱 · 仅限${f}`, child: "Euro NCAP 儿童乘员得分", recalls: (b) => `每 10 万辆新车召回最少的品牌（${b}）` },
+    why: { few500: "2025 年登记不足 500 辆", few1000: "2025 年登记不足 1000 辆", old: "已不再销售新车", proto: "未按最新规程测试", regs: "登记统计里没有单独列出" },
+    results: (q) => `“${q}”的搜索结果`, resultsN: (n) => `${n} 款车型`, noResults: (q) => `没有找到“${q}”。试试品牌和车型，例如“大众 ID.3”。`, regsN: (n) => `近 12 个月 ${n} 辆`,
+  } : de ? {
+    jump: "Auf dieser Seite", sec: { cost: "Kosten", versions: "Versionen", ratings: "Tests", children: "Kinder", recalls: "Rückrufe", registrations: "Zulassungen", grant: "Förderung", rankings: "Ranglisten", similar: "Ähnliche Autos" },
+    perYear: (c, km) => `rund ${c} im Jahr bei ${km} km`,
+    grant: "E-Auto-Förderung (2026)", bev: "Neue reine E-Autos mit Erstzulassung ab 1. Januar 2026 sind förderfähig.", amount: (a, b) => `${a} bis ${b}, je nach Haushaltseinkommen`, perChild: (p, n) => `plus ${p} je Kind, für bis zu ${n} Kinder`,
+    phevOk: (c, r) => `Diese Version ist förderfähig: ${c}. Ein Plug-in-Hybrid braucht höchstens 60 g CO₂/km oder mindestens 80 km elektrische Reichweite.`, phevNo: (c, r) => `Diese Version ist nicht förderfähig: ${c}. Ein Plug-in-Hybrid braucht höchstens 60 g CO₂/km oder mindestens 80 km elektrische Reichweite.`,
+    phevSome: (n, m) => `${n} von ${m} Versionen sind förderfähig (höchstens 60 g CO₂/km oder mindestens 80 km elektrisch). Wähl deine unter „Versionen“.`, phevAvg: "nach dem offiziellen Durchschnitt", phevUntil: (d) => `Plug-in-Hybride nur bei Erstzulassung bis ${d}.`,
+    tooEarly: (y) => `Dein Auto ist von ${y}: Gefördert werden nur Autos mit Erstzulassung ab 1. Januar 2026.`, grantGo: "Deinen Betrag ausrechnen", grantNone: (f) => `Für ${f}-Autos gibt es keine Kaufprämie.`,
+    ranks: "In den Ranglisten", pos: (i, n) => `Platz ${i} von ${n}`, notRanked: "Nicht gelistet", rankAll: "Alle Ranglisten",
+    rk: { sellers: "Meistverkauft in Deutschland (12 Monate)", electric: "Meistverkaufte E-Autos", efficient: "Sparsamste E-Autos", cheapest: "Günstigste je 100 km", cheapestFuel: (f) => `Günstigste je 100 km, nur ${f}`, child: "Euro NCAP Kindersicherheit", recalls: (b) => `Wenigste Rückrufe je 100.000 Neuwagen (Marke ${b})` },
+    why: { few500: "2025 unter 500 Neuzulassungen", few1000: "2025 unter 1.000 Neuzulassungen", old: "nicht mehr neu zu kaufen", proto: "nicht nach dem neuesten Protokoll getestet", regs: "in der Zulassungsstatistik nicht einzeln aufgeführt" },
+    results: (q) => `Treffer für „${q}“`, resultsN: (n) => `${n} Modelle`, noResults: (q) => `Nichts gefunden für „${q}“. Versuch Marke und Modell, z. B. „VW ID.3“.`, regsN: (n) => `${n} in 12 Monaten`,
+  } : {
+    jump: "On this page", sec: { cost: "Cost", versions: "Versions", ratings: "Ratings", children: "Children", recalls: "Recalls", registrations: "Registrations", grant: "Grant", rankings: "Rankings", similar: "Similar cars" },
+    perYear: (c, km) => `about ${c} a year at ${km} km`,
+    grant: "E-Auto grant (2026)", bev: "New fully electric cars first registered from 1 January 2026 qualify.", amount: (a, b) => `${a} to ${b}, depending on household income`, perChild: (p, n) => `plus ${p} per child, for up to ${n} children`,
+    phevOk: (c, r) => `This version qualifies: ${c}. A plug-in hybrid needs at most 60 g CO₂/km or at least 80 km electric range.`, phevNo: (c, r) => `This version does not qualify: ${c}. A plug-in hybrid needs at most 60 g CO₂/km or at least 80 km electric range.`,
+    phevSome: (n, m) => `${n} of ${m} versions qualify (at most 60 g CO₂/km or at least 80 km electric). Pick yours under Versions.`, phevAvg: "by the official average", phevUntil: (d) => `Plug-in hybrids only when first registered by ${d}.`,
+    tooEarly: (y) => `Your car is from ${y}: the grant is only for cars first registered from 1 January 2026.`, grantGo: "Work out your amount", grantNone: (f) => `There is no purchase grant for ${f.toLowerCase()} cars.`,
+    ranks: "Where it ranks", pos: (i, n) => `No. ${i} of ${n}`, notRanked: "Not ranked", rankAll: "All rankings",
+    rk: { sellers: "Best sellers in Germany (12 months)", electric: "Best-selling electric cars", efficient: "Most efficient electric cars", cheapest: "Cheapest per 100 km", cheapestFuel: (f) => `Cheapest per 100 km, ${f.toLowerCase()} only`, child: "Euro NCAP child occupant score", recalls: (b) => `Fewest recalls per 100,000 new cars (${b}, by brand)` },
+    why: { few500: "fewer than 500 registered in 2025", few1000: "fewer than 1,000 registered in 2025", old: "no longer sold new", proto: "not tested under the newest protocol", regs: "not listed on its own in the registration statistics" },
+    results: (q) => `Results for “${q}”`, resultsN: (n) => `${n} models`, noResults: (q) => `Nothing found for “${q}”. Try make and model, e.g. “VW ID.3”.`, regsN: (n) => `${n} in 12 months`,
+  };
   const G = window.AlloGarage;
   const HOME_PRICE = 0.35, LOSS = 1.1; // the charging cost tool's defaults
+  const YEAR_KM = 15000; // a typical year, as on /compare/
+  const FUEL_LINK = zh ? "本周油价" : de ? "Spritpreise dieser Woche" : "This week's fuel prices";
   const FUEL_PRODUCT = { petrol: "euro_super_95", diesel: "diesel", lpg: "lpg", "phev-petrol": "euro_super_95", "phev-diesel": "diesel" };
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -60,7 +97,7 @@
   const json = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: ${r.status}`); return r.json(); });
   const soft = (u) => json(u).catch(() => null);
 
-  let catalogYear = 0, catalog = [], byId = new Map(), prices = { fuel: null, charge: null }, regs = null, recallBrands = null, ratings = null;
+  let catalogYear = 0, catalog = [], byId = new Map(), prices = { fuel: null, charge: null }, regs = null, recallBrands = null, ratings = null, recallStats = null;
   /* versions (trims) of each model, one file per make (pipelines/vehicle_catalog/versions.py) */
   const versionFiles = new Map();
   const makeSlug = (make) => String(make || "").toLowerCase().replace(/&/g, "and").replace(/#/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -190,17 +227,18 @@
     const fp = prices.fuel && FUEL_PRODUCT[f] ? prices.fuel.products[FUEL_PRODUCT[f]] : null;
     const fuelName = f === "diesel" || f === "phev-diesel" ? T.fuel.diesel : f === "lpg" ? T.fuel.lpg : T.fuel.petrol;
     if (f === "electric" && use) {
-      rows.push([eur(use * LOSS * HOME_PRICE), T.home(eur(HOME_PRICE))]);
+      rows.push([eur(use * LOSS * HOME_PRICE), T.home(eur(HOME_PRICE)), use * LOSS * HOME_PRICE]);
       if (prices.charge) rows.push([eur(use * LOSS * prices.charge.overall.median), T.pub(eur(prices.charge.overall.median))]);
     } else if (/^phev/.test(f) && m && fp) {
       const kwh = m.kwh_per_100km || 0, l = m.l_per_100km || 0;
-      rows.push([eur(kwh * LOSS * HOME_PRICE + (s.cons || l) * fp.eur_per_litre), T.mix]);
+      rows.push([eur(kwh * LOSS * HOME_PRICE + (s.cons || l) * fp.eur_per_litre), T.mix, kwh * LOSS * HOME_PRICE + (s.cons || l) * fp.eur_per_litre]);
     } else if (use && fp) {
-      rows.push([eur(use * fp.eur_per_litre), T.fuelAt(fuelName, eur(fp.eur_per_litre, 3))]);
+      rows.push([eur(use * fp.eur_per_litre), T.fuelAt(fuelName, eur(fp.eur_per_litre, 3)), use * fp.eur_per_litre]);
     }
     const readouts = rows.length ? rows.map(([v, b]) => `<div class="ac-readout"><div class="ac-readout__value">${v}</div><div class="ac-readout__basis">${esc(b)}</div></div>`).join("")
       : `<p class="ac-caption">${esc(T.noPrice)}</p>`;
     const facts = [];
+    if (rows.length) facts.push(W.perYear(eur(rows[0][2] * YEAR_KM / 100, 0), YEAR_KM.toLocaleString(T.locale)));
     if (s.cons) facts.push(`${T.yours}: ${num(s.cons)} ${T.unit(f === "electric" ? "electric" : "fuel")}`);
     if (m) {
       if (m.kwh_per_100km) facts.push(`${T.official}: ${num(m.kwh_per_100km)} kWh/100 km`);
@@ -220,8 +258,9 @@
     } else if (/^phev/.test(f)) {
       links.push(`<a href="${PRE}/charge-times/">${esc(T.chargeTimes)}</a>`);
     }
+    if (f !== "electric" && FUEL_PRODUCT[f]) links.push(`<a href="${PRE}/fuel-prices/">${esc(FUEL_LINK)}</a>`);
     const own = current.car ? `<label class="ac-param ownc"><span class="ac-param__label">${esc(T.ownCons)}</span><span class="ac-param__box"><input id="own" type="number" min="0.1" max="60" step="0.1" inputmode="decimal" value="${s.cons ?? ""}" placeholder="${off ?? "–"}"><span class="ac-param__unit">${T.unit(f === "electric" ? "electric" : "fuel")}</span></span><span class="ac-param__hint">${esc(T.ownHint)}</span></label>` : "";
-    return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.cost)}</h3><div class="ac-readouts">${readouts}</div>
+    return `<section class="ac-card" id="cost"><h3 class="ac-card__title">${esc(T.cost)}</h3><div class="ac-readouts">${readouts}</div>
       ${facts.length ? `<p class="ac-caption" style="margin:0">${facts.map(esc).join(" · ")}</p>` : ""}${own}
       ${links.length ? `<ul class="links">${links.map((l) => `<li>${l}</li>`).join("")}</ul>` : ""}</section>`;
   }
@@ -239,7 +278,7 @@
     const cur = list.filter((v) => v.years[1] >= latest - 1), old = list.filter((v) => v.years[1] < latest - 1);
     const sel = s.ver && old.includes(s.ver);
     const all = `<li><span><a href="?car=${encodeURIComponent(s.car)}" data-v=""${s.ver ? "" : ' aria-current="true"'}>${s.ver ? "" : "✓ "}${esc(T.allVersions)}</a></span></li>`;
-    return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.versions)}</h3><p class="ac-caption" style="margin:4px 0 0">${esc(T.versionsDesc)}</p>
+    return `<section class="ac-card" id="versions"><h3 class="ac-card__title">${esc(T.versions)}</h3><p class="ac-caption" style="margin:4px 0 0">${esc(T.versionsDesc)}</p>
       <ul class="slist vlist">${all}${cur.map(row).join("")}</ul>
       ${versionFacts(s)}
       ${old.length ? `<details class="older"${sel ? " open" : ""}><summary>${esc(T.older(old.length))}</summary><ul class="slist vlist">${old.map(row).join("")}</ul></details>` : ""}</section>`;
@@ -285,20 +324,20 @@
            <ul class="rlist">${top.map((a) => `<li><a href="${esc(a.url)}" rel="noopener">${esc(a.risk || a.product)}${a.recall_code ? ` · ${esc(a.recall_code)}` : ""}</a><small>${day(a.date)}${a.production ? ` · ${esc(a.production)}` : ""}</small></li>`).join("")}</ul>`
         : `<p class="ac-caption">${esc(T.recallsNone)}</p>`;
     }
-    return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.recalls)}</h3>${body}
+    return `<section class="ac-card" id="recalls"><h3 class="ac-card__title">${esc(T.recalls)}</h3>${body}
       <ul class="links"><li><a href="${href}">${esc(b ? T.recallsAll : T.recallsBrand(s.make))}</a></li></ul></section>`;
   }
 
   async function regBlock(s) {
     const key = G.modelKey(s.make, s.model);
     const r = regs && regs.models.find((x) => x.model !== "SONSTIGE" && G.modelKey(x.brand, x.model) === key);
-    if (!r) return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.regs)}</h3><p class="ac-caption">${esc(T.regsNone)}</p>
+    if (!r) return `<section class="ac-card" id="registrations"><h3 class="ac-card__title">${esc(T.regs)}</h3><p class="ac-caption">${esc(T.regsNone)}</p>
       <ul class="links"><li><a href="${PRE}/registrations/">${esc(T.regsMore)}</a></li></ul></section>`;
     const data = await soft(AlloSite.data("registrations", r.file));
     const months = data ? data.months.slice(-24) : [];
     const max = Math.max(1, ...months.map((x) => x.total || 0)), w = 100 / Math.max(months.length, 1);
     const spark = months.length ? `<svg class="spark" viewBox="0 0 100 40" preserveAspectRatio="none" role="img" aria-label="${esc(T.perMonth)}">${months.map((x, i) => `<rect x="${(i * w + w * 0.15).toFixed(2)}" width="${(w * 0.7).toFixed(2)}" y="${(40 - 38 * (x.total || 0) / max).toFixed(2)}" height="${(38 * (x.total || 0) / max).toFixed(2)}"><title>${x.month}: ${(x.total || 0).toLocaleString(T.locale)}</title></rect>`).join("")}</svg><p class="ac-caption" style="margin:4px 0 0">${esc(T.perMonth)}</p>` : "";
-    return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.regs)}</h3>
+    return `<section class="ac-card" id="registrations"><h3 class="ac-card__title">${esc(T.regs)}</h3>
       <div class="ac-readouts"><div class="ac-readout"><div class="ac-readout__value">${(r.last_12_months || 0).toLocaleString(T.locale)}</div><div class="ac-readout__basis">${esc(T.regsYear)}${r.rank ? ` · ${esc(T.regsRank(r.rank))}` : ""}</div></div></div>
       ${r.segment && T.seg[r.segment] ? `<p class="ac-caption">${T.regsSeg(`<a href="${PRE}/rankings/?list=sellers&amp;seg=${encodeURIComponent(r.segment)}">${esc(T.seg[r.segment])}</a>`)}</p>` : ""}
       ${spark}<ul class="links"><li><a href="${PRE}/registrations/?model=${encodeURIComponent(r.slug)}">${esc(T.regsMore)}</a></li></ul></section>`;
@@ -332,7 +371,7 @@
         <button type="button" class="ac-chip" data-cmp="${esc(m.id)}" aria-pressed="${on}">${esc(on ? T.cmpOn : T.cmpShort)}</button></li>`;
     }).join("");
     const ids = [cmpId(s), ...list.slice(0, 3).map((m) => m.id)];
-    return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.similar)}</h3><p class="ac-caption" style="margin:4px 0 0">${esc(T.similarDesc)}</p>
+    return `<section class="ac-card" id="similar"><h3 class="ac-card__title">${esc(T.similar)}</h3><p class="ac-caption" style="margin:4px 0 0">${esc(T.similarDesc)}</p>
       <ul class="slist">${rows}</ul><ul class="links"><li><a href="${PRE}/compare/?cars=${ids.map(encodeURIComponent).join(",")}">${esc(T.cmpThese)}</a></li></ul></section>`;
   }
   function badges(s) {
@@ -370,7 +409,7 @@
         + `<span class="adac">${ys.map((y) => `<span${y === pick ? ' class="on"' : ""}><b>${num(r.adac.rates[y])}</b><small>${y}</small></span>`).join("")}</span>`
         + `<small>${esc(T.adacUnit)} · <a href="${esc(A.source_url)}" rel="noopener">${esc(A.source)}</a></small>`;
     }
-    return `<section class="ac-card"><h3 class="ac-card__title">${esc(T.ratings)}</h3>${line(T.euro, euro)}${line(T.green, green)}${line(T.adac, adac)}
+    return `<section class="ac-card" id="ratings"><h3 class="ac-card__title">${esc(T.ratings)}</h3>${line(T.euro, euro)}${line(T.green, green)}${line(T.adac, adac)}
       <p class="ac-caption" style="margin:var(--space-3) 0 0">${esc(T.ratingsNote)}</p></section>`;
   }
 
@@ -436,7 +475,108 @@
       <p class="ac-caption" style="margin:var(--space-2) 0 0"><a href="${PRE}/children/">${esc(K.law)}</a> · <a href="${OUTINGS}" rel="noopener">${esc(K.outings)}</a></p></section>`;
   }
 
-  let drawing = 0;
+  /* E-Auto grant for this car: electric cars qualify; a plug-in hybrid only with at most 60 g CO2/km or at
+     least 80 km electric range (rules in /ev-grant/grant.js), so it is checked per version */
+  function grantBlock(s, list) {
+    const E = window.EvGrant;
+    if (!E) return "";
+    const R = E.RULES, ev = s.fuel === "electric", ph = /^phev/.test(s.fuel);
+    const date = (iso) => new Date(iso + "T12:00:00Z").toLocaleDateString(T.locale, { day: "numeric", month: "long", year: "numeric" });
+    const href = `${PRE}/ev-grant/?drive=${ev ? "bev" : "phev"}${s.car ? `&car=${encodeURIComponent(s.car)}` : ""}`;
+    const wrap = (body) => `<section class="ac-card" id="grant"><h3 class="ac-card__title">${esc(W.grant)}</h3>${body}</section>`;
+    if (!ev && !ph) return s.fuel && T.fuel[s.fuel] ? wrap(`<p class="ac-caption">${esc(W.grantNone(T.fuel[s.fuel]))}</p>`) : "";
+    const drive = ev ? "bev" : "phev", b = R.base[drive];
+    const parts = [];
+    let ok = true;
+    if (ph) {
+      const m = eff(s);
+      const fig = [m.co2_g_km != null ? `${m.co2_g_km} g CO₂/km` : "", m.range_km ? `${m.range_km} km` : ""].filter(Boolean).join(" · ");
+      if (s.ver || !list.length) {
+        const r = E.phevOk(m.co2_g_km, m.range_km);
+        ok = r !== false;
+        parts.push(`<p class="ac-caption">${esc((r === false ? W.phevNo : W.phevOk)(fig + (s.ver ? "" : ` (${W.phevAvg})`)))}</p>`);
+      } else {
+        const good = list.filter((v) => E.phevOk(v.co2_g_km, v.range_km) === true).length;
+        ok = good > 0;
+        parts.push(`<p class="ac-caption">${esc(W.phevSome(good, list.length))}</p>`);
+      }
+      parts.push(`<p class="ac-caption">${esc(W.phevUntil(date(R.phev_until)))}</p>`);
+    } else parts.unshift(`<p class="ac-caption">${esc(W.bev)}</p>`);
+    if (s.year && s.year < Number(R.registered_from.slice(0, 4))) { ok = false; parts.push(`<p class="ac-caption"><strong>${esc(W.tooEarly(s.year))}</strong></p>`); }
+    const amount = ok ? `<div class="ac-readouts"><div class="ac-readout ac-readout--md"><div class="ac-readout__value">${eur(b[b.length - 1], 0)}–${eur(b[0], 0)}</div><div class="ac-readout__basis">${esc(W.amount(eur(b[b.length - 1], 0), eur(b[0], 0)))}${zh ? "，" : ", "}${esc(W.perChild(eur(R.per_child, 0), R.max_children))}</div></div></div>` : "";
+    return wrap(`${amount}${parts.join("")}<ul class="links"><li><a href="${href}">${esc(W.grantGo)}</a></li></ul>`);
+  }
+
+  /* where this model stands in every list on /rankings/ (same rules), also when it is far down */
+  function rankBlock(s) {
+    const m = s.m;
+    if (!m) return "";
+    const cur = currentModels(), isCur = cur.includes(m), rows = [];
+    const at = (arr, i) => i >= 0 ? W.pos(i + 1, arr.length) : null;
+    const row = (label, list, pos, why, value) => rows.push(`<li><span><a href="${PRE}/rankings/?${list}">${esc(label)}</a>${value ? `<small>${esc(value)}</small>` : ""}</span><b class="${pos ? "" : "muted"}">${esc(pos || W.notRanked)}</b>${!pos && why ? `<small class="why">${esc(why)}</small>` : ""}</li>`);
+    const key = G.modelKey(m.make, m.model);
+    const regsAll = regs ? regs.models.filter((x) => x.model !== "SONSTIGE") : [];
+    const sellers = regsAll.filter((x) => x.last_12_months).sort((a, b) => b.last_12_months - a.last_12_months);
+    const si = sellers.findIndex((x) => G.modelKey(x.brand, x.model) === key);
+    row(W.rk.sellers, "list=sellers", at(sellers, si), W.why.regs, si >= 0 ? W.regsN(sellers[si].last_12_months.toLocaleString(T.locale)) : "");
+    if (m.fuel === "electric") {
+      const el = regsAll.filter((x) => x.latest_bev).sort((a, b) => b.latest_bev - a.latest_bev);
+      row(W.rk.electric, "list=electric", at(el, el.findIndex((x) => G.modelKey(x.brand, x.model) === key)), W.why.regs);
+      const effL = cur.filter((x) => x.fuel === "electric" && x.kwh_per_100km && (x.registrations || 0) >= 500).sort((a, b) => a.kwh_per_100km - b.kwh_per_100km || (b.registrations || 0) - (a.registrations || 0));
+      row(W.rk.efficient, "list=efficient", at(effL, effL.indexOf(m)), isCur ? W.why.few500 : W.why.old, m.kwh_per_100km ? `${num(m.kwh_per_100km)} kWh/100 km` : "");
+    }
+    const cheap = cur.filter((x) => (x.registrations || 0) >= 1000).map((x) => [x, G.cost100(x, prices.fuel, prices.charge).main]).filter((x) => x[1] != null).sort((a, b) => a[1] - b[1]);
+    const ci = cheap.findIndex((x) => x[0] === m);
+    row(W.rk.cheapest, "list=cheapest", at(cheap, ci), isCur ? W.why.few1000 : W.why.old, ci >= 0 ? `${eur(cheap[ci][1])} / 100 km` : "");
+    if (ci >= 0) {
+      const same = cheap.filter((x) => x[0].fuel === m.fuel);
+      row(W.rk.cheapestFuel(T.fuel[m.fuel] || m.fuel), `list=cheapest&fuel=${encodeURIComponent(m.fuel)}`, at(same, same.findIndex((x) => x[0] === m)), "");
+    }
+    if (ratings) {
+      const all = ratings.euro_ncap.models;
+      const proto = all.map((x) => x.child && x.child.occupant_pct != null ? x.child.protocol : "").filter(Boolean).sort().pop() || "";
+      const kids = all.filter((x) => x.child && x.child.protocol === proto && x.child.occupant_pct != null).sort((a, b) => b.child.occupant_pct - a.child.occupant_pct || b.year - a.year);
+      const e = G.ratings(ratings, m).euro;
+      if (e) row(W.rk.child, "list=child", at(kids, kids.findIndex((x) => x.url === e.url)), W.why.proto, e.child && e.child.occupant_pct != null ? `${e.child.occupant_pct}% · ${e.child.protocol}` : "");
+    }
+    if (recallStats) {
+      const slug = G.recallBrand(m.make);
+      const br = recallStats.brands.filter((b) => b.alerts_per_100k != null).sort((a, b) => a.alerts_per_100k - b.alerts_per_100k);
+      const bi = br.findIndex((b) => b.slug === slug);
+      if (bi >= 0) row(W.rk.recalls(m.make), "list=recalls", at(br, bi), "", `${num(br[bi].alerts_per_100k)}`);
+    }
+    return `<section class="ac-card" id="rankings"><h3 class="ac-card__title">${esc(W.ranks)}</h3><ul class="slist ranks">${rows.join("")}</ul>
+      <ul class="links"><li><a href="${PRE}/rankings/">${esc(W.rankAll)}</a></li></ul></section>`;
+  }
+
+  /* jump links to each section of the car page */
+  function jumpNav(html) {
+    const ids = ["cost", "versions", "grant", "ratings", "children", "recalls", "registrations", "rankings", "similar"].filter((id) => html.includes(`id="${id}"`));
+    return ids.length > 2 ? `<nav class="jump" aria-label="${esc(W.jump)}">${ids.map((id) => `<a class="ac-chip" href="#${id}">${esc(W.sec[id])}</a>`).join("")}</nav>` : "";
+  }
+
+  /* ?q=<text>: the search results as a list (the header search sends people here without JavaScript, and a
+     link or an AI can search this way); the best match is shown below */
+  function matchCars(q) {
+    const F = window.AlloFind;
+    const w = F ? F.words(q) : String(q).toLowerCase().split(/\s+/).map(G.norm).filter(Boolean);
+    const nm = F ? F.norm : G.norm;
+    if (!w.length) return [];
+    const hits = catalog.filter((m) => { const h = nm(`${m.make} ${m.name} ${m.model} ${m.fuel} ${T.fuel[m.fuel] || ""}`); return w.every((x) => h.includes(x)); });
+    const exact = (m) => w.includes(nm(m.model)) ? 1 : 0;
+    return hits.sort((a, b) => exact(b) - exact(a) || (b.registrations || 0) - (a.registrations || 0));
+  }
+  function resultsCard(q) {
+    const hits = matchCars(q), box = $("results");
+    if (!box) return hits;
+    box.hidden = false;
+    box.innerHTML = `<h2 class="ac-card__title">${esc(W.results(q))}</h2>` + (hits.length
+      ? `<p class="ac-caption" style="margin:4px 0 0">${esc(W.resultsN(hits.length))}</p><ul class="slist">${hits.slice(0, 40).map((m) => `<li><span><a href="${PRE}/cars/?car=${encodeURIComponent(m.id)}">${esc(m.name)}</a><small>${[T.fuel[m.fuel] || m.fuel, m.registrations ? W.regsN(m.registrations.toLocaleString(T.locale)) : ""].filter(Boolean).map(esc).join(" · ")}</small></span></li>`).join("")}</ul>`
+      : `<p class="ac-caption">${esc(W.noResults(q))}</p>`);
+    return hits;
+  }
+
+  let drawing = 0, jumped = false;
   async function draw() {
     drawGarage();
     const s = current.spec, me = ++drawing;
@@ -454,7 +594,11 @@
     const [rc, rg, kid] = await Promise.all([recallBlock(s).catch((e) => ""), regBlock(s).catch((e) => ""), childBlock(s).catch((e) => "")]);
     if (me !== drawing) return;
     const cards = $("profile").querySelector(".cards");
-    cards.innerHTML = costBlock(s) + versionBlock(s, list) + ratingsBlock(s) + kid + rc + rg + similarBlock(s);
+    const html = costBlock(s) + versionBlock(s, list) + grantBlock(s, list) + ratingsBlock(s) + kid + rc + rg + rankBlock(s) + similarBlock(s);
+    cards.innerHTML = html;
+    const head = $("profile").querySelector(".head");
+    if (head) head.insertAdjacentHTML("afterend", jumpNav(html));
+    if (location.hash && !jumped) { jumped = true; const t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
   }
   $("profile").addEventListener("click", (e) => {
     const va = e.target.closest("a[data-v]");
@@ -483,18 +627,26 @@
   });
 
   async function load() {
-    const [cat, fuel, charge, rg, rb, rt] = await Promise.all([
+    const [cat, fuel, charge, rg, rb, rt, rs] = await Promise.all([
       json(AlloSite.data("vehicle-catalog", "models.json")),
       soft(AlloSite.data("fuel-prices", "latest.json")),
       soft(AlloSite.data("charging-prices", "latest.json")),
       soft(AlloSite.data("registrations", "models.json")),
       soft("/data/recalls/eu/brands.json"),
       soft(AlloSite.data("ratings", "ratings.json")),
+      soft("/data/recalls/eu/stats.json"),
     ]);
     catalogYear = cat.year || 0; catalog = cat.models; byId = new Map(catalog.map((m) => [m.id, m]));
-    prices = { fuel, charge }; regs = rg; recallBrands = rb; ratings = rt;
+    prices = { fuel, charge }; regs = rg; recallBrands = rb; ratings = rt; recallStats = rs;
     const u = new URLSearchParams(location.search);
     if (u.get("car") && showModel(u.get("car"), Number(u.get("year")) || 0, u.get("v") || "")) return;
+    const q = (u.get("q") || "").trim().slice(0, 80);
+    if (q) {
+      if (document.readyState === "loading") await new Promise((r) => document.addEventListener("DOMContentLoaded", r, { once: true }));
+      const box = document.querySelector("#find-inline input[name=q]"); if (box) box.value = q;
+      const hits = resultsCard(q);
+      if (hits.length) return showModel(hits[0].id, 0);
+    }
     const a = G.active();
     if (a) return showSaved(a, false);
     showModel("volvo-ex30", 0) || showModel(catalog[0].id, 0);
