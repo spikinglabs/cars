@@ -185,11 +185,12 @@
       const shown = vals.map((v, i) => v == null ? "–" : (typeof v === "number" && row.fmt ? row.fmt(v) : String(v)));
       const same = n > 1 && shown.every((s) => s === shown[0]);
       if (st.same && same) continue;
-      if (row.g !== group) { group = row.g; body += `<tr class="grp"><th scope="rowgroup" colspan="${n + 1}">${esc(T.g[group])}</th></tr>`; }
+      if (row.g !== group) { group = row.g; body += `<tr class="grp"><th scope="rowgroup" colspan="${n + 1}"><span>${esc(T.g[group])}</span></th></tr>`; }
       body += `<tr><th scope="row">${esc(row.label())}</th>${infos.map((x) => cell(row, x)).join("")}</tr>`;
     }
     $("table").innerHTML = n ? head + `<tbody>${body}</tbody>` : "";
-    $("table").style.minWidth = `${104 + 116 * n}px`; // two cars fit a phone; more scroll sideways
+    $("table").style.minWidth = n > 2 ? `${96 + 116 * n}px` : ""; // two cars always fit the screen; more scroll sideways
+    buildBar();
     const basis = [T.basisHome(eur(HOME_PRICE)), prices.charge ? T.basisPub(eur(prices.charge.overall.median)) : "", prices.fuel ? T.basisFuel(day(prices.fuel.week)) : ""].filter(Boolean);
     $("basis").textContent = basis.join(" · ") + (regs ? ` · ${T.regsNote}` : "");
     $("add").hidden = n >= G.compare.MAX;
@@ -301,5 +302,42 @@
     if (basket.length) return setIds(basket, false);
     return setIds(DEFAULT, false);
   }
+  /* ---------- car names that stay in view ----------
+     The table scrolls sideways inside .scroll, so its header cannot stick to the top of the page. Once the
+     header has scrolled up out of sight, a copy of the car names is pinned to the top of the screen, cell
+     for cell as wide as the columns, and follows the table when it is scrolled sideways. */
+  const scroller = $("table").parentElement;
+  const bar = document.createElement("div");
+  bar.className = "stickbar"; bar.hidden = true; bar.setAttribute("aria-hidden", "true");
+  document.body.appendChild(bar);
+  function buildBar() {
+    const ths = [...$("table").querySelectorAll("thead th")];
+    if (ths.length < 2) { bar.innerHTML = ""; bar.hidden = true; return; }
+    bar.innerHTML = `<div class="stickbar__row">${ths.map((th, i) => {
+      if (!i) return `<span class="stickbar__corner"></span>`;
+      const x = infos[i - 1];
+      return `<a class="stickbar__car" tabindex="-1" href="${esc(th.querySelector(".carname").getAttribute("href"))}"><b>${esc(x.m.name)}</b><small>${esc(x.v ? vLabel(x.v) : T.fuel[x.m.fuel] || x.m.fuel)}</small></a>`;
+    }).join("")}</div>`;
+    placeBar();
+  }
+  function placeBar() {
+    const t = $("table"), head = t.tHead;
+    if (!head || !bar.firstChild) { bar.hidden = true; return; }
+    const hb = head.getBoundingClientRect(), tb = t.getBoundingClientRect(), sb = scroller.getBoundingClientRect();
+    const show = hb.bottom < 0 && tb.bottom > 120;
+    bar.hidden = !show;
+    if (!show) return;
+    bar.style.left = `${sb.left}px`; bar.style.width = `${sb.width}px`;
+    const row = bar.firstChild, ths = head.rows[0].cells;
+    row.style.width = `${t.offsetWidth}px`;
+    row.style.transform = `translateX(${tb.left - sb.left}px)`;
+    [...row.children].forEach((c, i) => { if (ths[i]) c.style.width = `${ths[i].getBoundingClientRect().width}px`; });
+    // the label column is sticky in the table: keep its blank twin over it
+    row.firstChild.style.transform = `translateX(${ths[0].getBoundingClientRect().left - tb.left}px)`;
+  }
+  addEventListener("scroll", placeBar, { passive: true });
+  addEventListener("resize", placeBar);
+  scroller.addEventListener("scroll", placeBar, { passive: true });
+
   load().catch((e) => { $("table").innerHTML = `<caption>${esc(T.failed)}${esc(e.message)}</caption>`; });
 })();

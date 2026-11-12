@@ -60,13 +60,15 @@
   .combo__list li small { color: var(--ink-muted); font-weight: 400; white-space: nowrap; }
   .combo__list li[aria-selected="true"], .combo__list li:hover { background: var(--surface-50); outline: 1.5px solid var(--ink); }
   .combo__list li.combo__none { cursor: default; color: var(--ink-muted); outline: none; background: none; }
-  .scroll { position: relative; overflow-x: auto; margin: 0 calc(-1 * var(--space-4)); padding: 0 var(--space-4); -webkit-overflow-scrolling: touch; }
+  /* scrolls sideways only when the cars don't fit (no padding here: it made a table that fits scroll a little, sliding the first column under the labels) */
+  .scroll { position: relative; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
   table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
   .cmp th, .cmp td { padding: 10px 8px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
   .cmp tbody th[scope="row"] { font-weight: 600; color: var(--ink-muted); width: 26%; min-width: 96px; }
   .cmp th[scope="row"], .cmp thead th.corner { position: sticky; left: 0; z-index: 1; background: var(--surface-100); }
   .cmp thead th { vertical-align: bottom; border-bottom: 2px solid var(--ink); }
-  .cmp td { font-weight: 600; }
+  .cmp td { font-weight: 600; overflow-wrap: anywhere; }
+  .carname { overflow-wrap: break-word; }
   .cmp td small { display: block; font-weight: 400; color: var(--ink-muted); font-size: 12px; }
   .cmp td.na { color: var(--ink-muted); font-weight: 400; }
   .cmp tr.grp th { padding-top: var(--space-4); font: 800 13px/16px var(--font-sans); text-transform: uppercase; letter-spacing: .04em; color: var(--ink); background: none; border-bottom: 0; position: static; }
@@ -81,6 +83,24 @@
   .try { display: flex; flex-wrap: wrap; gap: 8px; }
   .try .ac-chip { min-height: 40px; text-decoration: none; color: var(--ink); }
   #empty[hidden], #mine[hidden] { display: none; }
+  /* version picker in each car's column: the site's own select look, never wider than the column */
+  .ver { grid-column: 1 / -1; display: block; margin-top: 6px; min-width: 0; }
+  .ver select { display: block; width: 100%; max-width: 100%; min-height: 40px; box-sizing: border-box; padding: 6px 28px 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-100) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23888' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 10px center / 10px 7px; color: var(--ink); font: 600 13px/18px var(--font-sans); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; appearance: none; -webkit-appearance: none; cursor: pointer; }
+  .ver select:hover { border-color: var(--ink); }
+  .ver select option { background: var(--surface-100); color: var(--ink); }
+  .cmp thead th:not(.corner) { min-width: 0; }
+  /* the sticky label column: a line on its right edge, so columns scrolled under it read as scrolled, not cut */
+  .cmp th[scope="row"], .cmp thead th.corner { box-shadow: 1px 0 0 var(--border); }
+  .cmp tr.grp th { box-shadow: none; }
+  .cmp tr.grp th span { position: sticky; left: 8px; } /* group titles stay readable when the table is scrolled sideways */
+  /* car names pinned to the top while the table scrolls (compare/app.js) */
+  .stickbar { font-family: var(--font-sans); color: var(--ink); position: fixed; top: 0; z-index: 900; overflow: hidden; background: var(--surface-100); border-bottom: 2px solid var(--ink); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+  .stickbar[hidden] { display: none; }
+  .stickbar__row { display: flex; }
+  .stickbar__corner { flex: none; position: relative; z-index: 1; align-self: stretch; background: var(--surface-100); box-shadow: 1px 0 0 var(--border); }
+  .stickbar__car { flex: none; box-sizing: border-box; display: grid; gap: 1px; padding: 8px; min-width: 0; color: var(--ink); text-decoration: none; }
+  .stickbar__car b { font: 800 14px/18px var(--font-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stickbar__car small { color: var(--ink-muted); font-size: 12px; line-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -223,6 +243,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/compare/app.js?v=47cc807bc2"></script>
+<script src="/compare/app.js?v=2f50c9e36a"></script>
 </body>
 </html>
