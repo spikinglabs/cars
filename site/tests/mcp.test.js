@@ -129,7 +129,7 @@ test("consumption: exact model first, then most registered", async () => {
   const r = await call("lookup_official_consumption", { query: "VW Golf" });
   assert.equal(r.isError, false);
   assert.deepEqual(r.structuredContent.models.map((m) => m.id), ["vw-golf-petrol", "vw-golf-diesel"]);
-  assert.equal(r.structuredContent.models[0].page, "https://cars.allo.land/cars/?car=vw-golf-petrol");
+  assert.equal(r.structuredContent.models[0].page, "https://cars.allo.land/car/?car=vw-golf-petrol");
   assert.deepEqual(JSON.parse(r.content[0].text), r.structuredContent);
 });
 test("compare: costs at this week's prices, recalls that name the model, a page link", async () => {
@@ -148,7 +148,7 @@ test("versions: every trim of a model with filters, refs and page links", async 
   assert.equal(r.versions_total, 3);
   assert.deepEqual(r.versions.map((v) => v.ref), ["volvo-ex30:200kw-475km", "volvo-ex30:315kw", "volvo-ex30:200kw-337km"]);
   assert.deepEqual(r.versions[0].variant_codes, ["2ZEL"]);
-  assert.equal(r.versions[0].page, "https://cars.allo.land/cars/?car=volvo-ex30&v=200kw-475km");
+  assert.equal(r.versions[0].page, "https://cars.allo.land/car/?car=volvo-ex30&v=200kw-475km");
   assert.equal(r.versions[0].name, "Volvo EX30 200 kW · 475 km");
   const small = (await call("get_car_versions", { car: "volvo-ex30", max_power_kw: 250, min_range_km: 400 })).structuredContent;
   assert.deepEqual(small.versions.map((v) => v.ref), ["volvo-ex30:200kw-475km"]);
@@ -174,7 +174,7 @@ test("similar cars: a version is matched on its own power and weight", async () 
   const r = (await call("find_similar_cars", { car: "Volvo EX30 315 kW" })).structuredContent;
   assert.equal(r.car.version_ref, "volvo-ex30:315kw");
   assert.equal(r.car.power_kw, 315);
-  assert.equal(r.car.page, "https://cars.allo.land/cars/?car=volvo-ex30&v=315kw");
+  assert.equal(r.car.page, "https://cars.allo.land/car/?car=volvo-ex30&v=315kw");
   assert.match(r.compare_page, /cars=volvo-ex30%3A315kw/);
 });
 test("compare: no known car is an answer with an error", async () => {

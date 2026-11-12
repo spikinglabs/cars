@@ -3,9 +3,9 @@
  *
  * Searches the vehicle catalog (/data/vehicle-catalog/<region>/models.json, loaded on first use) by
  * make, model and fuel, and the site's own pages (taken from the "All pages" sheet in the footer, so
- * they are always in the page's language). Each car leads to its page, /cars/?car=<catalog id>, which
+ * they are always in the page's language). Each car leads to its page, /car/?car=<catalog id>, which
  * shows everything the site knows about it. With nothing typed it offers the cars kept in "My cars"
- * and the best sellers. Without JavaScript the form still works: it opens /cars/?q=<text>, and that
+ * and the best sellers. Without JavaScript the form still works: it opens /car/?q=<text>, and that
  * page lists the matches too (so a link or an AI can search with ?q=).
  * English, German and Chinese; Chinese brand names (大众, 比亚迪 …) find the brand.
  */
@@ -80,7 +80,7 @@
   function garage() {
     try { var g = JSON.parse(localStorage.getItem("allo-cars-garage") || "null"); return g && Array.isArray(g.cars) ? g.cars : []; } catch (e) { return []; }
   }
-  var carHref = function (id, extra) { return PRE + "/cars/?car=" + encodeURIComponent(id) + (extra || ""); };
+  var carHref = function (id, extra) { return PRE + "/car/?car=" + encodeURIComponent(id) + (extra || ""); };
   function carSub(m) {
     var bits = [T.fuel[m.fuel] || m.fuel];
     if (m.registrations) bits.push(T.regs(Number(m.registrations).toLocaleString(locale)));
@@ -108,7 +108,7 @@
       opt.i = 0; active = -1; input.removeAttribute("aria-activedescendant");
       var html = "";
       if (!q) {
-        var mine = garage().slice(0, 6).map(function (c) { return opt(c.car ? carHref(c.car, (c.year ? "&year=" + c.year : "") + (c.v ? "&v=" + encodeURIComponent(c.v) : "")) : PRE + "/cars/", c.nick || c.name, [c.nick ? c.name : "", T.fuel[c.fuel] || "", c.year || ""].filter(Boolean).join(" · ")); });
+        var mine = garage().slice(0, 6).map(function (c) { return opt(PRE + "/cars/?mine=" + encodeURIComponent(c.id), c.nick || c.name, [c.nick ? c.name : "", T.fuel[c.fuel] || "", c.year || ""].filter(Boolean).join(" · ")); });
         var top = catalog ? catalog.slice().sort(function (a, b) { return (b.registrations || 0) - (a.registrations || 0); }).slice(0, 6).map(function (m) { return opt(carHref(m.id), m.name, carSub(m)); }) : [];
         html = group(T.mine, mine) + (catalog ? group(T.popular, top) : '<li class="ac-find__none" role="presentation">' + esc(T.loading) + "</li>");
       } else {
@@ -116,7 +116,7 @@
         html = group(T.cars, cars.map(function (m) { return opt(carHref(m.id), m.name, carSub(m)); })) + group(T.pages, pg.map(function (p) { return opt(p.href, p.t, ""); }));
         if (!catalog) html += '<li class="ac-find__none" role="presentation">' + esc(T.loading) + "</li>";
         else if (!cars.length && !pg.length) html = '<li class="ac-find__none" role="presentation">' + esc(T.none) + "</li>";
-        else if (findCars(q).length > 8) html += '<li role="presentation"><a role="option" class="ac-find__all" id="' + uid + "-" + (opt.i++) + '" href="' + PRE + "/cars/?q=" + encodeURIComponent(q) + '">' + esc(T.all(q)) + "</a></li>";
+        else if (findCars(q).length > 8) html += '<li role="presentation"><a role="option" class="ac-find__all" id="' + uid + "-" + (opt.i++) + '" href="' + PRE + "/car/?q=" + encodeURIComponent(q) + '">' + esc(T.all(q)) + "</a></li>";
       }
       list.innerHTML = html;
       list.hidden = !html;

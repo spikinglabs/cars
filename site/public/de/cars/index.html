@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meine Autos · Allo Cars</title>
-<meta name="description" content="Schlag jedes Auto nach, das in Deutschland verkauft wird, oder speicher deine eigenen: offizieller Verbrauch und Versionen, was 100 km heute kosten, E-Auto-Förderung, Euro NCAP und ADAC, Rückrufe, Zulassungen und Ranglisten. Auf deinem Gerät gespeichert, ohne Konto.">
+<meta name="description" content="Alle deine Autos an einem Ort: offizieller Verbrauch, was 100 km heute kosten, Rückrufe für das Baujahr und wie viele in Deutschland zugelassen sind. Auf deinem Gerät gespeichert, ohne Konto.">
 <!-- chrome:head -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Allo Cars">
 <meta property="og:title" content="Meine Autos · Allo Cars">
-<meta property="og:description" content="Schlag jedes Auto nach, das in Deutschland verkauft wird, oder speicher deine eigenen: offizieller Verbrauch und Versionen, was 100 km heute kosten, E-Auto-Förderung, Euro NCAP und ADAC, Rückrufe, Zulassungen und Ranglisten. Auf deinem Gerät gespeichert, ohne Konto.">
+<meta property="og:description" content="Alle deine Autos an einem Ort: offizieller Verbrauch, was 100 km heute kosten, Rückrufe für das Baujahr und wie viele in Deutschland zugelassen sind. Auf deinem Gerät gespeichert, ohne Konto.">
 <meta property="og:url" content="https://cars.allo.land/de/cars/">
 <meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
 <meta property="og:image:width" content="512">
@@ -144,35 +144,26 @@
   </div>
 </header>
 <div class="ac-find" id="ac-find" popover role="dialog" aria-label="Auto suchen">
-  <form class="ac-find__form" action="/de/cars/" role="search" data-find>
+  <form class="ac-find__form" action="/de/car/" role="search" data-find>
     <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="Marke und Modell, z. B. VW ID.3" aria-label="Auto suchen" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
     <button type="button" class="ac-iconbtn" popovertarget="ac-find" popovertargetaction="hide" aria-label="Schließen" title="Schließen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <ul class="ac-find__list" data-find-list role="listbox" aria-label="Auto suchen" hidden></ul>
   </form>
 </div>
-<script src="/assets/search.js?v=9f7605469a" defer></script>
+<script src="/assets/search.js?v=5a1dded372" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
   <span class="ac-apphint__text" data-app-hint-text>Allo Cars lässt sich wie eine App auf den Startbildschirm legen.</span>
   <button type="button" class="ac-apphint__go" data-app-hint-go hidden>Installieren</button>
   <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="Ausblenden">×</button>
 </aside>
 <!-- /chrome:header -->
-    <h1>Alles über <span class="ac-hl">jedes Auto</span></h1>
-    <p class="lead">Schlag jedes Auto nach, das in Deutschland neu verkauft wird, oder füge die hinzu, die du fährst. Zu jedem Auto siehst du, was 100 km zu heutigen Preisen kosten, den offiziellen Verbrauch und die Versionen, die E-Auto-Förderung, Sicherheitstests, Rückrufe, wie viele auf deutschen Straßen fahren und wo es in den Ranglisten steht. Deine Autos bleiben auf diesem Gerät. Es gibt kein Konto.</p>
+    <h1>Alles über <span class="ac-hl">deine Autos</span></h1>
+    <p class="lead">Füge jedes Auto hinzu, das du fährst. Für jedes siehst du, was 100 km zu heutigen Preisen kosten, den offiziellen Verbrauch, Rückrufe passend zum Baujahr und wie viele auf deutschen Straßen unterwegs sind. Deine Autos bleiben auf diesem Gerät. Es gibt kein Konto.</p>
     <div class="stack">
-      <section class="ac-card findcard" aria-labelledby="find-h">
-        <h2 class="ac-card__title" id="find-h">Auto suchen</h2>
-        <form class="ac-find__form ac-find--inline" id="find-inline" action="" role="search" data-find>
-          <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="Marke und Modell, z. B. VW ID.3" aria-label="Auto suchen" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
-          <button class="ac-btn ac-btn--primary" type="submit">Suchen</button>
-          <ul class="ac-find__list" data-find-list role="listbox" aria-label="Auto suchen" hidden></ul>
-        </form>
-      </section>
-      <section class="ac-card" id="results" aria-live="polite" hidden></section>
       <section class="ac-card" aria-labelledby="yours-h">
         <h2 class="ac-card__title" id="yours-h">Deine Autos</h2>
         <div class="garage" id="garage"><button type="button" class="ac-btn ac-btn--primary" id="add-open">+ Auto hinzufügen</button></div>
-        <p class="ac-caption" id="garage-none" hidden>Noch keine Autos. Füge deine hinzu oder sieh dir das Beispiel unten an.</p>
+        <p class="ac-caption" id="garage-none" hidden>Noch keine Autos. Füge die hinzu, die du fährst. Andere Autos findest du über die Suche oben.</p>
         <form class="addform" id="addform" hidden autocomplete="off">
           <div class="row" id="pickrow">
             <label class="fld fld--wide combo"><span>Marke und Modell</span>
@@ -209,9 +200,9 @@
     </div>
     <p class="ac-share__status" data-share-status role="status"></p>
     <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
-      <p class="ac-share__desc">Schlag jedes Auto nach, das in Deutschland verkauft wird, oder speicher deine eigenen: offizieller Verbrauch und Versionen, was 100 km heute kosten, E-Auto-Förderung, Euro NCAP und ADAC, Rückrufe, Zulassungen und Ranglisten. Auf deinem Gerät gespeichert, ohne Konto.</p>
+      <p class="ac-share__desc">Alle deine Autos an einem Ort: offizieller Verbrauch, was 100 km heute kosten, Rückrufe für das Baujahr und wie viele in Deutschland zugelassen sind. Auf deinem Gerät gespeichert, ohne Konto.</p>
       <div class="ac-share__row">
-        <a href="https://wa.me/?text=Meine%20Autos%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F&amp;text=Meine%20Autos%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Meine%20Autos%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Meine%20Autos%20%C2%B7%20Allo%20Cars&amp;body=Schlag%20jedes%20Auto%20nach%2C%20das%20in%20Deutschland%20verkauft%20wird%2C%20oder%20speicher%20deine%20eigenen%3A%20offizieller%20Verbrauch%20und%20Versionen%2C%20was%20100%20km%20heute%20kosten%2C%20E-Auto-F%C3%B6rderung%2C%20Euro%20NCAP%20und%20ADAC%2C%20R%C3%BCckrufe%2C%20Zulassungen%20und%20Ranglisten.%20Auf%20deinem%20Ger%C3%A4t%20gespeichert%2C%20ohne%20Konto.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F" data-share-link data-count="share_email">E-Mail</a>
+        <a href="https://wa.me/?text=Meine%20Autos%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F&amp;text=Meine%20Autos%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Meine%20Autos%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Meine%20Autos%20%C2%B7%20Allo%20Cars&amp;body=Alle%20deine%20Autos%20an%20einem%20Ort%3A%20offizieller%20Verbrauch%2C%20was%20100%20km%20heute%20kosten%2C%20R%C3%BCckrufe%20f%C3%BCr%20das%20Baujahr%20und%20wie%20viele%20in%20Deutschland%20zugelassen%20sind.%20Auf%20deinem%20Ger%C3%A4t%20gespeichert%2C%20ohne%20Konto.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fde%2Fcars%2F" data-share-link data-count="share_email">E-Mail</a>
       </div>
     </div>
   </section>
@@ -271,6 +262,6 @@
   </main>
 </div>
 <script src="/ev-grant/grant.js?v=1adf9d7ece"></script>
-<script src="/cars/app.js?v=d5ef3ba351"></script>
+<script src="/cars/app.js?v=d4d313eafc"></script>
 </body>
 </html>

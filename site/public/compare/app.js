@@ -173,7 +173,7 @@
     const n = infos.length;
     $("empty").hidden = n >= 2;
     const head = `<thead><tr><th scope="col" class="corner"><span class="sr">${esc(T.page)}</span></th>${infos.map((x) => `<th scope="col"><div class="carhead">
-        <a href="${PRE}/cars/?car=${encodeURIComponent(baseId(x.id))}${x.v ? `&v=${encodeURIComponent(x.v.id)}` : ""}" class="carname">${esc(x.m.name)}</a>
+        <a href="${PRE}/car/?car=${encodeURIComponent(baseId(x.id))}${x.v ? `&v=${encodeURIComponent(x.v.id)}` : ""}" class="carname">${esc(x.m.name)}</a>
         <span class="carfuel">${esc(T.fuel[x.m.fuel] || x.m.fuel)}</span>
         ${x.list.length ? `<label class="ver"><span class="sr">${esc(T.version)}: ${esc(x.m.name)}</span><select data-ver="${esc(baseId(x.id))}">
           <option value=""${x.v ? "" : " selected"}>${esc(T.allVersions)}</option>${x.list.map((v) => `<option value="${esc(v.id)}"${x.v === v ? " selected" : ""}>${esc(vLabel(v))}${v.years ? ` (${v.years[0] === v.years[1] ? v.years[0] : `${v.years[0]}–${v.years[1]}`})` : ""}</option>`).join("")}</select></label>` : ""}

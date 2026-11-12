@@ -1,4 +1,9 @@
-/* My cars: the cars someone keeps on this device (assets/garage.js) and one page per car model that
+/* Two pages share this script:
+   - My cars (/cars/, element #garage present): only the cars someone keeps on this device (assets/garage.js),
+     with the full profile of the one picked. ?car= of a car not kept there forwards to the car page.
+   - The car page (/car/?car=<catalog id>&v=<version>&year=<first registered>, or ?q=<search>): any model,
+     opened from rankings, search, compare …, with "Add to my cars" and "+ Compare".
+   The profile joins what the site knows about a model:
    joins what the site knows about it: official consumption (EEA vehicle catalog), what 100 km costs
    at today's prices (fuel and charging data), recalls matching its build year (Safety Gate) and new
    registrations in Germany (KBA).
@@ -113,14 +118,18 @@
     range_km: s.ver.range_km, power_kw: s.ver.power_kw, mass_kg: s.ver.mass_kg, years: s.ver.years, year: s.ver.year } : s.m;
   let current = null; // { car: garage entry or null, spec: {car,name,make,model,fuel,year,cons} }
 
+  const MINE = !!$("garage"); // My cars, or the page of any one car
+  const C = zh ? { open: "在我的车里打开", none: "没有找到这个车型。", find: "在上面搜索一款车。" } : de ? { open: "In Meine Autos öffnen", none: "Dieses Modell gibt es nicht.", find: "Such oben nach einem Auto." } : { open: "Open in My cars", none: "We don't have this model.", find: "Search for a car above." };
   /* ---------- your cars ---------- */
-  const ADD = $("add-open").textContent.replace(/^\+\s*/, "");
+  const ADD = MINE ? $("add-open").textContent.replace(/^\+\s*/, "") : "";
   function drawGarage() {
+    if (!MINE) return;
     const cars = G.list(), act = current && current.car ? current.car.id : null;
     $("garage").innerHTML = cars.map((c) => `<button type="button" class="ac-chip" data-car="${esc(c.id)}" aria-pressed="${c.id === act}">${esc(c.nick || c.name)}${c.nick ? ` <small>${esc(c.name)}</small>` : ""}${c.year ? ` <small>${c.year}</small>` : ""}</button>`).join("")
       + `<button type="button" class="ac-btn ac-btn--primary" id="add-open">+ ${esc(ADD)}</button>`;
     $("garage-none").hidden = cars.length > 0;
   }
+  if (MINE) {
   $("garage").addEventListener("click", (e) => {
     const b = e.target.closest("[data-car]");
     if (b) { G.setActive(b.dataset.car); showSaved(G.get(b.dataset.car), true); return; }
@@ -192,6 +201,7 @@
     form.hidden = true;
     showSaved(c, true);
   });
+  }
 
   /* ---------- one car ---------- */
   function specOf(c) {
@@ -259,7 +269,7 @@
       links.push(`<a href="${PRE}/charge-times/">${esc(T.chargeTimes)}</a>`);
     }
     if (f !== "electric" && FUEL_PRODUCT[f]) links.push(`<a href="${PRE}/fuel-prices/">${esc(FUEL_LINK)}</a>`);
-    const own = current.car ? `<label class="ac-param ownc"><span class="ac-param__label">${esc(T.ownCons)}</span><span class="ac-param__box"><input id="own" type="number" min="0.1" max="60" step="0.1" inputmode="decimal" value="${s.cons ?? ""}" placeholder="${off ?? "–"}"><span class="ac-param__unit">${T.unit(f === "electric" ? "electric" : "fuel")}</span></span><span class="ac-param__hint">${esc(T.ownHint)}</span></label>` : "";
+    const own = MINE && current.car ? `<label class="ac-param ownc"><span class="ac-param__label">${esc(T.ownCons)}</span><span class="ac-param__box"><input id="own" type="number" min="0.1" max="60" step="0.1" inputmode="decimal" value="${s.cons ?? ""}" placeholder="${off ?? "–"}"><span class="ac-param__unit">${T.unit(f === "electric" ? "electric" : "fuel")}</span></span><span class="ac-param__hint">${esc(T.ownHint)}</span></label>` : "";
     return `<section class="ac-card" id="cost"><h3 class="ac-card__title">${esc(T.cost)}</h3><div class="ac-readouts">${readouts}</div>
       ${facts.length ? `<p class="ac-caption" style="margin:0">${facts.map(esc).join(" · ")}</p>` : ""}${own}
       ${links.length ? `<ul class="links">${links.map((l) => `<li>${l}</li>`).join("")}</ul>` : ""}</section>`;
@@ -367,7 +377,7 @@
       const c = G.cost100(m, prices.fuel, prices.charge).main;
       const use = m.fuel === "electric" ? `${num(m.kwh_per_100km)} kWh/100 km` : m.l_per_100km ? `${num(m.l_per_100km)} ${T.unit("fuel")}` : "";
       const on = basket.includes(m.id);
-      return `<li><span><a href="${PRE}/cars/?car=${encodeURIComponent(m.id)}">${esc(m.name)}</a><small>${[T.fuel[m.fuel] || m.fuel, use, c != null ? `${eur(c)} / 100 km` : ""].filter(Boolean).map(esc).join(" · ")}</small></span>
+      return `<li><span><a href="${PRE}/car/?car=${encodeURIComponent(m.id)}">${esc(m.name)}</a><small>${[T.fuel[m.fuel] || m.fuel, use, c != null ? `${eur(c)} / 100 km` : ""].filter(Boolean).map(esc).join(" · ")}</small></span>
         <button type="button" class="ac-chip" data-cmp="${esc(m.id)}" aria-pressed="${on}">${esc(on ? T.cmpOn : T.cmpShort)}</button></li>`;
     }).join("");
     const ids = [cmpId(s), ...list.slice(0, 3).map((m) => m.id)];
@@ -571,7 +581,7 @@
     if (!box) return hits;
     box.hidden = false;
     box.innerHTML = `<h2 class="ac-card__title">${esc(W.results(q))}</h2>` + (hits.length
-      ? `<p class="ac-caption" style="margin:4px 0 0">${esc(W.resultsN(hits.length))}</p><ul class="slist">${hits.slice(0, 40).map((m) => `<li><span><a href="${PRE}/cars/?car=${encodeURIComponent(m.id)}">${esc(m.name)}</a><small>${[T.fuel[m.fuel] || m.fuel, m.registrations ? W.regsN(m.registrations.toLocaleString(T.locale)) : ""].filter(Boolean).map(esc).join(" · ")}</small></span></li>`).join("")}</ul>`
+      ? `<p class="ac-caption" style="margin:4px 0 0">${esc(W.resultsN(hits.length))}</p><ul class="slist">${hits.slice(0, 40).map((m) => `<li><span><a href="${PRE}/car/?car=${encodeURIComponent(m.id)}">${esc(m.name)}</a><small>${[T.fuel[m.fuel] || m.fuel, m.registrations ? W.regsN(m.registrations.toLocaleString(T.locale)) : ""].filter(Boolean).map(esc).join(" · ")}</small></span></li>`).join("")}</ul>`
       : `<p class="ac-caption">${esc(W.noResults(q))}</p>`);
     return hits;
   }
@@ -585,11 +595,12 @@
     s.ver = (s.v && list.find((v) => v.id === s.v)) || null;
     const vname = s.ver ? ` ${vLabel(s.ver)}` : "";
     const title = (current.car && current.car.nick ? `${current.car.nick} · ${s.name}` : s.name) + vname;
-    const sub = [T.fuel[s.fuel] || s.fuel, s.year ? T.reg(s.year) : "", !current.car && !G.list().length && !new URLSearchParams(location.search).get("car") ? T.example : ""].filter(Boolean).join(" · ");
-    const acts = current.car
-      ? `<span class="ac-status ac-status--ok">${esc(T.saved)}</span><button type="button" class="ac-btn ac-btn--ghost" id="remove">${esc(T.remove)}</button>`
-      : `<button type="button" class="ac-btn ac-btn--gold" id="keep">${esc(T.addThis)}</button>`;
-    const headHtml = `<section class="ac-card"><div class="head"><div><h2 class="ac-card__title">${esc(title)}</h2><p class="ac-card__desc" style="margin:4px 0 0">${esc(sub)}</p>${badges(s)}</div><div class="acts">${acts}</div></div><div class="acts cmp" id="cmp-row">${cmpHtml(s)}</div></section>`;
+    const sub = [T.fuel[s.fuel] || s.fuel, s.year ? T.reg(s.year) : ""].filter(Boolean).join(" · ");
+    const acts = !current.car ? `<button type="button" class="ac-btn ac-btn--gold" id="keep">${esc(T.addThis)}</button>`
+      : MINE ? `<span class="ac-status ac-status--ok">${esc(T.saved)}</span><button type="button" class="ac-btn ac-btn--ghost" id="remove">${esc(T.remove)}</button>`
+      : `<span class="ac-status ac-status--ok">${esc(T.saved)}</span><a class="ac-btn ac-btn--ghost" href="${PRE}/cars/?mine=${encodeURIComponent(current.car.id)}">${esc(C.open)}</a>`;
+    if (!MINE && $("car-h1")) { $("car-h1").textContent = s.name + vname; document.title = `${s.name}${vname} · Allo Cars`; }
+    const headHtml = `<section class="ac-card"><div class="head"><div>${MINE ? `<h2 class="ac-card__title">${esc(title)}</h2>` : ""}<p class="ac-card__desc" style="margin:4px 0 0">${esc(sub)}</p>${badges(s)}</div><div class="acts">${acts}</div></div><div class="acts cmp" id="cmp-row">${cmpHtml(s)}</div></section>`;
     $("profile").innerHTML = `<div class="stack">${headHtml}<div class="cards">${costBlock(s)}<section class="ac-card"><p class="ac-caption">…</p></section><section class="ac-card"><p class="ac-caption">…</p></section></div></div>`;
     const [rc, rg, kid] = await Promise.all([recallBlock(s).catch((e) => ""), regBlock(s).catch((e) => ""), childBlock(s).catch((e) => "")]);
     if (me !== drawing) return;
@@ -616,7 +627,7 @@
     if (e.target.id === "remove") {
       G.remove(current.car.id);
       const next = G.active();
-      if (next) showSaved(next, true); else { current = { car: null, spec: current.spec }; draw(); }
+      if (next) showSaved(next, true); else { current = null; setUrl({}); drawGarage(); empty(); }
     }
   });
   $("profile").addEventListener("change", (e) => {
@@ -639,17 +650,40 @@
     catalogYear = cat.year || 0; catalog = cat.models; byId = new Map(catalog.map((m) => [m.id, m]));
     prices = { fuel, charge }; regs = rg; recallBrands = rb; ratings = rt; recallStats = rs;
     const u = new URLSearchParams(location.search);
-    if (u.get("car") && showModel(u.get("car"), Number(u.get("year")) || 0, u.get("v") || "")) return;
+    if (MINE) {
+      // My cars: only cars kept on this device; any other car has its own page
+      const byMine = u.get("mine") && G.get(u.get("mine"));
+      if (byMine) { G.setActive(byMine.id); return showSaved(byMine, true); }
+      if (u.get("car")) {
+        const year = Number(u.get("year")) || 0, v = u.get("v") || "";
+        const kept = G.list().find((c) => c.car === u.get("car") && (!year || c.year === year) && (!v || c.v === v));
+        if (kept) { G.setActive(kept.id); return showSaved(kept, false); }
+        return location.replace(`${PRE}/car/${location.search}${location.hash}`);
+      }
+      if (u.get("q")) return location.replace(`${PRE}/car/${location.search}`);
+      const a = G.active() || G.list()[0];
+      if (a) return showSaved(a, false);
+      drawGarage(); return empty();
+    }
+    if (u.get("car")) {
+      if (showModel(u.get("car"), Number(u.get("year")) || 0, u.get("v") || "")) return;
+      $("profile").innerHTML = `<section class="ac-card"><p class="ac-caption">${esc(C.none)}</p></section>`; return;
+    }
     const q = (u.get("q") || "").trim().slice(0, 80);
     if (q) {
       if (document.readyState === "loading") await new Promise((r) => document.addEventListener("DOMContentLoaded", r, { once: true }));
       const box = document.querySelector("#find-inline input[name=q]"); if (box) box.value = q;
       const hits = resultsCard(q);
       if (hits.length) return showModel(hits[0].id, 0);
+      $("profile").innerHTML = ""; return;
     }
-    const a = G.active();
-    if (a) return showSaved(a, false);
-    showModel("volvo-ex30", 0) || showModel(catalog[0].id, 0);
+    $("profile").innerHTML = `<section class="ac-card"><p class="ac-caption">${esc(C.find)}</p></section>`;
+  }
+  // My cars with no car kept yet: the add form, open
+  function empty() {
+    $("profile").innerHTML = "";
+    $("garage-none").hidden = false;
+    $("addform").hidden = false;
   }
   addEventListener("ac:garage", () => drawGarage());
   load().catch((e) => { $("profile").innerHTML = `<section class="ac-card"><p class="ac-caption">${T.failed}${esc(e.message)}</p></section>`; });
