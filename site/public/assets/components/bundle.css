@@ -455,3 +455,7 @@
 .ac-notices__more { font-size: 13px; }
 .ac-notices__note { border-top: 1px solid var(--border); margin-top: 8px !important; padding-top: 8px; }
 .ac-notices__note + .ac-notices__note { border-top: 0; padding-top: 0; margin-top: 4px !important; }
+/* The nav has more links than fit beside the logo, so it takes its own row on every screen and the
+   icons (recall bell, search, language, theme) stay on the top row, at the right, next to the logo. */
+.ac-top .ac-topnav { order: 3; flex: 1 1 100%; margin: 0 -14px; }
+@media (max-width: 640px) { .ac-top .ac-topnav { margin: 0 -4px; } }
