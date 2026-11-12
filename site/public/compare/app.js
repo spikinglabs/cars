@@ -22,7 +22,7 @@
     best: "最佳", only: "隐藏相同的项目", mark: "标出最佳值", km: "每年公里数",
     try: "常见比较", mine: "加入我的车", empty: "添加至少两辆车来比较。",
     basisHome: (p) => `家充 ${p}/kWh，含 10% 充电损耗`, basisPub: (p) => `公共即充即付中位数 ${p}/kWh`, basisFuel: (w) => `油价：${w} 当周全国平均`,
-    pair: (a, b) => `${a} 对比 ${b}`, euro: "Euro NCAP 安全星级", green: "Green NCAP 环保星级", adac: (y) => `ADAC 每 1,000 辆故障（${y} 年首次登记）`, rg: "评级",
+    pair: (a, b) => `${a} 对比 ${b}`, euro: "Euro NCAP 安全星级", green: "Green NCAP 环保星级", adac: (y) => `ADAC 每 1,000 辆故障（${y} 年首次登记）`, rg: "评级", kid: "Euro NCAP 儿童乘员得分", isofix: "ISOFIX 标配座位", seatN: { front: "副驾", row2: "第二排两侧", row2_centre: "第二排中间", row3: "第三排", rear: "后排" }, noSeat: "无",
     version: "版本", allVersions: "所有版本（平均）",
   } : de ? {
     locale: "de-DE", failed: "Die Daten konnten nicht geladen werden: ", remove: "Entfernen", add: "Auto hinzufügen", addPh: "Marke und Modell, z. B. VW Golf", noModel: "Kein Modell gefunden.", full: "Bis zu 4 Autos. Entferne zuerst eins.",
@@ -36,7 +36,7 @@
     best: "Bester Wert", only: "Gleiche Zeilen ausblenden", mark: "Besten Wert markieren", km: "Kilometer pro Jahr",
     try: "Oft verglichen", mine: "Meine Autos hinzufügen", empty: "Füge mindestens zwei Autos hinzu.",
     basisHome: (p) => `Zu Hause ${p}/kWh, mit 10 % Ladeverlust`, basisPub: (p) => `Median öffentlich ad hoc ${p}/kWh`, basisFuel: (w) => `Sprit: Bundesdurchschnitt der Woche ab ${w}`,
-    pair: (a, b) => `${a} oder ${b}`, euro: "Euro NCAP Sicherheit", green: "Green NCAP Umwelt", adac: (y) => `ADAC Pannen pro 1.000 (Erstzulassung ${y})`, rg: "Bewertungen",
+    pair: (a, b) => `${a} oder ${b}`, euro: "Euro NCAP Sicherheit", green: "Green NCAP Umwelt", adac: (y) => `ADAC Pannen pro 1.000 (Erstzulassung ${y})`, rg: "Bewertungen", kid: "Euro NCAP Kindersicherheit", isofix: "ISOFIX serienmäßig", seatN: { front: "Beifahrersitz", row2: "2. Reihe außen", row2_centre: "2. Reihe Mitte", row3: "3. Reihe", rear: "Rücksitze" }, noSeat: "keiner",
     version: "Version", allVersions: "Alle Versionen (Durchschnitt)",
   } : {
     locale: "en-GB", failed: "Could not load data: ", remove: "Remove", add: "Add a car", addPh: "Make and model, e.g. VW Golf", noModel: "No model found.", full: "Up to 4 cars. Remove one first.",
@@ -50,7 +50,7 @@
     best: "Best", only: "Hide rows that are the same", mark: "Mark the best value", km: "Kilometres per year",
     try: "Often compared", mine: "Add my cars", empty: "Add at least two cars to compare.",
     basisHome: (p) => `Home ${p}/kWh, plus 10% charging losses`, basisPub: (p) => `Public ad-hoc median ${p}/kWh`, basisFuel: (w) => `Fuel: national average, week of ${w}`,
-    pair: (a, b) => `${a} vs ${b}`, euro: "Euro NCAP safety", green: "Green NCAP environment", adac: (y) => `ADAC breakdowns per 1,000 (first registered ${y})`, rg: "Ratings",
+    pair: (a, b) => `${a} vs ${b}`, euro: "Euro NCAP safety", green: "Green NCAP environment", adac: (y) => `ADAC breakdowns per 1,000 (first registered ${y})`, rg: "Ratings", kid: "Euro NCAP child occupant score", isofix: "ISOFIX as standard", seatN: { front: "Front passenger", row2: "2nd row, outer seats", row2_centre: "2nd row, centre", row3: "3rd row", rear: "Rear seats" }, noSeat: "none",
     version: "Version", allVersions: "All versions (average)",
   };
   const G = window.AlloGarage;
@@ -130,12 +130,17 @@
     { g: "de", label: () => T.regs12, value: (x) => x.r ? x.r.last_12_months || 0 : null, fmt: (v) => v.toLocaleString(T.locale), better: "high" },
     { g: "de", label: () => T.rank, value: (x) => x.r && x.r.rank ? x.r.rank : null, fmt: (v) => `#${v}` },
     { g: "ratings", label: () => T.euro, value: (x) => x.rt.euro ? x.rt.euro.stars : null, fmt: (v) => "★".repeat(Math.floor(v)) + (v % 1 ? "½" : ""), better: "high", link: (x) => x.rt.euro && x.rt.euro.url, note: (x) => x.rt.euro && String(x.rt.euro.year) },
+    // child occupant %: only compared ("best") between cars tested under the same protocol
+    { g: "ratings", label: () => T.kid, value: (x) => kid(x) && kid(x).occupant_pct != null ? kid(x).occupant_pct : null, fmt: (v) => `${v}%`, better: "high", byProto: true, link: (x) => x.rt.euro && x.rt.euro.url, note: (x) => kid(x) && `${kid(x).protocol} · ${x.rt.euro.year}` },
+    { g: "ratings", label: () => T.isofix, value: (x) => { const c = kid(x); if (!c || !c.isofix || !Object.keys(c.isofix).length) return null; const on = SEATS.filter((k) => c.isofix[k] === "standard"); return on.length ? on.map((k) => T.seatN[k]).join(" · ") : T.noSeat; } },
     { g: "ratings", label: () => T.green, value: (x) => x.rt.green ? x.rt.green.stars : null, fmt: (v) => "★".repeat(Math.floor(v)) + (v % 1 ? "½" : ""), better: "high", link: (x) => x.rt.green && x.rt.green.url, note: (x) => x.rt.green && `${x.rt.green.year} · ${x.rt.green.name}` },
     { g: "ratings", label: () => T.adac(adacYear(0)), value: (x) => adacRate(x, 0), fmt: (v) => num(v), better: "low" },
     { g: "ratings", label: () => T.adac(adacYear(4)), value: (x) => adacRate(x, 4), fmt: (v) => num(v), better: "low" },
     { g: "recalls", label: () => T.recalls, value: (x) => x.rc.n, fmt: (v) => String(v), better: "low", link: (x) => x.rc.href },
   ];
 
+  const SEATS = ["front", "row2", "row2_centre", "row3", "rear"];
+  const kid = (x) => x.rt && x.rt.euro && x.rt.euro.child ? x.rt.euro.child : null;
   // ADAC rows: the report's newest registration year and one five years older
   const adacYear = (i) => { const A = ratingsData && ratingsData.adac_breakdowns; const ys = A ? [...A.registration_years].sort().reverse() : []; return ys[i] || ""; };
   const adacRate = (x, i) => { const y = adacYear(i); return y && x.rt.adac && x.rt.adac.rates[y] != null ? x.rt.adac.rates[y] : null; };
@@ -146,7 +151,8 @@
   // hybrid's official 0.8 L/100 km is not better than a petrol car's 6 L)
   function bestOf(row, x) {
     if (!row.better) return null;
-    const peers = row.byFuel ? infos.filter((y) => y.m.fuel === x.m.fuel) : infos;
+    const peers = row.byFuel ? infos.filter((y) => y.m.fuel === x.m.fuel)
+      : row.byProto ? infos.filter((y) => kid(y) && kid(x) && kid(y).protocol === kid(x).protocol) : infos;
     const nums = peers.map((y) => row.value(y)).filter((v) => typeof v === "number");
     if (nums.length < 2 || new Set(nums).size < 2) return null;
     return row.better === "low" ? Math.min(...nums) : Math.max(...nums);

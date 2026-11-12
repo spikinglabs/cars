@@ -21,6 +21,38 @@ class EuroNcap(unittest.TestCase):
         r = S.parse_euro(page, "https://www.euroncap.com/assessments/aion/ut/1236/")
         self.assertEqual((r["make"], r["model"]), ("AION", "UT"))
 
+    def test_child_facts_from_flight_data(self):
+        import json
+        data = {"selectedOverview": {"id": 1, "title": "2023-2025 Safety"}, "assessmentData": {"carSafety": {
+            "safetyPerformance": {"childOccupant": {"score": 41.7, "maxScore": 49, "normalisedScore": 85, "safetyFeatures": {"features": {
+                "isofix": {"frontPassenger": "NOT_AVAILABLE", "row2Outboard": "FITTED_STANDARD", "row2Centre": "Not Available"},
+                "iSize": {"frontPassenger": "NOT_APPLICABLE", "row2Outboard": "FITTED_STANDARD"},
+                "IntegratedCRS": {"row2Outboard": "Optional"},
+                "childPresenceDetection": {"frontPassenger": "NOT_AVAILABLE", "row2Outboard": "FITTED_STANDARD"}}}}},
+            "safetyEquipment": {"childProtection": {"isofix": {"seat3": "FITTED_STANDARD", "row3": "FITTED_STANDARD"},
+                                                    "airbagCutOffSwitch": {"seat3": "FITTED_STANDARD"}}}}}}
+        flight = json.dumps("x:" + json.dumps(data))
+        page = ('<title>Euro NCAP | Kia EV4</title><script>self.__next_f.push([1,' + flight + '])</script>'
+                '{\\"safetyRatingStars\\":5, \\"ratingYear\\":2025}')
+        c = S.parse_euro(page, "https://www.euroncap.com/assessments/kia/ev4/1168/")["child"]
+        self.assertEqual(c["protocol"], "2023-2025")
+        self.assertEqual(c["occupant_pct"], 85)
+        self.assertEqual(c["isofix"], {"front": "none", "row2": "standard", "row2_centre": "none", "row3": "standard"})
+        self.assertEqual(c["i_size"], {"row2": "standard"})
+        self.assertEqual(c["integrated_seat"], {"row2": "optional"})
+        self.assertEqual((c["airbag_switch"], c["presence_detection"]), ("standard", "standard"))
+
+    def test_child_2026_protocol_has_no_score(self):
+        import json
+        data = {"selectedOverview": {"title": "2026 Safety"}, "assessmentData": {"carSafety": {"crashProtection": {}},
+            "additionalData": {"safetyEquipment": {
+                "safeDriving": {"occupantMonitoring": {"airbagCutoffSwitch": "FITTED_STANDARD", "childPresenceDetection": "FITTED_STANDARD"}},
+                "crashProtection": {"childSafety": {"iSize": {"frontPassenger": "FITTED_STANDARD", "rearPassenger": "FITTED_STANDARD"}}}}}}}
+        c = S.parse_euro_child("<script>self.__next_f.push([1," + json.dumps(json.dumps(data)) + "])</script>")
+        self.assertEqual((c["protocol"], c["occupant_pct"]), ("2026", None))
+        self.assertEqual(c["i_size"], {"front": "standard", "rear": "standard"})
+        self.assertIsNone(S.parse_euro_child("<p>nothing</p>"))
+
     def test_newest_rating_wins(self):
         a = {"make": "Volkswagen", "model": "Golf", "year": 2019, "url": "u/0805/", "stars": 5}
         b = {"make": "Volkswagen", "model": "Golf", "year": 2025, "url": "u/1115/", "stars": 4}
