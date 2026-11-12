@@ -459,3 +459,14 @@
    icons (recall bell, search, language, theme) stay on the top row, at the right, next to the logo. */
 .ac-top .ac-topnav { order: 3; flex: 1 1 100%; margin: 0 -14px; }
 @media (max-width: 640px) { .ac-top .ac-topnav { margin: 0 -4px; } }
+/* Rating stars (Euro NCAP, Green NCAP): gold filled stars over subtle empty ones, and the score as text
+   beside them so it reads at a glance. Halves are drawn by clipping the gold row (AlloGarage.stars). */
+.ac-stars { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; white-space: nowrap; vertical-align: middle; }
+.ac-stars__row { position: relative; display: inline-block; font-size: 20px; line-height: 1; letter-spacing: 0; color: var(--ac-star-off, #d3d0c8); }
+.ac-stars__on { position: absolute; top: 0; left: 0; bottom: 0; overflow: hidden; color: var(--ac-star, #f5b800); -webkit-text-stroke: .6px var(--ac-star-edge, #a87700); }
+.ac-stars__num { font: 800 16px/20px var(--font-sans); font-variant-numeric: tabular-nums; color: var(--ink); }
+.ac-stars--sm { flex-wrap: wrap; gap: 2px 6px; }
+.ac-stars--sm .ac-stars__row { font-size: 15px; }
+.ac-stars--sm .ac-stars__num { font-size: 14px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ac-star: #ffcc00; --ac-star-edge: transparent; --ac-star-off: #45484d; } }
+:root[data-theme="dark"] { --ac-star: #ffcc00; --ac-star-edge: transparent; --ac-star-off: #45484d; }

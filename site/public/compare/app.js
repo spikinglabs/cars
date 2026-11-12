@@ -129,11 +129,11 @@
     { g: "cost", label: () => T.cYear(st.km.toLocaleString(T.locale)), value: (x) => x.c.main == null ? null : x.c.main * st.km / 100, fmt: (v) => eur(v, 0), better: "low" },
     { g: "de", label: () => T.regs12, value: (x) => x.r ? x.r.last_12_months || 0 : null, fmt: (v) => v.toLocaleString(T.locale), better: "high" },
     { g: "de", label: () => T.rank, value: (x) => x.r && x.r.rank ? x.r.rank : null, fmt: (v) => `#${v}` },
-    { g: "ratings", label: () => T.euro, value: (x) => x.rt.euro ? x.rt.euro.stars : null, fmt: (v) => "★".repeat(Math.floor(v)) + (v % 1 ? "½" : ""), better: "high", link: (x) => x.rt.euro && x.rt.euro.url, note: (x) => x.rt.euro && String(x.rt.euro.year) },
+    { g: "ratings", label: () => T.euro, value: (x) => x.rt.euro ? x.rt.euro.stars : null, fmt: (v) => G.stars(v, true), html: true, better: "high", link: (x) => x.rt.euro && x.rt.euro.url, note: (x) => x.rt.euro && String(x.rt.euro.year) },
     // child occupant %: only compared ("best") between cars tested under the same protocol
     { g: "ratings", label: () => T.kid, value: (x) => kid(x) && kid(x).occupant_pct != null ? kid(x).occupant_pct : null, fmt: (v) => `${v}%`, better: "high", byProto: true, link: (x) => x.rt.euro && x.rt.euro.url, note: (x) => kid(x) && `${kid(x).protocol} · ${x.rt.euro.year}` },
     { g: "ratings", label: () => T.isofix, value: (x) => { const c = kid(x); if (!c || !c.isofix || !Object.keys(c.isofix).length) return null; const on = SEATS.filter((k) => c.isofix[k] === "standard"); return on.length ? on.map((k) => T.seatN[k]).join(" · ") : T.noSeat; } },
-    { g: "ratings", label: () => T.green, value: (x) => x.rt.green ? x.rt.green.stars : null, fmt: (v) => "★".repeat(Math.floor(v)) + (v % 1 ? "½" : ""), better: "high", link: (x) => x.rt.green && x.rt.green.url, note: (x) => x.rt.green && `${x.rt.green.year} · ${x.rt.green.name}` },
+    { g: "ratings", label: () => T.green, value: (x) => x.rt.green ? x.rt.green.stars : null, fmt: (v) => G.stars(v, true), html: true, better: "high", link: (x) => x.rt.green && x.rt.green.url, note: (x) => x.rt.green && `${x.rt.green.year} · ${x.rt.green.name}` },
     { g: "ratings", label: () => T.adac(adacYear(0)), value: (x) => adacRate(x, 0), fmt: (v) => num(v), better: "low" },
     { g: "ratings", label: () => T.adac(adacYear(4)), value: (x) => adacRate(x, 4), fmt: (v) => num(v), better: "low" },
     { g: "recalls", label: () => T.recalls, value: (x) => x.rc.n, fmt: (v) => String(v), better: "low", link: (x) => x.rc.href },
@@ -166,7 +166,8 @@
     const nt = row.note ? row.note(x) : null;
     const extra = rg && rg[0] !== rg[1] ? `<small>${num(rg[0], row.rangeDigits ?? 1)}–${num(rg[1], row.rangeDigits ?? 1)}</small>` : nt ? `<small>${esc(nt)}</small>` : "";
     const isBest = st.mark && best != null && v === best;
-    const body = row.link ? `<a href="${esc(row.link(x))}">${esc(text)}</a>` : esc(text);
+    const inner = row.html && typeof v === "number" ? text : esc(text);
+    const body = row.link ? `<a href="${esc(row.link(x))}"${row.html ? ' class="plain"' : ""}>${inner}</a>` : inner;
     return `<td${isBest ? ` class="best" title="${esc(T.best)}"` : ""}>${body}${isBest ? ` <span class="star" aria-hidden="true">★</span><span class="sr">(${esc(T.best)})</span>` : ""}${extra}</td>`;
   }
   function draw() {

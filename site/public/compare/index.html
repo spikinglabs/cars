@@ -34,9 +34,9 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=3c4c5bfd6a">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=e6bd90f628">
 <script src="/assets/site.js?v=b92c9c36d3"></script>
-<script src="/assets/garage.js?v=c4ae84a914"></script>
+<script src="/assets/garage.js?v=74d932cdd7"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
   main { max-width: 1080px; margin: 0 auto; padding: 0 16px 64px; }
@@ -73,7 +73,8 @@
   .cmp td.na { color: var(--ink-muted); font-weight: 400; }
   .cmp tr.grp th { padding-top: var(--space-4); font: 800 13px/16px var(--font-sans); text-transform: uppercase; letter-spacing: .04em; color: var(--ink); background: none; border-bottom: 0; position: static; }
   .cmp td.best { background: var(--gold-bg); box-shadow: inset 3px 0 0 var(--gold); }
-  .cmp td .star { color: var(--gold-ink); font-size: 12px; white-space: nowrap; }
+  .cmp td .star { color: var(--ac-star, #f5b800); -webkit-text-stroke: .5px var(--ac-star-edge, #a87700); font-size: 12px; white-space: nowrap; }
+  .cmp td a.plain { text-decoration: none; }
   .cmp td a { color: inherit; }
   .carhead { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: start; }
   .carname { font: 800 16px/20px var(--font-display); color: var(--ink); }
@@ -136,7 +137,7 @@
   </form>
 </div>
 <script src="/assets/search.js?v=5a1dded372" defer></script>
-<script src="/assets/garage.js?v=c4ae84a914" defer></script>
+<script src="/assets/garage.js?v=74d932cdd7" defer></script>
 <script src="/assets/notices.js?v=0628cb42ae" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
   <span class="ac-apphint__text" data-app-hint-text>Add Allo Cars to your home screen, it works like an app.</span>
@@ -246,6 +247,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/compare/app.js?v=fafc66061e"></script>
+<script src="/compare/app.js?v=6f13a73cae"></script>
 </body>
 </html>

@@ -404,7 +404,7 @@
   }
 
   /* ratings: Euro NCAP and Green NCAP stars, ADAC breakdowns per 1,000 cars (headline facts, linked) */
-  const starsHtml = (n) => `<span class="stars" aria-label="${n} / 5">${"★".repeat(Math.floor(n))}${n % 1 ? "½" : ""}<span class="off">${"★".repeat(5 - Math.ceil(n))}</span></span>`;
+  const starsHtml = (n) => G.stars(n);
   function ratingsBlock(s) {
     if (!ratings || !s.m) return "";
     const r = G.ratings(ratings, s.m), A = ratings.adac_breakdowns;
