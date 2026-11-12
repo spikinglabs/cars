@@ -300,6 +300,7 @@ function regSummary(m, rows, latest, months) {
   const bev12 = last12.reduce((s, r) => s + (r.bev || 0), 0);
   return {
     model: `${m.brand} ${m.model}`, slug: m.slug, page: `${SITE}/registrations/?model=${m.slug}`,
+    kba_segment: m.segment ?? null,
     rank_latest_month: m.rank ?? null, latest_month_total: m.latest ?? null,
     last_12_months_total: total12, last_12_months_bev_share_pct: total12 ? Math.round((bev12 / total12) * 1000) / 10 : null,
     first_month: rows.length ? rows[0].month : null, months: rows.slice(-clamp(months, 1, 100, 12)),
@@ -581,11 +582,14 @@ function cost100G(m, fuel, charge) {
   return null;
 }
 
-async function getRankings(get, { list = "sellers", fuel = null, limit = 20 } = {}) {
+const KBA_SEGMENTS = ["minis", "small", "compact", "medium", "upper-medium", "luxury", "suv", "off-road", "sports", "mini-van", "large-van", "utility", "motorhome"];
+
+async function getRankings(get, { list = "sellers", fuel = null, segment = null, limit = 20 } = {}) {
   if (!RANKINGS.includes(list)) throw new ToolError(`list must be one of ${RANKINGS.join(", ")}`);
+  if (segment && !KBA_SEGMENTS.includes(segment)) throw new ToolError(`segment must be one of ${KBA_SEGMENTS.join(", ")}`);
   if (fuel && !CATALOG_FUELS.includes(fuel)) throw new ToolError(`fuel must be one of ${CATALOG_FUELS.join(", ")}`);
   const n = clamp(limit, 1, 100, 20);
-  const page = `${SITE}/rankings/?list=${list}${list === "cheapest" && fuel ? `&fuel=${fuel}` : ""}`;
+  const page = `${SITE}/rankings/?list=${list}${list === "cheapest" && fuel ? `&fuel=${fuel}` : ""}${list === "sellers" && segment ? `&seg=${segment}` : ""}`;
   const cat = await load(get, "vehicle-catalog/de/models.json");
   const models = cat.models || [];
   const year = cat.year || 0;
@@ -600,9 +604,10 @@ async function getRankings(get, { list = "sellers", fuel = null, limit = 20 } = 
     const regs = await load(get, "registrations/de/models.json");
     const named = (regs.models || []).filter((r) => r.model !== "SONSTIGE");
     rows = list === "sellers"
-      ? named.filter((r) => r.last_12_months).sort((a, b) => b.last_12_months - a.last_12_months).map((r) => kba(r, { registrations_last_12_months: r.last_12_months, rank_latest_month: r.rank ?? null }))
+      ? named.filter((r) => r.last_12_months && (!segment || r.segment === segment)).sort((a, b) => b.last_12_months - a.last_12_months).map((r) => kba(r, { registrations_last_12_months: r.last_12_months, rank_latest_month: r.rank ?? null, kba_segment: r.segment ?? null }))
       : named.filter((r) => r.latest_bev).sort((a, b) => b.latest_bev - a.latest_bev).map((r) => kba(r, { electric_registrations: r.latest_bev, all_registrations: r.latest ?? null }, "electric"));
     about = { month: regs.latest_month, unit: list === "sellers" ? "new registrations in Germany over the last 12 months, every drive type" : "new electric registrations in Germany in the latest month", source: "Kraftfahrt-Bundesamt (FZ10)" };
+    if (list === "sellers" && segment) Object.assign(about, { segment, segments_month: regs.segments_month ?? null, segment_source: "Kraftfahrt-Bundesamt (FZ11), the KBA's own segment for each model series" });
   } else if (list === "month") {
     const latest = await load(get, "registrations/de/latest.json");
     rows = (latest.top_models || []).map((r) => kba(r, { registrations: r.total, electric: r.bev, plug_in_hybrid: r.phev, change_vs_last_year_pct: r.change_vs_last_year_pct }));
@@ -999,10 +1004,11 @@ export const TOOLS = [
   {
     name: "get_rankings",
     title: "Car rankings for Germany",
-    description: "Ranked lists of car models, as on cars.allo.land/rankings/: sellers (most new registrations over 12 months), month (top 20 of the latest month with the change on a year before), electric (electric best sellers of the latest month), efficient (lowest official kWh/100 km), cheapest (lowest cost per 100 km at this week's prices, optionally one fuel), child (highest Euro NCAP child occupant score within the newest protocol that has one) and recalls (brands with the fewest Safety Gate recalls per 100,000 new cars). Rows link to the model page and carry the catalog id for compare_cars.",
+    description: "Ranked lists of car models, as on cars.allo.land/rankings/: sellers (most new registrations over 12 months, optionally within one KBA segment), month (top 20 of the latest month with the change on a year before), electric (electric best sellers of the latest month), efficient (lowest official kWh/100 km), cheapest (lowest cost per 100 km at this week's prices, optionally one fuel), child (highest Euro NCAP child occupant score within the newest protocol that has one) and recalls (brands with the fewest Safety Gate recalls per 100,000 new cars). Rows link to the model page and carry the catalog id for compare_cars.",
     inputSchema: { type: "object", properties: {
       list: str("Which ranking.", { enum: RANKINGS, default: "sellers" }),
       fuel: str("cheapest only: just this fuel.", { enum: CATALOG_FUELS }),
+      segment: str("sellers only: just this KBA segment (large-van = Großraum-Vans, mini-van = Mini-Vans, utility = Utilities, and so on).", { enum: KBA_SEGMENTS }),
       limit: int("Most rows to return (1-100).", { default: 20 }),
     } },
     run: getRankings,

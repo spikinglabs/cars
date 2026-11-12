@@ -2,7 +2,8 @@
    the most efficient electric cars and the cheapest cars to run per 100 km (EEA catalog at this
    week's prices), Euro NCAP child occupant scores within the newest protocol that has them, and recalls per 100,000 new cars by brand (Safety Gate and KBA).
    One script for the English (/rankings/), German (/de/rankings/) and Chinese (/zh/rankings/) page.
-   Link: ?list=<sellers|month|electric|efficient|cheapest|child|recalls>&fuel=<catalog fuel, cheapest only>&n=<rows> */
+   Link: ?list=<sellers|month|electric|efficient|cheapest|child|recalls>&fuel=<catalog fuel, cheapest only>
+   &seg=<KBA segment key, sellers only>&n=<rows> */
 (() => {
   const lang = (document.documentElement.lang || "en").slice(0, 2);
   const de = lang === "de", zh = lang === "zh";
@@ -20,6 +21,7 @@
       recalls: ["召回最少的品牌", "2019 年起每 10 万辆德国新车对应的欧盟安全门汽车召回次数，从少到多。召回是通报次数，不是受影响车辆数。", "每 10 万辆"],
     },
     change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}% 同比`, regsN: (n) => `${n} 辆`, alerts: (n) => `${n} 次召回`, tested: (y) => `${y} 年测试`,
+    seg: { minis: "微型车", small: "小型车", compact: "紧凑型车", medium: "中型车", "upper-medium": "中大型车", luxury: "豪华车", suv: "SUV", "off-road": "越野车", sports: "跑车", "mini-van": "小型 MPV", "large-van": "大型 MPV", utility: "多用途车", motorhome: "房车" }, segBasis: (m) => `车型细分按 KBA 的划分（${m}）。`,
     basis: (w, p) => `油价：${w} 当周全国平均 · 电价：家充 0.35 €/kWh 加 10% 损耗${p}`,
   } : de ? {
     locale: "de-DE", failed: "Die Daten konnten nicht geladen werden: ", more: "Mehr zeigen", cmpAdd: "+ Vergleich", cmpIn: "✓ Im Vergleich", cmpGo: (n) => `${n} Autos vergleichen`, all: "Alle",
@@ -34,6 +36,7 @@
       recalls: ["Wenigste Rückrufe", "Safety-Gate-Rückrufe für Autos seit 2019 pro 100.000 Neuwagen in Deutschland, je Marke, die wenigsten zuerst. Gezählt werden Rückrufaktionen, nicht betroffene Autos.", "pro 100.000"],
     },
     change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("de-DE", { maximumFractionDigits: 1 })} % zum Vorjahr`, regsN: (n) => `${n} Autos`, alerts: (n) => `${n} Rückrufe`, tested: (y) => `getestet ${y}`,
+    seg: { minis: "Minis", small: "Kleinwagen", compact: "Kompaktklasse", medium: "Mittelklasse", "upper-medium": "Obere Mittelklasse", luxury: "Oberklasse", suv: "SUVs", "off-road": "Geländewagen", sports: "Sportwagen", "mini-van": "Mini-Vans", "large-van": "Großraum-Vans", utility: "Utilities", motorhome: "Wohnmobile" }, segBasis: (m) => `Segmente wie vom KBA eingeteilt (${m}).`,
     basis: (w, p) => `Sprit: Bundesdurchschnitt der Woche ab ${w} · Strom: zu Hause 0,35 €/kWh plus 10 % Ladeverlust${p}`,
   } : {
     locale: "en-GB", failed: "Could not load data: ", more: "Show more", cmpAdd: "+ Compare", cmpIn: "✓ Comparing", cmpGo: (n) => `Compare ${n} cars`, all: "All",
@@ -48,6 +51,7 @@
       recalls: ["Fewest recalls", "EU Safety Gate car recalls since 2019 per 100,000 new cars registered in Germany, by brand, fewest first. These count recall campaigns, not affected cars.", "per 100,000"],
     },
     change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("en-GB", { maximumFractionDigits: 1 })}% on last year`, regsN: (n) => `${n} cars`, alerts: (n) => `${n} recalls`, tested: (y) => `tested ${y}`,
+    seg: { minis: "Minis", small: "Small cars", compact: "Compact", medium: "Mid-size", "upper-medium": "Upper mid-size", luxury: "Luxury", suv: "SUVs", "off-road": "Off-road", sports: "Sports cars", "mini-van": "Mini-vans", "large-van": "Large vans (MPVs)", utility: "Utilities", motorhome: "Motorhomes" }, segBasis: (m) => `Segments as the KBA assigns them (${m}).`,
     basis: (w, p) => `Fuel: national average, week of ${w} · Electricity: home 0.35 €/kWh plus 10% losses${p}`,
   };
   const G = window.AlloGarage;
@@ -69,6 +73,7 @@
   const st = {
     list: KEYS.includes(u0.get("list")) ? u0.get("list") : "sellers",
     fuel: FUELS.includes(u0.get("fuel")) ? u0.get("fuel") : "",
+    seg: u0.get("seg") && T.seg[u0.get("seg")] ? u0.get("seg") : "",
     n: Math.max(10, Math.min(100, Number(u0.get("n")) || 20)),
   };
   let D = {}, catalog = [], catalogYear = 0;
@@ -87,8 +92,8 @@
     const current = catalog.filter((m) => m.year === catalogYear || (m.years && m.years[1] >= catalogYear - 1));
     switch (st.list) {
       case "sellers":
-        return regs.filter((r) => r.last_12_months).sort((a, b) => b.last_12_months - a.last_12_months)
-          .map((r) => kbaRow(r, int(r.last_12_months), r.rank ? `#${r.rank} ${monthName(D.regs.latest_month)}` : ""));
+        return regs.filter((r) => r.last_12_months && (!st.seg || r.segment === st.seg)).sort((a, b) => b.last_12_months - a.last_12_months)
+          .map((r) => kbaRow(r, int(r.last_12_months), [r.rank ? `#${r.rank} ${monthName(D.regs.latest_month)}` : "", !st.seg && r.segment ? T.seg[r.segment] : ""].filter(Boolean).join(" · ")));
       case "month":
         return latest ? latest.top_models.map((r) => kbaRow(r, int(r.total), r.change_vs_last_year_pct == null ? "" : T.change(r.change_vs_last_year_pct))) : [];
       case "electric":
@@ -125,8 +130,12 @@
     const month = D.latest ? monthName(D.latest.month) : "";
     $("list-h").textContent = L[0];
     $("list-desc").textContent = typeof L[1] === "function" ? L[1](st.list === "child" ? childProto() : month) : L[1];
-    $("fuels").hidden = st.list !== "cheapest";
-    $("fuels").innerHTML = ["", ...FUELS].map((f) => `<button type="button" class="ac-chip" data-fuel="${f}" aria-pressed="${f === st.fuel}">${esc(f ? T.fuel[f] : T.all)}</button>`).join("");
+    // KBA segments that have models in the data, in KBA's order
+    const segs = st.list === "sellers" && D.regs ? Object.keys(T.seg).filter((k) => D.regs.models.some((r) => r.segment === k && r.last_12_months)) : [];
+    $("fuels").hidden = st.list !== "cheapest" && !segs.length;
+    $("fuels").innerHTML = st.list === "cheapest"
+      ? ["", ...FUELS].map((f) => `<button type="button" class="ac-chip" data-fuel="${f}" aria-pressed="${f === st.fuel}">${esc(f ? T.fuel[f] : T.all)}</button>`).join("")
+      : ["", ...segs].map((k) => `<button type="button" class="ac-chip" data-seg="${k}" aria-pressed="${k === st.seg}">${esc(k ? T.seg[k] : T.all)}</button>`).join("");
     const all = rows(), shown = all.slice(0, st.n);
     const basket = G.compare.list();
     $("rank").innerHTML = shown.map((r, i) => `<li><span class="pos">${i + 1}</span><span class="who"><a href="${esc(r.href)}">${esc(r.name)}</a>${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span><span class="val">${esc(r.value)}</span>${r.car ? `<button type="button" class="ac-chip add" data-car="${esc(r.car)}" aria-pressed="${basket.includes(r.car)}">${esc(basket.includes(r.car) ? T.cmpIn : T.cmpAdd)}</button>` : `<span class="add"></span>`}</li>`).join("");
@@ -137,13 +146,15 @@
     go.textContent = T.cmpGo(basket.length);
     go.href = `${PRE}/compare/?cars=${basket.map(encodeURIComponent).join(",")}`;
     const pub = D.charge && D.charge.overall ? ` · ${de ? "öffentlich" : zh ? "公共" : "public"} ${eur(D.charge.overall.median)}/kWh` : "";
-    $("basis").hidden = st.list !== "cheapest";
-    $("basis").textContent = D.fuel ? T.basis(day(D.fuel.week), pub) : "";
+    $("basis").hidden = st.list !== "cheapest" && !segs.length;
+    $("basis").textContent = st.list === "cheapest" ? (D.fuel ? T.basis(day(D.fuel.week), pub) : "")
+      : D.regs && D.regs.segments_month ? T.segBasis(monthName(D.regs.segments_month)) : "";
   }
   function setUrl() {
     const u = new URL(location.href);
     u.searchParams.set("list", st.list);
     if (st.fuel && st.list === "cheapest") u.searchParams.set("fuel", st.fuel); else u.searchParams.delete("fuel");
+    if (st.seg && st.list === "sellers") u.searchParams.set("seg", st.seg); else u.searchParams.delete("seg");
     if (st.n !== 20) u.searchParams.set("n", st.n); else u.searchParams.delete("n");
     history.replaceState(null, "", u);
   }
@@ -155,6 +166,8 @@
   $("fuels").addEventListener("click", (e) => {
     const b = e.target.closest("[data-fuel]");
     if (b) { st.fuel = b.dataset.fuel; setUrl(); draw(); }
+    const g = e.target.closest("[data-seg]");
+    if (g) { st.seg = g.dataset.seg; st.n = 20; setUrl(); draw(); }
   });
   $("rank").addEventListener("click", (e) => {
     const b = e.target.closest("[data-car]");

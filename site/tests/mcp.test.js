@@ -9,9 +9,9 @@ const load = () => import(pathToFileURL(path.join(__dirname, "../functions/mcp.j
 // R2 keys are <project>/public/<region>/<file>, as the data function reads them.
 const FILES = {
   "registrations/public/de/latest.json": { month: "2026-03", source: "KBA", market: { total: 200 }, top_models: [], top_electric: [] },
-  "registrations/public/de/models.json": { models: [
-    { slug: "vw-golf", brand: "VW", model: "GOLF", file: "models/vw-golf.json", rank: 1, latest: 8000, last_12_months: 90000 },
-    { slug: "volvo-ex30", brand: "VOLVO", model: "EX30", file: "models/volvo-ex30.json", rank: 50, latest: 1500, last_12_months: 7000 },
+  "registrations/public/de/models.json": { segments_month: "2026-03", models: [
+    { slug: "vw-golf", brand: "VW", model: "GOLF", file: "models/vw-golf.json", rank: 1, latest: 8000, last_12_months: 90000, segment: "compact" },
+    { slug: "volvo-ex30", brand: "VOLVO", model: "EX30", file: "models/volvo-ex30.json", rank: 50, latest: 1500, last_12_months: 7000, segment: "suv" },
   ] },
   "registrations/public/de/models/vw-golf.json": { months: [{ month: "2026-02", total: 7000, bev: 0 }, { month: "2026-03", total: 8000, bev: 0 }] },
   "registrations/public/de/models/volvo-ex30.json": { months: [{ month: "2026-03", total: 1500, bev: 1500 }] },
@@ -194,6 +194,15 @@ test("rankings: child occupant score within the newest protocol only", async () 
   assert.equal(r.protocol, "2023-2025");
   assert.deepEqual(r.rows.map((x) => [x.name, x.child_occupant_pct]), [["Volkswagen Golf", 87], ["Kia EV4", 85]]);
   assert.equal(r.rows[0].catalog_id, "vw-golf-petrol");
+});
+test("rankings: best sellers within one KBA segment", async () => {
+  const r = (await call("get_rankings", { list: "sellers", segment: "suv" })).structuredContent;
+  assert.deepEqual(r.rows.map((x) => x.kba_model), ["VOLVO EX30"]);
+  assert.equal(r.rows[0].kba_segment, "suv");
+  assert.equal(r.page, "https://cars.allo.land/rankings/?list=sellers&seg=suv");
+  assert.equal((await call("get_rankings", { list: "sellers", segment: "bus" })).isError, true);
+  const g = (await call("get_registrations", { model: "VW Golf" })).structuredContent;
+  assert.equal(g.kba_segment, "compact");
 });
 test("rankings: bad list is a tool error", async () => {
   const r = await call("get_rankings", { list: "fastest" });

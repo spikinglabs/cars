@@ -40,6 +40,17 @@ FIELDS = list(DRIVES)
 # Bump when parse() changes: the collector then re-parses the stored workbooks (no new downloads).
 PARSER = 2
 
+# FZ11: the same registrations by KBA segment and model series, one workbook per month.
+SEGMENT_LIST_URL = "https://www.kba.de/DE/Statistik/Produktkatalog/produkte/Fahrzeuge/fz11/fz11_gentab.html"
+# KBA segment (as the workbook writes it) -> our key. KBA assigns each model series to one segment.
+SEGMENTS = {
+    "MINIS": "minis", "KLEINWAGEN": "small", "KOMPAKTKLASSE": "compact", "MITTELKLASSE": "medium",
+    "OBERE MITTELKLASSE": "upper-medium", "OBERKLASSE": "luxury", "SUVS": "suv", "GELÄNDEWAGEN": "off-road",
+    "SPORTWAGEN": "sports", "MINI-VANS": "mini-van", "GROSSRAUM-VANS": "large-van", "UTILITIES": "utility",
+    "WOHNMOBILE": "motorhome",
+}
+_LINK11 = re.compile(r'href="([^"]*/fz11_(\d{4})_(\d{2})(?:_xlsx)?\.xlsx[^"]*)"')
+
 _LINK = re.compile(r'href="([^"]*/fz10_(\d{4})_(\d{2})(?:_xlsx)?\.xlsx[^"]*)"')
 
 
@@ -48,6 +59,14 @@ def list_months(page_html: str) -> dict[str, str]:
     out = {}
     for href, y, m in _LINK.findall(page_html):
         out[f"{y}-{m}"] = urllib.parse.urljoin(LIST_URL, href.replace("&amp;", "&"))
+    return dict(sorted(out.items()))
+
+
+def list_segment_months(page_html: str) -> dict[str, str]:
+    """{"2026-10": absolute download URL} for every FZ11 workbook linked on its list page."""
+    out = {}
+    for href, y, m in _LINK11.findall(page_html):
+        out[f"{y}-{m}"] = urllib.parse.urljoin(SEGMENT_LIST_URL, href.replace("&amp;", "&"))
     return dict(sorted(out.items()))
 
 
@@ -152,3 +171,40 @@ def slug(*parts: str) -> str:
     s = "-".join(parts).lower()
     s = s.replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").replace("&", "and")
     return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
+
+
+def parse_segments(xlsx: bytes) -> dict[str, str]:
+    """{model slug: segment key} from one FZ11 workbook (sheet "FZ 11.1").
+
+    Columns: Segment (only on the first row of each segment), Modellreihe (brand and model in one
+    string, e.g. "DACIA JOGGER", which slugs the same as FZ10's brand + model), then counts.
+    "<SEGMENT> ZUSAMMEN" rows are totals; "SONSTIGE" model rows are skipped.
+    """
+    import openpyxl
+
+    wb = openpyxl.load_workbook(io.BytesIO(xlsx), read_only=True, data_only=True)
+    names = [n for n in wb.sheetnames if "11.1" in n.replace(" ", "")]
+    if not names:
+        raise ValueError(f"no FZ 11.1 sheet; sheets: {wb.sheetnames}")
+    rows = list(wb[names[0]].iter_rows(values_only=True))
+    head = next((i, j) for i, row in enumerate(rows) for j, c in enumerate(row) if _text(c) == "Segment")
+    start, sc = head[0] + 1, head[1]
+    out, seg = {}, None
+    for row in rows[start:]:
+        if len(row) <= sc + 1:
+            continue
+        a, m = _text(row[sc]), _text(row[sc + 1])
+        if a.startswith("©") or a.lower().startswith("hinweis"):
+            break
+        if a.endswith(" ZUSAMMEN") or a == "NEUZULASSUNGEN INSGESAMT":
+            seg = None
+            continue
+        if a:
+            if a.upper() not in SEGMENTS:
+                raise ValueError(f"unknown KBA segment {a!r}")
+            seg = SEGMENTS[a.upper()]
+        if m and seg and not m.upper().endswith("SONSTIGE"):
+            out[slug(m)] = seg
+    if not out:
+        raise ValueError("no model rows found in FZ 11.1")
+    return out

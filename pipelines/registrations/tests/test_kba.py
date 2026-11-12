@@ -62,6 +62,35 @@ def workbook(month_label: str, new_layout: bool = True, volvo_ex30: int = 1058, 
     return buf.getvalue()
 
 
+def segment_workbook() -> bytes:
+    """A small FZ11 workbook: segment on the first row of its block, brand and model in one string."""
+    import openpyxl
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "FZ 11.1"
+    ws.append([None, "FZ 11.1 Neuzulassungen von Personenkraftwagen nach Segmenten und Modellreihen"])
+    ws.append([None, "Segment", "Modellreihe", None, "September 2026", None])
+    ws.append([None, None, None, None, "Anzahl", "Anteil in %"])
+    ws.append([None, "KOMPAKTKLASSE", "VW GOLF", "", 8000, 80])
+    ws.append([None, None, "SONSTIGE", "", 5, 0])
+    ws.append([None, "KOMPAKTKLASSE ZUSAMMEN", "", "", 8005, 100])
+    ws.append([None, "SUVs", "VOLVO EX30", "", 1058, 50])
+    ws.append([None, None, "VOLVO XC60", "", 1098, 50])
+    ws.append([None, "SUVs ZUSAMMEN", "", "", 2156, 100])
+    ws.append([None, "GROSSRAUM-VANS", "VW TOURAN", "", 900, 100])
+    ws.append([None, "NEUZULASSUNGEN INSGESAMT", "", "", 11061, 100])
+    ws.append([None, "Hinweis:", None])
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue()
+
+
+SEGMENT_HTML = """
+<a href="/SharedDocs/Downloads/DE/Statistik/Fahrzeuge/FZ11/fz11_2026_08.xlsx?__blob=publicationFile&amp;v=2">August 2026</a>
+<a href="/SharedDocs/Downloads/DE/Statistik/Fahrzeuge/FZ11/fz11_2026_09.xlsx?__blob=publicationFile&amp;v=2">September 2026</a>
+"""
+
 LIST_HTML = """
 <a href="/SharedDocs/Downloads/DE/Statistik/Fahrzeuge/FZ10/fz10_2019_01_xlsx.xlsx?__blob=publicationFile&amp;v=2">Januar 2019</a>
 <a href="/SharedDocs/Downloads/DE/Statistik/Fahrzeuge/FZ10/fz10_2025_09.xlsx?__blob=publicationFile&amp;v=2">September 2025</a>
@@ -105,6 +134,17 @@ class Parse(unittest.TestCase):
         self.assertEqual(kba.slug("LYNK & CO", "01"), "lynk-and-co-01")
 
 
+class Segments(unittest.TestCase):
+    def test_list_page(self):
+        months = kba.list_segment_months(SEGMENT_HTML)
+        self.assertEqual(list(months), ["2026-08", "2026-09"])
+        self.assertTrue(months["2026-09"].startswith("https://www.kba.de/SharedDocs/Downloads/DE/Statistik/Fahrzeuge/FZ11/fz11_2026_09.xlsx"))
+
+    def test_parse(self):
+        self.assertEqual(kba.parse_segments(segment_workbook()),
+                         {"vw-golf": "compact", "volvo-ex30": "suv", "volvo-xc60": "suv", "vw-touran": "large-van"})
+
+
 class Collect(unittest.TestCase):
     def test_run_builds_public_files_and_skips_unchanged(self):
         import tempfile
@@ -117,6 +157,10 @@ class Collect(unittest.TestCase):
             calls.append(url)
             if url == kba.LIST_URL:
                 return LIST_HTML.encode()
+            if url == kba.SEGMENT_LIST_URL:
+                return SEGMENT_HTML.encode()
+            if "fz11_2026_09" in url:
+                return segment_workbook()
             return books[next(m for m in books if m.replace("-", "_") in url)]
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -134,6 +178,11 @@ class Collect(unittest.TestCase):
             models = {m["slug"]: m for m in json.loads(store.get("public/de/models.json"))["models"]}
             self.assertEqual(models["volvo-xc60"]["first_month"], "2019-01")
             self.assertEqual(models["vw-golf"]["rank"], 1)
+            self.assertEqual(models["vw-golf"]["segment"], "compact")
+            self.assertNotIn("segment", models["volvo-sonstige"])
+            self.assertEqual(json.loads(store.get("public/de/models.json"))["segments_month"], "2026-09")
+            self.assertEqual(ex30["segment"], "suv")
+            self.assertEqual(r["segments_month"], "2026-09")
             self.assertIsNone(models["volvo-sonstige"]["rank"])
             market = store.get("public/de/market.csv").decode().splitlines()
             self.assertEqual(market[0], "month,total,diesel,hybrid,phev,bev,petrol_etc,bev_share")
@@ -142,8 +191,9 @@ class Collect(unittest.TestCase):
 
             calls.clear()
             r2 = collect.run(store, delay=0, fetch=fetch)
-            self.assertEqual(calls, [kba.LIST_URL])  # nothing new, nothing downloaded
+            self.assertEqual(calls, [kba.LIST_URL, kba.SEGMENT_LIST_URL])  # nothing new, nothing downloaded
             self.assertEqual(r2["changed"], [])
+            self.assertFalse(r2["segments_changed"])
 
             # A newer parser re-parses the stored workbooks without downloading them again.
             state = json.loads(store.get("state/months.json"))
@@ -151,7 +201,7 @@ class Collect(unittest.TestCase):
             store.put("state/months.json", json.dumps(state).encode())
             calls.clear()
             r3 = collect.run(store, delay=0, fetch=fetch)
-            self.assertEqual(calls, [kba.LIST_URL])
+            self.assertEqual(calls, [kba.LIST_URL, kba.SEGMENT_LIST_URL])
             self.assertEqual(r3["changed"], ["2019-01"])
             self.assertEqual(json.loads(store.get("state/months.json"))["2019-01"]["parser"], kba.PARSER)
 
