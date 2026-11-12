@@ -258,6 +258,15 @@
   function modelPart(s) { return G.recallModel(s.make, s.model); }
   const names = (a, s) => G.recallNames(a, s.make, s.model);
   const fits = (a, y) => G.recallFits(a, y);
+  // Safety Gate alerts of a brand, one fetch per brand file
+  const brandFiles = new Map();
+  function brandAlerts(s) {
+    const slug = G.recallBrand(s.make);
+    const b = recallBrands && recallBrands.brands.find((x) => x.slug === slug);
+    if (!b) return Promise.resolve(null);
+    if (!brandFiles.has(b.file)) brandFiles.set(b.file, soft(`/data/recalls/eu/${b.file}`).then((d) => (d ? d.alerts : [])));
+    return brandFiles.get(b.file);
+  }
   async function recallBlock(s) {
     const slug = G.recallBrand(s.make);
     const b = recallBrands && recallBrands.brands.find((x) => x.slug === slug);
@@ -266,8 +275,8 @@
     let body;
     if (!b) body = `<p class="ac-caption">${esc(T.recallsNone)}</p>`;
     else {
-      const data = await soft(`/data/recalls/eu/${b.file}`);
-      const hits = (data ? data.alerts : []).filter((a) => names(a, s)).sort((x, y) => (y.date || "").localeCompare(x.date || ""));
+      const alerts = await brandAlerts(s);
+      const hits = (alerts || []).filter((a) => names(a, s)).sort((x, y) => (y.date || "").localeCompare(x.date || ""));
       const inYear = s.year ? hits.filter((a) => fits(a, s.year)) : [];
       const top = (s.year && inYear.length ? inYear : hits).slice(0, 3);
       body = hits.length
@@ -371,26 +380,45 @@
     seat: "座位", seats: { front: "副驾", row2: "第二排两侧", row2_centre: "第二排中间", row3: "第三排", rear: "后排" }, integrated: "集成式儿童座椅",
     fit: { standard: "标配", optional: "选配", none: "无" }, airbag: "副驾安全气囊可关闭", presence: "儿童遗留检测", unlisted: "未列出",
     note: "这是 Euro NCAP 测试的那一辆车的配置，你的版本请以车辆说明书为准。不同测试规程的分数不能直接比较。", full: "Euro NCAP 完整结果",
-    none: "Euro NCAP 没有这个车型的儿童乘员数据。", outings: "带孩子去哪儿：Allo Outings 上的亲子活动和地点",
+    none: "Euro NCAP 没有这个车型的儿童乘员数据。", recalls: "涉及儿童安全的召回", recallsN: (n) => `${n} 次召回提到 ISOFIX、儿童锁、儿童座椅或副驾气囊关闭`, recallsNone: "安全门 (Safety Gate) 中没有这类召回。", recallsSrc: "来自欧盟安全门的召回说明（英文原文），按关键词筛选。", grant: "电动车补贴（2026）", grantText: (p, c, n) => `每个未满 18 岁的孩子多 ${p}，收入上限每个孩子提高 ${c}，最多算 ${n} 个孩子。`, grantGo: "算一算你家能拿多少", law: "德国儿童乘车规定（法规原文）", outings: "带孩子去哪儿：Allo Outings 上的亲子活动和地点",
   } : de ? {
     title: "Mit Kindern im Auto", score: "Euro NCAP Kindersicherheit", proto: (p, y) => `Testprotokoll ${p} · getestet ${y}`, no26: "Seit dem Protokoll 2026 gibt Euro NCAP keine eigene Wertung für Kinder mehr.", noPct: "Die Ergebnisseite dieses Tests nennt keine Wertung für Kinder.",
     seat: "Sitz", seats: { front: "Beifahrersitz", row2: "2. Reihe außen", row2_centre: "2. Reihe Mitte", row3: "3. Reihe", rear: "Rücksitze" }, integrated: "Integrierter Kindersitz",
     fit: { standard: "Serie", optional: "Option", none: "nein" }, airbag: "Beifahrerairbag abschaltbar", presence: "Kinderanwesenheitserkennung", unlisted: "nicht angegeben",
     note: "So war das getestete Auto ausgestattet; was deine Version hat, steht in der Betriebsanleitung. Wertungen aus verschiedenen Testprotokollen sind nicht vergleichbar.", full: "Ganzes Ergebnis bei Euro NCAP",
-    none: "Euro NCAP hat zu diesem Modell keine Angaben zur Kindersicherheit.", outings: "Ausflugsziele und Termine für Familien: Allo Outings",
+    none: "Euro NCAP hat zu diesem Modell keine Angaben zur Kindersicherheit.", recalls: "Rückrufe zur Kindersicherheit", recallsN: (n) => `${n} ${n === 1 ? "Rückruf nennt" : "Rückrufe nennen"} ISOFIX, Kindersicherung, Kindersitz oder die Beifahrerairbag-Abschaltung`, recallsNone: "Safety Gate nennt keine solchen Rückrufe.", recallsSrc: "Aus den Rückrufmeldungen von Safety Gate (englischer Originaltext), nach Stichworten gefiltert.", grant: "E-Auto-Förderung (2026)", grantText: (p, c, n) => `${p} mehr je Kind unter 18, die Einkommensgrenze steigt um ${c} je Kind, für bis zu ${n} Kinder.`, grantGo: "Für deinen Haushalt ausrechnen", law: "Kinder im Auto: die Regeln in Deutschland", outings: "Ausflugsziele und Termine für Familien: Allo Outings",
   } : {
     title: "Children on board", score: "Euro NCAP child occupant score", proto: (p, y) => `${p} test protocol · tested ${y}`, no26: "Since the 2026 protocol Euro NCAP no longer gives a separate child occupant score.", noPct: "The result page of this test lists no child occupant score.",
     seat: "Seat", seats: { front: "Front passenger", row2: "2nd row, outer seats", row2_centre: "2nd row, centre", row3: "3rd row", rear: "Rear seats" }, integrated: "Integrated child seat",
     fit: { standard: "Standard", optional: "Optional", none: "No" }, airbag: "Front passenger airbag can be switched off", presence: "Child presence detection", unlisted: "not listed",
     note: "As fitted to the car Euro NCAP tested; your version's manual says what yours has. Scores from different test protocols are not comparable.", full: "Full result at Euro NCAP",
-    none: "Euro NCAP has no child occupant data for this model.", outings: "Family days out and events: Allo Outings",
+    none: "Euro NCAP has no child occupant data for this model.", recalls: "Recalls about children\u2019s safety", recallsN: (n) => `${n} ${n === 1 ? "recall names" : "recalls name"} ISOFIX, child locks, child seats or the passenger airbag switch`, recallsNone: "Safety Gate lists no such recalls.", recallsSrc: "From the Safety Gate recall notices (English original), filtered by keyword.", grant: "E-Auto grant (2026)", grantText: (p, c, n) => `${p} more per child under 18, and the income limit rises by ${c} per child, for up to ${n} children.`, grantGo: "Work it out for your household", law: "Children in the car: the rules in Germany", outings: "Family days out and events: Allo Outings",
   };
+  // Safety Gate recalls of this model about child seats and children's safety (ISOFIX, child locks, the
+  // passenger airbag switch …), as matched by G.childRecall on the official hazard text
+  function recallLines(list) {
+    const line = (label, body) => `<div class="rrow"><span class="rlabel">${esc(label)}</span>${body}</div>`;
+    return line(K.recalls, list.length
+      ? `<strong>${esc(K.recallsN(list.length))}</strong><ul class="rlist">${list.slice(0, 3).map((a) => `<li><a href="${esc(a.url)}" rel="noopener">${esc(a.hazard.split(/(?<=\.)\s/)[0])}</a><small>${day(a.date)}${a.production ? ` · ${esc(a.production)}` : ""}</small></li>`).join("")}</ul><small>${esc(K.recallsSrc)}</small>`
+      : `<small>${esc(K.recallsNone)}</small>`);
+  }
+  // Germany's E-Auto grant adds money per child: shown for electric cars and plug-in hybrids, from the rules in /ev-grant/grant.js
+  function grantLine(s) {
+    const R = window.EvGrant && window.EvGrant.RULES;
+    if (!R || !(s.fuel === "electric" || /^phev/.test(s.fuel))) return "";
+    const drive = s.fuel === "electric" ? "bev" : "phev";
+    const href = `${PRE}/ev-grant/?kids=1${drive === "phev" ? `&drive=phev&car=${encodeURIComponent(s.car)}` : ""}`;
+    return `<div class="rrow"><span class="rlabel">${esc(K.grant)}</span><span>${esc(K.grantText(eur(R.per_child, 0), eur(R.cap_per_child, 0), R.max_children))}</span><a href="${href}">${esc(K.grantGo)}</a></div>`;
+  }
   const SEATS = ["front", "row2", "row2_centre", "row3", "rear"];
   const OUTINGS = zh ? "https://outings.allo.land/zh/" : de ? "https://outings.allo.land/" : "https://outings.allo.land/en/";
-  function childBlock(s) {
-    if (!ratings || !s.m) return "";
-    const e = G.ratings(ratings, s.m).euro, c = e && e.child;
-    if (!c) return "";
+  async function childBlock(s) {
+    if (!s.m) return "";
+    const e = ratings ? G.ratings(ratings, s.m).euro : null, c = e && e.child;
+    const kidRecalls = ((await brandAlerts(s)) || []).filter((a) => names(a, s) && G.childRecall(a)).sort((x, y) => (y.date || "").localeCompare(x.date || ""));
+    const grant = grantLine(s);
+    if (!c) return kidRecalls.length || grant ? `<section class="ac-card" id="children"><h3 class="ac-card__title">${esc(K.title)}</h3>
+      <p class="ac-caption">${esc(K.none)}</p>${recallLines(kidRecalls)}${grant}</section>` : "";
     const fit = (v) => v ? `<span class="fit fit--${esc(v)}">${esc(K.fit[v])}</span>` : `<span class="na">–</span>`;
     const cols = [["ISOFIX", c.isofix || {}], ["i-Size", c.i_size || {}], [K.integrated, c.integrated_seat || {}]];
     const seats = SEATS.filter((k) => cols.some(([, m]) => m[k]));
@@ -403,7 +431,8 @@
     return `<section class="ac-card" id="children"><h3 class="ac-card__title">${esc(K.title)}</h3>${line(K.score, score)}${table}
       ${line(K.airbag, c.airbag_switch ? fit(c.airbag_switch) : `<small>${esc(K.unlisted)}</small>`)}${line(K.presence, c.presence_detection ? fit(c.presence_detection) : `<small>${esc(K.unlisted)}</small>`)}
       <p class="ac-caption" style="margin:var(--space-3) 0 0">${esc(K.note)} <a href="${esc(e.url)}" rel="noopener">${esc(K.full)}</a></p>
-      <p class="ac-caption" style="margin:var(--space-2) 0 0"><a href="${OUTINGS}" rel="noopener">${esc(K.outings)}</a></p></section>`;
+      ${recallLines(kidRecalls)}${grant}
+      <p class="ac-caption" style="margin:var(--space-2) 0 0"><a href="${PRE}/children/">${esc(K.law)}</a> · <a href="${OUTINGS}" rel="noopener">${esc(K.outings)}</a></p></section>`;
   }
 
   let drawing = 0;
@@ -421,10 +450,10 @@
       : `<button type="button" class="ac-btn ac-btn--gold" id="keep">${esc(T.addThis)}</button>`;
     const headHtml = `<section class="ac-card"><div class="head"><div><h2 class="ac-card__title">${esc(title)}</h2><p class="ac-card__desc" style="margin:4px 0 0">${esc(sub)}</p>${badges(s)}</div><div class="acts">${acts}</div></div><div class="acts cmp" id="cmp-row">${cmpHtml(s)}</div></section>`;
     $("profile").innerHTML = `<div class="stack">${headHtml}<div class="cards">${costBlock(s)}<section class="ac-card"><p class="ac-caption">…</p></section><section class="ac-card"><p class="ac-caption">…</p></section></div></div>`;
-    const [rc, rg] = await Promise.all([recallBlock(s).catch((e) => ""), regBlock(s).catch((e) => "")]);
+    const [rc, rg, kid] = await Promise.all([recallBlock(s).catch((e) => ""), regBlock(s).catch((e) => ""), childBlock(s).catch((e) => "")]);
     if (me !== drawing) return;
     const cards = $("profile").querySelector(".cards");
-    cards.innerHTML = costBlock(s) + versionBlock(s, list) + ratingsBlock(s) + childBlock(s) + rc + rg + similarBlock(s);
+    cards.innerHTML = costBlock(s) + versionBlock(s, list) + ratingsBlock(s) + kid + rc + rg + similarBlock(s);
   }
   $("profile").addEventListener("click", (e) => {
     const va = e.target.closest("a[data-v]");
