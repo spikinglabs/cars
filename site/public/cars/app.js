@@ -367,19 +367,19 @@
   /* children on board: Euro NCAP child occupant score and, per seat, the child seat fittings of the tested car
      (pipelines/ratings: euro_ncap.models[].child). Facts as Euro NCAP lists them, linked to the full result. */
   const K = zh ? {
-    title: "带娃乘车", score: "Euro NCAP 儿童乘员得分", proto: (p, y) => `${p} 测试规程 · ${y} 年测试`, no26: "2026 年起的新测试规程不再单独给出儿童乘员得分。",
+    title: "带娃乘车", score: "Euro NCAP 儿童乘员得分", proto: (p, y) => `${p} 测试规程 · ${y} 年测试`, no26: "2026 年起的新测试规程不再单独给出儿童乘员得分。", noPct: "这次测试的结果页没有列出儿童乘员得分。",
     seat: "座位", seats: { front: "副驾", row2: "第二排两侧", row2_centre: "第二排中间", row3: "第三排", rear: "后排" }, integrated: "集成式儿童座椅",
     fit: { standard: "标配", optional: "选配", none: "无" }, airbag: "副驾安全气囊可关闭", presence: "儿童遗留检测", unlisted: "未列出",
     note: "这是 Euro NCAP 测试的那一辆车的配置，你的版本请以车辆说明书为准。不同测试规程的分数不能直接比较。", full: "Euro NCAP 完整结果",
     none: "Euro NCAP 没有这个车型的儿童乘员数据。", outings: "带孩子去哪儿：Allo Outings 上的亲子活动和地点",
   } : de ? {
-    title: "Mit Kindern im Auto", score: "Euro NCAP Kindersicherheit", proto: (p, y) => `Testprotokoll ${p} · getestet ${y}`, no26: "Seit dem Protokoll 2026 gibt Euro NCAP keine eigene Wertung für Kinder mehr.",
+    title: "Mit Kindern im Auto", score: "Euro NCAP Kindersicherheit", proto: (p, y) => `Testprotokoll ${p} · getestet ${y}`, no26: "Seit dem Protokoll 2026 gibt Euro NCAP keine eigene Wertung für Kinder mehr.", noPct: "Die Ergebnisseite dieses Tests nennt keine Wertung für Kinder.",
     seat: "Sitz", seats: { front: "Beifahrersitz", row2: "2. Reihe außen", row2_centre: "2. Reihe Mitte", row3: "3. Reihe", rear: "Rücksitze" }, integrated: "Integrierter Kindersitz",
     fit: { standard: "Serie", optional: "Option", none: "nein" }, airbag: "Beifahrerairbag abschaltbar", presence: "Kinderanwesenheitserkennung", unlisted: "nicht angegeben",
     note: "So war das getestete Auto ausgestattet; was deine Version hat, steht in der Betriebsanleitung. Wertungen aus verschiedenen Testprotokollen sind nicht vergleichbar.", full: "Ganzes Ergebnis bei Euro NCAP",
     none: "Euro NCAP hat zu diesem Modell keine Angaben zur Kindersicherheit.", outings: "Ausflugsziele und Termine für Familien: Allo Outings",
   } : {
-    title: "Children on board", score: "Euro NCAP child occupant score", proto: (p, y) => `${p} test protocol · tested ${y}`, no26: "Since the 2026 protocol Euro NCAP no longer gives a separate child occupant score.",
+    title: "Children on board", score: "Euro NCAP child occupant score", proto: (p, y) => `${p} test protocol · tested ${y}`, no26: "Since the 2026 protocol Euro NCAP no longer gives a separate child occupant score.", noPct: "The result page of this test lists no child occupant score.",
     seat: "Seat", seats: { front: "Front passenger", row2: "2nd row, outer seats", row2_centre: "2nd row, centre", row3: "3rd row", rear: "Rear seats" }, integrated: "Integrated child seat",
     fit: { standard: "Standard", optional: "Optional", none: "No" }, airbag: "Front passenger airbag can be switched off", presence: "Child presence detection", unlisted: "not listed",
     note: "As fitted to the car Euro NCAP tested; your version's manual says what yours has. Scores from different test protocols are not comparable.", full: "Full result at Euro NCAP",
@@ -398,7 +398,7 @@
       <tbody>${seats.map((k) => `<tr><th scope="row">${esc(K.seats[k])}</th>${cols.map(([, m]) => `<td>${fit(m[k])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : "";
     const score = c.occupant_pct != null
       ? `<a href="${esc(e.url)}" rel="noopener" class="pct">${c.occupant_pct}%</a><small>${esc(K.proto(c.protocol || "", e.year))}</small>`
-      : `<small>${esc(K.no26)} ${esc(K.proto(c.protocol || "", e.year))}</small>`;
+      : `<small>${esc(/^2026/.test(c.protocol || "") ? K.no26 : K.noPct)} ${esc(K.proto(c.protocol || "", e.year))}</small>`;
     const line = (label, body) => `<div class="rrow"><span class="rlabel">${esc(label)}</span>${body}</div>`;
     return `<section class="ac-card" id="children"><h3 class="ac-card__title">${esc(K.title)}</h3>${line(K.score, score)}${table}
       ${line(K.airbag, c.airbag_switch ? fit(c.airbag_switch) : `<small>${esc(K.unlisted)}</small>`)}${line(K.presence, c.presence_detection ? fit(c.presence_detection) : `<small>${esc(K.unlisted)}</small>`)}
