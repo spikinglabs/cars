@@ -312,6 +312,21 @@
   let followed = [], brands = [], brandData = null, stats = null, statMode = "per";
   const state = { brand: "", model: "", year: 0 };
   const ALIAS = { vw: "volkswagen", mercedes: "mercedes-benz" };
+  // Safety Gate spells some makers several ways. The brand list shows only car brands (alerts that name a
+  // passenger car), and these extra spellings are folded into the brand(s) they belong to.
+  const MERGE = {
+    volkswagen: ["vw-volkswagen", "vw-nutzfahrzeuge", "vw-commercial-vehicles"],
+    "mercedes-benz": ["a-class"],
+    "land-rover": ["1-land-rover-2-range-rover"],
+    jaguar: ["jaguar-land-rover-limited"],
+    "mg-motor": ["mg3"],
+    peugeot: ["peugot", "peugeot-citroen-ds"],
+    citroen: ["citroen-et-ds-automobile", "peugeot-citroen-ds"],
+    ds: ["citroen-et-ds-automobile", "peugeot-citroen-ds"],
+    cadillac: ["general-motors-company-llc"],
+    chevrolet: ["general-motors-company-llc"],
+  };
+  const FOLDED = new Set(Object.values(MERGE).flat());
 
   function followedFor(brand, modelKey) {
     if (!modelKey) return null;
@@ -324,9 +339,19 @@
   async function loadBrand(slug) {
     if (brandData && brandData.slug === slug) return brandData;
     const b = brands.find((x) => x.slug === slug);
-    const data = await get(`eu/${b.file}`);
-    brandData = { slug, b, alerts: data.alerts, models: modelOptions(data.alerts, b.brand) };
+    const extra = (MERGE[slug] || []).map((x) => brands.find((y) => y.slug === x)).filter(Boolean);
+    const all = await Promise.all([get(`eu/${b.file}`), ...extra.map((x) => get(`eu/${x.file}`).catch(() => ({ alerts: [] })))]);
+    // the folded spellings' alerts, newest first with the brand's own
+    const alerts = all.length > 1 ? all.flatMap((d) => d.alerts).sort((p, q) => String(q.date || "").localeCompare(String(p.date || ""))) : all[0].alerts;
+    brandData = { slug, b, alerts, models: modelOptions(alerts, b.brand) };
     return brandData;
+  }
+
+  // car brands only; a brand from an old link that is not one of them still gets its own option
+  function drawBrandList() {
+    const cars = brands.filter((x) => x.passenger_cars > 0 && !FOLDED.has(x.slug) || x.slug === state.brand);
+    $("brand").innerHTML = cars.sort((x, y) => x.brand.localeCompare(y.brand, T.locale))
+      .map((x) => `<option value="${x.slug}">${esc(x.brand)}</option>`).join("");
   }
 
   async function show() {
@@ -339,6 +364,7 @@
     local(url.searchParams.toString());
 
     const bd = await loadBrand(state.brand);
+    if (![...$("brand").options].some((o) => o.value === state.brand)) drawBrandList();
     $("brand").value = state.brand;
     $("model").innerHTML = `<option value="">${T.allModels(bd.alerts.length)}</option>`
       + bd.models.map((m) => `<option value="${esc(m.key)}">${esc(m.name)} (${m.n})</option>`).join("");
@@ -461,8 +487,7 @@
   async function load() {
     const [m, b, latest] = await Promise.all([get("eu/models.json"), get("eu/brands.json"), get("eu/latest.json")]);
     followed = m.models; brands = b.brands.filter((x) => x.slug !== "unknown");
-    $("brand").innerHTML = brands.slice().sort((x, y) => x.brand.localeCompare(y.brand, T.locale))
-      .map((x) => `<option value="${x.slug}">${esc(x.brand)} (${x.alerts})</option>`).join("");
+    drawBrandList();
     const now = new Date().getFullYear();
     $("year").innerHTML = `<option value="">${T.anyYear}</option>` + Array.from({ length: now - 1999 }, (_, i) => now - i).map((y) => `<option>${y}</option>`).join("");
     $("brand").addEventListener("change", (e) => { state.brand = e.target.value; state.model = ""; show(); });

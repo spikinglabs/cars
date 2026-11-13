@@ -38,7 +38,7 @@
     fuelSourceLive: function (when) { return '油价：欧盟委员会<a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">每周石油公报</a>中的德国周均价（CC BY 4.0），' + when + " 这一周。汽油 = Euro-Super 95。"; },
     chargeSource: function (n, when) { return ' 公共充电价格：<a href="/zh/charging-prices/">价格档案</a>中 ' + n + " 种即充即付资费的中位数，" + when + "。"; },
     month: function (ym) { var p = ym.split("-"); return p[0] + " 年 " + (+p[1]) + " 月"; },
-    quick: "常见电动车", allCars: function (n) { return "全部 " + n + " 款电动车，基于官方数据"; },
+    quick: "常见电动车", none: "没有匹配的车型", allCars: function (n) { return "全部 " + n + " 款电动车，基于官方数据"; },
     official: function (kwh, range) { return "官方 WLTP 数值：插头端 " + kwh + " kWh/100 km" + (range ? "（各版本 " + range + "）" : "") + "。"; },
     officialOnly: "四种驾驶方式由此估算。",
     officialIn: "官方能耗（WLTP，插头端）",
@@ -78,7 +78,7 @@
     fuelSourceLive: function (when) { return 'Spritpreise: Wochendurchschnitt für Deutschland aus dem <a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">Weekly Oil Bulletin</a> der Europäischen Kommission (CC BY 4.0), Woche vom ' + when + ". Super = Euro-Super 95."; },
     chargeSource: function (n, when) { return ' Öffentliche Ladepreise: Median von ' + n + ' Ad-hoc-Tarifen aus dem <a href="/de/charging-prices/">Preisarchiv</a>, ' + when + "."; },
     month: function (ym) { var p = ym.split("-"); return ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"][+p[1] - 1] + " " + p[0]; },
-    quick: "Beliebte Elektroautos", allCars: function (n) { return "Alle " + n + " Elektroautos, aus dem offiziellen Verbrauch"; },
+    quick: "Beliebte Elektroautos", none: "Kein passendes Modell", allCars: function (n) { return "Alle " + n + " Elektroautos, aus dem offiziellen Verbrauch"; },
     official: function (kwh, range) { return "Offizieller WLTP-Verbrauch: " + kwh + " kWh/100 km ab Steckdose" + (range ? " (Versionen " + range + ")" : "") + "."; },
     officialOnly: " Die vier Fahrweisen sind daraus geschätzt.",
     officialIn: "Offizieller Verbrauch (WLTP, ab Steckdose)",
@@ -117,7 +117,7 @@
     fuelSourceLive: function (when) { return 'Fuel prices: German weekly average from the European Commission <a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">Weekly Oil Bulletin</a> (CC BY 4.0), week of ' + when + ". Petrol = Euro-super 95."; },
     chargeSource: function (n, when) { return ' Public charging prices: median of ' + n + ' ad-hoc tariffs from the <a href="/charging-prices/">price archive</a>, ' + when + "."; },
     month: function (ym) { var p = ym.split("-"); return ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][+p[1] - 1] + " " + p[0]; },
-    quick: "Popular electric cars", allCars: function (n) { return "All " + n + " electric cars, from official figures"; },
+    quick: "Popular electric cars", none: "No matching model", allCars: function (n) { return "All " + n + " electric cars, from official figures"; },
     official: function (kwh, range) { return "Official WLTP figure: " + kwh + " kWh/100 km at the plug" + (range ? " (versions " + range + ")" : "") + "."; },
     officialOnly: " The four driving levels are estimated from it.",
     officialIn: "Official consumption (WLTP, at the plug)",
@@ -208,15 +208,23 @@
     if (!official) return null;
     return official.byId[E.OFFICIAL_IDS[name]] || official.byName[name] || null;
   }
+  // the box above the list narrows it: every word typed must appear in the name ("id 3", "tesla y")
+  var carQ = $("car-q");
+  var key = function (v) { return String(v).toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, " "); };
   function drawCars() {
     var opt = function (n) { return '<option value="' + A.esc(n) + '">' + A.esc(n) + "</option>"; };
+    var words = carQ ? key(carQ.value).split(/\s+/).filter(Boolean) : [];
+    var hit = function (n) { var k = key(n), c = k.replace(/ /g, ""); return words.every(function (w) { return k.indexOf(w) >= 0 || c.indexOf(w) >= 0; }); };
     var quick = E.CATALOG.map(function (c) { return c[0]; });
     var rest = official ? official.list.filter(function (m) { return !official.builtin[m.id]; }).map(function (m) { return m.name; }) : [];
+    var total = rest.length;
+    quick = quick.filter(hit); rest = rest.filter(hit);
     var known = quick.indexOf(S.car) >= 0 || rest.indexOf(S.car) >= 0;
-    carSel.innerHTML = rest.length
-      ? '<optgroup label="' + A.esc(T.quick) + '">' + quick.map(opt).join("") + "</optgroup>" +
-        '<optgroup label="' + A.esc(T.allCars(rest.length)) + '">' + rest.map(opt).join("") + "</optgroup>" + (known ? "" : opt(S.car))
-      : quick.map(opt).join("") + (known ? "" : opt(S.car));
+    var none = !quick.length && !rest.length ? '<option disabled>' + A.esc(T.none) + "</option>" : "";
+    carSel.innerHTML = total
+      ? (quick.length ? '<optgroup label="' + A.esc(T.quick) + '">' + quick.map(opt).join("") + "</optgroup>" : "") +
+        (rest.length ? '<optgroup label="' + A.esc(T.allCars(words.length ? rest.length : total)) + '">' + rest.map(opt).join("") + "</optgroup>" : "") + none + (known ? "" : opt(S.car))
+      : quick.map(opt).join("") + none + (known ? "" : opt(S.car));
     carSel.value = S.car;
     drawOfficial();
   }
@@ -240,6 +248,15 @@
     }
   }
   drawCars();
+  if (carQ) {
+    carQ.addEventListener("input", function () {
+      drawCars();
+      // one match left (besides the car you had): take it
+      var opts = [].filter.call(carSel.options, function (o) { return !o.disabled; });
+      var only = opts.length === 2 ? opts.filter(function (o) { return o.value !== S.car; }) : opts.length === 1 ? opts : [];
+      if (carQ.value && only.length === 1 && only[0].value !== S.car) { carSel.value = only[0].value; carSel.dispatchEvent(new Event("change")); }
+    });
+  }
   carSel.addEventListener("change", function () {
     setCar(carSel.value); S.lvSet = false;
     drawOfficial(); drawUse(); drawLevels(); update();
@@ -595,10 +612,21 @@
   fetch(AlloSite.data("vehicle-catalog", "electric.json")).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
     if (!j || !Array.isArray(j.models) || !j.models.length) return;
     var o = { byId: {}, byName: {}, builtin: {}, year: j.year, list: [] };
+    // The register spells a few models several ways ("VW ID. Buzz", "VW Idbuzz") or oddly ("Zhidou. Zd. Elaris
+    // Elaris"): tidy the name, and keep one entry per spelling, the one with the most registrations.
+    var tidy = function (n) {
+      return String(n).replace(/\b([A-Z][a-z]+)\.(?= )/g, "$1").split(" ").filter(function (w, i, a) { return !i || w.toLowerCase() !== a[i - 1].toLowerCase(); }).join(" ");
+    };
+    var seen = {};
     j.models.forEach(function (m) {
-      var e = { id: m[0], name: m[1], kwh: m[2], min: m[3], max: m[4], n: m[5] };
+      var e = { id: m[0], name: tidy(m[1]), kwh: m[2], min: m[3], max: m[4], n: m[5] };
       if (!(e.kwh > 3 && e.kwh < 60)) return;
-      o.byId[e.id] = e; o.byName[e.name] = e; o.list.push(e);
+      o.byId[e.id] = e;
+      var k = e.name.toLowerCase().replace(/[^a-z0-9]/g, ""), had = seen[k];
+      if (had && E.OFFICIAL_IDS && Object.keys(E.OFFICIAL_IDS).some(function (q) { return E.OFFICIAL_IDS[q] === e.id; })) had = null; // a built-in car's own entry always stays
+      if (had && (had.n || 0) >= (e.n || 0)) return;
+      if (had) { o.list.splice(o.list.indexOf(had), 1); delete o.byName[had.name]; }
+      seen[k] = e; o.byName[e.name] = e; o.list.push(e);
     });
     Object.keys(E.OFFICIAL_IDS).forEach(function (n) { o.builtin[E.OFFICIAL_IDS[n]] = true; });
     o.list.sort(function (a, b) { return a.name.localeCompare(b.name, T.locale); });

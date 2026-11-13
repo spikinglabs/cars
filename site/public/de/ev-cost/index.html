@@ -81,6 +81,7 @@
   .years .ac-param__box input { width: 7ch; }
   .years .ac-seg { margin-top: 6px; }
   .years .ac-param__label { display: block; }
+  .carq { width: 100%; box-sizing: border-box; min-height: 44px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 600 16px/20px var(--font-sans); }
   .y-table caption { text-align: left; padding-bottom: 8px; white-space: normal; }
   @media (max-width: 520px) { .y-table th, .y-table td { padding-left: 4px; padding-right: 4px; font-size: 13px; } .y-table th { white-space: normal; letter-spacing: 0; vertical-align: bottom; } .y-table td:first-child, .y-table th:first-child { padding-left: 0; } .y-table td:last-child, .y-table th:last-child { padding-right: 0; } }
   .saved { margin: calc(-1 * var(--space-3)) 0 var(--space-5); font-size: 13px; color: var(--ink-muted); }
@@ -175,6 +176,7 @@
   <div class="setup">
     <section class="ac-card stack" aria-labelledby="h-car">
       <h2 class="step" id="h-car"><span class="step__n">1</span>Dein Auto</h2>
+      <input type="search" id="car-q" class="carq" placeholder="Liste eingrenzen, z. B. ID.3" aria-label="Dein Auto in der Liste suchen" autocomplete="off" spellcheck="false" enterkeyhint="search">
       <select id="car" class="ac-select" aria-label="Dein Elektroauto"></select>
       <p class="ac-caption" id="official" hidden style="margin:0"></p>
       <div>
@@ -380,7 +382,7 @@
 <script src="/ev-cost/calc.js?v=690f79f579"></script>
 <script src="/ev-grant/grant.js?v=1adf9d7ece"></script>
 <script src="/ev-cost/years.js?v=829fc6dcc5"></script>
-<script src="/ev-cost/app.js?v=9e840328cb"></script>
+<script src="/ev-cost/app.js?v=ee0489d3de"></script>
 <script src="/ev-cost/years-app.js?v=c3c7b9ce07"></script>
 </body>
 </html>
