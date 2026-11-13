@@ -145,8 +145,10 @@
     if (!MINE) return;
     const cars = G.list(), act = current && current.car ? current.car.id : null;
     $("garage").innerHTML = cars.map((c) => `<button type="button" class="ac-chip" data-car="${esc(c.id)}" aria-pressed="${c.id === act}">${esc(c.nick || c.name)}${c.nick ? ` <small>${esc(c.name)}</small>` : ""}${c.year ? ` <small>${c.year}</small>` : ""}</button>`).join("")
-      + `<button type="button" class="ac-btn ac-btn--primary" id="add-open">+ ${esc(ADD)}</button>`;
+      // with no car yet the add form is already open, so no second "Add a car" (and no Cancel)
+      + (cars.length ? `<button type="button" class="ac-btn ac-btn--primary" id="add-open">+ ${esc(ADD)}</button>` : "");
     $("garage-none").hidden = cars.length > 0;
+    $("add-cancel").hidden = !cars.length;
   }
   if (MINE) {
   $("garage").addEventListener("click", (e) => {
@@ -612,7 +614,8 @@
     row(W.rk.cheapest, "list=cheapest", at(cheap, ci), isCur ? W.why.few1000 : W.why.old, ci >= 0 ? `${eur(cheap[ci][1])} / 100 km` : "");
     if (ci >= 0) {
       const same = cheap.filter((x) => x[0].fuel === m.fuel);
-      row(W.rk.cheapestFuel(T.fuel[m.fuel] || m.fuel), `list=cheapest&fuel=${encodeURIComponent(m.fuel)}`, at(same, same.findIndex((x) => x[0] === m)), "");
+      // same place in both lists (e.g. every cheaper car has this fuel): one row says it
+      if (same.findIndex((x) => x[0] === m) !== ci) row(W.rk.cheapestFuel(T.fuel[m.fuel] || m.fuel), `list=cheapest&fuel=${encodeURIComponent(m.fuel)}`, at(same, same.findIndex((x) => x[0] === m)), "");
     }
     if (ratings) {
       const all = ratings.euro_ncap.models;
