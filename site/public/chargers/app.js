@@ -408,12 +408,14 @@
   }
   map.on("moveend", redraw);
 
-  Promise.all([getJson(data("latest.json")), getJson(data("overview.json"))]).then(([l, o]) => {
+  // charge points as counted for the statistics page and Buying electric, so every page shows the same total
+  Promise.all([getJson(data("latest.json")), getJson(data("overview.json")), getJson(data("stats.json")).catch(() => null)]).then(([l, o, st]) => {
+    const points = st && st.totals && st.totals.points || l.points;
     latest = l; overview = o;
     const when = new Date(l.observed_at + "T12:00:00Z").toLocaleDateString(T.locale, { day: "numeric", month: "long", year: "numeric" });
     $("asof").textContent = T.asof(when);
     $("readouts").innerHTML = `
-      <div class="ac-readout"><div class="ac-readout__value">${num(l.stations)}</div><div class="ac-readout__basis">${T.stations} · ${num(l.points)} ${T.points}</div></div>
+      <div class="ac-readout"><div class="ac-readout__value">${num(l.stations)}</div><div class="ac-readout__basis">${T.stations} · ${num(points)} ${T.points}</div></div>
       <div class="ac-readout"><div class="ac-readout__value">${num(l.fast_50kw_stations)}</div><div class="ac-readout__basis">${T.fast}</div></div>
       <div class="ac-readout"><div class="ac-readout__value">${num(l.hpc_150kw_stations)}</div><div class="ac-readout__basis">${T.hpc}</div></div>`;
     redraw();

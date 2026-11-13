@@ -23,8 +23,10 @@
     ownCons: "我的实际能耗", ownHint: "保存在这辆车上，费用会按它计算。",
     exact: "详细计算充电费用", compare: "和电动车比较", chargeTimes: "最便宜的充电时间", chargers: "附近的充电桩",
     recalls: "召回", recallsN: (n) => `${n} 次召回涉及此车型`, recallsYear: (n, y) => `其中 ${n} 次的生产时间与 ${y} 年首次登记相符`,
-    recallsNone: "安全门 (Safety Gate) 中没有找到此车型的召回。", recallsBrand: (b) => `查看 ${b} 的全部召回`, recallsAll: "查看全部召回和购车前要问的问题",
-    regs: "在德国的新车登记", regsYear: "过去 12 个月新登记", regsRank: (r) => `排名第 ${r}`, regsNone: "登记统计中没有单独列出此车型。", regsMore: "每月登记量和排名", regsSeg: (x) => `KBA 车型细分：${x}`, seg: { minis: "微型车", small: "小型车", compact: "紧凑型车", medium: "中型车", "upper-medium": "中大型车", luxury: "豪华车", suv: "SUV", "off-road": "越野车", sports: "跑车", "mini-van": "小型 MPV", "large-van": "大型 MPV", utility: "多用途车", motorhome: "房车" },
+    recallsNone: "安全门 (Safety Gate) 中没有找到此车型的召回。", recallsBrand: (b) => `查看 ${b} 的全部召回`, recallsAll: "查看全部召回和购车前要问的问题", recallsMore: (n) => `另有 ${n} 次`, recallsUs: (n) => `美国 ${n} 次召回行动`, parkOutside: "停在室外", recallsEn: "说明为英文原文，见全部召回。",
+    comp: { airbags_belts: "安全气囊和安全带", brakes: "制动系统", steering: "转向系统", hv_battery: "高压电池和充电", fuel: "燃油系统", engine_drive: "发动机和传动系统", wheels_suspension: "车轮、轮胎和悬架", electrical: "电气系统和线束", software_assist: "软件、摄像头和辅助系统", lights_view: "灯光、雨刮和视野", body_seats: "车身、车门和座椅", emissions: "排放", approval: "认证和文件", other: "其他" },
+    risk: { Injuries: "受伤", Fire: "起火", Burns: "烧伤", "Electric shock": "触电", Environment: "环境", Chemical: "化学", Cuts: "割伤" },
+    regs: "在德国的新车登记", regsYear: "过去 12 个月新登记", regsRank: (r) => `上月排名第 ${r}`, regsNone: "登记统计中没有单独列出此车型。", regsMore: "每月登记量和排名", regsSeg: (x) => `KBA 车型细分：${x}`, seg: { minis: "微型车", small: "小型车", compact: "紧凑型车", medium: "中型车", "upper-medium": "中大型车", luxury: "豪华车", suv: "SUV", "off-road": "越野车", sports: "跑车", "mini-van": "小型 MPV", "large-van": "大型 MPV", utility: "多用途车", motorhome: "房车" },
     perMonth: "每月新登记，近 24 个月", similar: "同类车型", similarDesc: "动力类型相同、重量和功率相近、仍在销售的车型。", cmpThese: "和它们对比", cmpShort: "+ 对比", cmpOn: "✓ 对比中", badgeEff: (n) => `最省电电动车第 ${n} 名`, badgeCheap: (n) => `每 100 公里最省钱第 ${n} 名`, badgeSell: (n) => `德国销量第 ${n} 名`, rankingsAll: "全部排行榜", ratings: "评级", euro: "Euro NCAP 安全", green: "Green NCAP 环保", adac: "ADAC 故障率", tested: (y) => `${y} 年测试`, testedV: (y, v) => `${y} 年测试：${v}`, notTested: "没有找到这个车型的测试结果。", adacUnit: "每 1,000 辆车的道路救援次数，按首次登记年份", adacYear: (y, v, c) => `首次登记 ${y} 年：每 1,000 辆 ${v} 次（${c} 年）`, adacNone: "ADAC 故障统计没有单独列出这个车型（车辆数太少或车型太新）。", ratingsNote: "只显示总评级和年份，完整结果请看来源网站。", cmpAdd: "+ 加入对比", cmpIn: "✓ 已加入对比", cmpGo: (n) => `对比 ${n} 款车`, unit: (f) => f === "electric" ? "kWh/100 km" : "升/100 km",
     versions: "版本", versionsDesc: "按登记的每个版本及其官方数据。选择你的版本，费用和数据会按它计算。", allVersions: "所有版本（平均）", older: (n) => `另外 ${n} 个已停售的版本`, mass: "整备质量", names: "登记名称", codes: "变体代码（行驶证 D.2）",
   } : de ? {
@@ -36,8 +38,10 @@
     ownCons: "Mein echter Verbrauch", ownHint: "Wird bei diesem Auto gespeichert und für die Kosten genutzt.",
     exact: "Ladekosten genau ausrechnen", compare: "Mit einem E-Auto vergleichen", chargeTimes: "Günstigste Ladezeit", chargers: "Ladesäulen in der Nähe",
     recalls: "Rückrufe", recallsN: (n) => `${n} ${n === 1 ? "Rückruf nennt" : "Rückrufe nennen"} dieses Modell`, recallsYear: (n, y) => `${n} davon passen zur Erstzulassung ${y}`,
-    recallsNone: "Safety Gate nennt keine Rückrufe für dieses Modell.", recallsBrand: (b) => `Alle Rückrufe von ${b}`, recallsAll: "Alle Rückrufe und was du vor dem Kauf fragen solltest",
-    regs: "Neuzulassungen in Deutschland", regsYear: "Neu in den letzten 12 Monaten", regsRank: (r) => `Platz ${r}`, regsNone: "Die Zulassungsstatistik führt dieses Modell nicht einzeln.", regsMore: "Zulassungen pro Monat und Rangliste", regsSeg: (x) => `KBA-Segment: ${x}`, seg: { minis: "Minis", small: "Kleinwagen", compact: "Kompaktklasse", medium: "Mittelklasse", "upper-medium": "Obere Mittelklasse", luxury: "Oberklasse", suv: "SUVs", "off-road": "Geländewagen", sports: "Sportwagen", "mini-van": "Mini-Vans", "large-van": "Großraum-Vans", utility: "Utilities", motorhome: "Wohnmobile" },
+    recallsNone: "Safety Gate nennt keine Rückrufe für dieses Modell.", recallsBrand: (b) => `Alle Rückrufe von ${b}`, recallsAll: "Alle Rückrufe und was du vor dem Kauf fragen solltest", recallsMore: (n) => `und ${n} weitere`, recallsUs: (n) => `${n} ${n === 1 ? "Rückrufaktion" : "Rückrufaktionen"} in den USA`, parkOutside: "Draußen parken", recallsEn: "Die Beschreibungen gibt es nur im englischen Original, unter Alle Rückrufe.",
+    comp: { airbags_belts: "Airbags und Gurte", brakes: "Bremsen", steering: "Lenkung", hv_battery: "Hochvoltbatterie und Laden", fuel: "Kraftstoffsystem", engine_drive: "Motor und Antrieb", wheels_suspension: "Räder, Reifen und Fahrwerk", electrical: "Elektrik und Kabel", software_assist: "Software, Kameras und Assistenten", lights_view: "Licht, Wischer und Sicht", body_seats: "Karosserie, Türen und Sitze", emissions: "Abgase", approval: "Zulassung und Papiere", other: "Sonstiges" },
+    risk: { Injuries: "Verletzungen", Fire: "Brand", Burns: "Verbrennungen", "Electric shock": "Stromschlag", Environment: "Umwelt", Chemical: "Chemisch", Cuts: "Schnittverletzungen" },
+    regs: "Neuzulassungen in Deutschland", regsYear: "Neu in den letzten 12 Monaten", regsRank: (r) => `im letzten Monat Platz ${r}`, regsNone: "Die Zulassungsstatistik führt dieses Modell nicht einzeln.", regsMore: "Zulassungen pro Monat und Rangliste", regsSeg: (x) => `KBA-Segment: ${x}`, seg: { minis: "Minis", small: "Kleinwagen", compact: "Kompaktklasse", medium: "Mittelklasse", "upper-medium": "Obere Mittelklasse", luxury: "Oberklasse", suv: "SUVs", "off-road": "Geländewagen", sports: "Sportwagen", "mini-van": "Mini-Vans", "large-van": "Großraum-Vans", utility: "Utilities", motorhome: "Wohnmobile" },
     perMonth: "Neuzulassungen pro Monat, letzte 24 Monate", similar: "Ähnliche Autos", similarDesc: "Gleicher Antrieb, ähnliches Gewicht und ähnliche Leistung, noch neu zu kaufen.", cmpThese: "Mit diesen vergleichen", cmpShort: "+ Vergleich", cmpOn: "✓ Im Vergleich", badgeEff: (n) => `Platz ${n} der sparsamsten E-Autos`, badgeCheap: (n) => `Platz ${n} der günstigsten pro 100 km`, badgeSell: (n) => `Platz ${n} der Neuzulassungen`, rankingsAll: "Alle Ranglisten", ratings: "Bewertungen", euro: "Euro NCAP Sicherheit", green: "Green NCAP Umwelt", adac: "ADAC Pannenstatistik", tested: (y) => `getestet ${y}`, testedV: (y, v) => `getestet ${y}: ${v}`, notTested: "Kein Testergebnis für dieses Modell gefunden.", adacUnit: "Pannen pro 1.000 Autos nach Erstzulassungsjahr", adacYear: (y, v, c) => `Erstzulassung ${y}: ${v} Pannen pro 1.000 Autos (${c})`, adacNone: "Die ADAC-Pannenstatistik führt dieses Modell nicht (zu wenige Autos oder zu neu).", ratingsNote: "Nur die Gesamtwertung und das Jahr; das ganze Ergebnis steht beim jeweiligen Anbieter.", cmpAdd: "+ Vergleichen", cmpIn: "✓ Im Vergleich", cmpGo: (n) => `${n} Autos vergleichen`, unit: (f) => f === "electric" ? "kWh/100 km" : "l/100 km",
     versions: "Versionen", versionsDesc: "Jede Version, wie sie zugelassen wurde, mit eigenen offiziellen Werten. Wähle deine, dann rechnen Kosten und Werte mit ihr.", allVersions: "Alle Versionen (Durchschnitt)", older: (n) => `${n} ältere Versionen, nicht mehr neu zu kaufen`, mass: "Leergewicht", names: "Zugelassen als", codes: "Variante (Feld D.2 im Fahrzeugschein)",
   } : {
@@ -49,8 +53,10 @@
     ownCons: "My real consumption", ownHint: "Saved with this car and used for the cost.",
     exact: "Work out the charging cost in detail", compare: "Compare with an electric car", chargeTimes: "Cheapest time to charge", chargers: "Chargers near you",
     recalls: "Recalls", recallsN: (n) => `${n} ${n === 1 ? "recall names" : "recalls name"} this model`, recallsYear: (n, y) => `${n} of them match first registration in ${y}`,
-    recallsNone: "Safety Gate lists no recalls for this model.", recallsBrand: (b) => `All ${b} recalls`, recallsAll: "All recalls, and what to ask before you buy",
-    regs: "New registrations in Germany", regsYear: "New in the last 12 months", regsRank: (r) => `Rank ${r}`, regsNone: "The registration statistics don't list this model on its own.", regsMore: "Registrations per month and rankings", regsSeg: (x) => `KBA segment: ${x}`, seg: { minis: "Minis", small: "Small cars", compact: "Compact", medium: "Mid-size", "upper-medium": "Upper mid-size", luxury: "Luxury", suv: "SUVs", "off-road": "Off-road", sports: "Sports cars", "mini-van": "Mini-vans", "large-van": "Large vans (MPVs)", utility: "Utilities", motorhome: "Motorhomes" },
+    recallsNone: "Safety Gate lists no recalls for this model.", recallsBrand: (b) => `All ${b} recalls`, recallsAll: "All recalls, and what to ask before you buy", recallsMore: (n) => `and ${n} more`, recallsUs: (n) => `${n} US ${n === 1 ? "campaign" : "campaigns"}`, parkOutside: "Park outside", recallsEn: "",
+    comp: { airbags_belts: "Airbags and seat belts", brakes: "Brakes", steering: "Steering", hv_battery: "High-voltage battery and charging", fuel: "Fuel system", engine_drive: "Engine and drivetrain", wheels_suspension: "Wheels, tyres and suspension", electrical: "Electrical system and wiring", software_assist: "Software, cameras and assistance systems", lights_view: "Lights, wipers and visibility", body_seats: "Body, doors and seats", emissions: "Emissions", approval: "Approval and paperwork", other: "Other" },
+    risk: {},
+    regs: "New registrations in Germany", regsYear: "New in the last 12 months", regsRank: (r) => `rank ${r} last month`, regsNone: "The registration statistics don't list this model on its own.", regsMore: "Registrations per month and rankings", regsSeg: (x) => `KBA segment: ${x}`, seg: { minis: "Minis", small: "Small cars", compact: "Compact", medium: "Mid-size", "upper-medium": "Upper mid-size", luxury: "Luxury", suv: "SUVs", "off-road": "Off-road", sports: "Sports cars", "mini-van": "Mini-vans", "large-van": "Large vans (MPVs)", utility: "Utilities", motorhome: "Motorhomes" },
     perMonth: "New registrations per month, last 24 months", similar: "Similar cars", similarDesc: "Same kind of drive, close in weight and power, still sold new.", cmpThese: "Compare with these", cmpShort: "+ Compare", cmpOn: "✓ Comparing", badgeEff: (n) => `No. ${n} most efficient EV`, badgeCheap: (n) => `No. ${n} cheapest per 100 km`, badgeSell: (n) => `No. ${n} best seller in Germany`, rankingsAll: "All rankings", ratings: "Ratings", euro: "Euro NCAP safety", green: "Green NCAP environment", adac: "ADAC breakdowns", tested: (y) => `tested ${y}`, testedV: (y, v) => `tested ${y}: ${v}`, notTested: "No test result found for this model.", adacUnit: "Breakdowns per 1,000 cars by year of first registration", adacYear: (y, v, c) => `First registered ${y}: ${v} breakdowns per 1,000 cars (${c})`, adacNone: "The ADAC breakdown statistics don\u2019t list this model (too few cars or too new).", ratingsNote: "Only the overall rating and year; the full result is at each source.", cmpAdd: "+ Compare", cmpIn: "✓ In comparison", cmpGo: (n) => `Compare ${n} cars`, unit: (f) => f === "electric" ? "kWh/100 km" : "L/100 km",
     versions: "Versions", versionsDesc: "Each version as registered, with its own official figures. Pick yours and the cost and figures use it.", allVersions: "All versions (average)", older: (n) => `${n} older versions, no longer sold new`, mass: "Kerb weight", names: "Registered as", codes: "Variant code (field D.2 of the German registration certificate)",
   };
@@ -67,7 +73,7 @@
     why: { few500: "2025 年登记不足 500 辆", few1000: "2025 年登记不足 1000 辆", old: "已不再销售新车", proto: "未按最新规程测试", regs: "登记统计里没有单独列出" },
     results: (q) => `“${q}”的搜索结果`, resultsN: (n) => `${n} 款车型`, noResults: (q) => `没有找到“${q}”。试试品牌和车型，例如“大众 ID.3”。`, regsN: (n) => `近 12 个月 ${n} 辆`,
   } : de ? {
-    jump: "Auf dieser Seite", sec: { cost: "Kosten", versions: "Versionen", ratings: "Tests", children: "Kinder", recalls: "Rückrufe", registrations: "Zulassungen", grant: "Förderung", rankings: "Ranglisten", similar: "Ähnliche Autos" },
+    jump: "Auf dieser Seite", sec: { cost: "Kosten", versions: "Versionen", ratings: "Bewertungen", children: "Kinder", recalls: "Rückrufe", registrations: "Zulassungen", grant: "Förderung", rankings: "Ranglisten", similar: "Ähnliche Autos" },
     perYear: (c, km) => `rund ${c} im Jahr bei ${km} km`,
     grant: "E-Auto-Förderung (2026)", bev: "Neue reine E-Autos mit Erstzulassung ab 1. Januar 2026 sind förderfähig.", amount: (a, b) => `${a} bis ${b}, je nach Haushaltseinkommen`, perChild: (p, n) => `plus ${p} je Kind, für bis zu ${n} Kinder`,
     phevOk: (c, r) => `Diese Version ist förderfähig: ${c}. Ein Plug-in-Hybrid braucht höchstens 60 g CO₂/km oder mindestens 80 km elektrische Reichweite.`, phevNo: (c, r) => `Diese Version ist nicht förderfähig: ${c}. Ein Plug-in-Hybrid braucht höchstens 60 g CO₂/km oder mindestens 80 km elektrische Reichweite.`,
@@ -261,7 +267,8 @@
     const links = [];
     if (f === "electric") {
       const p = new URLSearchParams({ car: s.name });
-      if (s.cons) p.set("lv", [0.9, 1, 1.22, 1.38].map((k) => (s.cons * k).toFixed(1)).join(","));
+      // the same figure this card uses (your own, the version's or the model's), so both pages show the same cost
+      if (use) p.set("lv", [0.9, 1, 1.22, 1.38].map((k) => (use * k).toFixed(1)).join(","));
       links.push(`<a href="${PRE}/ev-cost/?${p}">${esc(T.exact)}</a>`, `<a href="${PRE}/charge-times/">${esc(T.chargeTimes)}</a>`, `<a href="${PRE}/chargers/">${esc(T.chargers)}</a>`);
     } else if (use && (f === "petrol" || f === "diesel")) {
       links.push(`<a href="${PRE}/ev-cost/?own=${use},${f}">${esc(T.compare)}</a>`);
@@ -316,6 +323,23 @@
     if (!brandFiles.has(b.file)) brandFiles.set(b.file, soft(`/data/recalls/eu/${b.file}`).then((d) => (d ? d.alerts : [])));
     return brandFiles.get(b.file);
   }
+  // the US campaigns NHTSA lists for the models the recalls page follows (catalog id = its slug)
+  let usFollowed = null;
+  async function usCampaigns(s) {
+    if (!usFollowed) usFollowed = soft("/data/recalls/eu/models.json").then((d) => (d ? d.models : []));
+    const f = (await usFollowed).find((m) => m.slug === s.car && m.us_file);
+    if (!f) return null;
+    const d = await soft(`/data/recalls/us/models/${f.slug}.json`);
+    let c = d ? d.campaigns || [] : null;
+    if (c && s.year) c = c.filter((x) => (x.model_years || []).some((y) => Math.abs(Number(y) - s.year) <= 1));
+    return c;
+  }
+  // "Body, doors and seats" and the risk in the page's language, instead of Safety Gate's English "Injuries"
+  const recallTitle = (a) => (a.component && a.component !== "other" && T.comp[a.component]) || T.risk[a.risk] || a.risk || a.product;
+  const recallRisk = (a) => a.risk ? a.risk.split(/, |; /).map((x) => T.risk[x] || x).join(", ") : "";
+  // production periods come as "2024 - 2027 (EX30)2025 - 2027 (EX30CC)" when an alert names several models
+  const period = (p) => String(p || "").replace(/\)(?=\S)/g, "), ");
+
   async function recallBlock(s) {
     const slug = G.recallBrand(s.make);
     const b = recallBrands && recallBrands.brands.find((x) => x.slug === slug);
@@ -324,14 +348,18 @@
     let body;
     if (!b) body = `<p class="ac-caption">${esc(T.recallsNone)}</p>`;
     else {
-      const alerts = await brandAlerts(s);
+      const [alerts, us] = await Promise.all([brandAlerts(s), usCampaigns(s).catch(() => null)]);
       const hits = (alerts || []).filter((a) => names(a, s)).sort((x, y) => (y.date || "").localeCompare(x.date || ""));
       const inYear = s.year ? hits.filter((a) => fits(a, s.year)) : [];
       const top = (s.year && inYear.length ? inYear : hits).slice(0, 3);
-      body = hits.length
+      const pool = s.year && inYear.length ? inYear : hits, rest = pool.length - top.length;
+      const park = us ? us.filter((c) => c.park_outside).length : 0;
+      const usOut = us && us.length ? `<div class="ac-readout"><div class="ac-readout__value">${us.length}</div><div class="ac-readout__basis">${esc(T.recallsUs(us.length))}${park ? ` <span class="ac-status ac-status--over">${esc(T.parkOutside)}</span>` : ""}</div></div>` : "";
+      body = hits.length || usOut
         ? `<div class="ac-readouts"><div class="ac-readout"><div class="ac-readout__value">${hits.length}</div><div class="ac-readout__basis">${esc(T.recallsN(hits.length))}</div></div>
-           ${s.year ? `<div class="ac-readout"><div class="ac-readout__value">${inYear.length}</div><div class="ac-readout__basis">${esc(T.recallsYear(inYear.length, s.year))}</div></div>` : ""}</div>
-           <ul class="rlist">${top.map((a) => `<li><a href="${esc(a.url)}" rel="noopener">${esc(a.risk || a.product)}${a.recall_code ? ` · ${esc(a.recall_code)}` : ""}</a><small>${day(a.date)}${a.production ? ` · ${esc(a.production)}` : ""}</small></li>`).join("")}</ul>`
+           ${s.year ? `<div class="ac-readout"><div class="ac-readout__value">${inYear.length}</div><div class="ac-readout__basis">${esc(T.recallsYear(inYear.length, s.year))}</div></div>` : ""}${usOut}</div>
+           ${top.length ? `<ul class="rlist">${top.map((a) => `<li><a href="${esc(a.url)}" rel="noopener">${esc(recallTitle(a))}</a><small>${[day(a.date), recallRisk(a), a.recall_code, a.production && period(a.production)].filter(Boolean).map(esc).join(" · ")}</small></li>`).join("")}</ul>` : ""}
+           ${rest > 0 ? `<p class="ac-caption">${esc(T.recallsMore(rest))}</p>` : ""}${top.length && T.recallsEn ? `<p class="ac-caption">${esc(T.recallsEn)}</p>` : ""}`
         : `<p class="ac-caption">${esc(T.recallsNone)}</p>`;
     }
     return `<section class="ac-card" id="recalls"><h3 class="ac-card__title">${esc(T.recalls)}</h3>${body}

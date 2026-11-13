@@ -38,7 +38,7 @@
     fuelSourceLive: function (when) { return '油价：欧盟委员会<a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">每周石油公报</a>中的德国周均价（CC BY 4.0），' + when + " 这一周。汽油 = Euro-Super 95。"; },
     chargeSource: function (n, when) { return ' 公共充电价格：<a href="/zh/charging-prices/">价格档案</a>中 ' + n + " 种即充即付资费的中位数，" + when + "。"; },
     month: function (ym) { var p = ym.split("-"); return p[0] + " 年 " + (+p[1]) + " 月"; },
-    quick: "使用实际估算值", allCars: function (n) { return "全部 " + n + " 款电动车，基于官方数据"; },
+    quick: "常见电动车", allCars: function (n) { return "全部 " + n + " 款电动车，基于官方数据"; },
     official: function (kwh, range, n, year) { return "官方 WLTP 数值：插头端 " + kwh + " kWh/100 km" + (range ? "（各版本 " + range + "）" : "") + "。" + year + " 年在德国新登记 " + n + " 辆。"; },
     officialOnly: "四种驾驶方式由此估算。",
     officialIn: "官方能耗（WLTP，插头端）",
@@ -78,7 +78,7 @@
     fuelSourceLive: function (when) { return 'Spritpreise: Wochendurchschnitt für Deutschland aus dem <a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">Weekly Oil Bulletin</a> der Europäischen Kommission (CC BY 4.0), Woche vom ' + when + ". Super = Euro-Super 95."; },
     chargeSource: function (n, when) { return ' Öffentliche Ladepreise: Median von ' + n + ' Ad-hoc-Tarifen aus dem <a href="/de/charging-prices/">Preisarchiv</a>, ' + when + "."; },
     month: function (ym) { var p = ym.split("-"); return ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"][+p[1] - 1] + " " + p[0]; },
-    quick: "Mit Praxiswerten", allCars: function (n) { return "Alle " + n + " Elektroautos, aus dem offiziellen Verbrauch"; },
+    quick: "Beliebte Elektroautos", allCars: function (n) { return "Alle " + n + " Elektroautos, aus dem offiziellen Verbrauch"; },
     official: function (kwh, range, n, year) { return "Offizieller WLTP-Verbrauch: " + kwh + " kWh/100 km ab Steckdose" + (range ? " (Versionen " + range + ")" : "") + ". " + n + " Neuzulassungen in Deutschland " + year + "."; },
     officialOnly: " Die vier Fahrweisen sind daraus geschätzt.",
     officialIn: "Offizieller Verbrauch (WLTP, ab Steckdose)",
@@ -117,7 +117,7 @@
     fuelSourceLive: function (when) { return 'Fuel prices: German weekly average from the European Commission <a href="https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en">Weekly Oil Bulletin</a> (CC BY 4.0), week of ' + when + ". Petrol = Euro-super 95."; },
     chargeSource: function (n, when) { return ' Public charging prices: median of ' + n + ' ad-hoc tariffs from the <a href="/charging-prices/">price archive</a>, ' + when + "."; },
     month: function (ym) { var p = ym.split("-"); return ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][+p[1] - 1] + " " + p[0]; },
-    quick: "With real-world estimates", allCars: function (n) { return "All " + n + " electric cars, from official figures"; },
+    quick: "Popular electric cars", allCars: function (n) { return "All " + n + " electric cars, from official figures"; },
     official: function (kwh, range, n, year) { return "Official WLTP figure: " + kwh + " kWh/100 km at the plug" + (range ? " (versions " + range + ")" : "") + ". " + n + " registered new in Germany in " + year + "."; },
     officialOnly: " The four driving levels are estimated from it.",
     officialIn: "Official consumption (WLTP, at the plug)",
@@ -160,8 +160,12 @@
     var num = function (k, max) { var v = parseFloat(q.get(k)); return isFinite(v) && v >= 0 && v <= max ? v : null; };
     if (q.get("car")) s.car = q.get("car").slice(0, 60);
     var lv = q.get("lv") ? q.get("lv").split(",").map(parseFloat) : null;
-    if (lv && lv.length === 4 && lv.every(function (v) { return isFinite(v) && v > 0 && v < 100; })) { s.lv = lv; s.lvSet = true; }
-    else if (E.findCar(s.car)) s.lv = E.findCar(s.car).slice(1);
+    // levels the page filled in itself (a built-in car's old estimates, saved before the levels came from the
+    // official figure) don't count as set, so every page shows the same cost for the same car
+    var builtin = E.findCar(s.car);
+    if (lv && lv.length === 4 && lv.every(function (v) { return isFinite(v) && v > 0 && v < 100; }) &&
+        !(builtin && builtin.slice(1).join() === lv.join())) { s.lv = lv; s.lvSet = true; }
+    else if (builtin) s.lv = builtin.slice(1);
     var u = num("use", 3); if (u != null) s.use = Math.round(u);
     [["p", 3], ["loss", 50], ["petrol", 5], ["diesel", 5]].forEach(function (k) { var v = num(k[0], k[1]); if (v != null) s[k[0]] = v; });
     s.fuelSet = q.has("petrol") || q.has("diesel") || q.has("fp");
@@ -176,7 +180,7 @@
   }
   function query() {
     var q = new URLSearchParams();
-    q.set("car", S.car); q.set("lv", S.lv.join(",")); q.set("use", S.use); q.set("p", S.p); q.set("loss", S.loss);
+    q.set("car", S.car); if (S.lvSet) q.set("lv", S.lv.join(",")); q.set("use", S.use); q.set("p", S.p); q.set("loss", S.loss);
     // fuel prices only when you set them, so the latest published prices apply otherwise
     if (S.fuelSet) { q.set("petrol", S.petrol); q.set("diesel", S.diesel); }
     q.set("refs", S.refs.join(","));
@@ -220,15 +224,17 @@
     var el = $("official"), o = officialFor(S.car);
     if (!o) { el.hidden = true; return; }
     var range = o.min != null && o.max != null && o.max - o.min >= 0.2 ? T.range(A.num(o.min), A.num(o.max)) : "";
-    el.textContent = T.official(A.num(o.kwh), range, o.n.toLocaleString(T.locale), official.year) + (E.findCar(S.car) ? "" : T.officialOnly);
+    el.textContent = T.official(A.num(o.kwh), range, o.n.toLocaleString(T.locale), official.year) + (S.lvSet ? "" : T.officialOnly);
     el.hidden = false;
   }
   function setCar(name, keepLevels) {
     var c = E.findCar(name), o = officialFor(name);
     S.car = name;
     if (!keepLevels) {
-      if (c) S.lv = c.slice(1);
-      else if (o) S.lv = E.levelsFromOfficial(o.kwh);
+      // the official WLTP figure when the catalog has it, as on the car page and in Compare; the built-in
+      // estimates only until the catalog loads, or when it can't
+      if (o) S.lv = E.levelsFromOfficial(o.kwh);
+      else if (c) S.lv = c.slice(1);
     }
   }
   drawCars();
@@ -256,7 +262,7 @@
   }
   $("levels").addEventListener("input", function (e) {
     var i = e.target.getAttribute("data-lv"); if (i == null) return;
-    var v = parseFloat(e.target.value); if (isFinite(v) && v > 0) { S.lv[+i] = v; drawUse(); update(); }
+    var v = parseFloat(e.target.value); if (isFinite(v) && v > 0) { S.lv[+i] = v; S.lvSet = true; drawUse(); update(); }
   });
 
   /* ---------- 2. your electricity price ---------- */
@@ -579,8 +585,8 @@
     Object.keys(E.OFFICIAL_IDS).forEach(function (n) { o.builtin[E.OFFICIAL_IDS[n]] = true; });
     o.list.sort(function (a, b) { return a.name.localeCompare(b.name, T.locale); });
     official = o;
-    // a link to a car that only the catalog knows gets its levels now, unless the link set them
-    if (!E.findCar(S.car) && o.byName[S.car] && !S.lvSet) { setCar(S.car); drawUse(); drawLevels(); }
+    // the car gets its levels from the official figure now, unless the link or you set them
+    if (officialFor(S.car) && !S.lvSet) { setCar(S.car); drawUse(); drawLevels(); }
     drawCars(); update();
   }).catch(function () {});
 
