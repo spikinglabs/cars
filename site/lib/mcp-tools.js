@@ -206,7 +206,8 @@ async function getRecallStatistics(get, { brand = null } = {}) {
   if (brand) {
     const b = find(s.brands, brand, "brand");
     const i = b ? ranked.indexOf(b) : -1;
-    out.brand = b && { ...b, rank_per_100k: i >= 0 ? i + 1 : null, ranked_brands: ranked.length };
+    // rank_per_100k counts from the most recalls (as the list above); rank_fewest_first matches the "Fewest recalls" ranking on the site
+    out.brand = b && { ...b, rank_per_100k: i >= 0 ? i + 1 : null, rank_fewest_first: i >= 0 ? ranked.length - i : null, ranked_brands: ranked.length };
   }
   out.page = `${SITE}/recalls/#stats`;
   return out;
@@ -637,7 +638,11 @@ async function getRankings(get, { list = "sellers", fuel = null, segment = null,
       .map((b) => ({ brand: b.brand, car_recalls: b.car_alerts, per_100k_new_cars_de: b.alerts_per_100k, page: `${SITE}/recalls/?brand=${b.slug}` }));
     about = { unit: "EU Safety Gate car recalls since 2019 per 100,000 new cars registered in Germany, fewest first; campaigns, not affected cars", since: st.since };
   }
-  return { list, ...about, total: rows.length, rows: rows.slice(0, n).map((r, i) => ({ rank: i + 1, ...r })), page,
+  // child and recalls rank on one score: equal scores share a rank (1, 2, 2, 4)
+  const score = list === "child" ? (r) => r.child_occupant_pct : list === "recalls" ? (r) => r.per_100k_new_cars_de : null;
+  const rankOf = (i) => { if (!score) return i + 1; let j = i; while (j > 0 && score(rows[j - 1]) === score(rows[i])) j--; return j + 1; };
+  const tied = (i) => !!score && rows.some((x, j) => j !== i && score(x) === score(rows[i]));
+  return { list, ...about, total: rows.length, rows: rows.slice(0, n).map((r, i) => ({ rank: rankOf(i), ...(tied(i) ? { tied: true } : {}), ...r })), page,
     notes: "Official data; consumption figures are WLTP and lower than real driving. KBA counts each model with every drive type together." };
 }
 
