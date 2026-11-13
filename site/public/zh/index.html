@@ -68,14 +68,13 @@
 <header class="ac-top">
   <a class="ac-appbar__brand" href="/zh/">Allo <span>Cars</span></a>
   <nav class="ac-topnav" aria-label="Allo Cars">
-    <a href="/zh/" aria-current="page">工具</a>
     <a href="/zh/cars/">我的车</a>
     <a href="/zh/compare/">对比</a>
-    <a href="/zh/chargers/">充电桩地图</a>
-    <a href="/zh/ev-cost/">充电成本</a>
-    <a href="/zh/charging-prices/">价格档案</a>
-    <a href="/zh/charge-times/">充电时段</a>
+    <a href="/zh/rankings/">排行榜</a>
     <a href="/zh/recalls/">召回</a>
+    <a href="/zh/electric/">买电动车</a>
+    <a href="/zh/ev-cost/">充电成本</a>
+    <a href="/zh/chargers/">充电桩地图</a>
     <a href="/zh/fuel-prices/">油价</a>
   </nav>
   <div class="ac-top__right">
@@ -106,14 +105,14 @@
   <section class="hero">
     <div class="hero__text">
       <h1>比直接问 AI 更靠谱，<em class="ac-hl">免费</em>，还能接进你的 AI。</h1>
-      <p>我们每小时收集的真实充电价格，加上在德国开车用得上的工具和开放数据。可以直接在这里用，也可以把 Allo Cars 接入 Claude 等 AI 助手，让它用真实数据回答，而不是靠猜。无需注册，不花一分钱。</p>
+      <p>每款车的用车成本、召回、评级和登记量，加上我们自己收集的充电价格和油价。在德国开车，电动车、燃油车都适用。可以直接在这里用，也可以把 Allo Cars 接入 Claude 等 AI 助手，让它用真实数据回答，而不是靠猜。无需注册，不花一分钱。</p>
       <form class="ac-find__form ac-find--inline hero__find" action="/zh/car/" role="search" data-find>
         <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="品牌和车型，例如 大众 ID.3" aria-label="找任何一款车" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
         <ul class="ac-find__list" data-find-list role="listbox" aria-label="找任何一款车" hidden></ul>
       </form>
       <div class="row">
-        <a class="ac-btn ac-btn--primary" href="/zh/ev-cost/">算算我的充电成本</a>
-        <a class="ac-btn ac-btn--ghost" href="/zh/charging-prices/">查看价格档案</a>
+        <a class="ac-btn ac-btn--primary" href="/zh/cars/">添加我的车</a>
+        <a class="ac-btn ac-btn--ghost" href="/zh/ev-cost/">算算我的充电成本</a>
       </div>
     </div>
     <div class="hero__live">
@@ -139,67 +138,67 @@
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M30 56V44l10-20h44l10 20v12M22 56h80v8H22z" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M110 56V46l8-16h36l8 16v10M104 56h64v8h-64z" stroke="var(--car-1)" stroke-width="2.5" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">我的车</h3>
         <p class="ac-toolcard__desc">把你所有的车放在一起：今天每 100 公里的费用、官方能耗、与生产年份相符的召回和登记数量。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">你的车库</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">你的车库</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/ev-grant/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><circle cx="100" cy="36" r="26" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M110 26a12 12 0 1 0 0 20M88 33h16M88 39h16" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M20 60h40M140 60h40" stroke="var(--gold)" stroke-width="6" stroke-linecap="round"/></svg></div>
         <h3 class="ac-toolcard__title">电动车补贴 2026</h3>
         <p class="ac-toolcard__desc">按收入和孩子数，算出买新电动车或插电混动能拿多少德国补贴，以及怎么申请。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">计算器</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">计算器</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/compare/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M20 64V30h40v34M80 64V14h40v50M140 64V40h40v24" fill="none" stroke="var(--car-2)" stroke-width="2.5"/><path d="M80 14h40v12H80z" fill="var(--gold)"/></svg></div>
         <h3 class="ac-toolcard__title">车型对比</h3>
         <p class="ac-toolcard__desc">最多 4 款车型并排比较：能耗、每 100 公里和每年费用、登记量和召回，标出最佳值。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">对比</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">对比</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/rankings/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M30 72V36h40v36M80 72V16h40v56M130 72V48h40v24" fill="var(--car-1)" opacity=".5"/><path d="M80 16h40v8H80z" fill="var(--gold)"/><path d="M96 34h8M48 52h4v8M144 60h12" stroke="var(--car-2)" stroke-width="3" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">汽车排行榜</h3>
         <p class="ac-toolcard__desc">德国销量榜、最省电的电动车、每 100 公里最省钱的车，以及召回最少的品牌。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">排行榜</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">排行榜</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/ev-cost/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 L200 30" stroke="var(--car-1)" stroke-width="2" fill="none"/><path d="M0 70 L200 18" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M0 70 L200 6" stroke="var(--car-4)" stroke-width="2" fill="none"/><path d="M0 34 H200" stroke="var(--fuel)" stroke-width="2" stroke-dasharray="6 5" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">电动车充电成本</h3>
         <p class="ac-toolcard__desc">在任意每 kWh 电价下，你的电动车跑 100 公里要花多少钱，并与其他电动车和汽油车对比。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">计算器</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">计算器</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/chargers/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 52 C40 40 60 60 100 44 S160 20 200 28" stroke="var(--border)" stroke-width="6" fill="none"/><circle cx="30" cy="46" r="5" fill="#1d4f91"/><circle cx="74" cy="50" r="5" fill="#1d4f91"/><circle cx="104" cy="42" r="7" fill="#ffcc00" stroke="#17191b" stroke-width="2"/><circle cx="150" cy="26" r="8" fill="#17191b" stroke="#ffcc00" stroke-width="2"/><circle cx="182" cy="30" r="5" fill="#1d4f91"/></svg></div>
         <h3 class="ac-toolcard__title">充电桩地图</h3>
         <p class="ac-toolcard__desc">德国所有公共充电桩：按功率、插头和支付方式筛选，找到离你最近的一个。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">地图</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">地图</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/charging-prices/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 44 L25 42 L50 46 L75 38 L100 38 L125 30 L150 32 L175 24 L200 22" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M0 30 L200 12 L200 34 L0 56 Z" fill="var(--car-1)" opacity=".3"/></svg></div>
         <h3 class="ac-toolcard__title">充电价格档案</h3>
         <p class="ac-toolcard__desc">全德国的即充即付充电价格，每小时收集一次，每天的数据都可下载。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">开放数据</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">开放数据</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/charge-times/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M8 40h14v28H8zM30 30h14v38H30zM52 46h14v22H52zM74 56h14v12H74zM96 58h14v10H96zM118 50h14v18H118zM140 28h14v40H140zM162 18h14v50H162z" fill="var(--car-1)"/><path d="M74 56h14v12H74zM96 58h14v10H96z" fill="var(--gold)"/></svg></div>
         <h3 class="ac-toolcard__title">最佳充电时段</h3>
         <p class="ac-toolcard__desc">根据电力交易所价格，找出今天和明天用动态电价在家充电最便宜的时段。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">计算器</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">计算器</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/fuel-prices/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 54 L20 50 L40 56 L60 40 L80 46 L100 30 L120 38 L140 26 L160 34 L180 22 L200 28" stroke="var(--car-2)" stroke-width="2.5" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">油价</h3>
         <p class="ac-toolcard__desc">2005 年以来德国每周的汽油、柴油和液化石油气价格，欧盟每个国家的数据都可下载。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">开放数据</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">开放数据</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/recalls/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M100 8l26 10v18c0 14-11 25-26 28-15-3-26-14-26-28V18z" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M100 26v14M100 47v2" stroke="var(--danger)" stroke-width="3" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">汽车召回</h3>
         <p class="ac-toolcard__desc">你的车型在欧洲和美国的官方召回信息，来自 Safety Gate、德国联邦机动车管理局 (KBA) 和美国 NHTSA，每天检查。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">开放数据</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">开放数据</span></div>
       </a>
       <a class="ac-toolcard" href="/zh/registrations/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M8 72V50h14v22M30 72V40h14v32M52 72V44h14v28M74 72V30h14v42M96 72V34h14v38M118 72V22h14v50M140 72V26h14v46M162 72V14h14v58" fill="var(--car-1)" opacity=".5"/><path d="M8 72V64h14v8M30 72V60h14v12M52 72V58h14v14M74 72V52h14v20M96 72V50h14v22M118 72V42h14v30M140 72V44h14v28M162 72V34h14v38" fill="var(--car-2)"/></svg></div>
         <h3 class="ac-toolcard__title">各车型新车登记量</h3>
         <p class="ac-toolcard__desc">德国每月各车型的新车登记数量、前 20 名车型以及电动车占比。</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">开放数据</span><span class="ac-tag ac-tag--ai">支持 AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">开放数据</span></div>
       </a>
     </div>
   </section>
@@ -242,7 +241,7 @@
       <p class="ac-share__note">分享到微信：复制链接后粘贴到聊天里，或在手机上点“分享…”。</p>
     </div>
   </section>
-  <p class="ac-foot__links"><a href="/zh/electric/">买电动车</a> · <a href="/zh/cars/">我的车</a> · <a href="/zh/ev-grant/">电动车补贴</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/rankings/">排行榜</a> · <a href="/zh/children/">带娃乘车规定</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
+  <p class="ac-foot__links"><a href="/zh/cars/">我的车</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/children/">带娃乘车规定</a> · <a href="/zh/electric/">买电动车</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/rankings/">排行榜</a> · <a href="/zh/ev-grant/">电动车补贴</a> · <a href="/zh/registrations/">新车登记</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/chargers/stats/">充电桩统计</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
   <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Allo 的其他产品</h2>
@@ -261,13 +260,28 @@
   </p>
 </footer>
 <nav class="ac-tabs" aria-label="Allo Cars">
-  <a href="/zh/" aria-current="page" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>工具</span></a>
-  <a href="/zh/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a>
-  <a href="/zh/chargers/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>充电桩地图</span></a>
+  <a href="/zh/" aria-current="page" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>首页</span></a>
+  <a href="/zh/cars/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>我的车</span></a>
+  <a href="/zh/compare/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>对比</span></a>
+  <a href="/zh/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电</span></a>
   <button type="button" class="ac-tabs__more" popovertarget="ac-more" aria-controls="ac-more" data-more-btn><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>更多</span></button>
 </nav>
 <div class="ac-sheet" id="ac-more" popover role="dialog" aria-labelledby="ac-more-h">
   <div class="ac-sheet__head"><h2 id="ac-more-h">全部页面</h2><button type="button" class="ac-iconbtn" popovertarget="ac-more" popovertargetaction="hide" data-more-close aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <h3>我的车</h3>
+  <ul>
+    <li><a href="/zh/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>我的车</span></a></li>
+    <li><a href="/zh/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>召回</span></a></li>
+    <li><a href="/zh/children/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="2.2"/><path d="M5 20v-5a4 4 0 0 1 8 0v5M15 11l4-1M17 10v9"/></svg><span>带娃乘车规定</span></a></li>
+  </ul>
+  <h3>选车</h3>
+  <ul>
+    <li><a href="/zh/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>买电动车</span></a></li>
+    <li><a href="/zh/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>车型对比</span></a></li>
+    <li><a href="/zh/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>排行榜</span></a></li>
+    <li><a href="/zh/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>电动车补贴</span></a></li>
+    <li><a href="/zh/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>新车登记</span></a></li>
+  </ul>
   <h3>充电</h3>
   <ul>
     <li><a href="/zh/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a></li>
@@ -276,16 +290,8 @@
     <li><a href="/zh/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>价格档案</span></a></li>
     <li><a href="/zh/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>最佳充电时段</span></a></li>
   </ul>
-  <h3>汽车</h3>
+  <h3>加油</h3>
   <ul>
-    <li><a href="/zh/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>买电动车</span></a></li>
-    <li><a href="/zh/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>我的车</span></a></li>
-    <li><a href="/zh/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>电动车补贴</span></a></li>
-    <li><a href="/zh/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>车型对比</span></a></li>
-    <li><a href="/zh/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>排行榜</span></a></li>
-    <li><a href="/zh/children/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="2.2"/><path d="M5 20v-5a4 4 0 0 1 8 0v5M15 11l4-1M17 10v9"/></svg><span>带娃乘车规定</span></a></li>
-    <li><a href="/zh/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>召回</span></a></li>
-    <li><a href="/zh/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>新车登记</span></a></li>
     <li><a href="/zh/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>油价</span></a></li>
   </ul>
   <h3>数据</h3>

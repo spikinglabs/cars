@@ -68,14 +68,13 @@
 <header class="ac-top">
   <a class="ac-appbar__brand" href="/">Allo <span>Cars</span></a>
   <nav class="ac-topnav" aria-label="Allo Cars">
-    <a href="/" aria-current="page">Tools</a>
     <a href="/cars/">My cars</a>
     <a href="/compare/">Compare</a>
-    <a href="/chargers/">Charger map</a>
-    <a href="/ev-cost/">Charging cost</a>
-    <a href="/charging-prices/">Price archive</a>
-    <a href="/charge-times/">Best time</a>
+    <a href="/rankings/">Rankings</a>
     <a href="/recalls/">Recalls</a>
+    <a href="/electric/">Buying electric</a>
+    <a href="/ev-cost/">Charging cost</a>
+    <a href="/chargers/">Charger map</a>
     <a href="/fuel-prices/">Fuel prices</a>
   </nav>
   <div class="ac-top__right">
@@ -106,14 +105,14 @@
   <section class="hero">
     <div class="hero__text">
       <h1>Better than asking a chatbot. <em class="ac-hl">Free</em> for you and your AI.</h1>
-      <p>Real charging prices we collect every hour, plus tools and open data for driving in Germany. Use them here, or plug Allo Cars into Claude or any AI assistant so it answers with real numbers instead of guesses. No account, no cost.</p>
+      <p>What every car costs to run, its recalls, ratings and registrations, plus charging and fuel prices we collect ourselves, for driving in Germany, electric or not. Use them here, or plug Allo Cars into Claude or any AI assistant so it answers with real numbers instead of guesses. No account, no cost.</p>
       <form class="ac-find__form ac-find--inline hero__find" action="/car/" role="search" data-find>
         <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="Make and model, e.g. VW ID.3" aria-label="Find any car" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
         <ul class="ac-find__list" data-find-list role="listbox" aria-label="Find any car" hidden></ul>
       </form>
       <div class="row">
-        <a class="ac-btn ac-btn--primary" href="/ev-cost/">Work out my charging cost</a>
-        <a class="ac-btn ac-btn--ghost" href="/charging-prices/">See the price archive</a>
+        <a class="ac-btn ac-btn--primary" href="/cars/">Add my car</a>
+        <a class="ac-btn ac-btn--ghost" href="/ev-cost/">Work out my charging cost</a>
       </div>
     </div>
     <div class="hero__live">
@@ -139,67 +138,67 @@
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M30 56V44l10-20h44l10 20v12M22 56h80v8H22z" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M110 56V46l8-16h36l8 16v10M104 56h64v8h-64z" stroke="var(--car-1)" stroke-width="2.5" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">My cars</h3>
         <p class="ac-toolcard__desc">All your cars in one place: what 100 km costs today, official consumption, recalls for the build year and registrations.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Your garage</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Your garage</span></div>
       </a>
       <a class="ac-toolcard" href="/ev-grant/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><circle cx="100" cy="36" r="26" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M110 26a12 12 0 1 0 0 20M88 33h16M88 39h16" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M20 60h40M140 60h40" stroke="var(--gold)" stroke-width="6" stroke-linecap="round"/></svg></div>
         <h3 class="ac-toolcard__title">EV grant 2026</h3>
         <p class="ac-toolcard__desc">How much of Germany's grant you get for a new electric car or plug-in hybrid, by income and children, and how to apply.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Calculator</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Calculator</span></div>
       </a>
       <a class="ac-toolcard" href="/compare/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M20 64V30h40v34M80 64V14h40v50M140 64V40h40v24" fill="none" stroke="var(--car-2)" stroke-width="2.5"/><path d="M80 14h40v12H80z" fill="var(--gold)"/></svg></div>
         <h3 class="ac-toolcard__title">Compare cars</h3>
         <p class="ac-toolcard__desc">Up to four models side by side: consumption, cost per 100 km and per year, registrations and recalls, with the best value marked.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Comparison</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Comparison</span></div>
       </a>
       <a class="ac-toolcard" href="/rankings/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M30 72V36h40v36M80 72V16h40v56M130 72V48h40v24" fill="var(--car-1)" opacity=".5"/><path d="M80 16h40v8H80z" fill="var(--gold)"/><path d="M96 34h8M48 52h4v8M144 60h12" stroke="var(--car-2)" stroke-width="3" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">Car rankings</h3>
         <p class="ac-toolcard__desc">Best sellers in Germany, the most efficient electric cars, the cheapest cars per 100 km and the brands with the fewest recalls.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Rankings</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Rankings</span></div>
       </a>
       <a class="ac-toolcard" href="/ev-cost/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 L200 30" stroke="var(--car-1)" stroke-width="2" fill="none"/><path d="M0 70 L200 18" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M0 70 L200 6" stroke="var(--car-4)" stroke-width="2" fill="none"/><path d="M0 34 H200" stroke="var(--fuel)" stroke-width="2" stroke-dasharray="6 5" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">EV charging cost</h3>
         <p class="ac-toolcard__desc">What 100 km costs in your electric car at any price per kWh, next to other EVs and a petrol car.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Calculator</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Calculator</span></div>
       </a>
       <a class="ac-toolcard" href="/chargers/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 52 C40 40 60 60 100 44 S160 20 200 28" stroke="var(--border)" stroke-width="6" fill="none"/><circle cx="30" cy="46" r="5" fill="#1d4f91"/><circle cx="74" cy="50" r="5" fill="#1d4f91"/><circle cx="104" cy="42" r="7" fill="#ffcc00" stroke="#17191b" stroke-width="2"/><circle cx="150" cy="26" r="8" fill="#17191b" stroke="#ffcc00" stroke-width="2"/><circle cx="182" cy="30" r="5" fill="#1d4f91"/></svg></div>
         <h3 class="ac-toolcard__title">Charger map</h3>
         <p class="ac-toolcard__desc">Every public charger in Germany: filter by power, plug and payment, and find the closest one.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Map</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Map</span></div>
       </a>
       <a class="ac-toolcard" href="/charging-prices/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 44 L25 42 L50 46 L75 38 L100 38 L125 30 L150 32 L175 24 L200 22" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M0 30 L200 12 L200 34 L0 56 Z" fill="var(--car-1)" opacity=".3"/></svg></div>
         <h3 class="ac-toolcard__title">Charging price archive</h3>
         <p class="ac-toolcard__desc">Ad-hoc charging prices across Germany, collected every hour, with downloads for every day.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Open data</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Open data</span></div>
       </a>
       <a class="ac-toolcard" href="/charge-times/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M8 40h14v28H8zM30 30h14v38H30zM52 46h14v22H52zM74 56h14v12H74zM96 58h14v10H96zM118 50h14v18H118zM140 28h14v40H140zM162 18h14v50H162z" fill="var(--car-1)"/><path d="M74 56h14v12H74zM96 58h14v10H96z" fill="var(--gold)"/></svg></div>
         <h3 class="ac-toolcard__title">Best time to charge</h3>
         <p class="ac-toolcard__desc">Today's and tomorrow's cheapest hours to charge at home on a dynamic tariff, from the power exchange.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Calculator</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Calculator</span></div>
       </a>
       <a class="ac-toolcard" href="/fuel-prices/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M0 54 L20 50 L40 56 L60 40 L80 46 L100 30 L120 38 L140 26 L160 34 L180 22 L200 28" stroke="var(--car-2)" stroke-width="2.5" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">Fuel prices</h3>
         <p class="ac-toolcard__desc">Petrol, diesel and LPG prices in Germany every week since 2005, with downloads for every country in the EU.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Open data</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Open data</span></div>
       </a>
       <a class="ac-toolcard" href="/recalls/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M100 8l26 10v18c0 14-11 25-26 28-15-3-26-14-26-28V18z" stroke="var(--car-2)" stroke-width="2.5" fill="none"/><path d="M100 26v14M100 47v2" stroke="var(--danger)" stroke-width="3" fill="none"/></svg></div>
         <h3 class="ac-toolcard__title">Car recalls</h3>
         <p class="ac-toolcard__desc">Official recalls for your model in Europe and the US, from Safety Gate, the KBA and NHTSA, checked every day.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Open data</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Open data</span></div>
       </a>
       <a class="ac-toolcard" href="/registrations/">
         <div class="ac-toolcard__art"><svg viewBox="0 0 200 72" preserveAspectRatio="none" aria-hidden="true"><path d="M8 72V50h14v22M30 72V40h14v32M52 72V44h14v28M74 72V30h14v42M96 72V34h14v38M118 72V22h14v50M140 72V26h14v46M162 72V14h14v58" fill="var(--car-1)" opacity=".5"/><path d="M8 72V64h14v8M30 72V60h14v12M52 72V58h14v14M74 72V52h14v20M96 72V50h14v22M118 72V42h14v30M140 72V44h14v28M162 72V34h14v38" fill="var(--car-2)"/></svg></div>
         <h3 class="ac-toolcard__title">New registrations by model</h3>
         <p class="ac-toolcard__desc">How many of each car model are newly registered in Germany every month, the top 20 and the electric share.</p>
-        <div class="ac-toolcard__foot"><span class="ac-tag">Open data</span><span class="ac-tag ac-tag--ai">Works with AI</span></div>
+        <div class="ac-toolcard__foot"><span class="ac-tag">Open data</span></div>
       </a>
     </div>
   </section>
@@ -241,7 +240,7 @@
       </div>
     </div>
   </section>
-  <p class="ac-foot__links"><a href="/electric/">Buying electric</a> · <a href="/cars/">My cars</a> · <a href="/ev-grant/">EV grant</a> · <a href="/compare/">Compare cars</a> · <a href="/rankings/">Car rankings</a> · <a href="/children/">Children in the car</a> · <a href="/chargers/">Charger map</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/recalls/">Recalls</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p class="ac-foot__links"><a href="/cars/">My cars</a> · <a href="/recalls/">Recalls</a> · <a href="/children/">Children in the car</a> · <a href="/electric/">Buying electric</a> · <a href="/compare/">Compare cars</a> · <a href="/rankings/">Car rankings</a> · <a href="/ev-grant/">EV grant</a> · <a href="/registrations/">New registrations</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/chargers/">Charger map</a> · <a href="/chargers/stats/">Charger statistics</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">More from Allo</h2>
@@ -260,13 +259,28 @@
   </p>
 </footer>
 <nav class="ac-tabs" aria-label="Allo Cars">
-  <a href="/" aria-current="page" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Tools</span></a>
-  <a href="/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Charging cost</span></a>
-  <a href="/chargers/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>Charger map</span></a>
+  <a href="/" aria-current="page" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Home</span></a>
+  <a href="/cars/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>My cars</span></a>
+  <a href="/compare/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Compare</span></a>
+  <a href="/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Charging</span></a>
   <button type="button" class="ac-tabs__more" popovertarget="ac-more" aria-controls="ac-more" data-more-btn><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>More</span></button>
 </nav>
 <div class="ac-sheet" id="ac-more" popover role="dialog" aria-labelledby="ac-more-h">
   <div class="ac-sheet__head"><h2 id="ac-more-h">All pages</h2><button type="button" class="ac-iconbtn" popovertarget="ac-more" popovertargetaction="hide" data-more-close aria-label="Close" title="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <h3>Your car</h3>
+  <ul>
+    <li><a href="/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>My cars</span></a></li>
+    <li><a href="/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Recalls</span></a></li>
+    <li><a href="/children/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="2.2"/><path d="M5 20v-5a4 4 0 0 1 8 0v5M15 11l4-1M17 10v9"/></svg><span>Children in the car</span></a></li>
+  </ul>
+  <h3>Choosing a car</h3>
+  <ul>
+    <li><a href="/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>Buying electric</span></a></li>
+    <li><a href="/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Compare cars</span></a></li>
+    <li><a href="/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>Car rankings</span></a></li>
+    <li><a href="/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>EV grant</span></a></li>
+    <li><a href="/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>New registrations</span></a></li>
+  </ul>
   <h3>Charging</h3>
   <ul>
     <li><a href="/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Charging cost</span></a></li>
@@ -275,16 +289,8 @@
     <li><a href="/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>Price archive</span></a></li>
     <li><a href="/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Best time to charge</span></a></li>
   </ul>
-  <h3>Cars</h3>
+  <h3>Fuel</h3>
   <ul>
-    <li><a href="/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>Buying electric</span></a></li>
-    <li><a href="/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>My cars</span></a></li>
-    <li><a href="/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>EV grant</span></a></li>
-    <li><a href="/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Compare cars</span></a></li>
-    <li><a href="/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>Car rankings</span></a></li>
-    <li><a href="/children/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="2.2"/><path d="M5 20v-5a4 4 0 0 1 8 0v5M15 11l4-1M17 10v9"/></svg><span>Children in the car</span></a></li>
-    <li><a href="/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Recalls</span></a></li>
-    <li><a href="/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>New registrations</span></a></li>
     <li><a href="/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>Fuel prices</span></a></li>
   </ul>
   <h3>Data</h3>
