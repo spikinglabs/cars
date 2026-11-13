@@ -56,12 +56,12 @@ class EuroNcap(unittest.TestCase):
 
     def test_child_2026_protocol_has_no_score(self):
         import json
-        data = {"selectedOverview": {"title": "2026 Safety"}, "assessmentData": {"carSafety": {"crashProtection": {}},
+        data = {"selectedOverview": {"title": "2026 Safety"}, "assessmentData": {"carSafety": {"crashProtection": {"score": 90, "maxScore": 100, "normalisedScore": 90}},
             "additionalData": {"safetyEquipment": {
                 "safeDriving": {"occupantMonitoring": {"airbagCutoffSwitch": "FITTED_STANDARD", "childPresenceDetection": "FITTED_STANDARD"}},
                 "crashProtection": {"childSafety": {"iSize": {"frontPassenger": "FITTED_STANDARD", "rearPassenger": "FITTED_STANDARD"}}}}}}}
         c = S.parse_euro_child("<script>self.__next_f.push([1," + json.dumps(json.dumps(data)) + "])</script>")
-        self.assertEqual((c["protocol"], c["occupant_pct"]), ("2026", None))
+        self.assertEqual((c["protocol"], c["occupant_pct"], c["crash_protection_pct"]), ("2026", None, 90))
         self.assertEqual(c["i_size"], {"front": "standard", "rear": "standard"})
         self.assertIsNone(S.parse_euro_child("<p>nothing</p>"))
 

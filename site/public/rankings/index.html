@@ -67,6 +67,8 @@
   }
   .foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-4); }
   .foot [hidden] { display: none; }
+  #g26[hidden] { display: none; }
+  .sub26 { margin: var(--space-5) 0 0; font: 800 17px/1.3 var(--font-display); }
 </style>
 </head>
 <body>
@@ -119,6 +121,7 @@
         <div class="chips" id="fuels" hidden></div>
         <ol class="rank" id="rank"><li>…</li></ol>
         <div class="foot"><button type="button" class="ac-btn ac-btn--ghost" id="more" hidden>Show more</button><a class="ac-btn ac-btn--primary" id="go" hidden href="/compare/">Compare</a></div>
+        <div id="g26" hidden><h3 class="sub26" id="h26"></h3><p class="ac-card__desc" id="n26" style="margin:4px 0 0"></p><ol class="rank" id="rank26"></ol></div>
         <p class="ac-caption" id="basis" hidden style="margin:var(--space-3) 0 0"></p>
       </section>
       <p class="ac-caption" style="margin:0">Registrations: Kraftfahrt-Bundesamt (FZ10), counted per KBA model with every drive type together, except the electric list. Consumption and cost: EEA type-approval (WLTP) figures, which are lower than real driving. Recalls: EU Safety Gate alerts for cars since 2019, which include every KBA recall, set against new cars registered in Germany since 2019. Sources and licences: <a href="/open-data/">Data and sources</a>.</p>
@@ -202,6 +205,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/rankings/app.js?v=9734f54882"></script>
+<script src="/rankings/app.js?v=e9ef9de9f0"></script>
 </body>
 </html>

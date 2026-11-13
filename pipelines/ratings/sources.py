@@ -168,19 +168,23 @@ def parse_euro_child(page: str) -> dict | None:
     occ26 = _dig(eq26, "safeDriving", "occupantMonitoring") or {}
     proto = re.search(r'"selectedOverview"\s*:\s*\{[^{}]*?"title"\s*:\s*"((?:19|20)\d\d(?:-(?:19|20)\d\d)?) Safety"', text)
     pct = cop.get("normalisedScore")
+    # 2026 protocol: no child occupant score; child dummies and the child seat check are part of the Crash Protection stage
+    cp26 = (car.get("crashProtection") or {}) if not cop else {}
+    cp_pct = cp26.get("normalisedScore")
     child = {
         "protocol": proto.group(1) if proto else None,
         "occupant_pct": round(pct) if isinstance(pct, (int, float)) and cop.get("maxScore") else None,
         # the points behind the %, e.g. 46 of 49 (scores move in steps, so many cars share a %)
         "occupant_points": round(cop["score"], 2) if isinstance(cop.get("score"), (int, float)) and cop.get("maxScore") else None,
         "occupant_max": cop.get("maxScore") if isinstance(cop.get("maxScore"), (int, float)) else None,
+        "crash_protection_pct": round(cp_pct) if isinstance(cp_pct, (int, float)) and cp26.get("maxScore") else None,
         "isofix": _seats(feats.get("isofix"), prot.get("isofix")),
         "i_size": _seats(feats.get("iSize"), prot.get("iSize"), kid26.get("iSize")),
         "integrated_seat": _seats(feats.get("IntegratedCRS"), prot.get("integratedChildSeat"), kid26.get("integratedCRS")),
         "airbag_switch": _fit((prot.get("airbagCutOffSwitch") or {}).get("seat3")) or _fit(occ26.get("airbagCutoffSwitch")),
         "presence_detection": _presence(feats.get("childPresenceDetection"), prot.get("childPresenceDetection"), occ26.get("childPresenceDetection")),
     }
-    if child["occupant_pct"] is None and not any(child[k] for k in ("isofix", "i_size", "presence_detection")):
+    if child["occupant_pct"] is None and child["crash_protection_pct"] is None and not any(child[k] for k in ("isofix", "i_size", "presence_detection")):
         return None
     return child
 

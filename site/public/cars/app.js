@@ -69,7 +69,7 @@
     phevSome: (n, m) => `${m} 个版本中有 ${n} 个符合条件（不超过 60 g CO₂/km 或纯电续航至少 80 km）。在“版本”里选你的版本。`, phevAvg: "按官方平均值", phevUntil: (d) => `插电混动须在 ${d} 前首次登记。`,
     tooEarly: (y) => `你的车 ${y} 年首次登记：补贴只适用于 2026 年 1 月 1 日起首次登记的车。`, grantGo: "算算你能拿多少", grantNone: (f) => `${f}车没有购车补贴。`,
     ranks: "排名", pos: (i, n) => `第 ${i} 名，共 ${n}`, tied: (i, n, k) => `并列第 ${i} 名，共 ${n}`, tiedN: (k) => `${k} 款同分`, per100k: (b, v) => `${b} 每 10 万辆新车 ${v} 次召回 · 只比较德国新车满 10 万辆的品牌`, notRanked: "未上榜", rankAll: "全部排行榜",
-    rk: { sellers: "德国销量榜（近 12 个月）", electric: "电动车销量榜", efficient: "最省电的电动车", cheapest: "每 100 公里最省钱", cheapestFuel: (f) => `每 100 公里最省钱 · 仅限${f}`, child: "Euro NCAP 儿童乘员得分", recalls: "召回最少的品牌" },
+    rk: { sellers: "德国销量榜（近 12 个月）", electric: "电动车销量榜", efficient: "最省电的电动车", cheapest: "每 100 公里最省钱", cheapestFuel: (f) => `每 100 公里最省钱 · 仅限${f}`, child: "Euro NCAP 儿童乘员得分", child26: "Euro NCAP 碰撞保护得分（2026 新规则，无单独儿童分）", recalls: "召回最少的品牌" },
     why: { few500: "2025 年登记不足 500 辆", few1000: "2025 年登记不足 1000 辆", old: "已不再销售新车", proto: "未按最新规程测试", regs: "登记统计里没有单独列出" },
     results: (q) => `“${q}”的搜索结果`, resultsN: (n) => `${n} 款车型`, noResults: (q) => `没有找到“${q}”。试试品牌和车型，例如“大众 ID.3”。`, regsN: (n) => `近 12 个月 ${n} 辆`,
   } : de ? {
@@ -80,7 +80,7 @@
     phevSome: (n, m) => `${n} von ${m} Versionen sind förderfähig (höchstens 60 g CO₂/km oder mindestens 80 km elektrisch). Wähl deine unter „Versionen“.`, phevAvg: "nach dem offiziellen Durchschnitt", phevUntil: (d) => `Plug-in-Hybride nur bei Erstzulassung bis ${d}.`,
     tooEarly: (y) => `Dein Auto ist von ${y}: Gefördert werden nur Autos mit Erstzulassung ab 1. Januar 2026.`, grantGo: "Deinen Betrag ausrechnen", grantNone: (f) => `Für ${f}-Autos gibt es keine Kaufprämie.`,
     ranks: "In den Ranglisten", pos: (i, n) => `Platz ${i} von ${n}`, tied: (i, n, k) => `Geteilter Platz ${i} von ${n}`, tiedN: (k) => `${k} Modelle gleichauf`, per100k: (b, v) => `${b}: ${v} Rückrufe je 100.000 Neuwagen · nur Marken ab 100.000 Neuzulassungen`, notRanked: "Nicht gelistet", rankAll: "Alle Ranglisten",
-    rk: { sellers: "Meistverkauft in Deutschland (12 Monate)", electric: "Meistverkaufte E-Autos", efficient: "Sparsamste E-Autos", cheapest: "Günstigste je 100 km", cheapestFuel: (f) => `Günstigste je 100 km, nur ${f}`, child: "Euro NCAP Kindersicherheit", recalls: "Marken mit den wenigsten Rückrufen" },
+    rk: { sellers: "Meistverkauft in Deutschland (12 Monate)", electric: "Meistverkaufte E-Autos", efficient: "Sparsamste E-Autos", cheapest: "Günstigste je 100 km", cheapestFuel: (f) => `Günstigste je 100 km, nur ${f}`, child: "Euro NCAP Kindersicherheit", child26: "Euro NCAP Crash Protection, Regeln 2026 (keine eigene Kinderwertung)", recalls: "Marken mit den wenigsten Rückrufen" },
     why: { few500: "2025 unter 500 Neuzulassungen", few1000: "2025 unter 1.000 Neuzulassungen", old: "nicht mehr neu zu kaufen", proto: "nicht nach dem neuesten Protokoll getestet", regs: "in der Zulassungsstatistik nicht einzeln aufgeführt" },
     results: (q) => `Treffer für „${q}“`, resultsN: (n) => `${n} Modelle`, noResults: (q) => `Nichts gefunden für „${q}“. Versuch Marke und Modell, z. B. „VW ID.3“.`, regsN: (n) => `${n} in 12 Monaten`,
   } : {
@@ -91,7 +91,7 @@
     phevSome: (n, m) => `${n} of ${m} versions qualify (at most 60 g CO₂/km or at least 80 km electric). Pick yours under Versions.`, phevAvg: "by the official average", phevUntil: (d) => `Plug-in hybrids only when first registered by ${d}.`,
     tooEarly: (y) => `Your car is from ${y}: the grant is only for cars first registered from 1 January 2026.`, grantGo: "Work out your amount", grantNone: (f) => `There is no purchase grant for ${f.toLowerCase()} cars.`,
     ranks: "Where it ranks", pos: (i, n) => `No. ${i} of ${n}`, tied: (i, n, k) => `Joint No. ${i} of ${n}`, tiedN: (k) => `${k} models tied`, per100k: (b, v) => `${b}: ${v} recalls per 100,000 new cars · brands with 100,000+ new cars only`, notRanked: "Not ranked", rankAll: "All rankings",
-    rk: { sellers: "Best sellers in Germany (12 months)", electric: "Best-selling electric cars", efficient: "Most efficient electric cars", cheapest: "Cheapest per 100 km", cheapestFuel: (f) => `Cheapest per 100 km, ${f.toLowerCase()} only`, child: "Euro NCAP child occupant score", recalls: "Brands with the fewest recalls" },
+    rk: { sellers: "Best sellers in Germany (12 months)", electric: "Best-selling electric cars", efficient: "Most efficient electric cars", cheapest: "Cheapest per 100 km", cheapestFuel: (f) => `Cheapest per 100 km, ${f.toLowerCase()} only`, child: "Euro NCAP child occupant score", child26: "Euro NCAP Crash Protection, 2026 rules (no separate child score)", recalls: "Brands with the fewest recalls" },
     why: { few500: "fewer than 500 registered in 2025", few1000: "fewer than 1,000 registered in 2025", old: "no longer sold new", proto: "not tested under the newest protocol", regs: "not listed on its own in the registration statistics" },
     results: (q) => `Results for “${q}”`, resultsN: (n) => `${n} models`, noResults: (q) => `Nothing found for “${q}”. Try make and model, e.g. “VW ID.3”.`, regsN: (n) => `${n} in 12 months`,
   };
@@ -493,19 +493,19 @@
   /* children on board: Euro NCAP child occupant score and, per seat, the child seat fittings of the tested car
      (pipelines/ratings: euro_ncap.models[].child). Facts as Euro NCAP lists them, linked to the full result. */
   const K = zh ? {
-    title: "带娃乘车", score: "Euro NCAP 儿童乘员得分", proto: (p, y) => `${p} 测试规程 · ${y} 年测试`, pts: (a, b) => `${a}/${b} 分`, no26: "2026 年起的新测试规程不再单独给出儿童乘员得分。", noPct: "这次测试的结果页没有列出儿童乘员得分。",
+    title: "带娃乘车", score: "Euro NCAP 儿童乘员得分", proto: (p, y) => `${p} 测试规程 · ${y} 年测试`, pts: (a, b) => `${a}/${b} 分`, no26: "2026 年起的新测试规程不再单独给出儿童乘员得分。", cp26: "碰撞保护得分（2026 新规则）", cpNote: "2026 新规则不再单独给儿童乘员打分：儿童假人和儿童座椅安装检查都并入了“碰撞保护”，和成人、行人一起计分，所以不能和旧规程的儿童分直接比较。", noPct: "这次测试的结果页没有列出儿童乘员得分。",
     seat: "座位", seats: { front: "副驾", row2: "第二排两侧", row2_centre: "第二排中间", row3: "第三排", rear: "后排" }, integrated: "集成式儿童座椅",
     fit: { standard: "标配", optional: "选配", none: "无" }, airbag: "副驾安全气囊可关闭", presence: "儿童遗留检测", unlisted: "未列出",
     note: "这是 Euro NCAP 测试的那一辆车的配置，你的版本请以车辆说明书为准。不同测试规程的分数不能直接比较。", full: "Euro NCAP 完整结果",
     none: "Euro NCAP 没有这个车型的儿童乘员数据。", recalls: "涉及儿童安全的召回", recallsN: (n) => `${n} 次召回提到 ISOFIX、儿童锁、儿童座椅或副驾气囊关闭`, recallsNone: "安全门 (Safety Gate) 中没有这类召回。", recallsSrc: "来自欧盟安全门的召回说明（英文原文），按关键词筛选。", grant: "电动车补贴（2026）", grantText: (p, c, n) => `每个未满 18 岁的孩子多 ${p}，收入上限每个孩子提高 ${c}，最多算 ${n} 个孩子。`, grantGo: "算一算你家能拿多少", law: "德国儿童乘车规定（法规原文）", outings: "带孩子去哪儿：Allo Outings 上的亲子活动和地点",
   } : de ? {
-    title: "Mit Kindern im Auto", score: "Euro NCAP Kindersicherheit", proto: (p, y) => `Testprotokoll ${p} · getestet ${y}`, pts: (a, b) => `${a} von ${b} Punkten`, no26: "Seit dem Protokoll 2026 gibt Euro NCAP keine eigene Wertung für Kinder mehr.", noPct: "Die Ergebnisseite dieses Tests nennt keine Wertung für Kinder.",
+    title: "Mit Kindern im Auto", score: "Euro NCAP Kindersicherheit", proto: (p, y) => `Testprotokoll ${p} · getestet ${y}`, pts: (a, b) => `${a} von ${b} Punkten`, no26: "Seit dem Protokoll 2026 gibt Euro NCAP keine eigene Wertung für Kinder mehr.", cp26: "Crash Protection (Regeln 2026)", cpNote: "Die Regeln von 2026 haben keine eigene Wertung für Kinder: Kinder-Dummys und die Kindersitz-Prüfung zählen im Bereich „Crash Protection“, zusammen mit Erwachsenen und Fußgängern. Darum ist sie nicht mit älteren Kinderwertungen vergleichbar.", noPct: "Die Ergebnisseite dieses Tests nennt keine Wertung für Kinder.",
     seat: "Sitz", seats: { front: "Beifahrersitz", row2: "2. Reihe außen", row2_centre: "2. Reihe Mitte", row3: "3. Reihe", rear: "Rücksitze" }, integrated: "Integrierter Kindersitz",
     fit: { standard: "Serie", optional: "Option", none: "nein" }, airbag: "Beifahrerairbag abschaltbar", presence: "Kinderanwesenheitserkennung", unlisted: "nicht angegeben",
     note: "So war das getestete Auto ausgestattet; was deine Version hat, steht in der Betriebsanleitung. Wertungen aus verschiedenen Testprotokollen sind nicht vergleichbar.", full: "Ganzes Ergebnis bei Euro NCAP",
     none: "Euro NCAP hat zu diesem Modell keine Angaben zur Kindersicherheit.", recalls: "Rückrufe zur Kindersicherheit", recallsN: (n) => `${n} ${n === 1 ? "Rückruf nennt" : "Rückrufe nennen"} ISOFIX, Kindersicherung, Kindersitz oder die Beifahrerairbag-Abschaltung`, recallsNone: "Safety Gate nennt keine solchen Rückrufe.", recallsSrc: "Aus den Rückrufmeldungen von Safety Gate (englischer Originaltext), nach Stichworten gefiltert.", grant: "E-Auto-Förderung (2026)", grantText: (p, c, n) => `${p} mehr je Kind unter 18, die Einkommensgrenze steigt um ${c} je Kind, für bis zu ${n} Kinder.`, grantGo: "Für deinen Haushalt ausrechnen", law: "Kinder im Auto: die Regeln in Deutschland", outings: "Ausflugsziele und Termine für Familien: Allo Outings",
   } : {
-    title: "Children on board", score: "Euro NCAP child occupant score", proto: (p, y) => `${p} test protocol · tested ${y}`, pts: (a, b) => `${a} of ${b} points`, no26: "Since the 2026 protocol Euro NCAP no longer gives a separate child occupant score.", noPct: "The result page of this test lists no child occupant score.",
+    title: "Children on board", score: "Euro NCAP child occupant score", proto: (p, y) => `${p} test protocol · tested ${y}`, pts: (a, b) => `${a} of ${b} points`, no26: "Since the 2026 protocol Euro NCAP no longer gives a separate child occupant score.", cp26: "Crash Protection (2026 rules)", cpNote: "The 2026 rules give no separate child score: child dummies and the child seat check count in Crash Protection, together with adults and pedestrians, so it can't be compared with older child scores.", noPct: "The result page of this test lists no child occupant score.",
     seat: "Seat", seats: { front: "Front passenger", row2: "2nd row, outer seats", row2_centre: "2nd row, centre", row3: "3rd row", rear: "Rear seats" }, integrated: "Integrated child seat",
     fit: { standard: "Standard", optional: "Optional", none: "No" }, airbag: "Front passenger airbag can be switched off", presence: "Child presence detection", unlisted: "not listed",
     note: "As fitted to the car Euro NCAP tested; your version's manual says what yours has. Scores from different test protocols are not comparable.", full: "Full result at Euro NCAP",
@@ -546,7 +546,11 @@
       ? `<a href="${esc(e.url)}" rel="noopener" class="pct">${c.occupant_pct}%</a><small>${esc([c.occupant_points != null && c.occupant_max ? K.pts(c.occupant_points.toLocaleString(T.locale), c.occupant_max) : "", K.proto(c.protocol || "", e.year)].filter(Boolean).join(" · "))}</small>`
       : `<small>${esc(/^2026/.test(c.protocol || "") ? K.no26 : K.noPct)} ${esc(K.proto(c.protocol || "", e.year))}</small>`;
     const line = (label, body) => `<div class="rrow"><span class="rlabel">${esc(label)}</span>${body}</div>`;
-    return `<section class="ac-card" id="children"><h3 class="ac-card__title">${esc(K.title)}</h3>${line(K.score, score)}${table}
+    // 2026 protocol: no child score, so the Crash Protection stage it is part of, marked as such
+    const scoreLine = c.occupant_pct == null && c.crash_protection_pct != null
+      ? line(K.cp26, `<a href="${esc(e.url)}" rel="noopener" class="pct">${c.crash_protection_pct}%</a><small>${esc(K.cpNote)} ${esc(K.proto(c.protocol || "", e.year))}</small>`)
+      : line(K.score, score);
+    return `<section class="ac-card" id="children"><h3 class="ac-card__title">${esc(K.title)}</h3>${scoreLine}${table}
       ${line(K.airbag, c.airbag_switch ? fit(c.airbag_switch) : `<small>${esc(K.unlisted)}</small>`)}${line(K.presence, c.presence_detection ? fit(c.presence_detection) : `<small>${esc(K.unlisted)}</small>`)}
       <p class="ac-caption" style="margin:var(--space-3) 0 0">${esc(K.note)} <a href="${esc(e.url)}" rel="noopener">${esc(K.full)}</a></p>
       ${recallLines(kidRecalls)}${grant}
@@ -625,7 +629,13 @@
       if (e) {
         const t = atTied(kids, kids.findIndex((x) => x.url === e.url), (x) => x.child.occupant_pct);
         const pct = e.child && e.child.occupant_pct != null ? `${e.child.occupant_pct}%` : "";
-        row(W.rk.child, "list=child", t && t.pos, W.why.proto, pct ? [`${pct} · ${e.child.protocol}`, t && t.same > 1 ? W.tiedN(t.same) : ""].filter(Boolean).join(" · ") : "");
+        const cp = e.child && e.child.occupant_pct == null ? e.child.crash_protection_pct : null;
+        if (cp != null) {
+          // tested under the 2026 rules: placed among the 2026 cars by Crash Protection, as listed apart on /rankings/
+          const k26 = all.filter((x) => x.child && x.child.occupant_pct == null && x.child.crash_protection_pct != null).sort((a, b) => b.child.crash_protection_pct - a.child.crash_protection_pct || b.year - a.year);
+          const t26 = atTied(k26, k26.findIndex((x) => x.url === e.url), (x) => x.child.crash_protection_pct);
+          row(W.rk.child26, "list=child", t26 && t26.pos, "", [`${cp}%`, t26 && t26.same > 1 ? W.tiedN(t26.same) : ""].filter(Boolean).join(" · "));
+        } else row(W.rk.child, "list=child", t && t.pos, W.why.proto, pct ? [`${pct} · ${e.child.protocol}`, t && t.same > 1 ? W.tiedN(t.same) : ""].filter(Boolean).join(" · ") : "");
       }
     }
     if (recallStats) {
