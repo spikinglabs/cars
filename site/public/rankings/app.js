@@ -20,7 +20,7 @@
       child: ["儿童乘员得分", (p) => `Euro NCAP ${p} 测试规程下的儿童乘员得分，从高到低。不同规程的分数不能直接比较，所以只列这一规程测试的车型。`, "Euro NCAP"],
       recalls: ["召回最少的品牌", "2019 年起每 10 万辆德国新车对应的欧盟安全门汽车召回次数，从少到多。召回是通报次数，不是受影响车辆数。只比较 2019 年起在德国新登记满 10 万辆的品牌，小品牌车太少，比率不可靠。", "每 10 万辆"],
     },
-    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}% 同比`, regsN: (n) => `${n} 辆`, alerts: (n) => `${n} 次召回`, tested: (y) => `${y} 年测试`, pts: (a, b) => `${a}/${b} 分`, kind: { electric: "纯电动", fuel: "燃油和混动" }, kindNote: "按 Euro NCAP 测试的版本归类；同一车型既有纯电又有燃油版本时两边都列出。",
+    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}% 同比`, regsN: (n) => `${n} 辆`, alerts: (n) => `${n} 次召回`, tested: (y) => `${y} 年测试`, pts: (a, b) => `${a}/${b} 分`, kind: { electric: "纯电动", fuel: "燃油和混动" }, h26: "按 2026 新规则测试：无单独儿童分", n26: "Euro NCAP 2026 新规则不再单独给儿童乘员打分，儿童假人和儿童座椅安装检查都并入了“碰撞保护”，和成人、行人一起计分。所以这些车按碰撞保护得分排列，不能和上面的分数直接比较。", cp26: "碰撞保护得分", kindNote: "按 Euro NCAP 测试的版本归类；同一车型既有纯电又有燃油版本时两边都列出。",
     seg: { minis: "微型车", small: "小型车", compact: "紧凑型车", medium: "中型车", "upper-medium": "中大型车", luxury: "豪华车", suv: "SUV", "off-road": "越野车", sports: "跑车", "mini-van": "小型 MPV", "large-van": "大型 MPV", utility: "多用途车", motorhome: "房车" }, segBasis: (m) => `车型细分按 KBA 的划分（${m}）。`,
     basis: (w, p) => `油价：${w} 当周全国平均 · 电价：家充 0.35 €/kWh 加 10% 损耗${p}`,
   } : de ? {
@@ -35,7 +35,7 @@
       child: ["Kindersicherheit", (p) => `Die Euro NCAP Wertung für Kinder als Insassen im Testprotokoll ${p}, die höchste zuerst. Wertungen aus verschiedenen Protokollen sind nicht vergleichbar, darum nur Modelle aus diesem Protokoll.`, "Euro NCAP"],
       recalls: ["Wenigste Rückrufe", "Safety-Gate-Rückrufe für Autos seit 2019 pro 100.000 Neuwagen in Deutschland, je Marke, die wenigsten zuerst. Gezählt werden Rückrufaktionen, nicht betroffene Autos. Nur Marken mit mindestens 100.000 Neuzulassungen in Deutschland seit 2019, weil die Quote bei kleinen Marken zu stark schwankt.", "pro 100.000"],
     },
-    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("de-DE", { maximumFractionDigits: 1 })} % zum Vorjahr`, regsN: (n) => `${n} Autos`, alerts: (n) => `${n} Rückrufe`, tested: (y) => `getestet ${y}`, pts: (a, b) => `${a} von ${b} Punkten`, kind: { electric: "Elektro", fuel: "Verbrenner und Hybride" }, kindNote: "Nach den von Euro NCAP getesteten Versionen; ein Modell mit Elektro- und Verbrennerversion steht in beiden Listen.",
+    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("de-DE", { maximumFractionDigits: 1 })} % zum Vorjahr`, regsN: (n) => `${n} Autos`, alerts: (n) => `${n} Rückrufe`, tested: (y) => `getestet ${y}`, pts: (a, b) => `${a} von ${b} Punkten`, kind: { electric: "Elektro", fuel: "Verbrenner und Hybride" }, h26: "Getestet nach den Regeln von 2026: keine eigene Kinderwertung", n26: "Seit 2026 gibt Euro NCAP keine eigene Wertung für Kinder mehr: Kinder-Dummys und die Kindersitz-Prüfung zählen jetzt im Bereich „Crash Protection“ (Schutz bei einem Unfall), zusammen mit Erwachsenen und Fußgängern. Darum stehen diese Autos hier mit ihrer Crash-Protection-Wertung, die mit den Wertungen oben nicht vergleichbar ist.", cp26: "Crash Protection", kindNote: "Nach den von Euro NCAP getesteten Versionen; ein Modell mit Elektro- und Verbrennerversion steht in beiden Listen.",
     seg: { minis: "Minis", small: "Kleinwagen", compact: "Kompaktklasse", medium: "Mittelklasse", "upper-medium": "Obere Mittelklasse", luxury: "Oberklasse", suv: "SUVs", "off-road": "Geländewagen", sports: "Sportwagen", "mini-van": "Mini-Vans", "large-van": "Großraum-Vans", utility: "Utilities", motorhome: "Wohnmobile" }, segBasis: (m) => `Segmente wie vom KBA eingeteilt (${m}).`,
     basis: (w, p) => `Sprit: Bundesdurchschnitt der Woche ab ${w} · Strom: zu Hause 0,35 €/kWh plus 10 % Ladeverlust${p}`,
   } : {
@@ -50,7 +50,7 @@
       child: ["Child occupant score", (p) => `Euro NCAP child occupant scores under the ${p} test protocol, highest first. Scores from different protocols are not comparable, so only cars tested under this one are listed.`, "Euro NCAP"],
       recalls: ["Fewest recalls", "EU Safety Gate car recalls since 2019 per 100,000 new cars registered in Germany, by brand, fewest first. These count recall campaigns, not affected cars. Only brands with at least 100,000 new cars registered in Germany since 2019, since the rate is unreliable for small brands.", "per 100,000"],
     },
-    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("en-GB", { maximumFractionDigits: 1 })}% on last year`, regsN: (n) => `${n} cars`, alerts: (n) => `${n} recalls`, tested: (y) => `tested ${y}`, pts: (a, b) => `${a} of ${b} points`, kind: { electric: "Electric", fuel: "Petrol, diesel and hybrid" }, kindNote: "Sorted by the versions Euro NCAP tested; a model with electric and fuel versions is in both lists.",
+    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("en-GB", { maximumFractionDigits: 1 })}% on last year`, regsN: (n) => `${n} cars`, alerts: (n) => `${n} recalls`, tested: (y) => `tested ${y}`, pts: (a, b) => `${a} of ${b} points`, kind: { electric: "Electric", fuel: "Petrol, diesel and hybrid" }, h26: "Tested under the 2026 rules: no separate child score", n26: "Euro NCAP's 2026 rules give no separate child score: child dummies and the child seat check now count in Crash Protection, together with adults and pedestrians. So these cars are listed by their Crash Protection score, which can't be compared with the scores above.", cp26: "Crash Protection", kindNote: "Sorted by the versions Euro NCAP tested; a model with electric and fuel versions is in both lists.",
     seg: { minis: "Minis", small: "Small cars", compact: "Compact", medium: "Mid-size", "upper-medium": "Upper mid-size", luxury: "Luxury", suv: "SUVs", "off-road": "Off-road", sports: "Sports cars", "mini-van": "Mini-vans", "large-van": "Large vans (MPVs)", utility: "Utilities", motorhome: "Motorhomes" }, segBasis: (m) => `Segments as the KBA assigns them (${m}).`,
     basis: (w, p) => `Fuel: national average, week of ${w} · Electricity: home 0.35 €/kWh plus 10% losses${p}`,
   };
@@ -80,6 +80,17 @@
   let D = {}, catalog = [], catalogYear = 0;
   // the newest Euro NCAP protocol with a child occupant score (the 2026 protocol has none)
   const childProto = () => (D.ratings ? D.ratings.euro_ncap.models : []).map((x) => x.child && x.child.occupant_pct != null ? x.child.protocol : "").filter(Boolean).sort().pop() || "";
+
+  // cars tested under the 2026 protocol (no child score): listed apart by their Crash Protection score
+  function rows26() {
+    if (st.list !== "child" || !D.ratings) return [];
+    return D.ratings.euro_ncap.models.filter((x) => x.child && x.child.occupant_pct == null && x.child.crash_protection_pct != null && (!st.fuel || kinds(x).includes(st.fuel)))
+      .sort((a, b) => b.child.crash_protection_pct - a.child.crash_protection_pct || b.year - a.year)
+      .map((x) => {
+        const m = G.catalogFor(catalog, x.make, x.model);
+        return { name: m ? m.name : x.name, href: m ? `${PRE}/car/?car=${encodeURIComponent(m.id)}#children` : x.url, car: m ? m.id : null, value: `${x.child.crash_protection_pct}%`, sub: `${T.cp26} · ${T.tested(x.year)}`, k: x.child.crash_protection_pct };
+      });
+  }
 
   // electric and/or fuel for a Euro NCAP result: from its tested versions, else from the catalog's versions of the model
   function kinds(x) {
@@ -150,7 +161,7 @@
       : ["", ...segs].map((k) => `<button type="button" class="ac-chip" data-seg="${k}" aria-pressed="${k === st.seg}">${esc(k ? T.seg[k] : T.all)}</button>`).join("");
     const all = rows(), shown = all.slice(0, st.n);
     // lists ranked on one score (k): equal scores share a place, shown as "=82" on every row of the tie
-    const place = (i) => {
+    const place = (all, i) => {
       const k = all[i].k;
       if (k == null) return String(i + 1);
       let j = i;
@@ -159,7 +170,13 @@
       return `${tie ? "=" : ""}${j + 1}`;
     };
     const basket = G.compare.list();
-    $("rank").innerHTML = shown.map((r, i) => `<li><span class="pos">${place(i)}</span><span class="who"><a href="${esc(r.href)}">${esc(r.name)}</a>${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span><span class="val">${esc(r.value)}</span>${r.car ? `<button type="button" class="ac-chip add" data-car="${esc(r.car)}" aria-pressed="${basket.includes(r.car)}">${esc(basket.includes(r.car) ? T.cmpIn : T.cmpAdd)}</button>` : `<span class="add"></span>`}</li>`).join("");
+    const li = (all) => (r, i) => `<li><span class="pos">${place(all, i)}</span><span class="who"><a href="${esc(r.href)}">${esc(r.name)}</a>${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span><span class="val">${esc(r.value)}</span>${r.car ? `<button type="button" class="ac-chip add" data-car="${esc(r.car)}" aria-pressed="${basket.includes(r.car)}">${esc(basket.includes(r.car) ? T.cmpIn : T.cmpAdd)}</button>` : `<span class="add"></span>`}</li>`;
+    $("rank").innerHTML = shown.map(li(all)).join("");
+    const r26 = rows26();
+    $("g26").hidden = !r26.length;
+    $("h26").textContent = T.h26;
+    $("n26").textContent = T.n26;
+    $("rank26").innerHTML = r26.map(li(r26)).join("");
     $("unit").textContent = L[2];
     $("more").hidden = all.length <= st.n;
     const go = $("go");

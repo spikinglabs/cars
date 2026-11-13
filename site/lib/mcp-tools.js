@@ -545,6 +545,7 @@ async function compareCars(get, { cars = [], km_per_year = 15000 } = {}) {
       ...(() => { const r = ratingsOf(ratings, m); return {
         euro_ncap_stars: r.euro_ncap ? r.euro_ncap.stars : null, euro_ncap_year: r.euro_ncap ? r.euro_ncap.year : null,
         euro_ncap_child_occupant_pct: r.euro_ncap && r.euro_ncap.child ? r.euro_ncap.child.occupant_pct ?? null : null,
+        euro_ncap_crash_protection_pct_2026: r.euro_ncap && r.euro_ncap.child ? r.euro_ncap.child.crash_protection_pct ?? null : null,
         euro_ncap_protocol: r.euro_ncap && r.euro_ncap.child ? r.euro_ncap.child.protocol ?? null : null,
         green_ncap_stars: r.green_ncap ? r.green_ncap.stars : null, green_ncap_year: r.green_ncap ? r.green_ncap.year : null,
         adac_breakdowns_per_1000: r.adac_breakdowns ? r.adac_breakdowns.per_1000_cars_by_first_registration : null }; })(),
@@ -627,11 +628,18 @@ async function getRankings(get, { list = "sellers", fuel = null, segment = null,
     about = { unit: "EUR per 100 km at this week's prices: electric charged at home (0.35 EUR/kWh + 10% losses), fuel at the national average, models with 1,000+ new registrations", fuel_week: fp ? fp.week : null };
   } else if (list === "child") {
     const R = await load(get, "ratings/de/ratings.json");
+    const models26 = ((R.euro_ncap || {}).models || []).filter((x) => x.child && x.child.occupant_pct == null && x.child.crash_protection_pct != null);
     const all = ((R.euro_ncap || {}).models || []).filter((x) => x.child && x.child.occupant_pct != null);
     const proto = all.map((x) => x.child.protocol || "").filter(Boolean).sort().pop() || "";
     rows = all.filter((x) => x.child.protocol === proto).sort((a, b) => b.child.occupant_pct - a.child.occupant_pct || b.year - a.year)
       .map((x) => { const m = catalogForG(models, x.make, x.model); return { name: x.name, catalog_id: m ? m.id : null, child_occupant_pct: x.child.occupant_pct, child_occupant_points: x.child.occupant_points ?? null, child_occupant_max_points: x.child.occupant_max ?? null, powertrains: x.powertrains || null, tested: x.year, euro_ncap: x.url, page: m ? `${carPage(m)}#children` : x.url }; });
-    about = { unit: `Euro NCAP child occupant score in %, ${proto} test protocol only (scores from different protocols are not comparable; the 2026 protocol has no separate child score)`, protocol: proto, source: "Euro NCAP" };
+    about = { unit: `Euro NCAP child occupant score in %, ${proto} test protocol only (scores from different protocols are not comparable; the 2026 protocol has no separate child score)`, protocol: proto, source: "Euro NCAP",
+      // the 2026 protocol has no child score: its child dummies and child seat check count in the Crash Protection stage
+      tested_under_2026_rules: models26.sort((a, b) => b.child.crash_protection_pct - a.child.crash_protection_pct || b.year - a.year).slice(0, n).map((x) => {
+        const m = catalogForG(models, x.make, x.model);
+        return { name: x.name, catalog_id: m ? m.id : null, crash_protection_pct: x.child.crash_protection_pct, powertrains: x.powertrains || null, tested: x.year, euro_ncap: x.url, page: m ? `${carPage(m)}#children` : x.url };
+      }),
+      tested_under_2026_rules_note: "Euro NCAP's 2026 rules give no separate child occupant score; child dummies and the child seat check count in Crash Protection together with adults and pedestrians. crash_protection_pct is that whole stage, not comparable with child_occupant_pct." };
   } else {
     const st = await load(get, "recalls/eu/stats.json");
     rows = (st.brands || []).filter((b) => b.alerts_per_100k != null).sort((a, b) => a.alerts_per_100k - b.alerts_per_100k)
@@ -711,7 +719,7 @@ async function getCarRatings(get, { car } = {}) {
   return {
     car: { catalog_id: m.id, name: m.name, fuel: m.fuel, page: `${SITE}/car/?car=${encodeURIComponent(m.id)}` },
     ...ratingsOf(R, m),
-    notes: "Headline facts only; follow each url for the full result. Euro NCAP tightens its tests every few years, so compare stars of similar years. euro_ncap.child: the child occupant score in % (compare only within one protocol; the 2026 protocol has none) and, per seat, whether ISOFIX, i-Size and an integrated child seat were standard, optional or not available on the tested car (front = front passenger, row2 = 2nd row outer seats, row2_centre, row3, rear); the owner's manual says what a given version has. Green NCAP rates one tested version. ADAC counts breakdowns its road patrol attended per 1,000 registered cars in the calendar year, by year of first registration.",
+    notes: "Headline facts only; follow each url for the full result. Euro NCAP tightens its tests every few years, so compare stars of similar years. euro_ncap.child: the child occupant score in % (compare only within one protocol; the 2026 protocol has none: its crash_protection_pct is the Crash Protection stage, where child dummies and the child seat check now count with adults and pedestrians, not comparable with occupant_pct) and, per seat, whether ISOFIX, i-Size and an integrated child seat were standard, optional or not available on the tested car (front = front passenger, row2 = 2nd row outer seats, row2_centre, row3, rear); the owner's manual says what a given version has. Green NCAP rates one tested version. ADAC counts breakdowns its road patrol attended per 1,000 registered cars in the calendar year, by year of first registration.",
   };
 }
 

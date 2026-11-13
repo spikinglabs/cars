@@ -67,6 +67,8 @@
   }
   .foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-4); }
   .foot [hidden] { display: none; }
+  #g26[hidden] { display: none; }
+  .sub26 { margin: var(--space-5) 0 0; font: 800 17px/1.3 var(--font-display); }
 </style>
 </head>
 <body>
@@ -119,6 +121,7 @@
         <div class="chips" id="fuels" hidden></div>
         <ol class="rank" id="rank"><li>…</li></ol>
         <div class="foot"><button type="button" class="ac-btn ac-btn--ghost" id="more" hidden>显示更多</button><a class="ac-btn ac-btn--primary" id="go" hidden href="/zh/compare/">对比</a></div>
+        <div id="g26" hidden><h3 class="sub26" id="h26"></h3><p class="ac-card__desc" id="n26" style="margin:4px 0 0"></p><ol class="rank" id="rank26"></ol></div>
         <p class="ac-caption" id="basis" hidden style="margin:var(--space-3) 0 0"></p>
       </section>
       <p class="ac-caption" style="margin:0">登记量：德国联邦机动车管理局 (KBA, FZ10)，按 KBA 车型统计，含所有动力版本（电动车榜除外）。能耗和费用：EEA 型式认证 (WLTP) 数据，低于实际驾驶。召回：2019 年起欧盟安全门 (Safety Gate) 的汽车召回通报（含所有 KBA 召回），对应 2019 年起德国的新车登记量。来源和许可：<a href="/zh/open-data/">数据与来源</a>。</p>
@@ -203,6 +206,6 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/rankings/app.js?v=9734f54882"></script>
+<script src="/rankings/app.js?v=e9ef9de9f0"></script>
 </body>
 </html>
