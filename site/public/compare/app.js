@@ -23,7 +23,7 @@
     try: "常见比较", mine: "加入我的车", empty: "添加至少两辆车来比较。",
     basisHome: (p) => `家充 ${p}/kWh，含 10% 充电损耗`, basisPub: (p) => `公共即充即付中位数 ${p}/kWh`, basisFuel: (w) => `油价：${w} 当周全国平均`,
     pair: (a, b) => `${a} 对比 ${b}`, euro: "Euro NCAP 安全星级", green: "Green NCAP 环保星级", adac: (y) => `ADAC 每 1,000 辆故障（${y} 年首次登记）`, rg: "评级", kid: "Euro NCAP 儿童乘员得分", isofix: "ISOFIX 标配座位", seatN: { front: "副驾", row2: "第二排两侧", row2_centre: "第二排中间", row3: "第三排", rear: "后排" }, noSeat: "无",
-    version: "版本", allVersions: "所有版本（平均）",
+    version: "版本", allVersions: "所有版本（平均）", allShort: "所有版本",
   } : de ? {
     locale: "de-DE", failed: "Die Daten konnten nicht geladen werden: ", remove: "Entfernen", add: "Auto hinzufügen", addPh: "Marke und Modell, z. B. VW Golf", noModel: "Kein Modell gefunden.", full: "Bis zu 4 Autos. Entferne zuerst eins.",
     fuel: { electric: "Elektro", petrol: "Benzin", diesel: "Diesel", lpg: "Autogas", cng: "Erdgas", "phev-petrol": "Plug-in-Hybrid (Benzin)", "phev-diesel": "Plug-in-Hybrid (Diesel)", hydrogen: "Wasserstoff", e85: "E85" },
@@ -37,7 +37,7 @@
     try: "Oft verglichen", mine: "Meine Autos hinzufügen", empty: "Füge mindestens zwei Autos hinzu.",
     basisHome: (p) => `Zu Hause ${p}/kWh, mit 10 % Ladeverlust`, basisPub: (p) => `Median öffentlich ad hoc ${p}/kWh`, basisFuel: (w) => `Sprit: Bundesdurchschnitt der Woche ab ${w}`,
     pair: (a, b) => `${a} oder ${b}`, euro: "Euro NCAP Sicherheit", green: "Green NCAP Umwelt", adac: (y) => `ADAC Pannen pro 1.000 (Erstzulassung ${y})`, rg: "Bewertungen", kid: "Euro NCAP Kindersicherheit", isofix: "ISOFIX serienmäßig", seatN: { front: "Beifahrersitz", row2: "2. Reihe außen", row2_centre: "2. Reihe Mitte", row3: "3. Reihe", rear: "Rücksitze" }, noSeat: "keiner",
-    version: "Version", allVersions: "Alle Versionen (Durchschnitt)",
+    version: "Version", allVersions: "Alle Versionen (Durchschnitt)", allShort: "Alle Versionen",
   } : {
     locale: "en-GB", failed: "Could not load data: ", remove: "Remove", add: "Add a car", addPh: "Make and model, e.g. VW Golf", noModel: "No model found.", full: "Up to 4 cars. Remove one first.",
     fuel: { electric: "Electric", petrol: "Petrol", diesel: "Diesel", lpg: "LPG", cng: "Natural gas", "phev-petrol": "Plug-in hybrid (petrol)", "phev-diesel": "Plug-in hybrid (diesel)", hydrogen: "Hydrogen", e85: "E85" },
@@ -51,7 +51,7 @@
     try: "Often compared", mine: "Add my cars", empty: "Add at least two cars to compare.",
     basisHome: (p) => `Home ${p}/kWh, plus 10% charging losses`, basisPub: (p) => `Public ad-hoc median ${p}/kWh`, basisFuel: (w) => `Fuel: national average, week of ${w}`,
     pair: (a, b) => `${a} vs ${b}`, euro: "Euro NCAP safety", green: "Green NCAP environment", adac: (y) => `ADAC breakdowns per 1,000 (first registered ${y})`, rg: "Ratings", kid: "Euro NCAP child occupant score", isofix: "ISOFIX as standard", seatN: { front: "Front passenger", row2: "2nd row, outer seats", row2_centre: "2nd row, centre", row3: "3rd row", rear: "Rear seats" }, noSeat: "none",
-    version: "Version", allVersions: "All versions (average)",
+    version: "Version", allVersions: "All versions (average)", allShort: "All versions",
   };
   const G = window.AlloGarage;
   const HOME_PRICE = 0.35; // the charging cost tool's default, used in garage.js cost100
@@ -178,7 +178,7 @@
     const head = `<thead><tr><th scope="col" class="corner"><span class="sr">${esc(T.page)}</span></th>${infos.map((x) => `<th scope="col"><div class="carhead">
         <a href="${PRE}/car/?car=${encodeURIComponent(baseId(x.id))}${x.v ? `&v=${encodeURIComponent(x.v.id)}` : ""}" class="carname">${esc(x.m.name)}</a>
         <span class="carfuel">${esc(T.fuel[x.m.fuel] || x.m.fuel)}</span>
-        ${x.list.length ? `<label class="ver"><span class="sr">${esc(T.version)}: ${esc(x.m.name)}</span><select data-ver="${esc(baseId(x.id))}">
+        ${x.list.length ? `<label class="ver"><span class="sr">${esc(T.version)}: ${esc(x.m.name)}</span><span class="ver__shown" aria-hidden="true">${esc(x.v ? vLabel(x.v) : T.allShort)}</span><select data-ver="${esc(baseId(x.id))}">
           <option value=""${x.v ? "" : " selected"}>${esc(T.allVersions)}</option>${x.list.map((v) => `<option value="${esc(v.id)}"${x.v === v ? " selected" : ""}>${esc(vLabel(v))}${v.years ? ` (${v.years[0] === v.years[1] ? v.years[0] : `${v.years[0]}–${v.years[1]}`})` : ""}</option>`).join("")}</select></label>` : ""}
         <button type="button" class="x" data-remove="${esc(x.id)}" aria-label="${esc(T.remove)}: ${esc(x.m.name)}" title="${esc(T.remove)}">×</button></div></th>`).join("")}</tr></thead>`;
     let body = "", group = "";
