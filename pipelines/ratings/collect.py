@@ -84,9 +84,10 @@ def build(euro: list[dict], green: list[dict], adac: dict | None, now: str) -> d
         "euro_ncap": {
             "source": "Euro NCAP", "source_url": "https://www.euroncap.com/",
             "unit": "safety rating, 0 to 5 stars, and the year of the rating",
+            "powertrains": "powertrains: the drives among the tested variants, electric and/or fuel (petrol, diesel or any hybrid)",
             "child": "child: the protocol (Euro NCAP raises its bar with each protocol, so compare within one), the "
-                     "child occupant score in % (up to the 2023-2025 protocol; the 2026 protocol has no separate child "
-                     "score) and per seat whether ISOFIX, i-Size and an integrated child seat are standard, optional or "
+                     "child occupant score in % with the points behind it (occupant_points of occupant_max; up to the 2023-2025 "
+                     "protocol; the 2026 protocol has no separate child score) and per seat whether ISOFIX, i-Size and an integrated child seat are standard, optional or "
                      "none, as fitted to the tested car; front = front passenger, row2 = 2nd row outer seats, "
                      "row2_centre, row3, rear (2026 protocol). airbag_switch = front passenger airbag can be switched off.",
             "models": S.latest_per_model(euro),
@@ -146,7 +147,7 @@ def run(store, fetch=_fetch, delay: float = DELAY, limit: int = 400) -> dict:
 
 
 PARSER = 1
-EURO_PARSER = 2  # 2: child occupant facts (Euro NCAP pages read again once)
+EURO_PARSER = 3  # 2: child occupant facts; 3: occupant points and powertrains (Euro NCAP pages read again once)
 
 
 def main(argv: list[str] | None = None) -> int:

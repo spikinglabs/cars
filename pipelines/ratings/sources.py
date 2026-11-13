@@ -67,10 +67,34 @@ def parse_euro(page: str, url: str) -> dict | None:
     name = re.sub(r"\s+(?:\d{4}\s+)?Safety Rating\b.*$", "", name, flags=re.I).strip()
     make, model = _split_name(name, m.group(1))
     out = {"name": name, "make": make, "model": model, "stars": int(stars.group(1)), "year": int(year.group(1)), "url": url}
+    pt = parse_euro_powertrains(page)
+    if pt:
+        out["powertrains"] = pt
     child = parse_euro_child(page)
     if child:
         out["child"] = child
     return out
+
+
+# The tested variants' names say the drive ("Electric 73 kWh 210", "2.0 diesel - 2.0 TDI", "1.5 petrol PHEV").
+# Euro NCAP's own ELECTRIC tag is missing on some all-electric models (Toyota C-HR+), so the names decide.
+_EV_VARIANT = re.compile(r"\b(?:electric|BEV|EV)\b|\bkWh\b", re.I)
+_FUEL_VARIANT = re.compile(r"hybrid|PHEV|HEV|petrol|diesel|gasoline|benzin|TSI|TDI|TFSI|litre|\b\d\.\d\b|turbo|cyl", re.I)
+
+
+def parse_euro_powertrains(page: str) -> list[str]:
+    """["electric"], ["fuel"] (petrol, diesel and every kind of hybrid) or both, from the tested variants."""
+    text = _flight_text(page) or page
+    names = set(re.findall(r'"variantName"\s*:\s*"([^"]*)"', text))
+    kinds = set()
+    for n in names:
+        if _FUEL_VARIANT.search(n):
+            kinds.add("fuel")
+        elif _EV_VARIANT.search(n):
+            kinds.add("electric")
+    if not kinds and re.search(r'"assessmentTags"\s*:\s*\[[^\]]*"ELECTRIC"', text):
+        kinds.add("electric")
+    return sorted(kinds)
 
 
 # ---------- Euro NCAP: child occupant facts ----------
@@ -147,6 +171,9 @@ def parse_euro_child(page: str) -> dict | None:
     child = {
         "protocol": proto.group(1) if proto else None,
         "occupant_pct": round(pct) if isinstance(pct, (int, float)) and cop.get("maxScore") else None,
+        # the points behind the %, e.g. 46 of 49 (scores move in steps, so many cars share a %)
+        "occupant_points": round(cop["score"], 2) if isinstance(cop.get("score"), (int, float)) and cop.get("maxScore") else None,
+        "occupant_max": cop.get("maxScore") if isinstance(cop.get("maxScore"), (int, float)) else None,
         "isofix": _seats(feats.get("isofix"), prot.get("isofix")),
         "i_size": _seats(feats.get("iSize"), prot.get("iSize"), kid26.get("iSize")),
         "integrated_seat": _seats(feats.get("IntegratedCRS"), prot.get("integratedChildSeat"), kid26.get("integratedCRS")),

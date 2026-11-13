@@ -2,7 +2,7 @@
    the most efficient electric cars and the cheapest cars to run per 100 km (EEA catalog at this
    week's prices), Euro NCAP child occupant scores within the newest protocol that has them, and recalls per 100,000 new cars by brand (Safety Gate and KBA).
    One script for the English (/rankings/), German (/de/rankings/) and Chinese (/zh/rankings/) page.
-   Link: ?list=<sellers|month|electric|efficient|cheapest|child|recalls>&fuel=<catalog fuel, cheapest only>
+   Link: ?list=<sellers|month|electric|efficient|cheapest|child|recalls>&fuel=<catalog fuel for cheapest; electric or fuel for child>
    &seg=<KBA segment key, sellers only>&n=<rows> */
 (() => {
   const lang = (document.documentElement.lang || "en").slice(0, 2);
@@ -20,7 +20,7 @@
       child: ["儿童乘员得分", (p) => `Euro NCAP ${p} 测试规程下的儿童乘员得分，从高到低。不同规程的分数不能直接比较，所以只列这一规程测试的车型。`, "Euro NCAP"],
       recalls: ["召回最少的品牌", "2019 年起每 10 万辆德国新车对应的欧盟安全门汽车召回次数，从少到多。召回是通报次数，不是受影响车辆数。只比较 2019 年起在德国新登记满 10 万辆的品牌，小品牌车太少，比率不可靠。", "每 10 万辆"],
     },
-    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}% 同比`, regsN: (n) => `${n} 辆`, alerts: (n) => `${n} 次召回`, tested: (y) => `${y} 年测试`,
+    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}% 同比`, regsN: (n) => `${n} 辆`, alerts: (n) => `${n} 次召回`, tested: (y) => `${y} 年测试`, pts: (a, b) => `${a}/${b} 分`, kind: { electric: "纯电动", fuel: "燃油和混动" }, kindNote: "按 Euro NCAP 测试的版本归类；同一车型既有纯电又有燃油版本时两边都列出。",
     seg: { minis: "微型车", small: "小型车", compact: "紧凑型车", medium: "中型车", "upper-medium": "中大型车", luxury: "豪华车", suv: "SUV", "off-road": "越野车", sports: "跑车", "mini-van": "小型 MPV", "large-van": "大型 MPV", utility: "多用途车", motorhome: "房车" }, segBasis: (m) => `车型细分按 KBA 的划分（${m}）。`,
     basis: (w, p) => `油价：${w} 当周全国平均 · 电价：家充 0.35 €/kWh 加 10% 损耗${p}`,
   } : de ? {
@@ -35,7 +35,7 @@
       child: ["Kindersicherheit", (p) => `Die Euro NCAP Wertung für Kinder als Insassen im Testprotokoll ${p}, die höchste zuerst. Wertungen aus verschiedenen Protokollen sind nicht vergleichbar, darum nur Modelle aus diesem Protokoll.`, "Euro NCAP"],
       recalls: ["Wenigste Rückrufe", "Safety-Gate-Rückrufe für Autos seit 2019 pro 100.000 Neuwagen in Deutschland, je Marke, die wenigsten zuerst. Gezählt werden Rückrufaktionen, nicht betroffene Autos. Nur Marken mit mindestens 100.000 Neuzulassungen in Deutschland seit 2019, weil die Quote bei kleinen Marken zu stark schwankt.", "pro 100.000"],
     },
-    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("de-DE", { maximumFractionDigits: 1 })} % zum Vorjahr`, regsN: (n) => `${n} Autos`, alerts: (n) => `${n} Rückrufe`, tested: (y) => `getestet ${y}`,
+    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("de-DE", { maximumFractionDigits: 1 })} % zum Vorjahr`, regsN: (n) => `${n} Autos`, alerts: (n) => `${n} Rückrufe`, tested: (y) => `getestet ${y}`, pts: (a, b) => `${a} von ${b} Punkten`, kind: { electric: "Elektro", fuel: "Verbrenner und Hybride" }, kindNote: "Nach den von Euro NCAP getesteten Versionen; ein Modell mit Elektro- und Verbrennerversion steht in beiden Listen.",
     seg: { minis: "Minis", small: "Kleinwagen", compact: "Kompaktklasse", medium: "Mittelklasse", "upper-medium": "Obere Mittelklasse", luxury: "Oberklasse", suv: "SUVs", "off-road": "Geländewagen", sports: "Sportwagen", "mini-van": "Mini-Vans", "large-van": "Großraum-Vans", utility: "Utilities", motorhome: "Wohnmobile" }, segBasis: (m) => `Segmente wie vom KBA eingeteilt (${m}).`,
     basis: (w, p) => `Sprit: Bundesdurchschnitt der Woche ab ${w} · Strom: zu Hause 0,35 €/kWh plus 10 % Ladeverlust${p}`,
   } : {
@@ -50,13 +50,14 @@
       child: ["Child occupant score", (p) => `Euro NCAP child occupant scores under the ${p} test protocol, highest first. Scores from different protocols are not comparable, so only cars tested under this one are listed.`, "Euro NCAP"],
       recalls: ["Fewest recalls", "EU Safety Gate car recalls since 2019 per 100,000 new cars registered in Germany, by brand, fewest first. These count recall campaigns, not affected cars. Only brands with at least 100,000 new cars registered in Germany since 2019, since the rate is unreliable for small brands.", "per 100,000"],
     },
-    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("en-GB", { maximumFractionDigits: 1 })}% on last year`, regsN: (n) => `${n} cars`, alerts: (n) => `${n} recalls`, tested: (y) => `tested ${y}`,
+    change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("en-GB", { maximumFractionDigits: 1 })}% on last year`, regsN: (n) => `${n} cars`, alerts: (n) => `${n} recalls`, tested: (y) => `tested ${y}`, pts: (a, b) => `${a} of ${b} points`, kind: { electric: "Electric", fuel: "Petrol, diesel and hybrid" }, kindNote: "Sorted by the versions Euro NCAP tested; a model with electric and fuel versions is in both lists.",
     seg: { minis: "Minis", small: "Small cars", compact: "Compact", medium: "Mid-size", "upper-medium": "Upper mid-size", luxury: "Luxury", suv: "SUVs", "off-road": "Off-road", sports: "Sports cars", "mini-van": "Mini-vans", "large-van": "Large vans (MPVs)", utility: "Utilities", motorhome: "Motorhomes" }, segBasis: (m) => `Segments as the KBA assigns them (${m}).`,
     basis: (w, p) => `Fuel: national average, week of ${w} · Electricity: home 0.35 €/kWh plus 10% losses${p}`,
   };
   const G = window.AlloGarage;
   const KEYS = ["sellers", "month", "electric", "efficient", "cheapest", "child", "recalls"];
   const FUELS = ["electric", "petrol", "diesel", "phev-petrol"];
+  const KINDS = ["electric", "fuel"]; // the child list: electric, or petrol, diesel and every hybrid
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const int = (v) => Number(v || 0).toLocaleString(T.locale);
@@ -72,13 +73,21 @@
   const u0 = new URLSearchParams(location.search);
   const st = {
     list: KEYS.includes(u0.get("list")) ? u0.get("list") : "sellers",
-    fuel: FUELS.includes(u0.get("fuel")) ? u0.get("fuel") : "",
+    fuel: (u0.get("list") === "child" ? KINDS : FUELS).includes(u0.get("fuel")) ? u0.get("fuel") : "",
     seg: u0.get("seg") && T.seg[u0.get("seg")] ? u0.get("seg") : "",
     n: Math.max(10, Math.min(100, Number(u0.get("n")) || 20)),
   };
   let D = {}, catalog = [], catalogYear = 0;
   // the newest Euro NCAP protocol with a child occupant score (the 2026 protocol has none)
   const childProto = () => (D.ratings ? D.ratings.euro_ncap.models : []).map((x) => x.child && x.child.occupant_pct != null ? x.child.protocol : "").filter(Boolean).sort().pop() || "";
+
+  // electric and/or fuel for a Euro NCAP result: from its tested versions, else from the catalog's versions of the model
+  function kinds(x) {
+    if (x.powertrains && x.powertrains.length) return x.powertrains;
+    const key = G.modelKey(x.make, x.model), out = new Set();
+    for (const m of catalog) if (G.modelKey(m.make, m.model) === key) out.add(m.fuel === "electric" ? "electric" : "fuel");
+    return [...out];
+  }
 
   /* ---------- the lists: rows of { name, href, car (catalog id for compare), value, sub } ---------- */
   function kbaRow(r, value, sub, fuel) {
@@ -109,11 +118,12 @@
           .map(({ m, c }) => ({ name: m.name, href: `${PRE}/car/?car=${encodeURIComponent(m.id)}`, car: m.id, value: eur(c), sub: T.fuel[m.fuel] || m.fuel }));
       case "child": {
         const p = childProto();
-        return D.ratings ? D.ratings.euro_ncap.models.filter((x) => x.child && x.child.protocol === p && x.child.occupant_pct != null)
+        return D.ratings ? D.ratings.euro_ncap.models.filter((x) => x.child && x.child.protocol === p && x.child.occupant_pct != null && (!st.fuel || kinds(x).includes(st.fuel)))
           .sort((a, b) => b.child.occupant_pct - a.child.occupant_pct || b.year - a.year)
           .map((x) => {
-            const m = G.catalogFor(catalog, x.make, x.model);
-            return { name: m ? m.name : x.name, href: m ? `${PRE}/car/?car=${encodeURIComponent(m.id)}#children` : x.url, car: m ? m.id : null, value: `${x.child.occupant_pct}%`, sub: T.tested(x.year), k: x.child.occupant_pct };
+            const m = G.catalogFor(catalog, x.make, x.model), c = x.child;
+            const pts = c.occupant_points != null && c.occupant_max ? T.pts(c.occupant_points.toLocaleString(T.locale), c.occupant_max) : "";
+            return { name: m ? m.name : x.name, href: m ? `${PRE}/car/?car=${encodeURIComponent(m.id)}#children` : x.url, car: m ? m.id : null, value: `${c.occupant_pct}%`, sub: [pts, T.tested(x.year)].filter(Boolean).join(" · "), k: c.occupant_pct };
           }) : [];
       }
       case "recalls":
@@ -132,9 +142,11 @@
     $("list-desc").textContent = typeof L[1] === "function" ? L[1](st.list === "child" ? childProto() : month) : L[1];
     // KBA segments that have models in the data, in KBA's order
     const segs = st.list === "sellers" && D.regs ? Object.keys(T.seg).filter((k) => D.regs.models.some((r) => r.segment === k && r.last_12_months)) : [];
-    $("fuels").hidden = st.list !== "cheapest" && !segs.length;
+    $("fuels").hidden = st.list !== "cheapest" && st.list !== "child" && !segs.length;
     $("fuels").innerHTML = st.list === "cheapest"
       ? ["", ...FUELS].map((f) => `<button type="button" class="ac-chip" data-fuel="${f}" aria-pressed="${f === st.fuel}">${esc(f ? T.fuel[f] : T.all)}</button>`).join("")
+      : st.list === "child"
+      ? ["", ...KINDS].map((f) => `<button type="button" class="ac-chip" data-fuel="${f}" aria-pressed="${f === st.fuel}">${esc(f ? T.kind[f] : T.all)}</button>`).join("")
       : ["", ...segs].map((k) => `<button type="button" class="ac-chip" data-seg="${k}" aria-pressed="${k === st.seg}">${esc(k ? T.seg[k] : T.all)}</button>`).join("");
     const all = rows(), shown = all.slice(0, st.n);
     // lists ranked on one score (k): equal scores share a place, shown as "=82" on every row of the tie
@@ -155,14 +167,14 @@
     go.textContent = T.cmpGo(basket.length);
     go.href = `${PRE}/compare/?cars=${basket.map(encodeURIComponent).join(",")}`;
     const pub = D.charge && D.charge.overall ? ` · ${de ? "öffentlich" : zh ? "公共" : "public"} ${eur(D.charge.overall.median)}/kWh` : "";
-    $("basis").hidden = st.list !== "cheapest" && !segs.length;
-    $("basis").textContent = st.list === "cheapest" ? (D.fuel ? T.basis(day(D.fuel.week), pub) : "")
+    $("basis").hidden = st.list !== "cheapest" && st.list !== "child" && !segs.length;
+    $("basis").textContent = st.list === "cheapest" ? (D.fuel ? T.basis(day(D.fuel.week), pub) : "") : st.list === "child" ? T.kindNote
       : D.regs && D.regs.segments_month ? T.segBasis(monthName(D.regs.segments_month)) : "";
   }
   function setUrl() {
     const u = new URL(location.href);
     u.searchParams.set("list", st.list);
-    if (st.fuel && st.list === "cheapest") u.searchParams.set("fuel", st.fuel); else u.searchParams.delete("fuel");
+    if (st.fuel && (st.list === "cheapest" || st.list === "child")) u.searchParams.set("fuel", st.fuel); else u.searchParams.delete("fuel");
     if (st.seg && st.list === "sellers") u.searchParams.set("seg", st.seg); else u.searchParams.delete("seg");
     if (st.n !== 20) u.searchParams.set("n", st.n); else u.searchParams.delete("n");
     history.replaceState(null, "", u);
@@ -170,7 +182,7 @@
   $("lists").addEventListener("click", (e) => {
     const a = e.target.closest("[data-list]");
     if (!a) return;
-    e.preventDefault(); st.list = a.dataset.list; st.n = 20; setUrl(); draw();
+    e.preventDefault(); st.list = a.dataset.list; st.fuel = ""; st.n = 20; setUrl(); draw();
   });
   $("fuels").addEventListener("click", (e) => {
     const b = e.target.closest("[data-fuel]");
