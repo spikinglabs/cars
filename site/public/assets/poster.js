@@ -24,21 +24,33 @@
 
   var WORDS = {
     zh: {
+      pub100: "公共充电每百公里", pub100Sub: (p) => `即充即付中位数 ${p}/kWh`, green: "Green NCAP 环保", greenSub: (y) => `${y} 年测试`,
+      adac: "ADAC 故障率", adacSub: (y) => `${y} 年登记的车 · 每千辆`, adacUnit: "次", recalls: "欧盟召回", recallsSub: "Safety Gate，2019 年起", recallsUnit: "次",
+      chart: "德国每月新车登记 · 近 24 个月", regsTotal: (n) => `近 12 个月 ${n} 辆`, sold: (a, b) => a === b ? `${a} 年在售` : `${a}–${b} 年在售`, variants: (n) => `${n} 个版本`,
+      seg: { minis: "微型车", small: "小型车", compact: "紧凑型车", medium: "中型车", "upper-medium": "中大型车", luxury: "豪华车", suv: "SUV", "off-road": "越野车", sports: "跑车", "mini-van": "小型 MPV", "large-van": "大型 MPV", utility: "多用途车", motorhome: "房车" },
+      kidTitle: "带娃配置（Euro NCAP 测试车）", seats: { front: "副驾", row2: "二排两侧", row2_centre: "二排中间", row3: "三排", rear: "后排" }, presence: "儿童遗留检测", airbag: "副驾气囊可关闭",
+      rank: (n) => `德国销量第 ${n} 名`, grant: (x) => `E-Auto 补贴最高 ${x}（2026 年起登记的纯电新车，含 2 个孩子）`, colon: "：",
       locale: "zh-CN", title: "生成海报", titleVs: "PK 海报", close: "关闭", share: "分享", save: "保存图片", copy: "复制文案", copied: "已复制",
       fmt: { xhs: "小红书 3:4", ig: "Instagram 4:5", sq: "方图 1:1" }, carA: "第一辆", carB: "第二辆", pickPh: "品牌和车型，例如 VW Golf",
       hold: "也可以长按图片保存。", loading: "正在生成…", failed: "海报生成失败：",
       fuel: { electric: "纯电动", petrol: "汽油", diesel: "柴油", lpg: "LPG", cng: "天然气", "phev-petrol": "插电混动", "phev-diesel": "插电混动（柴油）", hydrogen: "氢燃料", e85: "E85" },
-      cost100: "每 100 公里", cost100Sub: (f) => f === "electric" ? "在家充电 €0.35/kWh" : /^phev/.test(f) ? "官方电/油比例 · 本周油价" : "本周德国平均油价",
+      cost100: "每百公里", cost100Sub: (f) => f === "electric" ? "在家充电 €0.35/kWh" : /^phev/.test(f) ? "官方电/油比例 · 本周油价" : "本周德国平均油价",
       year: "一年 1.5 万公里", yearSub: "按上面的每 100 公里费用", range: "纯电续航", rangeSub: "WLTP 官方",
       power: "功率", ps: (n) => `${n} 马力`, cons: "官方能耗", consSub: "WLTP", co2: "CO₂ 排放", co2Sub: "WLTP 官方",
       euro: "Euro NCAP 安全", euroSub: (y) => `${y} 年测试`, kid: "儿童乘员保护", kidSub: (p) => `Euro NCAP ${p} 规程`,
       regs: "德国新车登记", regsSub: "近 12 个月", mass: "整备质量", massSub: "官方平均",
       perL: "升/100 km", wins: (n) => `${n} 项领先`, vs: "VS", tie: "打平", noCompare: "测试规程不同，不比较", noCompareCons: "电和油不比较",
-      foot: "数据：EEA 型式认证 (WLTP)、KBA、Euro NCAP；费用按本周德国价格估算",
+      foot: "数据：EEA 型式认证 (WLTP)、KBA、Euro NCAP、Green NCAP、ADAC、欧盟 Safety Gate；费用按本周德国价格估算",
       brand: "搜 Allo Cars", caption: (t) => `${t}\n\n数据来自 Allo Cars（官方 WLTP、KBA、Euro NCAP）。\n#德国买车 #德国生活 #电动车 #汽车对比 #AlloCars`,
       capOne: (n) => `${n} 关键数据一图看懂`, capVs: (a, b) => `${a} vs ${b}，谁更值？`,
     },
     de: {
+      pub100: "Öffentlich pro 100 km", pub100Sub: (p) => `Ad-hoc-Median ${p}/kWh`, green: "Green NCAP", greenSub: (y) => `getestet ${y}`,
+      adac: "ADAC-Pannen", adacSub: (y) => `Erstzulassung ${y}, je 1.000`, adacUnit: "", recalls: "EU-Rückrufe", recallsSub: "Safety Gate seit 2019", recallsUnit: "",
+      chart: "Neuzulassungen pro Monat, 24 Monate", regsTotal: (n) => `${n} in 12 Monaten`, sold: (a, b) => a === b ? `neu verkauft ${a}` : `neu verkauft ${a}–${b}`, variants: (n) => `${n} Versionen`,
+      seg: { minis: "Minis", small: "Kleinwagen", compact: "Kompaktklasse", medium: "Mittelklasse", "upper-medium": "Obere Mittelklasse", luxury: "Oberklasse", suv: "SUV", "off-road": "Geländewagen", sports: "Sportwagen", "mini-van": "Mini-Van", "large-van": "Großraum-Van", utility: "Utility", motorhome: "Wohnmobil" },
+      kidTitle: "Für Kinder (Euro-NCAP-Testauto)", seats: { front: "Beifahrer", row2: "2. Reihe außen", row2_centre: "2. Reihe Mitte", row3: "3. Reihe", rear: "hinten" }, presence: "Kinderanwesenheitserkennung", airbag: "Beifahrerairbag abschaltbar",
+      rank: (n) => `Platz ${n} der Neuzulassungen`, grant: (x) => `E-Auto-Förderung bis ${x} (neue E-Autos ab 2026, mit 2 Kindern)`, colon: ": ",
       locale: "de-DE", title: "Poster", titleVs: "Duell-Poster", close: "Schließen", share: "Teilen", save: "Bild speichern", copy: "Text kopieren", copied: "Kopiert",
       fmt: { xhs: "3:4 (Xiaohongshu)", ig: "4:5 (Instagram)", sq: "1:1" }, carA: "Erstes Auto", carB: "Zweites Auto", pickPh: "Marke und Modell, z. B. VW Golf",
       hold: "Du kannst das Bild auch lange drücken und sichern.", loading: "Wird gezeichnet …", failed: "Das Poster ging nicht: ",
@@ -49,11 +61,17 @@
       euro: "Euro NCAP", euroSub: (y) => `getestet ${y}`, kid: "Kindersicherheit", kidSub: (p) => `Euro NCAP, Protokoll ${p}`,
       regs: "Neuzulassungen", regsSub: "in Deutschland, 12 Monate", mass: "Leergewicht", massSub: "offizieller Schnitt",
       perL: "l/100 km", wins: (n) => `${n}× vorn`, vs: "VS", tie: "Gleichstand", noCompare: "anderes Testprotokoll", noCompareCons: "nicht vergleichbar",
-      foot: "Daten: EEA-Typgenehmigung (WLTP), KBA, Euro NCAP; Kosten zu Preisen dieser Woche geschätzt",
+      foot: "Daten: EEA-Typgenehmigung (WLTP), KBA, Euro NCAP, Green NCAP, ADAC, Safety Gate; Kosten zu Preisen dieser Woche geschätzt",
       brand: "cars.allo.land", caption: (t) => `${t}\n\nZahlen von Allo Cars (offizielle WLTP-Werte, KBA, Euro NCAP): cars.allo.land`,
       capOne: (n) => `${n}: die wichtigsten Zahlen`, capVs: (a, b) => `${a} oder ${b}?`,
     },
     en: {
+      pub100: "Public, per 100 km", pub100Sub: (p) => `ad-hoc median ${p}/kWh`, green: "Green NCAP", greenSub: (y) => `tested ${y}`,
+      adac: "ADAC breakdowns", adacSub: (y) => `cars from ${y}, per 1,000`, adacUnit: "", recalls: "EU recalls", recallsSub: "Safety Gate since 2019", recallsUnit: "",
+      chart: "New registrations per month, 24 months", regsTotal: (n) => `${n} in 12 months`, sold: (a, b) => a === b ? `sold new ${a}` : `sold new ${a}–${b}`, variants: (n) => `${n} versions`,
+      seg: { minis: "Mini", small: "Small car", compact: "Compact", medium: "Mid-size", "upper-medium": "Upper mid-size", luxury: "Luxury", suv: "SUV", "off-road": "Off-road", sports: "Sports car", "mini-van": "Mini-van", "large-van": "Large MPV", utility: "Utility", motorhome: "Motorhome" },
+      kidTitle: "For children (Euro NCAP test car)", seats: { front: "front passenger", row2: "2nd row outer", row2_centre: "2nd row centre", row3: "3rd row", rear: "rear" }, presence: "Child presence detection", airbag: "Passenger airbag off switch",
+      rank: (n) => `No. ${n} best seller in Germany`, grant: (x) => `E-Auto grant up to ${x} (new EVs from 2026, with 2 children)`, colon: ": ",
       locale: "en-GB", title: "Poster", titleVs: "Head-to-head poster", close: "Close", share: "Share", save: "Save image", copy: "Copy text", copied: "Copied",
       fmt: { xhs: "3:4 (Xiaohongshu)", ig: "4:5 (Instagram)", sq: "1:1" }, carA: "First car", carB: "Second car", pickPh: "Make and model, e.g. VW Golf",
       hold: "You can also press and hold the image to save it.", loading: "Drawing …", failed: "Could not draw the poster: ",
@@ -64,7 +82,7 @@
       euro: "Euro NCAP", euroSub: (y) => `tested ${y}`, kid: "Child safety", kidSub: (p) => `Euro NCAP, ${p} protocol`,
       regs: "New registrations", regsSub: "in Germany, 12 months", mass: "Kerb weight", massSub: "official average",
       perL: "L/100 km", wins: (n) => `${n} ${n === 1 ? "win" : "wins"}`, vs: "VS", tie: "Tie", noCompare: "different test protocols", noCompareCons: "not comparable",
-      foot: "Data: EEA type approval (WLTP), KBA, Euro NCAP; cost estimated at this week's German prices",
+      foot: "Data: EEA type approval (WLTP), KBA, Euro NCAP, Green NCAP, ADAC, EU Safety Gate; cost estimated at this week's German prices",
       brand: "cars.allo.land", caption: (t) => `${t}\n\nFigures from Allo Cars (official WLTP, KBA, Euro NCAP): cars.allo.land`,
       capOne: (n) => `${n}: the key figures`, capVs: (a, b) => `${a} vs ${b}: which one?`,
     },
@@ -72,22 +90,24 @@
   function words(lang) { return WORDS[lang] || WORDS.en; }
 
   /* ---------- figures ---------- */
-  // ctx: { G (AlloGarage), prices: { fuel, charge }, regs, ratings, lang }; m: catalog model (a version's
-  // figures already merged in), base: the catalog model itself (ratings and registrations are per model).
-  // Returns { name, make, model, fuel, fuelLabel, version, metrics: { key: { value, text, unit, sub, better, group } } }
-  function facts(m, base, ctx, version) {
+  // ctx: { G (AlloGarage), prices: { fuel, charge }, regs, ratings, lang, grant (EvGrant.RULES or null) };
+  // m: catalog model (a version's figures already merged in), base: the catalog model itself (ratings and
+  // registrations are per model); extra: { months: [{ month, total }] (KBA, per model), recalls: number }.
+  // Returns { name, make, model, fuel, fuelLabel, version, info, kidLines, grant, months, metrics: { key: { value, text, unit, sub, better, group } } }
+  function facts(m, base, ctx, version, extra) {
     var L = words(ctx.lang), G = ctx.G, loc = L.locale;
-    base = base || m;
+    base = base || m; extra = extra || {};
     var n0 = function (v) { return Math.round(v).toLocaleString(loc); };
     var n1 = function (v) { return Number(v).toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 }); };
     var eur = function (v, d) { return Number(v).toLocaleString(loc, { style: "currency", currency: "EUR", minimumFractionDigits: d, maximumFractionDigits: d }); };
     var out = {};
     var put = function (key, value, text, unit, sub, better, group) { if (value != null && isFinite(value)) out[key] = { key: key, value: Number(value), text: text, unit: unit || "", sub: sub || "", better: better || "", group: group || key }; };
-    var c = G.cost100(m, ctx.prices.fuel, ctx.prices.charge).main;
-    if (c != null) {
-      put("cost100", c, eur(c, 2), "", L.cost100Sub(m.fuel), "low");
-      put("year", c * 150, eur(c * 150, 0), "", L.yearSub, "low");
+    var c = G.cost100(m, ctx.prices.fuel, ctx.prices.charge);
+    if (c.main != null) {
+      put("cost100", c.main, eur(c.main, 2), "", L.cost100Sub(m.fuel), "low");
+      put("year", c.main * 150, eur(c.main * 150, 0), "", L.yearSub, "low");
     }
+    if (c.pub != null && ctx.prices.charge) put("pub100", c.pub, eur(c.pub, 2), "", L.pub100Sub(eur(ctx.prices.charge.overall.median, 2)), "low");
     if (m.range_km) put("range", m.range_km, n0(m.range_km), "km", L.rangeSub, "high");
     if (m.power_kw) put("power", m.power_kw, n0(m.power_kw), "kW", L.ps(n0(m.power_kw * 1.35962)), "high");
     // consumption: kWh for electric cars, litres for fuel cars; a plug-in hybrid's official litres are not
@@ -95,31 +115,81 @@
     if (m.fuel === "electric" && m.kwh_per_100km) put("cons", m.kwh_per_100km, n1(m.kwh_per_100km), "kWh/100 km", L.consSub, "low", "cons-e");
     else if (m.l_per_100km) put("cons", m.l_per_100km, n1(m.l_per_100km), L.perL, L.consSub, "low", /^phev/.test(m.fuel) ? "cons-p" : "cons-f");
     if (m.co2_g_km != null && m.co2_g_km > 0) put("co2", m.co2_g_km, n0(m.co2_g_km), "g/km", L.co2Sub, "low");
-    var r = ctx.ratings ? G.ratings(ctx.ratings, base) : { euro: null };
+    if (m.mass_kg) put("mass", m.mass_kg, n0(m.mass_kg), "kg", L.massSub, "");
+    var r = ctx.ratings ? G.ratings(ctx.ratings, base) : { euro: null, green: null, adac: null };
+    var kidLines = [];
     if (r.euro && r.euro.stars != null) {
       var proto = r.euro.child && r.euro.child.protocol ? String(r.euro.child.protocol) : "";
       put("euro", r.euro.stars, "", "", L.euroSub(r.euro.year), "high", "euro-" + (proto || r.euro.year));
       out.euro.stars = r.euro.stars; out.euro.year = r.euro.year;
-      if (r.euro.child && r.euro.child.occupant_pct != null) put("kid", r.euro.child.occupant_pct, String(r.euro.child.occupant_pct), "%", L.kidSub(proto), "high", "kid-" + proto);
+      var ch = r.euro.child;
+      if (ch && ch.occupant_pct != null) put("kid", ch.occupant_pct, String(ch.occupant_pct), "%", L.kidSub(proto), "high", "kid-" + proto);
+      if (ch) {
+        // the seats with a fitting as standard on the car Euro NCAP tested
+        var std = function (o) { return ["front", "row2", "row2_centre", "row3", "rear"].filter(function (k) { return o && o[k] === "standard"; }).map(function (k) { return L.seats[k]; }); };
+        var iso = std(ch.isofix), isz = std(ch.i_size);
+        var fit1 = [];
+        if (iso.length) fit1.push("ISOFIX" + L.colon + iso.join(" · "));
+        if (isz.length) fit1.push("i-Size" + L.colon + isz.join(" · "));
+        kidLines = kidLines.concat(fit1);
+        var extras = [];
+        if (ch.airbag_switch === "standard") extras.push(L.airbag);
+        if (ch.presence_detection === "standard") extras.push(L.presence);
+        if (extras.length) kidLines.push(extras.join(" · "));
+      }
     }
+    if (r.green && r.green.stars != null) {
+      // Green NCAP changed its method in 2022: older results are not compared with newer ones
+      put("green", r.green.stars, "", "", L.greenSub(r.green.year), "high", "green-" + (r.green.year >= 2022 ? "new" : "old"));
+      out.green.stars = r.green.stars; out.green.year = r.green.year;
+    }
+    if (r.adac && r.adac.rates) {
+      var ay = Object.keys(r.adac.rates).filter(function (y) { return r.adac.rates[y] != null; }).sort().pop();
+      // breakdowns per 1,000 cars of one registration year: only compared for the same year
+      if (ay) put("adac", r.adac.rates[ay], n1(r.adac.rates[ay]), L.adacUnit, L.adacSub(ay), "low", "adac-" + ay);
+    }
+    if (extra.recalls != null) put("recalls", extra.recalls, n0(extra.recalls), L.recallsUnit, L.recallsSub, "low");
     var key = G.modelKey(base.make, base.model);
     var reg = ctx.regs && ctx.regs.models ? ctx.regs.models.filter(function (x) { return x.model !== "SONSTIGE" && G.modelKey(x.brand, x.model) === key; })[0] : null;
     if (reg && reg.last_12_months) put("regs", reg.last_12_months, n0(reg.last_12_months), "", L.regsSub, "high");
-    if (m.mass_kg) put("mass", m.mass_kg, n0(m.mass_kg), "kg", L.massSub, "");
+    // place among the best sellers in Germany (KBA, 12 months); models with the same count share a place
+    var rankText = "";
+    if (reg && reg.last_12_months) {
+      var place = 1 + ctx.regs.models.filter(function (x) { return x.model !== "SONSTIGE" && (x.last_12_months || 0) > reg.last_12_months; }).length;
+      if (place <= 100) rankText = L.rank(place);
+    }
+    var info = [];
+    if (reg && reg.segment && L.seg[reg.segment]) info.push(L.seg[reg.segment]);
+    if (base.years) info.push(L.sold(base.years[0], base.years[1]));
+    if (!version && base.variants > 1) info.push(L.variants(base.variants));
+    var grant = "";
+    if (ctx.grant && m.fuel === "electric") grant = L.grant(eur(ctx.grant.base.bev[0] + ctx.grant.per_child * ctx.grant.max_children, 0));
     return {
       id: base.id, name: base.name, make: base.make, model: base.model, fuel: m.fuel, fuelLabel: L.fuel[m.fuel] || m.fuel,
-      version: version ? [version.trim, version.power_kw ? version.power_kw + " kW" : ""].filter(Boolean).join(" · ") : "", metrics: out,
+      version: version ? [version.trim, version.power_kw ? version.power_kw + " kW" : ""].filter(Boolean).join(" · ") : "",
+      info: info.join(" · "), rankText: rankText, kidLines: kidLines, grant: grant, months: (extra.months || []).slice(-24), metrics: out,
     };
   }
 
   // the order figures go on a poster, most interesting first; a poster shows as many as fit
-  var ONE_ORDER = { electric: ["cost100", "power", "cons", "euro", "kid", "regs", "year", "mass"], other: ["power", "cons", "co2", "euro", "kid", "regs", "year", "mass"] };
-  var VS_ORDER = ["cost100", "range", "power", "cons", "euro", "kid", "regs", "co2", "mass"];
-  // hero of a one-car poster: the electric range, else the cost of 100 km
-  function hero(f) { return f.fuel === "electric" && f.metrics.range ? f.metrics.range : f.metrics.cost100 || f.metrics.power || null; }
+  var ONE_ORDER = {
+    electric: ["power", "cons", "pub100", "year", "euro", "kid", "green", "adac", "recalls", "mass", "regs"],
+    other: ["power", "cons", "co2", "year", "euro", "kid", "green", "adac", "recalls", "mass", "regs"],
+  };
+  var VS_ORDER = ["cost100", "pub100", "year", "range", "power", "cons", "co2", "euro", "kid", "green", "adac", "recalls", "regs", "mass"];
+  // hero of a one-car poster: two figures, the electric range and the cost of 100 km, else cost and consumption
+  function heroes(f) {
+    var M = f.metrics;
+    var pick = f.fuel === "electric" ? [M.range, M.cost100] : [M.cost100, M.cons];
+    pick = pick.filter(Boolean);
+    if (!pick.length && M.power) pick = [M.power];
+    return pick.slice(0, 2);
+  }
+  function hero(f) { return heroes(f)[0] || null; }
   function oneList(f) {
-    var h = hero(f), order = f.fuel === "electric" ? ONE_ORDER.electric : ONE_ORDER.other;
-    return order.filter(function (k) { return f.metrics[k] && f.metrics[k] !== h; }).map(function (k) { return f.metrics[k]; });
+    var h = heroes(f), order = f.fuel === "electric" ? ONE_ORDER.electric : ONE_ORDER.other;
+    // registrations get their own chart when there are months to draw
+    return order.filter(function (k) { return f.metrics[k] && h.indexOf(f.metrics[k]) < 0 && !(k === "regs" && f.months.length > 1); }).map(function (k) { return f.metrics[k]; });
   }
 
   // Head to head: the rows both cars have, each with the winner (0, 1, or -1 for none) where the
@@ -146,6 +216,7 @@
   var font = function (w, px, fam) { return w + " " + Math.round(px) + "px " + (fam || SANS); };
 
   function rr(g, x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
     g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
     g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
   }
@@ -163,7 +234,7 @@
   }
   // text in up to n lines of width w, broken at spaces (or anywhere in Chinese), the last one clipped
   function wrap(g, text, w, n) {
-    var parts = /[\u3400-\u9fff]/.test(text) ? text.split("") : text.split(/(?<= )/), lines = [], cur = "";
+    var parts = text.match(/[\u3000-\u9fff\uff00-\uffef]|[^\s\u3000-\u9fff\uff00-\uffef]+\s*|\s+/g) || [], lines = [], cur = "";
     parts.forEach(function (p) {
       if (lines.length >= n) return;
       if (cur && g.measureText(cur + p).width > w) { lines.push(cur.trim()); cur = p.trimStart(); } else cur += p;
@@ -193,132 +264,177 @@
   function brandBar(g, W, L, fuelLabel, y) {
     g.fillStyle = C.gold; g.fillRect(0, 0, W, 18);
     g.textBaseline = "alphabetic"; g.textAlign = "left";
-    g.font = font(800, 44, DISPLAY); g.fillStyle = C.ink; g.fillText("Allo", 72, y);
-    var w = g.measureText("Allo ").width; g.fillStyle = C.gold; g.fillText("Cars", 72 + w, y);
+    g.font = font(800, 44, DISPLAY); g.fillStyle = C.ink; g.fillText("Allo", 64, y);
+    var w = g.measureText("Allo ").width; g.fillStyle = C.gold; g.fillText("Cars", 64 + w, y);
     if (fuelLabel) {
       g.font = font(700, 30); var tw = g.measureText(fuelLabel).width;
-      rr(g, W - 72 - tw - 48, y - 40, tw + 48, 54, 27); g.fillStyle = C.gold; g.fill();
-      g.fillStyle = C.goldInk; g.fillText(fuelLabel, W - 72 - tw - 24, y - 2);
+      rr(g, W - 64 - tw - 48, y - 40, tw + 48, 54, 27); g.fillStyle = C.gold; g.fill();
+      g.fillStyle = C.goldInk; g.fillText(fuelLabel, W - 64 - tw - 24, y - 2);
     }
   }
   function footer(g, W, H, L, extra) {
     g.textAlign = "left"; g.textBaseline = "alphabetic";
-    g.fillStyle = C.line; g.fillRect(72, H - 118, W - 144, 2);
-    g.font = font(400, 22); g.fillStyle = C.muted;
-    var lines = wrap(g, extra ? extra + " · " + L.foot : L.foot, W - 144 - 300, 2);
-    lines.forEach(function (t, i) { g.fillText(t, 72, H - (lines.length > 1 ? 78 : 66) + i * 30); });
+    g.fillStyle = C.line; g.fillRect(64, H - 118, W - 128, 2);
+    g.font = font(400, 20); g.fillStyle = C.muted;
+    var lines = wrap(g, extra ? extra + " · " + L.foot : L.foot, W - 128 - 270, 2);
+    lines.forEach(function (t, i) { g.fillText(t, 64, H - (lines.length > 1 ? 78 : 66) + i * 28); });
     g.font = font(800, 30, DISPLAY); g.fillStyle = C.gold; g.textAlign = "right";
-    g.fillText(L.brand, W - 72, H - 64);
+    g.fillText(L.brand, W - 64, H - 64);
     g.textAlign = "left";
   }
   // a figure's main text as drawn: the number, or stars for Euro NCAP
   function valueText(mt) { return mt.text + (mt.unit ? (mt.unit === "%" ? "%" : " " + mt.unit) : ""); }
 
   function drawOne(g, f, fmt, L, stamp) {
-    var W = SIZES[fmt][0], H = SIZES[fmt][1], P = 72;
+    var W = SIZES[fmt][0], H = SIZES[fmt][1], P = 64, sq = fmt === "sq";
     g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
-    brandBar(g, W, L, f.fuelLabel, 100);
-    var y = fmt === "sq" ? 168 : 196;
-    g.textAlign = "left"; g.fillStyle = C.muted; g.font = font(700, 44); g.fillText(clip(g, f.make, W - 2 * P), P, y);
-    var big = fit(g, f.model, W - 2 * P, fmt === "sq" ? 128 : 156, 60, 800, DISPLAY);
-    y += big * 0.98; g.fillStyle = C.ink; g.fillText(f.model, P, y);
-    if (f.version) { y += 50; g.font = font(400, 32); g.fillStyle = C.muted; g.fillText(clip(g, f.version, W - 2 * P), P, y); }
-    // hero
-    var h = hero(f);
-    y += fmt === "sq" ? 36 : 52;
-    if (h) {
-      var hh = fmt === "sq" ? 210 : 236;
-      rr(g, P, y, W - 2 * P, hh, 36); g.fillStyle = C.gold; g.fill();
-      g.fillStyle = C.goldInk; g.font = font(700, 32);
-      var label = h.key === "range" ? L.range : h.key === "cost100" ? L.cost100 : L.power;
-      g.fillText(label, P + 44, y + 64);
-      var num = fit(g, h.text, W - 2 * P - 88 - 220, fmt === "sq" ? 104 : 140, 60, 800, DISPLAY);
-      g.fillText(h.text, P + 40, y + hh - (fmt === "sq" ? 36 : 44));
-      var nw = g.measureText(h.text).width;
-      if (h.unit) { g.font = font(800, num * 0.42, DISPLAY); g.fillText(h.unit, P + 40 + nw + 14, y + hh - (fmt === "sq" ? 36 : 44)); }
-      g.font = font(400, 26); g.textAlign = "right"; g.fillText(clip(g, h.sub, 340), W - P - 44, y + 64); g.textAlign = "left";
-      y += hh + 28;
+    brandBar(g, W, L, f.fuelLabel, 96);
+    // name, with what kind of car it is
+    var y = sq ? 160 : 172;
+    g.textAlign = "left"; g.fillStyle = C.muted; g.font = font(700, 38); g.fillText(clip(g, f.make, W - 2 * P - 300), P, y);
+    if (f.rankText) {
+      g.font = font(700, 26); var rw = g.measureText(f.rankText).width;
+      rr(g, W - P - rw - 36, y - 34, rw + 36, 46, 23); g.strokeStyle = C.gold; g.lineWidth = 2; g.stroke();
+      g.fillStyle = C.gold; g.fillText(f.rankText, W - P - rw - 18, y - 2);
     }
-    // tiles, two per row, as many rows as fit
-    var list = oneList(f), gap = 24, tw = (W - 2 * P - gap) / 2, bottom = H - 150;
-    var minH = 150, rows = Math.max(0, Math.min(Math.ceil(list.length / 2), Math.floor((bottom - y + gap) / (minH + gap))));
-    list = list.slice(0, rows * 2);
-    if (list.length % 2 && rows > 0 && list.length > 1) list = list.slice(0, list.length - 1); // even rows look tidier
-    rows = Math.ceil(list.length / 2);
-    var th = rows ? Math.min(210, (bottom - y - gap * (rows - 1)) / rows) : 0;
-    list.forEach(function (mt, i) {
-      var x = P + (i % 2) * (tw + gap), ty = y + Math.floor(i / 2) * (th + gap);
-      rr(g, x, ty, tw, th, 28); g.fillStyle = C.tile; g.fill();
-      g.fillStyle = C.muted; g.font = font(700, 28); g.fillText(clip(g, L[mt.key], tw - 56), x + 28, ty + 42);
-      // value centred between the label (baseline +42) and the note (baseline th-20), sized to the space
-      var vmax = Math.max(32, Math.min(64, (th - 102) / 0.8)), mid = ty + (52 + th - 50) / 2 + vmax * 0.37;
-      if (mt.key === "euro") {
-        stars(g, mt.stars, x + 28, mid - vmax * 0.36, Math.min(26, vmax * 0.42));
+    var big = fit(g, f.model, W - 2 * P, sq ? 104 : 124, 56, 800, DISPLAY);
+    y += big * 0.96; g.fillStyle = C.ink; g.fillText(f.model, P, y);
+    var sub = [f.version, f.info].filter(Boolean).join(" · ");
+    if (sub) { y += 44; g.font = font(400, 28); g.fillStyle = C.muted; g.fillText(clip(g, sub, W - 2 * P), P, y); }
+    // two headline figures on gold
+    var hs = heroes(f);
+    y += sq ? 26 : 34;
+    if (hs.length) {
+      var hh = sq ? 168 : 184, hw = (W - 2 * P) / hs.length;
+      rr(g, P, y, W - 2 * P, hh, 32); g.fillStyle = C.gold; g.fill();
+      hs.forEach(function (h, i) {
+        var x = P + i * hw + 36;
+        if (i) { g.fillStyle = "rgba(23,25,27,.18)"; g.fillRect(P + i * hw, y + 28, 2, hh - 56); }
+        g.fillStyle = C.goldInk; g.font = font(700, 28);
+        g.fillText(clip(g, L[h.key], hw - 60), x, y + 48);
+        var nb = y + hh - 52, num = fit(g, h.text, hw - 72 - (h.unit ? 110 : 0), sq ? 84 : 100, 44, 800, DISPLAY);
+        g.fillText(h.text, x - 4, nb);
+        if (h.unit) { var nw = g.measureText(h.text).width; g.font = font(800, Math.min(44, num * 0.4), DISPLAY); g.fillText(clip(g, h.unit, hw - 72 - nw), x + nw + 8, nb); }
+        g.font = font(400, 22); g.fillText(clip(g, h.sub, hw - 60), x, y + hh - 18);
+      });
+      y += hh + 20;
+    }
+    // what fits below: rows of three tiles, the registrations chart, the children strip
+    var bottom = H - 140, gap = 16, th = sq ? 112 : 118, chartH = 140;
+    var list = oneList(f), cols = 3, tw = (W - 2 * P - gap * (cols - 1)) / cols;
+    var kid = f.kidLines.slice();
+    g.font = font(400, 26);
+    // ISOFIX and i-Size on one line when both fit
+    if (kid.length > 1 && /^ISOFIX/.test(kid[0]) && /^i-Size/.test(kid[1]) && g.measureText(kid[0] + "   " + kid[1]).width <= W - 2 * P - 48) kid.splice(0, 2, kid[0] + "   " + kid[1]);
+    if (f.grant) kid.push(f.grant);
+    var stripH = kid.length ? 56 + kid.length * 34 : 0;
+    var rowsAll = Math.ceil(list.length / cols), rows = 0, chart = false, strip = false, used = 0;
+    var plan = [["row"], ["row"], ["chart"], ["strip"], ["row"], ["row"]];
+    plan.forEach(function (p) {
+      var need = p[0] === "row" ? (rows < rowsAll ? th + gap : 0) : p[0] === "chart" ? (f.months.length > 1 ? chartH + gap : 0) : stripH ? stripH + gap : 0;
+      if (!need || used + need > bottom - y + gap) return;
+      used += need;
+      if (p[0] === "row") rows++; else if (p[0] === "chart") chart = true; else strip = true;
+    });
+    var spare = Math.max(0, bottom - y + gap - used), n = rows + (chart ? 1 : 0) + (strip ? 1 : 0);
+    th += rows ? Math.min(40, spare / Math.max(1, n)) : 0;
+    list.slice(0, rows * cols).forEach(function (mt, i) {
+      var x = P + (i % cols) * (tw + gap), ty = y + Math.floor(i / cols) * (th + gap);
+      rr(g, x, ty, tw, th, 24); g.fillStyle = C.tile; g.fill();
+      g.fillStyle = C.muted; g.font = font(700, 24); g.fillText(clip(g, L[mt.key], tw - 40), x + 22, ty + 38);
+      var vmax = Math.max(30, Math.min(52, (th - 86) / 0.8)), mid = ty + (46 + th - 42) / 2 + vmax * 0.37;
+      if (mt.key === "euro" || mt.key === "green") {
+        stars(g, mt.stars, x + 22, mid - vmax * 0.36, Math.min(19, (tw - 52) / 10.6));
       } else {
         g.fillStyle = C.ink;
-        var px = fit(g, mt.text, tw - 56 - (mt.unit ? 150 : 0), vmax, 30, 800, DISPLAY);
-        g.fillText(mt.text, x + 28, mid);
-        if (mt.unit) { var w0 = g.measureText(mt.text).width; g.font = font(700, Math.min(30, px * 0.5)); g.fillText(clip(g, mt.unit, tw - 56 - w0 - 10), x + 28 + w0 + 10, mid); }
+        var px = fit(g, mt.text, tw - 44 - (mt.unit ? Math.min(110, g.measureText(mt.unit).width + 10) : 0), vmax, 26, 800, DISPLAY);
+        g.fillText(mt.text, x + 22, mid);
+        if (mt.unit) { var w0 = g.measureText(mt.text).width; g.font = font(700, Math.min(24, px * 0.48)); g.fillText(clip(g, mt.unit, tw - 44 - w0 - 8), x + 22 + w0 + 8, mid); }
       }
-      g.fillStyle = C.muted; g.font = font(400, 24); g.fillText(clip(g, mt.sub, tw - 56), x + 28, ty + th - 20);
+      g.fillStyle = C.muted; g.font = font(400, 20); g.fillText(clip(g, mt.sub, tw - 40), x + 22, ty + th - 20);
     });
+    y += rows ? rows * (th + gap) : 0;
+    if (chart) {
+      var ch = chartH + (rows && spare && n ? Math.min(40, spare / n) : 0);
+      rr(g, P, y, W - 2 * P, ch, 24); g.fillStyle = C.tile; g.fill();
+      g.fillStyle = C.muted; g.font = font(700, 24); g.textAlign = "left"; g.fillText(clip(g, L.chart, W - 2 * P - 340), P + 24, y + 40);
+      if (f.metrics.regs) { g.textAlign = "right"; g.fillStyle = C.ink; g.font = font(800, 30, DISPLAY); g.fillText(L.regsTotal(f.metrics.regs.text), W - P - 24, y + 42); g.textAlign = "left"; }
+      var ms = f.months, max = Math.max.apply(null, ms.map(function (x) { return x.total || 0; }).concat([1]));
+      var cx = P + 24, cw = W - 2 * P - 48, top = y + 58, cb = y + ch - 18, bw = cw / ms.length;
+      ms.forEach(function (x, i) {
+        var hgt = Math.max(2, (cb - top) * (x.total || 0) / max);
+        rr(g, cx + i * bw + bw * 0.14, cb - hgt, bw * 0.72, hgt, Math.min(6, bw * 0.3));
+        g.fillStyle = i >= ms.length - 12 ? C.gold : C.line; g.fill();
+      });
+      y += ch + gap;
+    }
+    if (strip) {
+      rr(g, P, y, W - 2 * P, stripH, 24); g.strokeStyle = C.gold; g.lineWidth = 2; g.stroke();
+      g.fillStyle = C.gold; g.font = font(700, 24); g.fillText(clip(g, L.kidTitle, W - 2 * P - 48), P + 24, y + 40);
+      g.fillStyle = C.ink; g.font = font(400, 26);
+      kid.forEach(function (t, i) { g.fillText(clip(g, t, W - 2 * P - 48), P + 24, y + 78 + i * 34); });
+    }
     footer(g, W, H, L, stamp);
   }
 
   function drawVs(g, a, b, fmt, L, stamp) {
-    var W = SIZES[fmt][0], H = SIZES[fmt][1], P = 72, mid = W / 2;
+    var W = SIZES[fmt][0], H = SIZES[fmt][1], P = 64, mid = W / 2, sq = fmt === "sq";
     g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
-    brandBar(g, W, L, "", 100);
+    brandBar(g, W, L, "", 96);
     // names
-    var y = fmt === "sq" ? 170 : 196, colW = (W - 2 * P - 180) / 2;
+    var y = sq ? 158 : 172, colW = (W - 2 * P - 170) / 2;
     var name = function (f, x, align, color) {
-      g.textAlign = align; g.fillStyle = C.muted; g.font = font(700, 34); g.fillText(clip(g, f.make, colW), x, y);
-      var px = fit(g, f.model, colW, fmt === "sq" ? 84 : 96, 40, 800, DISPLAY);
-      g.fillStyle = color; g.fillText(f.model, x, y + px * 0.98);
-      g.font = font(400, 26); g.fillStyle = C.muted; g.fillText(clip(g, f.version || f.fuelLabel, colW), x, y + px * 0.98 + 44);
+      g.textAlign = align; g.fillStyle = C.muted; g.font = font(700, 30); g.fillText(clip(g, f.make, colW), x, y);
+      var px = fit(g, f.model, colW, sq ? 72 : 84, 36, 800, DISPLAY);
+      g.fillStyle = color; g.fillText(f.model, x, y + px * 0.96);
+      g.font = font(400, 22); g.fillStyle = C.muted;
+      g.fillText(clip(g, [f.version || f.fuelLabel, (f.info || "").split(" · ")[0]].filter(Boolean).join(" · "), colW), x, y + px * 0.96 + 36);
+      if (f.rankText) { g.fillStyle = color; g.font = font(700, 22); g.fillText(clip(g, f.rankText, colW), x, y + px * 0.96 + 66); }
       return px;
     };
-    var pa = name(a, P, "left", C.gold), pb = name(b, W - P, "right", C.blue);
-    var ph = Math.max(pa, pb);
-    var top = y + ph + 92 + (fmt === "sq" ? 92 : 116), bottom = H - 150, minRow = 112;
-    var d = duel(a, b, Math.max(1, Math.floor((bottom - top) / minRow)));
-    // VS badge
-    var cy = y + ph * 0.5;
-    g.beginPath(); g.arc(mid, cy, 58, 0, Math.PI * 2); g.fillStyle = C.gold; g.fill();
-    g.textAlign = "center"; g.fillStyle = C.goldInk; g.font = font(800, 50, DISPLAY); g.fillText(L.vs, mid, cy + 18);
-    y += ph + 92;
-    // score
-    var score = d.wins[0] + " : " + d.wins[1];
-    g.font = font(800, fmt === "sq" ? 64 : 80, DISPLAY); g.textAlign = "center"; g.fillStyle = C.ink; g.fillText(score, mid, y + (fmt === "sq" ? 56 : 70));
-    g.font = font(700, 28); g.textAlign = "left"; g.fillStyle = d.wins[0] >= d.wins[1] ? C.gold : C.muted; g.fillText(L.wins(d.wins[0]), P, y + 56);
-    g.textAlign = "right"; g.fillStyle = d.wins[1] >= d.wins[0] ? C.blue : C.muted; g.fillText(L.wins(d.wins[1]), W - P, y + 56);
-    y += fmt === "sq" ? 92 : 116;
-    // rows: label in the middle, two bars back to back, longer bar = bigger number, winner in colour
-    var rows = d.rows;
-    var rh = Math.min(150, (bottom - y) / rows.length), half = mid - P - 8, barH = Math.min(58, rh - 54);
+    var ph = Math.max(name(a, P, "left", C.gold), name(b, W - P, "right", C.blue));
+    var cy = y + ph * 0.45;
+    g.beginPath(); g.arc(mid, cy, 52, 0, Math.PI * 2); g.fillStyle = C.gold; g.fill();
+    g.textAlign = "center"; g.fillStyle = C.goldInk; g.font = font(800, 44, DISPLAY); g.fillText(L.vs, mid, cy + 16);
+    y += ph + (a.rankText || b.rankText ? 92 : 64);
+    // rows: label in the middle, bars to each side, longer bar = bigger number, winner in colour
+    var scoreH = sq ? 70 : 84, bottom = H - 140, minRow = sq ? 62 : 66;
+    var d = duel(a, b, Math.max(1, Math.floor((bottom - y - scoreH) / minRow)));
+    var sy = y + scoreH - 20;
+    g.font = font(800, sq ? 60 : 72, DISPLAY); g.textAlign = "center"; g.fillStyle = C.ink; g.fillText(d.wins[0] + " : " + d.wins[1], mid, sy);
+    g.font = font(700, 26); g.textAlign = "left"; g.fillStyle = d.wins[0] >= d.wins[1] ? C.gold : C.muted; g.fillText(L.wins(d.wins[0]), P, sy - 12);
+    g.textAlign = "right"; g.fillStyle = d.wins[1] >= d.wins[0] ? C.blue : C.muted; g.fillText(L.wins(d.wins[1]), W - P, sy - 12);
+    y += scoreH;
+    var rows = d.rows, rh = Math.min(96, (bottom - y) / Math.max(1, rows.length)), barH = Math.min(52, rh - 14);
+    var lw = 210, half = mid - lw / 2 - 8 - P, minLen = 150;
     rows.forEach(function (row, i) {
-      var ty = y + i * rh;
-      g.textAlign = "center"; g.fillStyle = C.muted; g.font = font(700, 26);
-      g.fillText(L[row.key] + (row.comparable ? "" : " · " + (row.key === "cons" ? L.noCompareCons : L.noCompare)), mid, ty + 30);
-      var by = ty + 44, max = Math.max(row.a.value, row.b.value) || 1;
+      var by = y + i * rh + (rh - barH) / 2, max = Math.max(row.a.value, row.b.value) || 1;
+      // the label between the bars, a second line when the two are not compared
+      g.textAlign = "center"; g.fillStyle = C.muted;
+      g.font = font(700, 22);
+      var lab = L[row.key];
+      if (row.comparable) { g.fillText(clip(g, lab, lw - 8), mid, by + barH / 2 + 8); }
+      else {
+        g.fillText(clip(g, lab, lw - 8), mid, by + barH / 2 - 4);
+        g.font = font(400, 16); g.fillText(clip(g, row.key === "cons" ? L.noCompareCons : L.noCompare, lw - 8), mid, by + barH / 2 + 18);
+      }
       [row.a, row.b].forEach(function (mt, side) {
-        var len = 230 + (half - 230) * (mt.value / max), win = row.win === side;
-        var x = side ? mid + 8 : mid - 8 - len;
+        var len = minLen + (half - minLen) * (mt.value / max), win = row.win === side;
+        var x = side ? mid + lw / 2 + 8 : mid - lw / 2 - 8 - len;
         rr(g, x, by, len, barH, barH / 2);
         g.fillStyle = win ? (side ? C.blue : C.gold) : C.tile; g.fill();
         g.fillStyle = win ? C.goldInk : C.ink;
-        var tx = side ? x + len - 24 : x + 24;
+        var tx = side ? x + len - 20 : x + 20;
         g.textAlign = side ? "right" : "left";
-        if (mt.key === "euro") {
-          var sr = barH * 0.26, sw = sr * 2.15 * 4 + 2 * sr;
+        if (mt.key === "euro" || mt.key === "green") {
+          var sr = Math.min(barH * 0.24, 12), sw = sr * 2.15 * 4 + 2 * sr;
           // on a coloured bar the stars are dark, so they don't vanish
           stars(g, mt.stars, side ? tx - sw : tx, by + barH / 2, sr, win ? "rgba(23,25,27,.22)" : C.line, win ? C.goldInk : C.gold);
-          // the test year at the inner end, so different protocols are visible
-          g.font = font(700, Math.min(26, barH * 0.45)); g.textAlign = side ? "left" : "right"; g.fillStyle = win ? C.goldInk : C.muted;
-          g.fillText(String(mt.year), side ? x + 24 : x + len - 24, by + barH / 2 + barH * 0.16);
+          g.font = font(700, Math.min(20, barH * 0.4)); g.textAlign = side ? "left" : "right"; g.fillStyle = win ? C.goldInk : C.muted;
+          g.fillText(String(mt.year), side ? x + 18 : x + len - 18, by + barH / 2 + 7);
         } else {
-          fit(g, valueText(mt), len - 48, Math.min(40, barH * 0.68), 20, 800, DISPLAY);
-          g.fillText(valueText(mt), tx, by + barH / 2 + barH * 0.24);
+          fit(g, valueText(mt), len - 36, Math.min(34, barH * 0.66), 16, 800, DISPLAY);
+          g.fillText(valueText(mt), tx, by + barH / 2 + barH * 0.22);
         }
       });
     });
@@ -344,18 +460,34 @@
     return data;
   }
   var makeSlug = function (make) { return String(make || "").toLowerCase().replace(/&/g, "and").replace(/#/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); };
+  // registrations per month (KBA) and Safety Gate recalls naming the model, for one catalog model
+  var extraCache = {};
+  function extrasOf(base, D) {
+    if (extraCache[base.id]) return extraCache[base.id];
+    var G = window.AlloGarage, key = G.modelKey(base.make, base.model);
+    var reg = D.regs && D.regs.models ? D.regs.models.filter(function (x) { return x.model !== "SONSTIGE" && G.modelKey(x.brand, x.model) === key; })[0] : null;
+    var months = reg && reg.file ? soft(window.AlloSite.data("registrations", reg.file)).then(function (d) { return d && d.months ? d.months : []; }) : Promise.resolve([]);
+    if (!D.recallBrands) D.recallBrands = soft("/data/recalls/eu/brands.json");
+    var recalls = D.recallBrands.then(function (rb) {
+      var b = rb && rb.brands ? rb.brands.filter(function (x) { return x.slug === G.recallBrand(base.make); })[0] : null;
+      if (!b) return null;
+      return soft("/data/recalls/eu/" + b.file).then(function (d) { return d && d.alerts ? d.alerts.filter(function (a) { return G.recallNames(a, base.make, base.model); }).length : null; });
+    });
+    extraCache[base.id] = Promise.all([months, recalls]).then(function (r) { return { months: r[0], recalls: r[1] }; });
+    return extraCache[base.id];
+  }
   function factsFor(id, D) {
     var parts = String(id).split(":"), base = D.byId[parts[0]];
     if (!base) return Promise.resolve(null);
-    var ctx = { G: window.AlloGarage, prices: D.prices, regs: D.regs, ratings: D.ratings, lang: lang };
-    if (!parts[1]) return Promise.resolve(facts(base, base, ctx, null));
+    var ctx = { G: window.AlloGarage, prices: D.prices, regs: D.regs, ratings: D.ratings, lang: lang, grant: window.EvGrant ? window.EvGrant.RULES : null };
     var k = makeSlug(base.make);
-    if (!versionFiles[k]) versionFiles[k] = soft(window.AlloSite.data("vehicle-catalog", "versions/" + k + ".json"));
-    return versionFiles[k].then(function (vf) {
-      var v = ((vf && vf.models && vf.models[base.id]) || []).filter(function (x) { return x.id === parts[1]; })[0];
-      if (!v) return facts(base, base, ctx, null);
+    if (parts[1] && !versionFiles[k]) versionFiles[k] = soft(window.AlloSite.data("vehicle-catalog", "versions/" + k + ".json"));
+    return Promise.all([extrasOf(base, D), parts[1] ? versionFiles[k] : null]).then(function (r) {
+      var extra = r[0], vf = r[1];
+      var v = parts[1] ? ((vf && vf.models && vf.models[base.id]) || []).filter(function (x) { return x.id === parts[1]; })[0] : null;
+      if (!v) return facts(base, base, ctx, null, extra);
       var m = Object.assign({}, base, { kwh_per_100km: v.kwh_per_100km, l_per_100km: v.l_per_100km, co2_g_km: v.co2_g_km, range_km: v.range_km, power_kw: v.power_kw, mass_kg: v.mass_kg });
-      return facts(m, base, ctx, v);
+      return facts(m, base, ctx, v, extra);
     });
   }
   function fontsReady() {
@@ -495,5 +627,5 @@
     }).catch(function (e) { status(L.failed + (e && e.message || e)); });
   }
 
-  window.AlloPoster = { open: open, facts: facts, duel: duel, oneList: oneList, hero: hero, words: words, SIZES: SIZES, drawOne: drawOne, drawVs: drawVs };
+  window.AlloPoster = { open: open, facts: facts, duel: duel, oneList: oneList, hero: hero, heroes: heroes, words: words, SIZES: SIZES, drawOne: drawOne, drawVs: drawVs };
 })();

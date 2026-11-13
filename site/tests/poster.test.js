@@ -14,13 +14,13 @@ function load() {
 }
 const { AlloGarage: G, AlloPoster: P } = load();
 const prices = { fuel: { products: { euro_super_95: { eur_per_litre: 1.8 }, diesel: { eur_per_litre: 1.7 } } }, charge: { overall: { median: 0.6 } } };
-const regs = { models: [{ brand: "VW", model: "GOLF", last_12_months: 88000 }, { brand: "VOLVO", model: "EX30", last_12_months: 7200 }, { brand: "VW", model: "SONSTIGE", last_12_months: 5 }] };
+const regs = { models: [{ brand: "VW", model: "GOLF", last_12_months: 88000, segment: "compact" }, { brand: "VW", model: "T-ROC", last_12_months: 88000 }, { brand: "VOLVO", model: "EX30", last_12_months: 7200, segment: "suv" }, { brand: "VW", model: "SONSTIGE", last_12_months: 5 }] };
 const ratings = { euro_ncap: { models: [
-  { make: "Volvo", model: "EX30", stars: 5, year: 2024, url: "u", child: { protocol: "2023-2025", occupant_pct: 85 } },
+  { make: "Volvo", model: "EX30", stars: 5, year: 2024, url: "u", child: { protocol: "2023-2025", occupant_pct: 85, isofix: { row2: "standard", front: "none" }, i_size: { row2: "standard" }, airbag_switch: "standard", presence_detection: "optional" } },
   { make: "Volkswagen", model: "Golf", stars: 5, year: 2025, url: "u", child: { protocol: "2023-2025", occupant_pct: 86 } },
   { make: "Volvo", model: "XC60", stars: 5, year: 2017, url: "u", child: { protocol: "2017", occupant_pct: 87 } },
-] } };
-const ex30 = { id: "volvo-ex30", make: "Volvo", model: "EX30", name: "Volvo EX30", fuel: "electric", kwh_per_100km: 17.2, co2_g_km: 0, power_kw: 230, mass_kg: 1876, range_km: 443 };
+] }, adac_breakdowns: { models: [{ name: "VW Golf", rates: { "2018": 3.1, "2022": 2.6 } }, { name: "Volvo XC60", rates: { "2018": 2.0 } }] } };
+const ex30 = { id: "volvo-ex30", make: "Volvo", model: "EX30", name: "Volvo EX30", fuel: "electric", years: [2023, 2025], variants: 4, kwh_per_100km: 17.2, co2_g_km: 0, power_kw: 230, mass_kg: 1876, range_km: 443 };
 const golf = { id: "vw-golf-petrol", make: "VW", model: "Golf", name: "VW Golf", fuel: "petrol", l_per_100km: 6, co2_g_km: 137, power_kw: 135, mass_kg: 1408 };
 const xc60 = { id: "volvo-xc60-phev-petrol", make: "Volvo", model: "XC60", name: "Volvo XC60", fuel: "phev-petrol", l_per_100km: 1.3, kwh_per_100km: 20, co2_g_km: 30, power_kw: 212, range_km: 76 };
 const ctx = (lang) => ({ G, prices, regs, ratings, lang });
@@ -69,7 +69,8 @@ test("head to head marks a winner only where figures compare", () => {
   assert.strictEqual(row("regs").win, 0);
   assert.strictEqual(row("range"), undefined, "range only when both have one");
   assert.strictEqual(row("mass").win, -1, "weight has no winner");
-  assert.deepStrictEqual(Array.from(d.wins), [2, 2]);
+  assert.strictEqual(row("year").win, 1, "the year cost follows the cost per 100 km");
+  assert.deepStrictEqual(Array.from(d.wins), [2, 3]);
 });
 
 test("Euro NCAP results from different protocols are not compared; the score counts only rows shown", () => {
@@ -86,4 +87,22 @@ test("poster sizes for Xiaohongshu, Instagram and square", () => {
   assert.deepStrictEqual(Array.from(P.SIZES.xhs), [1080, 1440]);
   assert.deepStrictEqual(Array.from(P.SIZES.ig), [1080, 1350]);
   assert.deepStrictEqual(Array.from(P.SIZES.sq), [1080, 1080]);
+});
+
+test("more on one car: sellers' place with ties, kind of car, child seat fittings, ADAC, recalls, the grant", () => {
+  const grant = { base: { bev: [5000, 4000, 3000] }, per_child: 500, max_children: 2 };
+  const f = P.facts(ex30, ex30, { ...ctx("zh"), grant }, null, { recalls: 4, months: [{ month: "2026-09", total: 500 }, { month: "2026-10", total: 900 }] });
+  assert.strictEqual(f.rankText, "德国销量第 3 名", "two models with more registrations");
+  assert.strictEqual(f.info, "SUV · 2023–2025 年在售 · 4 个版本");
+  assert.deepStrictEqual(Array.from(f.kidLines), ["ISOFIX：二排两侧", "i-Size：二排两侧", "副驾气囊可关闭"]);
+  assert.strictEqual(f.metrics.recalls.value, 4);
+  assert.strictEqual(f.months.length, 2);
+  assert.ok(/€6,000/.test(f.grant));
+  const g = P.facts(golf, golf, ctx("en"));
+  assert.strictEqual(g.rankText, "No. 1 best seller in Germany", "equal counts share first place");
+  assert.strictEqual(g.metrics.adac.value, 2.6, "the newest registration year");
+  assert.strictEqual(g.grant, "", "no grant for a petrol car");
+  const x = P.facts(xc60, xc60, ctx("en"));
+  assert.strictEqual(P.duel(g, x).rows.find((r) => r.key === "adac").comparable, false, "ADAC rates of different years are not compared");
+  assert.ok(!P.oneList(f).some((m) => m.key === "regs"), "registrations go in the chart when there are months");
 });
