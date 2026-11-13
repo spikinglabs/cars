@@ -18,7 +18,7 @@
       efficient: ["最省电的电动车", "官方电耗 (WLTP，含充电损耗) 最低的纯电动车型，只列近年新车登记 500 辆以上的车型。", "kWh/100 km"],
       cheapest: ["最省钱的车", "按本周德国价格计算每 100 公里费用最低的车型：电动车在家充电，燃油车按全国平均油价。只列 1,000 辆以上新登记的车型。", "每 100 公里"],
       child: ["儿童乘员得分", (p) => `Euro NCAP ${p} 测试规程下的儿童乘员得分，从高到低。不同规程的分数不能直接比较，所以只列这一规程测试的车型。`, "Euro NCAP"],
-      recalls: ["召回最少的品牌", "2019 年起每 10 万辆德国新车对应的欧盟安全门汽车召回次数，从少到多。召回是通报次数，不是受影响车辆数。", "每 10 万辆"],
+      recalls: ["召回最少的品牌", "2019 年起每 10 万辆德国新车对应的欧盟安全门汽车召回次数，从少到多。召回是通报次数，不是受影响车辆数。只比较 2019 年起在德国新登记满 10 万辆的品牌，小品牌车太少，比率不可靠。", "每 10 万辆"],
     },
     change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}% 同比`, regsN: (n) => `${n} 辆`, alerts: (n) => `${n} 次召回`, tested: (y) => `${y} 年测试`,
     seg: { minis: "微型车", small: "小型车", compact: "紧凑型车", medium: "中型车", "upper-medium": "中大型车", luxury: "豪华车", suv: "SUV", "off-road": "越野车", sports: "跑车", "mini-van": "小型 MPV", "large-van": "大型 MPV", utility: "多用途车", motorhome: "房车" }, segBasis: (m) => `车型细分按 KBA 的划分（${m}）。`,
@@ -33,7 +33,7 @@
       efficient: ["Sparsamste E-Autos", "Elektroautos mit dem niedrigsten offiziellen Verbrauch (WLTP, mit Ladeverlust), nur Modelle mit mindestens 500 Neuzulassungen in ihrem Jahr.", "kWh/100 km"],
       cheapest: ["Günstigste pro 100 km", "Was 100 km zu den Preisen dieser Woche kosten: Elektro zu Hause geladen, Verbrenner zum Bundesdurchschnitt an der Zapfsäule. Nur Modelle mit mindestens 1.000 Neuzulassungen.", "pro 100 km"],
       child: ["Kindersicherheit", (p) => `Die Euro NCAP Wertung für Kinder als Insassen im Testprotokoll ${p}, die höchste zuerst. Wertungen aus verschiedenen Protokollen sind nicht vergleichbar, darum nur Modelle aus diesem Protokoll.`, "Euro NCAP"],
-      recalls: ["Wenigste Rückrufe", "Safety-Gate-Rückrufe für Autos seit 2019 pro 100.000 Neuwagen in Deutschland, je Marke, die wenigsten zuerst. Gezählt werden Rückrufaktionen, nicht betroffene Autos.", "pro 100.000"],
+      recalls: ["Wenigste Rückrufe", "Safety-Gate-Rückrufe für Autos seit 2019 pro 100.000 Neuwagen in Deutschland, je Marke, die wenigsten zuerst. Gezählt werden Rückrufaktionen, nicht betroffene Autos. Nur Marken mit mindestens 100.000 Neuzulassungen in Deutschland seit 2019, weil die Quote bei kleinen Marken zu stark schwankt.", "pro 100.000"],
     },
     change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("de-DE", { maximumFractionDigits: 1 })} % zum Vorjahr`, regsN: (n) => `${n} Autos`, alerts: (n) => `${n} Rückrufe`, tested: (y) => `getestet ${y}`,
     seg: { minis: "Minis", small: "Kleinwagen", compact: "Kompaktklasse", medium: "Mittelklasse", "upper-medium": "Obere Mittelklasse", luxury: "Oberklasse", suv: "SUVs", "off-road": "Geländewagen", sports: "Sportwagen", "mini-van": "Mini-Vans", "large-van": "Großraum-Vans", utility: "Utilities", motorhome: "Wohnmobile" }, segBasis: (m) => `Segmente wie vom KBA eingeteilt (${m}).`,
@@ -48,7 +48,7 @@
       efficient: ["Most efficient EVs", "Electric cars with the lowest official consumption (WLTP, charging losses included), only models with at least 500 new registrations in their year.", "kWh/100 km"],
       cheapest: ["Cheapest per 100 km", "What 100 km costs at this week's prices: electric charged at home, fuel cars at the national average pump price. Only models with at least 1,000 new registrations.", "per 100 km"],
       child: ["Child occupant score", (p) => `Euro NCAP child occupant scores under the ${p} test protocol, highest first. Scores from different protocols are not comparable, so only cars tested under this one are listed.`, "Euro NCAP"],
-      recalls: ["Fewest recalls", "EU Safety Gate car recalls since 2019 per 100,000 new cars registered in Germany, by brand, fewest first. These count recall campaigns, not affected cars.", "per 100,000"],
+      recalls: ["Fewest recalls", "EU Safety Gate car recalls since 2019 per 100,000 new cars registered in Germany, by brand, fewest first. These count recall campaigns, not affected cars. Only brands with at least 100,000 new cars registered in Germany since 2019, since the rate is unreliable for small brands.", "per 100,000"],
     },
     change: (p) => `${p > 0 ? "+" : ""}${p.toLocaleString("en-GB", { maximumFractionDigits: 1 })}% on last year`, regsN: (n) => `${n} cars`, alerts: (n) => `${n} recalls`, tested: (y) => `tested ${y}`,
     seg: { minis: "Minis", small: "Small cars", compact: "Compact", medium: "Mid-size", "upper-medium": "Upper mid-size", luxury: "Luxury", suv: "SUVs", "off-road": "Off-road", sports: "Sports cars", "mini-van": "Mini-vans", "large-van": "Large vans (MPVs)", utility: "Utilities", motorhome: "Motorhomes" }, segBasis: (m) => `Segments as the KBA assigns them (${m}).`,
@@ -113,12 +113,12 @@
           .sort((a, b) => b.child.occupant_pct - a.child.occupant_pct || b.year - a.year)
           .map((x) => {
             const m = G.catalogFor(catalog, x.make, x.model);
-            return { name: m ? m.name : x.name, href: m ? `${PRE}/car/?car=${encodeURIComponent(m.id)}#children` : x.url, car: m ? m.id : null, value: `${x.child.occupant_pct}%`, sub: T.tested(x.year) };
+            return { name: m ? m.name : x.name, href: m ? `${PRE}/car/?car=${encodeURIComponent(m.id)}#children` : x.url, car: m ? m.id : null, value: `${x.child.occupant_pct}%`, sub: T.tested(x.year), k: x.child.occupant_pct };
           }) : [];
       }
       case "recalls":
         return D.stats ? D.stats.brands.filter((b) => b.alerts_per_100k != null).sort((a, b) => a.alerts_per_100k - b.alerts_per_100k)
-          .map((b) => ({ name: b.brand, href: `${PRE}/recalls/?brand=${encodeURIComponent(b.slug)}`, car: null, value: num(b.alerts_per_100k), sub: T.alerts(int(b.car_alerts)) })) : [];
+          .map((b) => ({ name: b.brand, href: `${PRE}/recalls/?brand=${encodeURIComponent(b.slug)}`, car: null, value: num(b.alerts_per_100k), sub: T.alerts(int(b.car_alerts)), k: b.alerts_per_100k })) : [];
     }
     return [];
   }
@@ -137,8 +137,17 @@
       ? ["", ...FUELS].map((f) => `<button type="button" class="ac-chip" data-fuel="${f}" aria-pressed="${f === st.fuel}">${esc(f ? T.fuel[f] : T.all)}</button>`).join("")
       : ["", ...segs].map((k) => `<button type="button" class="ac-chip" data-seg="${k}" aria-pressed="${k === st.seg}">${esc(k ? T.seg[k] : T.all)}</button>`).join("");
     const all = rows(), shown = all.slice(0, st.n);
+    // lists ranked on one score (k): equal scores share a place, shown as "=82" on every row of the tie
+    const place = (i) => {
+      const k = all[i].k;
+      if (k == null) return String(i + 1);
+      let j = i;
+      while (j > 0 && all[j - 1].k === k) j--;
+      const tie = j < i || (all[i + 1] && all[i + 1].k === k);
+      return `${tie ? "=" : ""}${j + 1}`;
+    };
     const basket = G.compare.list();
-    $("rank").innerHTML = shown.map((r, i) => `<li><span class="pos">${i + 1}</span><span class="who"><a href="${esc(r.href)}">${esc(r.name)}</a>${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span><span class="val">${esc(r.value)}</span>${r.car ? `<button type="button" class="ac-chip add" data-car="${esc(r.car)}" aria-pressed="${basket.includes(r.car)}">${esc(basket.includes(r.car) ? T.cmpIn : T.cmpAdd)}</button>` : `<span class="add"></span>`}</li>`).join("");
+    $("rank").innerHTML = shown.map((r, i) => `<li><span class="pos">${place(i)}</span><span class="who"><a href="${esc(r.href)}">${esc(r.name)}</a>${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span><span class="val">${esc(r.value)}</span>${r.car ? `<button type="button" class="ac-chip add" data-car="${esc(r.car)}" aria-pressed="${basket.includes(r.car)}">${esc(basket.includes(r.car) ? T.cmpIn : T.cmpAdd)}</button>` : `<span class="add"></span>`}</li>`).join("");
     $("unit").textContent = L[2];
     $("more").hidden = all.length <= st.n;
     const go = $("go");
