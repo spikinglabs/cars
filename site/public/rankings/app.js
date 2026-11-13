@@ -113,12 +113,12 @@
           .sort((a, b) => b.child.occupant_pct - a.child.occupant_pct || b.year - a.year)
           .map((x) => {
             const m = G.catalogFor(catalog, x.make, x.model);
-            return { name: m ? m.name : x.name, href: m ? `${PRE}/car/?car=${encodeURIComponent(m.id)}#children` : x.url, car: m ? m.id : null, value: `${x.child.occupant_pct}%`, sub: T.tested(x.year) };
+            return { name: m ? m.name : x.name, href: m ? `${PRE}/car/?car=${encodeURIComponent(m.id)}#children` : x.url, car: m ? m.id : null, value: `${x.child.occupant_pct}%`, sub: T.tested(x.year), k: x.child.occupant_pct };
           }) : [];
       }
       case "recalls":
         return D.stats ? D.stats.brands.filter((b) => b.alerts_per_100k != null).sort((a, b) => a.alerts_per_100k - b.alerts_per_100k)
-          .map((b) => ({ name: b.brand, href: `${PRE}/recalls/?brand=${encodeURIComponent(b.slug)}`, car: null, value: num(b.alerts_per_100k), sub: T.alerts(int(b.car_alerts)) })) : [];
+          .map((b) => ({ name: b.brand, href: `${PRE}/recalls/?brand=${encodeURIComponent(b.slug)}`, car: null, value: num(b.alerts_per_100k), sub: T.alerts(int(b.car_alerts)), k: b.alerts_per_100k })) : [];
     }
     return [];
   }
@@ -137,8 +137,17 @@
       ? ["", ...FUELS].map((f) => `<button type="button" class="ac-chip" data-fuel="${f}" aria-pressed="${f === st.fuel}">${esc(f ? T.fuel[f] : T.all)}</button>`).join("")
       : ["", ...segs].map((k) => `<button type="button" class="ac-chip" data-seg="${k}" aria-pressed="${k === st.seg}">${esc(k ? T.seg[k] : T.all)}</button>`).join("");
     const all = rows(), shown = all.slice(0, st.n);
+    // lists ranked on one score (k): equal scores share a place, shown as "=82" on every row of the tie
+    const place = (i) => {
+      const k = all[i].k;
+      if (k == null) return String(i + 1);
+      let j = i;
+      while (j > 0 && all[j - 1].k === k) j--;
+      const tie = j < i || (all[i + 1] && all[i + 1].k === k);
+      return `${tie ? "=" : ""}${j + 1}`;
+    };
     const basket = G.compare.list();
-    $("rank").innerHTML = shown.map((r, i) => `<li><span class="pos">${i + 1}</span><span class="who"><a href="${esc(r.href)}">${esc(r.name)}</a>${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span><span class="val">${esc(r.value)}</span>${r.car ? `<button type="button" class="ac-chip add" data-car="${esc(r.car)}" aria-pressed="${basket.includes(r.car)}">${esc(basket.includes(r.car) ? T.cmpIn : T.cmpAdd)}</button>` : `<span class="add"></span>`}</li>`).join("");
+    $("rank").innerHTML = shown.map((r, i) => `<li><span class="pos">${place(i)}</span><span class="who"><a href="${esc(r.href)}">${esc(r.name)}</a>${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span><span class="val">${esc(r.value)}</span>${r.car ? `<button type="button" class="ac-chip add" data-car="${esc(r.car)}" aria-pressed="${basket.includes(r.car)}">${esc(basket.includes(r.car) ? T.cmpIn : T.cmpAdd)}</button>` : `<span class="add"></span>`}</li>`).join("");
     $("unit").textContent = L[2];
     $("more").hidden = all.length <= st.n;
     const go = $("go");

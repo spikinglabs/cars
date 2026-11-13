@@ -174,7 +174,10 @@ def statistics(brand: str | None = None, get=_get) -> dict[str, Any]:
     out["brands_by_count"] = s["brands"][:25]
     if brand:
         b = find(s["brands"], brand, "brand")
-        out["brand"] = b and {**b, "rank_per_100k": next((i + 1 for i, x in enumerate(ranked) if x is b), None),
+        i = next((i for i, x in enumerate(ranked) if x is b), None)
+        # rank_per_100k counts from the most recalls; rank_fewest_first matches the site's "Fewest recalls" ranking
+        out["brand"] = b and {**b, "rank_per_100k": None if i is None else i + 1,
+                              "rank_fewest_first": None if i is None else len(ranked) - i,
                               "ranked_brands": len(ranked)}
     out["page"] = PAGE + "#stats"
     return out
