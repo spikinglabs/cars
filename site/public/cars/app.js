@@ -68,8 +68,8 @@
     phevOk: (c, r) => `这个版本符合条件：${c}。插电混动需要不超过 60 g CO₂/km 或纯电续航至少 80 km。`, phevNo: (c, r) => `这个版本不符合条件：${c}。插电混动需要不超过 60 g CO₂/km 或纯电续航至少 80 km。`,
     phevSome: (n, m) => `${m} 个版本中有 ${n} 个符合条件（不超过 60 g CO₂/km 或纯电续航至少 80 km）。在“版本”里选你的版本。`, phevAvg: "按官方平均值", phevUntil: (d) => `插电混动须在 ${d} 前首次登记。`,
     tooEarly: (y) => `你的车 ${y} 年首次登记：补贴只适用于 2026 年 1 月 1 日起首次登记的车。`, grantGo: "算算你能拿多少", grantNone: (f) => `${f}车没有购车补贴。`,
-    ranks: "排名", pos: (i, n) => `第 ${i} 名，共 ${n}`, tied: (i, n, k) => `并列第 ${i} 名，共 ${n}`, tiedN: (k) => `${k} 款同分`, per100k: (v) => `每 10 万辆 ${v} 次召回 · 只比较德国新车满 10 万辆的品牌`, notRanked: "未上榜", rankAll: "全部排行榜",
-    rk: { sellers: "德国销量榜（近 12 个月）", electric: "电动车销量榜", efficient: "最省电的电动车", cheapest: "每 100 公里最省钱", cheapestFuel: (f) => `每 100 公里最省钱 · 仅限${f}`, child: "Euro NCAP 儿童乘员得分", recalls: (b) => `每 10 万辆新车召回最少的品牌（${b}）` },
+    ranks: "排名", pos: (i, n) => `第 ${i} 名，共 ${n}`, tied: (i, n, k) => `并列第 ${i} 名，共 ${n}`, tiedN: (k) => `${k} 款同分`, per100k: (b, v) => `${b} 每 10 万辆新车 ${v} 次召回 · 只比较德国新车满 10 万辆的品牌`, notRanked: "未上榜", rankAll: "全部排行榜",
+    rk: { sellers: "德国销量榜（近 12 个月）", electric: "电动车销量榜", efficient: "最省电的电动车", cheapest: "每 100 公里最省钱", cheapestFuel: (f) => `每 100 公里最省钱 · 仅限${f}`, child: "Euro NCAP 儿童乘员得分", recalls: "召回最少的品牌" },
     why: { few500: "2025 年登记不足 500 辆", few1000: "2025 年登记不足 1000 辆", old: "已不再销售新车", proto: "未按最新规程测试", regs: "登记统计里没有单独列出" },
     results: (q) => `“${q}”的搜索结果`, resultsN: (n) => `${n} 款车型`, noResults: (q) => `没有找到“${q}”。试试品牌和车型，例如“大众 ID.3”。`, regsN: (n) => `近 12 个月 ${n} 辆`,
   } : de ? {
@@ -79,8 +79,8 @@
     phevOk: (c, r) => `Diese Version ist förderfähig: ${c}. Ein Plug-in-Hybrid braucht höchstens 60 g CO₂/km oder mindestens 80 km elektrische Reichweite.`, phevNo: (c, r) => `Diese Version ist nicht förderfähig: ${c}. Ein Plug-in-Hybrid braucht höchstens 60 g CO₂/km oder mindestens 80 km elektrische Reichweite.`,
     phevSome: (n, m) => `${n} von ${m} Versionen sind förderfähig (höchstens 60 g CO₂/km oder mindestens 80 km elektrisch). Wähl deine unter „Versionen“.`, phevAvg: "nach dem offiziellen Durchschnitt", phevUntil: (d) => `Plug-in-Hybride nur bei Erstzulassung bis ${d}.`,
     tooEarly: (y) => `Dein Auto ist von ${y}: Gefördert werden nur Autos mit Erstzulassung ab 1. Januar 2026.`, grantGo: "Deinen Betrag ausrechnen", grantNone: (f) => `Für ${f}-Autos gibt es keine Kaufprämie.`,
-    ranks: "In den Ranglisten", pos: (i, n) => `Platz ${i} von ${n}`, tied: (i, n, k) => `Geteilter Platz ${i} von ${n}`, tiedN: (k) => `${k} Modelle gleichauf`, per100k: (v) => `${v} Rückrufe je 100.000 Neuwagen · nur Marken ab 100.000 Neuzulassungen`, notRanked: "Nicht gelistet", rankAll: "Alle Ranglisten",
-    rk: { sellers: "Meistverkauft in Deutschland (12 Monate)", electric: "Meistverkaufte E-Autos", efficient: "Sparsamste E-Autos", cheapest: "Günstigste je 100 km", cheapestFuel: (f) => `Günstigste je 100 km, nur ${f}`, child: "Euro NCAP Kindersicherheit", recalls: (b) => `Wenigste Rückrufe je 100.000 Neuwagen (Marke ${b})` },
+    ranks: "In den Ranglisten", pos: (i, n) => `Platz ${i} von ${n}`, tied: (i, n, k) => `Geteilter Platz ${i} von ${n}`, tiedN: (k) => `${k} Modelle gleichauf`, per100k: (b, v) => `${b}: ${v} Rückrufe je 100.000 Neuwagen · nur Marken ab 100.000 Neuzulassungen`, notRanked: "Nicht gelistet", rankAll: "Alle Ranglisten",
+    rk: { sellers: "Meistverkauft in Deutschland (12 Monate)", electric: "Meistverkaufte E-Autos", efficient: "Sparsamste E-Autos", cheapest: "Günstigste je 100 km", cheapestFuel: (f) => `Günstigste je 100 km, nur ${f}`, child: "Euro NCAP Kindersicherheit", recalls: "Marken mit den wenigsten Rückrufen" },
     why: { few500: "2025 unter 500 Neuzulassungen", few1000: "2025 unter 1.000 Neuzulassungen", old: "nicht mehr neu zu kaufen", proto: "nicht nach dem neuesten Protokoll getestet", regs: "in der Zulassungsstatistik nicht einzeln aufgeführt" },
     results: (q) => `Treffer für „${q}“`, resultsN: (n) => `${n} Modelle`, noResults: (q) => `Nichts gefunden für „${q}“. Versuch Marke und Modell, z. B. „VW ID.3“.`, regsN: (n) => `${n} in 12 Monaten`,
   } : {
@@ -90,8 +90,8 @@
     phevOk: (c, r) => `This version qualifies: ${c}. A plug-in hybrid needs at most 60 g CO₂/km or at least 80 km electric range.`, phevNo: (c, r) => `This version does not qualify: ${c}. A plug-in hybrid needs at most 60 g CO₂/km or at least 80 km electric range.`,
     phevSome: (n, m) => `${n} of ${m} versions qualify (at most 60 g CO₂/km or at least 80 km electric). Pick yours under Versions.`, phevAvg: "by the official average", phevUntil: (d) => `Plug-in hybrids only when first registered by ${d}.`,
     tooEarly: (y) => `Your car is from ${y}: the grant is only for cars first registered from 1 January 2026.`, grantGo: "Work out your amount", grantNone: (f) => `There is no purchase grant for ${f.toLowerCase()} cars.`,
-    ranks: "Where it ranks", pos: (i, n) => `No. ${i} of ${n}`, tied: (i, n, k) => `Joint No. ${i} of ${n}`, tiedN: (k) => `${k} models tied`, per100k: (v) => `${v} recalls per 100,000 new cars · brands with 100,000+ new cars only`, notRanked: "Not ranked", rankAll: "All rankings",
-    rk: { sellers: "Best sellers in Germany (12 months)", electric: "Best-selling electric cars", efficient: "Most efficient electric cars", cheapest: "Cheapest per 100 km", cheapestFuel: (f) => `Cheapest per 100 km, ${f.toLowerCase()} only`, child: "Euro NCAP child occupant score", recalls: (b) => `Fewest recalls per 100,000 new cars (${b}, by brand)` },
+    ranks: "Where it ranks", pos: (i, n) => `No. ${i} of ${n}`, tied: (i, n, k) => `Joint No. ${i} of ${n}`, tiedN: (k) => `${k} models tied`, per100k: (b, v) => `${b}: ${v} recalls per 100,000 new cars · brands with 100,000+ new cars only`, notRanked: "Not ranked", rankAll: "All rankings",
+    rk: { sellers: "Best sellers in Germany (12 months)", electric: "Best-selling electric cars", efficient: "Most efficient electric cars", cheapest: "Cheapest per 100 km", cheapestFuel: (f) => `Cheapest per 100 km, ${f.toLowerCase()} only`, child: "Euro NCAP child occupant score", recalls: "Brands with the fewest recalls" },
     why: { few500: "fewer than 500 registered in 2025", few1000: "fewer than 1,000 registered in 2025", old: "no longer sold new", proto: "not tested under the newest protocol", regs: "not listed on its own in the registration statistics" },
     results: (q) => `Results for “${q}”`, resultsN: (n) => `${n} models`, noResults: (q) => `Nothing found for “${q}”. Try make and model, e.g. “VW ID.3”.`, regsN: (n) => `${n} in 12 months`,
   };
@@ -629,7 +629,7 @@
       const slug = G.recallBrand(m.make);
       const br = recallStats.brands.filter((b) => b.alerts_per_100k != null).sort((a, b) => a.alerts_per_100k - b.alerts_per_100k);
       const bi = br.findIndex((b) => b.slug === slug);
-      if (bi >= 0) { const t = atTied(br, bi, (b) => b.alerts_per_100k); row(W.rk.recalls(m.make), "list=recalls", t.pos, "", W.per100k(num(br[bi].alerts_per_100k))); }
+      if (bi >= 0) { const t = atTied(br, bi, (b) => b.alerts_per_100k); row(W.rk.recalls, "list=recalls", t.pos, "", W.per100k(br[bi].brand, num(br[bi].alerts_per_100k))); }
     }
     return `<section class="ac-card" id="rankings"><h3 class="ac-card__title">${esc(W.ranks)}</h3><ul class="slist ranks">${rows.join("")}</ul>
       <ul class="links"><li><a href="${PRE}/rankings/">${esc(W.rankAll)}</a></li></ul></section>`;
