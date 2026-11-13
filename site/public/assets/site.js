@@ -152,11 +152,12 @@
     var prompt = null;
 
     // On phones, a quiet line under the header says the site works as an app. It waits until the
-    // second page you open, and once dismissed (or installed) it stays away on this device.
+    // second page you open, shows on three pages at most, and once dismissed (or installed) it stays
+    // away on this device. The footer's install button is always there.
     var HINT = "allo-cars-app-hint";
     var phone = matchMedia("(pointer: coarse) and (max-width: 899px)").matches;
     var views = Number(local(HINT) || 0);
-    var wanted = phone && !standalone && local(HINT) !== "off" && !isNaN(views);
+    var wanted = phone && !standalone && local(HINT) !== "off" && !isNaN(views) && views < 4;
     if (wanted) local(HINT, String(views + 1));
     var closeHint = function () { if (hint) hint.hidden = true; local(HINT, "off"); };
     if (hint && wanted && views >= 1) {

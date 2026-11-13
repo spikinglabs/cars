@@ -39,7 +39,7 @@
     chargeSource: function (n, when) { return ' 公共充电价格：<a href="/zh/charging-prices/">价格档案</a>中 ' + n + " 种即充即付资费的中位数，" + when + "。"; },
     month: function (ym) { var p = ym.split("-"); return p[0] + " 年 " + (+p[1]) + " 月"; },
     quick: "常见电动车", allCars: function (n) { return "全部 " + n + " 款电动车，基于官方数据"; },
-    official: function (kwh, range, n, year) { return "官方 WLTP 数值：插头端 " + kwh + " kWh/100 km" + (range ? "（各版本 " + range + "）" : "") + "。" + year + " 年在德国新登记 " + n + " 辆。"; },
+    official: function (kwh, range) { return "官方 WLTP 数值：插头端 " + kwh + " kWh/100 km" + (range ? "（各版本 " + range + "）" : "") + "。"; },
     officialOnly: "四种驾驶方式由此估算。",
     officialIn: "官方能耗（WLTP，插头端）",
     officialOut: function (kwh, year) { return kwh + " kWh/100 km（EEA，" + year + " 年新车）"; },
@@ -79,7 +79,7 @@
     chargeSource: function (n, when) { return ' Öffentliche Ladepreise: Median von ' + n + ' Ad-hoc-Tarifen aus dem <a href="/de/charging-prices/">Preisarchiv</a>, ' + when + "."; },
     month: function (ym) { var p = ym.split("-"); return ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"][+p[1] - 1] + " " + p[0]; },
     quick: "Beliebte Elektroautos", allCars: function (n) { return "Alle " + n + " Elektroautos, aus dem offiziellen Verbrauch"; },
-    official: function (kwh, range, n, year) { return "Offizieller WLTP-Verbrauch: " + kwh + " kWh/100 km ab Steckdose" + (range ? " (Versionen " + range + ")" : "") + ". " + n + " Neuzulassungen in Deutschland " + year + "."; },
+    official: function (kwh, range) { return "Offizieller WLTP-Verbrauch: " + kwh + " kWh/100 km ab Steckdose" + (range ? " (Versionen " + range + ")" : "") + "."; },
     officialOnly: " Die vier Fahrweisen sind daraus geschätzt.",
     officialIn: "Offizieller Verbrauch (WLTP, ab Steckdose)",
     officialOut: function (kwh, year) { return kwh + " kWh/100 km (EEA, Neuwagen " + year + ")"; },
@@ -118,7 +118,7 @@
     chargeSource: function (n, when) { return ' Public charging prices: median of ' + n + ' ad-hoc tariffs from the <a href="/charging-prices/">price archive</a>, ' + when + "."; },
     month: function (ym) { var p = ym.split("-"); return ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][+p[1] - 1] + " " + p[0]; },
     quick: "Popular electric cars", allCars: function (n) { return "All " + n + " electric cars, from official figures"; },
-    official: function (kwh, range, n, year) { return "Official WLTP figure: " + kwh + " kWh/100 km at the plug" + (range ? " (versions " + range + ")" : "") + ". " + n + " registered new in Germany in " + year + "."; },
+    official: function (kwh, range) { return "Official WLTP figure: " + kwh + " kWh/100 km at the plug" + (range ? " (versions " + range + ")" : "") + "."; },
     officialOnly: " The four driving levels are estimated from it.",
     officialIn: "Official consumption (WLTP, at the plug)",
     officialOut: function (kwh, year) { return kwh + " kWh/100 km (EEA, new cars " + year + ")"; },
@@ -224,7 +224,9 @@
     var el = $("official"), o = officialFor(S.car);
     if (!o) { el.hidden = true; return; }
     var range = o.min != null && o.max != null && o.max - o.min >= 0.2 ? T.range(A.num(o.min), A.num(o.max)) : "";
-    el.textContent = T.official(A.num(o.kwh), range, o.n.toLocaleString(T.locale), official.year) + (S.lvSet ? "" : T.officialOnly);
+    // registrations are left to the car page (KBA, last 12 months): the EEA count here is one calendar year of
+    // type approvals and never matched it
+    el.textContent = T.official(A.num(o.kwh), range) + (S.lvSet ? "" : T.officialOnly);
     el.hidden = false;
   }
   function setCar(name, keepLevels) {

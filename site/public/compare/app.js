@@ -133,7 +133,7 @@
     // child occupant %: only compared ("best") between cars tested under the same protocol
     { g: "ratings", label: () => T.kid, value: (x) => kid(x) && kid(x).occupant_pct != null ? kid(x).occupant_pct : null, fmt: (v) => `${v}%`, better: "high", byProto: true, link: (x) => x.rt.euro && x.rt.euro.url, note: (x) => kid(x) && `${kid(x).protocol} · ${x.rt.euro.year}` },
     { g: "ratings", label: () => T.isofix, value: (x) => { const c = kid(x); if (!c || !c.isofix || !Object.keys(c.isofix).length) return null; const on = SEATS.filter((k) => c.isofix[k] === "standard"); return on.length ? on.map((k) => T.seatN[k]).join(" · ") : T.noSeat; } },
-    { g: "ratings", label: () => T.green, value: (x) => x.rt.green ? x.rt.green.stars : null, fmt: (v) => G.stars(v, true), html: true, better: "high", link: (x) => x.rt.green && x.rt.green.url, note: (x) => x.rt.green && `${x.rt.green.year} · ${x.rt.green.name}` },
+    { g: "ratings", label: () => T.green, value: (x) => x.rt.green ? x.rt.green.stars : null, fmt: (v) => G.stars(v, true), html: true, better: "high", link: (x) => x.rt.green && x.rt.green.url, note: (x) => x.rt.green && String(x.rt.green.year), tip: (x) => x.rt.green && x.rt.green.name },
     { g: "ratings", label: () => T.adac(adacYear(0)), value: (x) => adacRate(x, 0), fmt: (v) => num(v), better: "low" },
     { g: "ratings", label: () => T.adac(adacYear(4)), value: (x) => adacRate(x, 4), fmt: (v) => num(v), better: "low" },
     { g: "recalls", label: () => T.recalls, value: (x) => x.rc.n, fmt: (v) => String(v), better: "low", link: (x) => x.rc.href },
@@ -164,7 +164,9 @@
     const text = typeof v === "number" && row.fmt ? row.fmt(v) : String(v);
     const rg = row.range ? row.range(x) : null;
     const nt = row.note ? row.note(x) : null;
-    const extra = rg && rg[0] !== rg[1] ? `<small>${num(rg[0], row.rangeDigits ?? 1)}–${num(rg[1], row.rangeDigits ?? 1)}</small>` : nt ? `<small>${esc(nt)}</small>` : "";
+    // tip: the long Green NCAP test-car name, as a tooltip instead of a tall cell
+    const tip = row.tip ? row.tip(x) : null;
+    const extra = rg && rg[0] !== rg[1] ? `<small>${num(rg[0], row.rangeDigits ?? 1)}–${num(rg[1], row.rangeDigits ?? 1)}</small>` : nt ? `<small${tip ? ` title="${esc(tip)}"` : ""}>${esc(nt)}</small>` : "";
     const isBest = st.mark && best != null && v === best;
     const inner = row.html && typeof v === "number" ? text : esc(text);
     const body = row.link ? `<a href="${esc(row.link(x))}"${row.html ? ' class="plain"' : ""}>${inner}</a>` : inner;
