@@ -403,7 +403,11 @@
     wave(mk, s);
     const qs = new URLSearchParams(location.search);
     const asked = parse(qs.get("model") || qs.get("models"));
-    const remembered = (local(KEY) || "").split(",").filter((x) => models.some((m) => m.slug === x));
+    // first visit: start with the cars in "My cars", so your own models are on the chart
+    if (document.readyState === "loading") await new Promise((r) => addEventListener("DOMContentLoaded", r)); // garage.js is deferred
+    const AG = window.AlloGarage, stored = local(KEY);
+    const mine = stored == null && AG ? AG.list().map((c) => models.find((m) => !m.other && m.model !== "SONSTIGE" && AG.modelKey(m.brand, m.model) === AG.modelKey(c.make, c.model))).filter(Boolean).map((m) => m.slug) : [];
+    const remembered = stored == null ? [...new Set(mine)] : stored.split(",").filter((x) => models.some((m) => m.slug === x));
     // nothing picked shows all models
     picked = qs.has("model") || qs.has("models") ? asked : remembered.slice(0, MAX);
     if (qs.get("by") === "fuel") split = "fuel";

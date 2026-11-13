@@ -565,6 +565,22 @@
 
   drawUse(); drawLevels(); drawRefs(); drawOwnFuel(); sources(); update();
 
+  // A fuel car in "My cars" with no consumption of its own: compare with its official figure (vehicle catalog),
+  // unless the link or your settings already name a fuel car.
+  (function () {
+    var G = window.AlloGarage, q = new URLSearchParams(location.search);
+    if (S.own || !G || q.has("own") || q.has("fl")) return;
+    var f = G.list().filter(function (c) { return (c.fuel === "petrol" || c.fuel === "diesel") && c.car; })[0];
+    if (!f) return;
+    fetch(AlloSite.data("vehicle-catalog", "models.json")).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      var m = j && (j.models || []).filter(function (x) { return x.id === f.car; })[0];
+      if (!m || !(m.l_per_100km > 1) || S.own) return;
+      S.own = { l: Math.round(m.l_per_100km * 10) / 10, fuel: f.fuel };
+      ownFuel = f.fuel; ownL.value = S.own.l;
+      drawOwnFuel(); update();
+    }).catch(function () {});
+  })();
+
   // Live public charging prices from the price archive; the page works without them.
   fetch(AlloSite.data("charging-prices", "latest.json")).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
     var o = j && j.overall;

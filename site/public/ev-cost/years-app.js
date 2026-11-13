@@ -32,7 +32,7 @@
     totals: function (ev, fu) { return "electric car " + ev + " in total, fuel car " + fu; },
     payback: "When it pays for itself", years: function (y) { return y + " years"; }, fromStart: "Cheaper from day one", never: function (n) { return "Not within " + n + " years"; },
     paybackBasis: function (gap) { return "the electric car costs " + gap + " more after the grant"; }, paybackBasis0: "after the grant the electric car costs no more",
-    perYear: "Saving per year", perYearBasis: function (name, tax) { return "energy and vehicle tax against the " + name + " (tax " + tax + " a year)"; },
+    perYear: "Saving per year", perYearBasis: function (name, tax) { return "energy and vehicle tax against " + name + " (tax " + tax + " a year)"; },
     taxLine: function (name, tax) { return name + ": " + tax + " vehicle tax a year."; },
     ai: "Cost over the years", aiYears: function (n) { return "after " + n + " years"; }
   };
