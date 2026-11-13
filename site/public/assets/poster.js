@@ -42,7 +42,7 @@
       perL: "升/100 km", wins: (n) => `${n} 项领先`, vs: "VS", tie: "打平", noCompare: "测试规程不同，不比较", noCompareCons: "电和油不比较",
       foot: "数据：EEA 型式认证 (WLTP)、KBA、Euro NCAP、Green NCAP、ADAC、欧盟 Safety Gate；费用按本周德国价格估算",
       brand: "搜 Allo Cars", caption: (t) => `${t}\n\n数据来自 Allo Cars（官方 WLTP、KBA、Euro NCAP）。\n#德国买车 #德国生活 #电动车 #汽车对比 #AlloCars`,
-      capOne: (n) => `${n} 关键数据一图看懂`, capVs: (a, b) => `${a} vs ${b}，谁更值？`,
+      capOne: (n) => `${n} 主要数据`, capVs: (a, b) => `${a} 和 ${b} 数据对比`,
     },
     de: {
       pub100: "Öffentlich pro 100 km", pub100Sub: (p) => `Ad-hoc-Median ${p}/kWh`, green: "Green NCAP", greenSub: (y) => `getestet ${y}`,
