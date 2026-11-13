@@ -42,7 +42,7 @@
     production: "生产时间", code: "召回编号", by: "通报方", years: "车型年份", collected: "更新于 ",
     parkOutside: "停在室外", doNotDrive: "请勿驾驶", ota: "可通过 OTA 远程修复",
     showAll: (n) => `显示全部 ${n} 条`, failed: "无法加载数据：",
-    pickBrand: "选择品牌", allModels: (n) => `全部车型 (${n})`, anyYear: "任何年份", serious: "严重风险",
+    pickBrand: "选择品牌", allModels: (n) => `全部车型 (${n})`, otherNames: "召回里的其他写法（型号代码、底盘号）", anyYear: "任何年份", serious: "严重风险",
     notYet: "正在第一次收集召回数据，请几分钟后再来看看。", unavailable: "暂无数据",
     title: (n) => `${n} 在欧洲的召回`,
     desc: (y) => y ? `2019 年以来 EU Safety Gate 中生产时段涉及 ${y - 1} 或 ${y} 年的通报。汽车通常在首次登记当年或前一年生产。描述为英文原文。`
@@ -59,7 +59,7 @@
     production: "Gebaut", code: "Rückrufcode", by: "Gemeldet von", years: "Modelljahre", collected: "Stand: ",
     parkOutside: "Draußen parken", doNotDrive: "Nicht fahren", ota: "Per Software-Update",
     showAll: (n) => `Alle ${n} zeigen`, failed: "Die Daten konnten nicht geladen werden: ",
-    pickBrand: "Marke wählen", allModels: (n) => `Alle Modelle (${n})`, anyYear: "Jedes Jahr", serious: "Ernstes Risiko",
+    pickBrand: "Marke wählen", allModels: (n) => `Alle Modelle (${n})`, otherNames: "Weitere Angaben in den Meldungen (Typcodes, Fahrgestellnummern)", anyYear: "Jedes Jahr", serious: "Ernstes Risiko",
     notYet: "Die Rückrufdaten werden gerade zum ersten Mal gesammelt. Schau in ein paar Minuten wieder vorbei.", unavailable: "Noch keine Daten",
     title: (n) => `Rückrufe für ${n} in Europa`,
     desc: (y) => y ? `Meldungen im EU Safety Gate seit 2019, deren Bauzeitraum ${y - 1} oder ${y} berührt. Ein Auto wird meist im Jahr der Erstzulassung oder im Jahr davor gebaut. Die Beschreibung kommt im englischen Original.`
@@ -76,7 +76,7 @@
     production: "Built", code: "Recall code", by: "Reported by", years: "Model years", collected: "Updated ",
     parkOutside: "Park outside", doNotDrive: "Do not drive", ota: "Over-the-air fix",
     showAll: (n) => `Show all ${n}`, failed: "Could not load data: ",
-    pickBrand: "Choose a brand", allModels: (n) => `All models (${n})`, anyYear: "Any year", serious: "Serious risk",
+    pickBrand: "Choose a brand", allModels: (n) => `All models (${n})`, otherNames: "Other names in the alerts (type codes, chassis numbers)", anyYear: "Any year", serious: "Serious risk",
     notYet: "Recall data is being collected for the first time. Check back in a few minutes.", unavailable: "No data yet",
     title: (n) => `${n} recalls in Europe`,
     desc: (y) => y ? `EU Safety Gate alerts since 2019 whose build window touches ${y - 1} or ${y}. A car is usually built in the year it was first registered or the year before.`
@@ -120,6 +120,23 @@
     return [...seen.values()].map((o) => ({ key: o.key, n: o.n,
       name: Object.keys(o.names).sort((x, y) => o.names[y] - o.names[x] || (x === x.toUpperCase()) - (y === y.toUpperCase()))[0] }))
       .sort((x, y) => x.name.localeCompare(y.name, T.locale, { numeric: true, sensitivity: "base" }));
+  }
+  // Model names that read as models come first; type codes ("1E", "7HMA"), chassis and frame numbers, model-year
+  // notes and the like go in a second group, so nothing is lost. A name the vehicle catalog knows for this brand
+  // always counts as a model ("EX30CC" from EX30, BMW "3" from "3 Series").
+  let catalogModels = null;
+  const catalogP = fetch(AlloSite.data("vehicle-catalog", "models.json")).then((r) => r.ok ? r.json() : null).then((j) => {
+    catalogModels = {};
+    for (const m of (j && j.models) || []) {
+      const slug = ALIAS[norm(m.make)] || String(m.make || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      (catalogModels[slug] = catalogModels[slug] || new Set()).add(norm(m.model));
+    }
+  }).catch(() => { catalogModels = {}; });
+  function looksLikeModel(name, slug) {
+    const k = norm(name), known = catalogModels && catalogModels[slug];
+    if (/^[-–]|:|\d{4}|#|frame code|model code|chassis|individual approval|various models|accessory|model year|production|type\b/i.test(name)) return false;
+    if (known) for (const c of known) if (c && (k === c || (c.length >= 2 && k.startsWith(c)) || c.startsWith(k) && /^\d$/.test(k))) return true;
+    return /[a-z]{2}/.test(name) || (/[A-Z]{3,}/.test(name) && !/\d/.test(name));
   }
   const namesModel = (a, brand, key) => !key || parts(a, brand).some((p) => norm(p).startsWith(key));
 
@@ -366,8 +383,11 @@
     const bd = await loadBrand(state.brand);
     if (![...$("brand").options].some((o) => o.value === state.brand)) drawBrandList();
     $("brand").value = state.brand;
-    $("model").innerHTML = `<option value="">${T.allModels(bd.alerts.length)}</option>`
-      + bd.models.map((m) => `<option value="${esc(m.key)}">${esc(m.name)} (${m.n})</option>`).join("");
+    await catalogP;
+    const mo = (m) => `<option value="${esc(m.key)}">${esc(m.name)} (${m.n})</option>`;
+    const good = bd.models.filter((m) => looksLikeModel(m.name, state.brand)), other = bd.models.filter((m) => !good.includes(m));
+    $("model").innerHTML = `<option value="">${T.allModels(bd.alerts.length)}</option>` + good.map(mo).join("")
+      + (other.length ? `<optgroup label="${esc(T.otherNames)}">${other.map(mo).join("")}</optgroup>` : "");
     if (state.model && !bd.models.some((m) => m.key === state.model)) state.model = "";
     $("model").value = state.model;
     $("year").value = state.year || "";
