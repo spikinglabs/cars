@@ -630,7 +630,7 @@ async function getRankings(get, { list = "sellers", fuel = null, segment = null,
     const all = ((R.euro_ncap || {}).models || []).filter((x) => x.child && x.child.occupant_pct != null);
     const proto = all.map((x) => x.child.protocol || "").filter(Boolean).sort().pop() || "";
     rows = all.filter((x) => x.child.protocol === proto).sort((a, b) => b.child.occupant_pct - a.child.occupant_pct || b.year - a.year)
-      .map((x) => { const m = catalogForG(models, x.make, x.model); return { name: x.name, catalog_id: m ? m.id : null, child_occupant_pct: x.child.occupant_pct, tested: x.year, euro_ncap: x.url, page: m ? `${carPage(m)}#children` : x.url }; });
+      .map((x) => { const m = catalogForG(models, x.make, x.model); return { name: x.name, catalog_id: m ? m.id : null, child_occupant_pct: x.child.occupant_pct, child_occupant_points: x.child.occupant_points ?? null, child_occupant_max_points: x.child.occupant_max ?? null, powertrains: x.powertrains || null, tested: x.year, euro_ncap: x.url, page: m ? `${carPage(m)}#children` : x.url }; });
     about = { unit: `Euro NCAP child occupant score in %, ${proto} test protocol only (scores from different protocols are not comparable; the 2026 protocol has no separate child score)`, protocol: proto, source: "Euro NCAP" };
   } else {
     const st = await load(get, "recalls/eu/stats.json");

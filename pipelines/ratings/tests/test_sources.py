@@ -37,10 +37,22 @@ class EuroNcap(unittest.TestCase):
         c = S.parse_euro(page, "https://www.euroncap.com/assessments/kia/ev4/1168/")["child"]
         self.assertEqual(c["protocol"], "2023-2025")
         self.assertEqual(c["occupant_pct"], 85)
+        self.assertEqual((c["occupant_points"], c["occupant_max"]), (41.7, 49))
         self.assertEqual(c["isofix"], {"front": "none", "row2": "standard", "row2_centre": "none", "row3": "standard"})
         self.assertEqual(c["i_size"], {"row2": "standard"})
         self.assertEqual(c["integrated_seat"], {"row2": "optional"})
         self.assertEqual((c["airbag_switch"], c["presence_detection"]), ("standard", "standard"))
+
+    def test_powertrains_from_variant_names(self):
+        import json
+        page = lambda *names, tags="[]": "<script>self.__next_f.push([1," + json.dumps(json.dumps(
+            {"assessmentTags": json.loads(tags), "v": [{"variantName": n} for n in names]})) + "])</script>"
+        self.assertEqual(S.parse_euro_powertrains(page("Electric 73 kWh 210 - Peugeot 3008", "Hybrid 145 e-DSC6 - Peugeot 3008")), ["electric", "fuel"])
+        self.assertEqual(S.parse_euro_powertrains(page("2.0 diesel - 2.0 TDI", "1.5 petrol PHEV - 1.5 eHybrid")), ["fuel"])
+        self.assertEqual(S.parse_euro_powertrains(page("Electric - 123kW FWD")), ["electric"])
+        self.assertEqual(S.parse_euro_powertrains(page("2.5 litre MHEV - MAZDA CX-5")), ["fuel"])
+        self.assertEqual(S.parse_euro_powertrains(page("Excellence AWD", tags='[{"code":"ELECTRIC"}]')), ["electric"])
+        self.assertEqual(S.parse_euro_powertrains("<p>nothing</p>"), [])
 
     def test_child_2026_protocol_has_no_score(self):
         import json
