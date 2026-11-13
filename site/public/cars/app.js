@@ -681,7 +681,10 @@
       : MINE ? `<span class="ac-status ac-status--ok">${esc(T.saved)}</span><button type="button" class="ac-btn ac-btn--ghost" id="remove">${esc(T.remove)}</button>`
       : `<span class="ac-status ac-status--ok">${esc(T.saved)}</span><a class="ac-btn ac-btn--ghost" href="${PRE}/cars/?mine=${encodeURIComponent(current.car.id)}">${esc(C.open)}</a>`;
     if (!MINE && $("car-h1")) { $("car-h1").textContent = s.name + vname; document.title = `${s.name}${vname} · Allo Cars`; }
-    const headHtml = `<section class="ac-card"><div class="head"><div>${MINE ? `<h2 class="ac-card__title">${esc(title)}</h2>` : ""}<p class="ac-card__desc" style="margin:4px 0 0">${esc(sub)}</p>${badges(s)}</div><div class="acts">${acts}</div></div><div class="acts cmp" id="cmp-row">${cmpHtml(s)}</div></section>`;
+    // share posters (assets/poster.js): this car, or this car against another
+    const P = zh ? ["生成海报", "PK 海报"] : de ? ["Poster", "Duell-Poster"] : ["Poster", "Head-to-head poster"];
+    const posters = s.m && window.AlloPoster ? `<button type="button" class="ac-btn ac-btn--ghost" data-poster="one">${esc(P[0])}</button><button type="button" class="ac-btn ac-btn--ghost" data-poster="vs">${esc(P[1])}</button>` : "";
+    const headHtml = `<section class="ac-card"><div class="head"><div>${MINE ? `<h2 class="ac-card__title">${esc(title)}</h2>` : ""}<p class="ac-card__desc" style="margin:4px 0 0">${esc(sub)}</p>${badges(s)}</div><div class="acts">${acts}${posters}</div></div><div class="acts cmp" id="cmp-row">${cmpHtml(s)}</div></section>`;
     $("profile").innerHTML = `<div class="stack">${headHtml}<div class="cards">${costBlock(s)}<section class="ac-card"><p class="ac-caption">…</p></section><section class="ac-card"><p class="ac-caption">…</p></section></div></div>`;
     const info = await recallInfo(s).catch(() => null);
     const [rc, rg, kid] = await Promise.all([recallBlock(s, info).catch((e) => ""), regBlock(s).catch((e) => ""), childBlock(s).catch((e) => "")]);
@@ -708,6 +711,8 @@
       setUrl(current.spec); draw();
       return;
     }
+    const pb = e.target.closest("[data-poster]");
+    if (pb) { AlloPoster.open({ ids: [cmpId(current.spec)], vs: pb.dataset.poster === "vs" }); return; }
     if (e.target.id === "cmp") { G.compare.toggle(cmpId(current.spec)); return; }
     const sc = e.target.closest("[data-cmp]");
     if (sc) { G.compare.toggle(sc.dataset.cmp); return; }
