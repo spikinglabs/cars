@@ -51,7 +51,7 @@
      efficient driving about 0.9 of it, 120 km/h about 1.22 and winter about 1.38. */
   var OFFICIAL_FACTORS = [0.9, 1, 1.22, 1.38];
   function levelsFromOfficial(kwhPer100) {
-    return OFFICIAL_FACTORS.map(function (f) { return Math.round(kwhPer100 * f * 2) / 2; });
+    return OFFICIAL_FACTORS.map(function (f) { return Math.round(kwhPer100 * f * 10) / 10; });
   }
 
   var LEVELS = ["Efficient", "Typical", "Motorway", "Winter"];

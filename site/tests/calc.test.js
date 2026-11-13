@@ -50,8 +50,8 @@ test("every EV has four increasing levels and every fuel car is sane", () => {
   for (const id of E.DEFAULTS.refs) assert.ok(E.findFuelCar(id), id);
 });
 
-test("levels from an official WLTP figure increase and round to half a kWh", () => {
-  assert.deepEqual(E.levelsFromOfficial(17.2), [15.5, 17, 21, 23.5]);
+test("levels from an official WLTP figure increase, and typical is the official figure (same cost as the car page)", () => {
+  assert.deepEqual(E.levelsFromOfficial(17.2), [15.5, 17.2, 21, 23.7]);
   for (let k = 10; k < 30; k += 0.7) {
     const lv = E.levelsFromOfficial(k);
     for (let i = 1; i < 4; i++) assert.ok(lv[i] > lv[i - 1], String(k));

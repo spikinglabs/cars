@@ -77,7 +77,9 @@
   .adac small { font-size: 11px; }
   .rrow .pct { font: 800 20px/24px var(--font-sans); color: var(--ink); text-decoration: none; font-variant-numeric: tabular-nums; }
   .kidtab { overflow-x: auto; margin: 6px 0 2px; }
-  .kidtab table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .kidtab table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  .kidtab th:first-child { width: 27%; }
+  .kidtab th, .kidtab td { overflow-wrap: break-word; hyphens: auto; font-size: 12px; }
   .kidtab th, .kidtab td { padding: 6px 4px; text-align: left; border-bottom: 1px solid var(--border); }
   .kidtab thead th { font-weight: 600; color: var(--ink-muted); }
   .kidtab tbody th { font-weight: 500; }
@@ -92,7 +94,9 @@
   .slist .ac-chip { min-height: 36px; white-space: nowrap; }
   .slist .ac-chip[aria-pressed="true"] { color: var(--surface-100); }
   .acts.cmp:empty { display: none; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-5); }
+  /* cards of very different heights: flow them in columns so a short card doesn't leave a hole beside a tall one */
+  .cards { columns: 280px; column-gap: var(--space-5); }
+  .cards > * { break-inside: avoid; margin: 0 0 var(--space-5); }
   .ac-readouts { margin: var(--space-3) 0; }
   .links { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: var(--space-3) 0 0; padding: 0; list-style: none; }
   .links a { color: var(--ink); font-weight: 600; }
@@ -263,6 +267,6 @@
   </main>
 </div>
 <script src="/ev-grant/grant.js?v=1adf9d7ece"></script>
-<script src="/cars/app.js?v=2a2ebd6fca"></script>
+<script src="/cars/app.js?v=454b7ff9ae"></script>
 </body>
 </html>

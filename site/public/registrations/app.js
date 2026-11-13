@@ -218,6 +218,15 @@
   let split = "ev", field = "total";  // bars: electric or not / by fuel type; lines: which registrations
   const LINE_FIELDS = ["total", ...FUELS];
   const cache = {};
+  // the model's own car page (consumption, grant, recalls), when the vehicle catalog knows it
+  let catalogP = null;
+  const carPage = (m) => {
+    const G = window.AlloGarage;
+    if (!G) return Promise.resolve(null);
+    if (!catalogP) catalogP = fetch(AlloSite.data("vehicle-catalog", "models.json")).then((r) => r.json()).then((d) => d.models || []).catch(() => []);
+    const pre = lang === "en" ? "" : `/${lang}`;
+    return catalogP.then((list) => { const c = G.catalogFor(list, m.brand, m.model); return c ? `${pre}/car/?car=${encodeURIComponent(c.id)}` : null; });
+  };
   const monthsOf = (m) => cache[m.slug] || (cache[m.slug] = fetch(AlloSite.data("registrations", m.file)).then((r) => r.json()).then((d) => d.months));
   const bySlug = (slug) => models.find((x) => x.slug === slug);
 
@@ -282,6 +291,7 @@
       // one model, or with none picked the whole market
       const m = ms[0], rows = m ? all[0] : market, st = stats(m, rows);
       $("model-title").textContent = m ? label(m) : T.all;
+      if (m) carPage(m).then((href) => { if (href && my === drawn) $("model-title").innerHTML = `<a href="${href}">${esc(label(m))}</a>`; });
       $("model-out").innerHTML = `
       <div class="ac-readouts">
         <div class="ac-readout"><div class="ac-readout__value">${num(st.current.total)}</div><div class="ac-readout__basis">${m ? `${esc(T.latest(month(summary.month)))}. ${esc(T.rank(m.rank, ranked))}` : esc(T.latestAll(month(summary.month)))}</div></div>
