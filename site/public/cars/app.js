@@ -125,6 +125,19 @@
   let current = null; // { car: garage entry or null, spec: {car,name,make,model,fuel,year,cons} }
 
   const MINE = !!$("garage"); // My cars, or the page of any one car
+  const A2 = zh ? {
+    title: "需要注意的事", recallsFit: (n, y) => `${n} 次召回可能涉及你 ${y} 年的车。`, recallsAny: (n) => `${n} 次召回提到这个车型。`,
+    askDealer: (m) => `请 ${m} 授权经销商用车架号免费查询是否已处理，可报这些召回编号：`, noneFit: (y) => `没有召回与 ${y} 年首次登记相符。`, noneAny: "Safety Gate 中没有这个车型的召回。",
+    park: (n) => `美国有 ${n} 次召回要求车主把车停在室外，直到修好（适用于部分年款）。`, addYear: "填上首次登记年份，召回就能按你的车筛选。", check: "核对召回",
+  } : de ? {
+    title: "Was jetzt wichtig ist", recallsFit: (n, y) => `${n} ${n === 1 ? "Rückruf passt" : "Rückrufe passen"} zu deinem Auto von ${y}.`, recallsAny: (n) => `${n} ${n === 1 ? "Rückruf nennt" : "Rückrufe nennen"} dieses Modell.`,
+    askDealer: (m) => `Lass eine ${m}-Vertragswerkstatt anhand der FIN kostenlos prüfen, ob sie erledigt sind. Rückrufcodes:`, noneFit: (y) => `Kein Rückruf passt zur Erstzulassung ${y}.`, noneAny: "Safety Gate nennt keine Rückrufe für dieses Modell.",
+    park: (n) => `${n === 1 ? "Ein Rückruf" : n + " Rückrufe"} in den USA: draußen parken, bis repariert (einzelne Modelljahre).`, addYear: "Trag das Jahr der Erstzulassung ein, dann passen die Rückrufe zu deinem Auto.", check: "Rückrufe prüfen",
+  } : {
+    title: "What needs attention", recallsFit: (n, y) => `${n} ${n === 1 ? "recall may apply" : "recalls may apply"} to your ${y} car.`, recallsAny: (n) => `${n} ${n === 1 ? "recall names" : "recalls name"} this model.`,
+    askDealer: (m) => `Ask a ${m} dealer to check the VIN for free and confirm they're done. Recall codes:`, noneFit: (y) => `No recall matches first registration in ${y}.`, noneAny: "Safety Gate lists no recalls for this model.",
+    park: (n) => `${n === 1 ? "A US recall says" : n + " US recalls say"} to park outside until fixed (some model years).`, addYear: "Add the year of first registration so recalls match your car.", check: "Check recalls",
+  };
   const C = zh ? { open: "在我的车里打开", none: "没有找到这个车型。", find: "在上面搜索一款车。" } : de ? { open: "In Meine Autos öffnen", none: "Dieses Modell gibt es nicht.", find: "Such oben nach einem Auto." } : { open: "Open in My cars", none: "We don't have this model.", find: "Search for a car above." };
   /* ---------- your cars ---------- */
   const ADD = MINE ? $("add-open").textContent.replace(/^\+\s*/, "") : "";
@@ -340,17 +353,25 @@
   // production periods come as "2024 - 2027 (EX30)2025 - 2027 (EX30CC)" when an alert names several models
   const period = (p) => String(p || "").replace(/\)(?=\S)/g, "), ");
 
-  async function recallBlock(s) {
+  // the recalls that name this model, those that fit its build year, and the US campaigns: shared by the
+  // recall card and, on My cars, the "your car" card at the top
+  async function recallInfo(s) {
     const slug = G.recallBrand(s.make);
     const b = recallBrands && recallBrands.brands.find((x) => x.slug === slug);
     const key = modelPart(s);
     const href = `${PRE}/recalls/?brand=${encodeURIComponent(slug)}${key ? `&model=${encodeURIComponent(key)}` : ""}${s.year ? `&year=${s.year}` : ""}`;
+    if (!b) return { b, href, hits: [], inYear: [], us: null };
+    const [alerts, us] = await Promise.all([brandAlerts(s), usCampaigns(s).catch(() => null)]);
+    const hits = (alerts || []).filter((a) => names(a, s)).sort((x, y) => (y.date || "").localeCompare(x.date || ""));
+    const inYear = s.year ? hits.filter((a) => fits(a, s.year)) : [];
+    return { b, href, hits, inYear, us };
+  }
+
+  async function recallBlock(s, info) {
+    const { b, href, hits, inYear, us } = info || await recallInfo(s);
     let body;
     if (!b) body = `<p class="ac-caption">${esc(T.recallsNone)}</p>`;
     else {
-      const [alerts, us] = await Promise.all([brandAlerts(s), usCampaigns(s).catch(() => null)]);
-      const hits = (alerts || []).filter((a) => names(a, s)).sort((x, y) => (y.date || "").localeCompare(x.date || ""));
-      const inYear = s.year ? hits.filter((a) => fits(a, s.year)) : [];
       const top = (s.year && inYear.length ? inYear : hits).slice(0, 3);
       const pool = s.year && inYear.length ? inYear : hits, rest = pool.length - top.length;
       const park = us ? us.filter((c) => c.park_outside).length : 0;
@@ -364,6 +385,22 @@
     }
     return `<section class="ac-card" id="recalls"><h3 class="ac-card__title">${esc(T.recalls)}</h3>${body}
       <ul class="links"><li><a href="${href}">${esc(b ? T.recallsAll : T.recallsBrand(s.make))}</a></li></ul></section>`;
+  }
+
+  // My cars: what an owner should know first, before the facts about the model
+  function attentionBlock(s, info) {
+    const { hits, inYear, us } = info;
+    const park = us ? us.filter((c) => c.park_outside).length : 0;
+    const items = [];
+    const pool = s.year ? inYear : hits;
+    if (pool.length) {
+      const codes = pool.map((a) => a.recall_code).filter(Boolean).slice(0, 6);
+      items.push(`<li class="warn"><strong>${esc(s.year ? A2.recallsFit(pool.length, s.year) : A2.recallsAny(pool.length))}</strong> ${esc(A2.askDealer(s.make))}${codes.length ? ` <span class="codes">${codes.map((c) => `<code>${esc(c)}</code>`).join(" ")}</span>` : ""}</li>`);
+    } else items.push(`<li class="ok">${esc(s.year ? A2.noneFit(s.year) : A2.noneAny)}</li>`);
+    if (park) items.push(`<li class="warn"><span class="ac-status ac-status--over">${esc(T.parkOutside)}</span> ${esc(A2.park(park))}</li>`);
+    if (!s.year) items.push(`<li>${esc(A2.addYear)}</li>`);
+    return `<section class="ac-card attn" id="attention"><h3 class="ac-card__title">${esc(A2.title)}</h3><ul class="attn__list">${items.join("")}</ul>
+      <ul class="links"><li><a href="${info.href}">${esc(A2.check)}</a></li></ul></section>`;
   }
 
   async function regBlock(s) {
@@ -484,6 +521,7 @@
   function grantLine(s) {
     const R = window.EvGrant && window.EvGrant.RULES;
     if (!R || !(s.fuel === "electric" || /^phev/.test(s.fuel))) return "";
+    if (s.year && s.year < Number(R.registered_from.slice(0, 4))) return ""; // a car registered before the grant can't get it
     const drive = s.fuel === "electric" ? "bev" : "phev";
     const href = `${PRE}/ev-grant/?kids=1${drive === "phev" ? `&drive=phev&car=${encodeURIComponent(s.car)}` : ""}`;
     return `<div class="rrow"><span class="rlabel">${esc(K.grant)}</span><span>${esc(K.grantText(eur(R.per_child, 0), eur(R.cap_per_child, 0), R.max_children))}</span><a href="${href}">${esc(K.grantGo)}</a></div>`;
@@ -589,7 +627,9 @@
 
   /* jump links to each section of the car page */
   function jumpNav(html) {
-    const ids = ["cost", "versions", "grant", "ratings", "children", "recalls", "registrations", "rankings", "similar"].filter((id) => html.includes(`id="${id}"`));
+    // in the order the cards come on this page (My cars puts recalls before versions)
+    const ids = ["cost", "versions", "grant", "ratings", "children", "recalls", "registrations", "rankings", "similar"].filter((id) => html.includes(`id="${id}"`))
+      .sort((x, y) => html.indexOf(`id="${x}"`) - html.indexOf(`id="${y}"`));
     return ids.length > 2 ? `<nav class="jump" aria-label="${esc(W.jump)}">${ids.map((id) => `<a class="ac-chip" href="#${id}">${esc(W.sec[id])}</a>`).join("")}</nav>` : "";
   }
 
@@ -630,10 +670,17 @@
     if (!MINE && $("car-h1")) { $("car-h1").textContent = s.name + vname; document.title = `${s.name}${vname} · Allo Cars`; }
     const headHtml = `<section class="ac-card"><div class="head"><div>${MINE ? `<h2 class="ac-card__title">${esc(title)}</h2>` : ""}<p class="ac-card__desc" style="margin:4px 0 0">${esc(sub)}</p>${badges(s)}</div><div class="acts">${acts}</div></div><div class="acts cmp" id="cmp-row">${cmpHtml(s)}</div></section>`;
     $("profile").innerHTML = `<div class="stack">${headHtml}<div class="cards">${costBlock(s)}<section class="ac-card"><p class="ac-caption">…</p></section><section class="ac-card"><p class="ac-caption">…</p></section></div></div>`;
-    const [rc, rg, kid] = await Promise.all([recallBlock(s).catch((e) => ""), regBlock(s).catch((e) => ""), childBlock(s).catch((e) => "")]);
+    const info = await recallInfo(s).catch(() => null);
+    const [rc, rg, kid] = await Promise.all([recallBlock(s, info).catch((e) => ""), regBlock(s).catch((e) => ""), childBlock(s).catch((e) => "")]);
     if (me !== drawing) return;
     const cards = $("profile").querySelector(".cards");
-    const html = costBlock(s) + versionBlock(s, list) + grantBlock(s, list) + ratingsBlock(s) + kid + rc + rg + rankBlock(s) + similarBlock(s);
+    // My cars is for owners: what needs attention and what the car costs first, the model's market facts last,
+    // and no grant for a car registered before the grant started (it can't get it any more)
+    const owner = MINE && current.car;
+    const R = window.EvGrant && EvGrant.RULES, early = R && s.year && s.year < Number(R.registered_from.slice(0, 4));
+    const html = owner
+      ? (info ? attentionBlock(s, info) : "") + costBlock(s) + rc + ratingsBlock(s) + kid + versionBlock(s, list) + rg + rankBlock(s) + similarBlock(s) + (early ? "" : grantBlock(s, list))
+      : costBlock(s) + versionBlock(s, list) + grantBlock(s, list) + ratingsBlock(s) + kid + rc + rg + rankBlock(s) + similarBlock(s);
     cards.innerHTML = html;
     const head = $("profile").querySelector(".head");
     if (head) head.insertAdjacentHTML("afterend", jumpNav(html));
