@@ -201,33 +201,37 @@
   var S = readState();
 
   /* ---------- 1. your car ---------- */
-  var carSel = $("car");
   // Built-in cars come with hand-made real-world estimates. Once the official catalog loads, every other
   // electric car registered in Germany joins the list, with levels estimated from its WLTP figure.
   function officialFor(name) {
     if (!official) return null;
     return official.byId[E.OFFICIAL_IDS[name]] || official.byName[name] || null;
   }
-  // the box above the list narrows it: every word typed must appear in the name ("id 3", "tesla y")
-  var carQ = $("car-q");
-  var key = function (v) { return String(v).toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, " "); };
+  // one box picks the car: the site's car picker (AlloFind.picker in assets/search.js), popular cars first
+  var carQ = $("car-q"), carPk = null, gotCars;
+  var carsReady = new Promise(function (res) { gotCars = res; });
+  function carList() {
+    var quick = E.CATALOG.map(function (c, i) { var o = officialFor(c[0]); return { name: c[0], quick: true, registrations: 1e9 - i, n: o && o.n }; });
+    var rest = official ? official.list.filter(function (m) { return !official.builtin[m.id]; }).map(function (m) { return { name: m.name, registrations: m.n || 0 }; }) : [];
+    return quick.concat(rest);
+  }
   function drawCars() {
-    var opt = function (n) { return '<option value="' + A.esc(n) + '">' + A.esc(n) + "</option>"; };
-    var words = carQ ? key(carQ.value).split(/\s+/).filter(Boolean) : [];
-    var hit = function (n) { var k = key(n), c = k.replace(/ /g, ""); return words.every(function (w) { return k.indexOf(w) >= 0 || c.indexOf(w) >= 0; }); };
-    var quick = E.CATALOG.map(function (c) { return c[0]; });
-    var rest = official ? official.list.filter(function (m) { return !official.builtin[m.id]; }).map(function (m) { return m.name; }) : [];
-    var total = rest.length;
-    quick = quick.filter(hit); rest = rest.filter(hit);
-    var known = quick.indexOf(S.car) >= 0 || rest.indexOf(S.car) >= 0;
-    var none = !quick.length && !rest.length ? '<option disabled>' + A.esc(T.none) + "</option>" : "";
-    carSel.innerHTML = total
-      ? (quick.length ? '<optgroup label="' + A.esc(T.quick) + '">' + quick.map(opt).join("") + "</optgroup>" : "") +
-        (rest.length ? '<optgroup label="' + A.esc(T.allCars(words.length ? rest.length : total)) + '">' + rest.map(opt).join("") + "</optgroup>" : "") + none + (known ? "" : opt(S.car))
-      : quick.map(opt).join("") + none + (known ? "" : opt(S.car));
-    carSel.value = S.car;
+    if (carPk) carPk.set({ name: S.car }); else carQ.value = S.car;
     drawOfficial();
   }
+  var onReady = function (fn) { if (window.AlloFind) fn(); else addEventListener("DOMContentLoaded", fn); };
+  onReady(function () {
+    carPk = AlloFind.picker(carQ, {
+      items: function () { return carsReady; },
+      hay: function (m) { return m.name; }, key: function () { return ""; }, label: function (m) { return m.name; }, none: T.none,
+      row: function (m) { return { name: m.name, sub: m.quick ? T.quick : "" }; },
+      pick: function (m) {
+        if (m.name !== S.car) { setCar(m.name); S.lvSet = false; drawOfficial(); drawUse(); drawLevels(); update(); }
+        carQ.blur();
+      }
+    });
+    drawCars();
+  });
   function drawOfficial() {
     var el = $("official"), o = officialFor(S.car);
     if (!o) { el.hidden = true; return; }
@@ -248,19 +252,8 @@
     }
   }
   drawCars();
-  if (carQ) {
-    carQ.addEventListener("input", function () {
-      drawCars();
-      // one match left (besides the car you had): take it
-      var opts = [].filter.call(carSel.options, function (o) { return !o.disabled; });
-      var only = opts.length === 2 ? opts.filter(function (o) { return o.value !== S.car; }) : opts.length === 1 ? opts : [];
-      if (carQ.value && only.length === 1 && only[0].value !== S.car) { carSel.value = only[0].value; carSel.dispatchEvent(new Event("change")); }
-    });
-  }
-  carSel.addEventListener("change", function () {
-    setCar(carSel.value); S.lvSet = false;
-    drawOfficial(); drawUse(); drawLevels(); update();
-  });
+  // a box left half typed shows the car again
+  carQ.addEventListener("blur", function () { setTimeout(function () { if (document.activeElement !== carQ) drawCars(); }, 200); });
 
   function drawUse() {
     $("use").innerHTML = T.levels.map(function (name, i) {
@@ -610,7 +603,7 @@
 
   // Official consumption of every electric model registered in Germany (EEA CO2 monitoring of new cars).
   fetch(AlloSite.data("vehicle-catalog", "electric.json")).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
-    if (!j || !Array.isArray(j.models) || !j.models.length) return;
+    if (!j || !Array.isArray(j.models) || !j.models.length) { gotCars(carList()); return; }
     var o = { byId: {}, byName: {}, builtin: {}, year: j.year, list: [] };
     // The register spells a few models several ways ("VW ID. Buzz", "VW Idbuzz") or oddly ("Zhidou. Zd. Elaris
     // Elaris"): tidy the name, and keep one entry per spelling, the one with the most registrations.
@@ -634,7 +627,8 @@
     // the car gets its levels from the official figure now, unless the link or you set them
     if (officialFor(S.car) && !S.lvSet) { setCar(S.car); drawUse(); drawLevels(); }
     drawCars(); update();
-  }).catch(function () {});
+    gotCars(carList());
+  }).catch(function () { gotCars(carList()); });
 
   // Live pump prices (EU Weekly Oil Bulletin, national weekly average incl. taxes), when the fuel
   // collector has published them; otherwise the ADAC monthly average from calc.js stays.

@@ -34,7 +34,7 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=e6bd90f628">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=fd3c12cdce">
 <script src="/assets/site.js?v=92ed0a6c5f"></script>
 <script src="/assets/garage.js?v=74d932cdd7"></script>
 <style>
@@ -55,11 +55,6 @@
   .checks label { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; font-weight: 600; cursor: pointer; }
   .checks input { width: 20px; height: 20px; accent-color: var(--ink); margin: 0; }
   .combo { position: relative; }
-  .combo__list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; max-height: min(320px, 45vh); overflow-y: auto; background: var(--surface-100); border: 1.5px solid var(--ink); border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
-  .combo__list li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 10px; min-height: 44px; box-sizing: border-box; border-radius: 6px; cursor: pointer; font-weight: 600; }
-  .combo__list li small { color: var(--ink-muted); font-weight: 400; white-space: nowrap; }
-  .combo__list li[aria-selected="true"], .combo__list li:hover { background: var(--surface-50); outline: 1.5px solid var(--ink); }
-  .combo__list li.combo__none { cursor: default; color: var(--ink-muted); outline: none; background: none; }
   /* scrolls sideways only when the cars don't fit (no padding here: it made a table that fits scroll a little, sliding the first column under the labels) */
   .scroll { position: relative; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
   table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
@@ -140,7 +135,7 @@
     <ul class="ac-find__list" data-find-list role="listbox" aria-label="找车" hidden></ul>
   </form>
 </div>
-<script src="/assets/search.js?v=5a1dded372" defer></script>
+<script src="/assets/search.js?v=b67806420b" defer></script>
 <script src="/assets/garage.js?v=74d932cdd7" defer></script>
 <script src="/assets/notices.js?v=0628cb42ae" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
@@ -156,8 +151,7 @@
         <h2 class="ac-card__title sr" id="pick-h">车型和设置</h2>
         <div class="tools">
           <label class="fld combo" id="add"><span>添加车型</span>
-            <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-list" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="品牌和车型，例如 VW Golf" autocomplete="off">
-            <ul id="q-list" class="combo__list" role="listbox" aria-label="品牌和车型" hidden></ul>
+            <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="品牌和车型，例如 VW Golf" autocomplete="off">
           </label>
           <label class="fld fld--km"><span>每年公里数</span><input id="km" type="number" min="1000" max="100000" step="1000" inputmode="numeric"></label>
           <button type="button" class="ac-btn ac-btn--ghost" id="mine" hidden>+ 加入我的车</button>
@@ -259,7 +253,7 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/assets/poster.js?v=9fcd626877"></script>
-<script src="/compare/app.js?v=b6f84d28a3"></script>
+<script src="/assets/poster.js?v=6f00d49aee"></script>
+<script src="/compare/app.js?v=595d6fb6e8"></script>
 </body>
 </html>

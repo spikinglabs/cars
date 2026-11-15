@@ -176,7 +176,132 @@
     });
   }
 
-  window.AlloFind = { find: findCars, load: load, words: words, norm: norm, attach: attach };
+  /* ---------- the car picker: one combobox for every "pick a car model" box on the site ----------
+   * AlloFind.picker(input, opts) turns a text input into a combobox with our own drop-down list. We never
+   * use <datalist>: Android Chrome shows its suggestions as keyboard chips (or not at all inside a modal
+   * dialog), picking one there fires no "change", and it only matches the exact label, so it looked broken.
+   * It matches like the header search: every word, any order, Chinese make names (沃尔沃 → Volvo).
+   *   items: array, or a function giving an array or a promise (default: the vehicle catalog)
+   *   hay(m): the text to match (default make, name, model, fuel)   key(m): the model name for exact hits
+   *   rank(a, b): order of hits (default most registrations first)  skip(m): leave a model out
+   *   row(m): { name, sub, picked } for one line                     pick(m, input): called on a pick
+   *   page: lines shown before "Show more" (default 30)              fill: false keeps the box empty after a pick
+   *   label(m): the text put in the box after a pick (default name · fuel)   none: text when nothing matches
+   * Returns { open, close, first(text), refresh }. */
+  var PT = {
+    zh: { more: function (n) { return "再显示 " + n + " 个"; }, none: "没有找到这个车型。试试品牌和车型，例如“大众 ID.3”。" },
+    de: { more: function (n) { return n + " weitere zeigen"; }, none: "Kein passendes Modell. Versuch Marke und Modell, z. B. „VW ID.3“." },
+    en: { more: function (n) { return "Show " + n + " more"; }, none: "No matching model. Try make and model, e.g. “VW ID.3”." }
+  }[lang];
+  var pickN = 0;
+  function picker(input, o) {
+    o = o || {};
+    if (!input || input.__pick) return input && input.__pick;
+    var PAGE = o.page || 30;
+    var fuelOf = function (m) { return T.fuel[m.fuel] || m.fuel || ""; };
+    var hay = o.hay || function (m) { return m.make + " " + m.name + " " + (m.model || "") + " " + (m.fuel || "") + " " + fuelOf(m); };
+    var key = o.key || function (m) { return m.model || ""; };
+    var rank = o.rank || function (a, b) { return (b.registrations || 0) - (a.registrations || 0); };
+    var row = o.row || function (m) { return { name: m.name, sub: fuelOf(m) }; };
+    var label = o.label || function (m) { return m.name + " · " + fuelOf(m); };
+    var items = [], ready = null, hits = [], limit = PAGE, active = -1, shownText = null;
+    function getItems() {
+      if (!ready) {
+        var src = o.items == null ? load() : typeof o.items === "function" ? o.items() : o.items;
+        ready = Promise.resolve(src).then(function (a) {
+          items = (a || []).map(function (m) { return { m: m, h: norm(hay(m)), k: norm(key(m)) }; });
+          return items;
+        }, function () { ready = null; return []; });
+      }
+      return ready;
+    }
+    function match(text) {
+      var w = words(text);
+      var list = items.filter(function (x) { return !(o.skip && o.skip(x.m)) && w.every(function (y) { return x.h.indexOf(y) >= 0; }); });
+      return list.sort(function (a, b) {
+        var ea = w.indexOf(a.k) >= 0 ? 1 : 0, eb = w.indexOf(b.k) >= 0 ? 1 : 0;
+        return eb - ea || rank(a.m, b.m);
+      }).map(function (x) { return x.m; });
+    }
+    // the list sits right under the box; its parent becomes the anchor
+    var wrap = input.parentElement;
+    wrap.classList.add("ac-pick");
+    var list = document.createElement("ul");
+    list.className = "ac-pick__list"; list.hidden = true;
+    list.id = "acpk" + (++pickN); list.setAttribute("role", "listbox");
+    if (input.getAttribute("aria-label")) list.setAttribute("aria-label", input.getAttribute("aria-label"));
+    input.insertAdjacentElement("afterend", list);
+    input.removeAttribute("list");
+    input.setAttribute("role", "combobox"); input.setAttribute("aria-autocomplete", "list");
+    input.setAttribute("aria-controls", list.id); input.setAttribute("aria-expanded", "false");
+    input.setAttribute("autocomplete", "off"); input.setAttribute("autocapitalize", "off"); input.setAttribute("spellcheck", "false");
+    var shown = function () { return hits.slice(0, limit); };
+    var hasMore = function () { return hits.length > limit; };
+    function paint() {
+      var s = shown();
+      list.innerHTML = s.length ? s.map(function (m, i) {
+        var r = row(m);
+        return '<li role="option" id="' + list.id + "-" + i + '" data-i="' + i + '" aria-selected="' + (i === active) + '"' + (r.picked ? ' class="is-picked"' : "") + "><span>" + (r.picked ? '<b aria-hidden="true">✓ </b>' : "") + esc(r.name) + "</span>" + (r.sub ? "<small>" + esc(r.sub) + "</small>" : "") + "</li>";
+      }).join("") + (hasMore() ? '<li role="option" id="' + list.id + '-more" data-more="1" class="ac-pick__more" aria-selected="' + (active === s.length) + '">' + esc(PT.more(Math.min(hits.length - limit, PAGE * 2))) + "</li>" : "")
+        : '<li class="ac-pick__none" aria-disabled="true">' + esc(ready && items.length ? o.none || PT.none : T.loading) + "</li>";
+      var cur = active >= 0 ? document.getElementById(active === s.length ? list.id + "-more" : list.id + "-" + active) : null;
+      if (cur) { input.setAttribute("aria-activedescendant", cur.id); cur.scrollIntoView({ block: "nearest" }); }
+      else input.removeAttribute("aria-activedescendant");
+    }
+    function open(text) {
+      shownText = text == null ? input.value : text;
+      hits = items.length ? match(shownText) : []; limit = PAGE; active = -1;
+      paint(); list.hidden = false; input.setAttribute("aria-expanded", "true");
+      if (!items.length) getItems().then(function () { if (!list.hidden) open(shownText); });
+    }
+    function close() { list.hidden = true; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); active = -1; }
+    function more() { limit += PAGE * 2; paint(); }
+    function choose(m) {
+      input.__picked = m;
+      input.value = o.fill === false ? "" : label(m);
+      close();
+      if (o.pick) o.pick(m, input);
+    }
+    // a box that shows the picked car opens with everything, not just that one car
+    var startText = function () { return input.__picked && input.value === label(input.__picked) ? "" : input.value; };
+    input.addEventListener("focus", function () { if (input.__picked && input.value === label(input.__picked)) input.select(); open(startText()); });
+    input.addEventListener("click", function () { if (list.hidden) open(startText()); });
+    input.addEventListener("input", function () { input.__picked = null; open(input.value); });
+    input.addEventListener("keydown", function (e) {
+      var n = shown().length + (hasMore() ? 1 : 0);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (list.hidden) open(startText());
+        if (!n) return;
+        active = (active + (e.key === "ArrowDown" ? 1 : -1) + n) % n; paint();
+      } else if (e.key === "Enter") {
+        if (list.hidden && input.__picked) return;
+        e.preventDefault();
+        if (active === shown().length && hasMore()) return more();
+        var m = active >= 0 ? shown()[active] : input.value.trim() ? match(input.value)[0] : null;
+        if (m) choose(m); else open(input.value);
+      } else if (e.key === "Escape" && !list.hidden) { e.preventDefault(); e.stopPropagation(); close(); }
+    });
+    // pointerdown + preventDefault keeps the box focused, so the tap is not lost to a blur first
+    list.addEventListener("pointerdown", function (e) { e.preventDefault(); });
+    list.addEventListener("mousedown", function (e) { e.preventDefault(); });
+    list.addEventListener("click", function (e) {
+      e.preventDefault(); // the box may sit in a <label>: a click there would reach the input and reopen the list
+      if (e.target.closest("li[data-more]")) return more();
+      var li = e.target.closest("li[data-i]"); if (li) choose(shown()[+li.dataset.i]);
+    });
+    input.addEventListener("blur", function () { setTimeout(function () { if (document.activeElement !== input) close(); }, 150); });
+    getItems();
+    input.__pick = {
+      open: open, close: close,
+      first: function (text) { return items.length && String(text || "").trim() ? match(text)[0] || null : null; },
+      refresh: function () { if (!list.hidden) { var a = active; hits = match(shownText); active = a; paint(); } },
+      set: function (m) { input.__picked = m || null; input.value = m ? label(m) : ""; }
+    };
+    return input.__pick;
+  }
+
+  window.AlloFind = { find: findCars, load: load, words: words, norm: norm, attach: attach, picker: picker };
   var start = function () { document.querySelectorAll("form[data-find]").forEach(attach); header(); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();

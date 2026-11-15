@@ -389,6 +389,7 @@
       fetch(AlloSite.data("registrations", "market.csv")).then((r) => r.text()).then(parseCsv),
     ]);
     models = idx.models; summary = s; market = mk;
+    gotModels();
     $("asof").textContent = T.asof(month(s.month));
     $("market-line").textContent = T.marketLine(s);
     $("top-all").innerHTML = table(s.top_models, "total");
@@ -418,66 +419,34 @@
     await show(false);
   }
 
-  // Model picker: a combobox with our own list. A <datalist> shows suggestions as keyboard chips on
-  // Android Chrome, and picking one there neither submits nor fires "change", so it looked broken.
+  // Model picker: the site's car picker (AlloFind.picker in assets/search.js, deferred, so wait for it),
+  // never a <datalist> (Android Chrome shows it as keyboard chips and picking fires no "change").
   // Each pick adds a model; picking one already in the list takes it out again.
-  const q = $("q"), list = $("q-list");
+  const q = $("q");
   q.dataset.placeholder = q.placeholder;
-  const PAGE = 30;
-  let shown = [], hits = [], active = -1, limit = PAGE;
-  const pickable = () => models.filter((m) => m.model !== "SONSTIGE");
+  let pk = null, gotModels;
+  const modelsReady = new Promise((res) => { gotModels = res; });
   // most registered in the last 12 months first, then models with only older data, newest first
   const order = (a, b) => (b.last_12_months || 0) - (a.last_12_months || 0) || String(b.last_month || "").localeCompare(String(a.last_month || "")) || label(a).localeCompare(label(b));
-  function matches(text) {
-    const words = String(text).toLowerCase().replace("volkswagen", "vw").split(/\s+/).map(norm).filter(Boolean);
-    return pickable().filter((m) => { const h = norm(`${m.brand} ${m.model}`); return words.every((w) => h.includes(w)); }).sort(order);
-  }
-  const moreRow = () => hits.length > shown.length;
-  function render() {
-    const rest = hits.length - shown.length;
-    list.innerHTML = shown.length ? shown.map((m, i) => {
-      const on = picked.includes(m.slug);
-      return `<li role="option" id="q-opt-${i}" data-i="${i}" aria-selected="${i === active}" class="${on ? "is-picked" : ""}"><span>${on ? '<b aria-hidden="true">✓ </b>' : ""}${esc(label(m))}</span><small>${m.last_12_months ? num(m.last_12_months) + " " + T.mo : T.older}</small></li>`;
-    }).join("") + (rest > 0 ? `<li role="option" id="q-opt-${shown.length}" data-more="1" class="combo__more" aria-selected="${active === shown.length}">${esc(T.more(num(Math.min(rest, PAGE * 2))))}</li>` : "")
-      : `<li class="combo__none" aria-disabled="true">${esc(T.noModel)}</li>`;
-    if (active >= 0) { q.setAttribute("aria-activedescendant", `q-opt-${active}`); $(`q-opt-${active}`)?.scrollIntoView({ block: "nearest" }); }
-    else q.removeAttribute("aria-activedescendant");
-  }
-  function open(text) {
-    if (!models.length) return;
-    hits = matches(text); limit = PAGE; shown = hits.slice(0, limit); active = -1;
-    render(); list.hidden = false; q.setAttribute("aria-expanded", "true");
-  }
-  function more() { limit += PAGE * 2; shown = hits.slice(0, limit); render(); }
-  function close() { list.hidden = true; q.setAttribute("aria-expanded", "false"); q.removeAttribute("aria-activedescendant"); active = -1; }
   function choose(m) {
     if (picked.includes(m.slug)) remove(m.slug); else add(m.slug);
-    close(); q.value = ""; q.blur();
+    q.blur();
     show(true).catch(fail);
   }
-  q.addEventListener("focus", () => { q.select(); open(q.value); });
-  q.addEventListener("input", () => open(q.value));
-  q.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault();
-      if (list.hidden) open(q.value);
-      const n = shown.length + (moreRow() ? 1 : 0);
-      if (!n) return;
-      active = (active + (e.key === "ArrowDown" ? 1 : -1) + n) % n; render();
-    } else if (e.key === "Escape") { close(); }
+  const onReady = (fn) => (window.AlloFind ? fn() : addEventListener("DOMContentLoaded", fn));
+  onReady(() => {
+    pk = AlloFind.picker(q, {
+      items: () => modelsReady.then(() => models.filter((m) => m.model !== "SONSTIGE")),
+      hay: (m) => `${m.brand} ${m.model} ${label(m)}`, key: (m) => m.model, rank: order, fill: false, none: T.noModel,
+      row: (m) => ({ name: label(m), sub: m.last_12_months ? num(m.last_12_months) + " " + T.mo : T.older, picked: picked.includes(m.slug) }),
+      pick: choose,
+    });
   });
-  // pointerdown + preventDefault keeps the input focused, so the tap is not lost to a blur first.
-  list.addEventListener("pointerdown", (e) => e.preventDefault());
-  list.addEventListener("click", (e) => {
-    if (e.target.closest("li[data-more]")) { more(); return; }
-    const li = e.target.closest("li[data-i]"); if (li) choose(shown[+li.dataset.i]);
-  });
-  q.addEventListener("blur", () => setTimeout(close, 150));
+  q.addEventListener("focus", () => q.select());
   $("pick").addEventListener("submit", (e) => {
     e.preventDefault();
-    if (active === shown.length && moreRow()) { more(); return; }
-    const m = active >= 0 ? shown[active] : q.value.trim() ? find(models, q.value) || matches(q.value)[0] : null;
-    if (m) choose(m); else open(q.value);
+    const m = q.value.trim() ? find(models, q.value) || (pk && pk.first(q.value)) : null;
+    if (m) { q.value = ""; choose(m); } else if (pk) { q.focus(); pk.open(); }
   });
   $("picked").addEventListener("click", (e) => {
     const b = e.target.closest("[data-remove]");

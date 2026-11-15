@@ -117,14 +117,25 @@
     const n = String(name || "").trim().toLowerCase();
     return n ? phevs.find((m) => m.name.toLowerCase() === n) || null : null;
   };
+  let gotPhevs;
+  const phevsReady = new Promise((res) => { gotPhevs = res; });
+  // the site's car picker (AlloFind.picker in assets/search.js), never a <datalist>: on Android Chrome
+  // its suggestions are keyboard chips, picking one fires no "change", and only the exact name matched
+  const pickCar = (c) => {
+    S.car = c ? c.id : "";
+    if (c) { S.co2 = String(c.co2_g_km); S.range = c.range_km ? String(c.range_km) : ""; }
+    paintInputs(); update();
+  };
+  const onReady = (fn) => (window.AlloFind ? fn() : addEventListener("DOMContentLoaded", fn));
+  onReady(() => AlloFind.picker($("car"), { items: () => phevsReady, label: (m) => m.name, pick: pickCar }));
   fetch(AlloSite.data("vehicle-catalog", "models.json")).then((r) => r.ok ? r.json() : null).then((j) => {
     if (!j) return;
     catalogYear = j.year;
     phevs = (j.models || []).filter((m) => /^phev/.test(m.fuel) && m.co2_g_km != null)
       .sort((a, b) => (b.registrations || 0) - (a.registrations || 0));
-    $("cars").innerHTML = phevs.map((m) => `<option value="${A.esc(m.name)}"></option>`).join("");
+    gotPhevs(phevs);
     const c = carById(S.car);
-    if (c) { $("car").value = c.name; if (S.co2 === "") S.co2 = String(c.co2_g_km); if (S.range === "" && c.range_km) S.range = String(c.range_km); }
+    if (c) { if ($("car").__pick) $("car").__pick.set(c); else $("car").value = c.name; if (S.co2 === "") S.co2 = String(c.co2_g_km); if (S.range === "" && c.range_km) S.range = String(c.range_km); }
     paintInputs(); update();
   }).catch(() => {});
 
@@ -140,12 +151,8 @@
   [["income", "income"], ["reg", "reg"], ["co2", "co2"], ["range", "range"]].forEach(([id, k]) => {
     $(id).addEventListener("input", () => { S[k] = $(id).value; update(); });
   });
-  $("car").addEventListener("change", () => {
-    const c = carByName($("car").value);
-    S.car = c ? c.id : "";
-    if (c) { S.co2 = String(c.co2_g_km); S.range = c.range_km ? String(c.range_km) : ""; }
-    paintInputs(); update();
-  });
+  // a name typed in full still counts without a pick from the list
+  $("car").addEventListener("change", () => { const c = carByName($("car").value); if (c && c.id !== S.car) pickCar(c); });
 
   /* ---------- output ---------- */
   let R;
