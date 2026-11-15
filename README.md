@@ -6,6 +6,15 @@ assistant can use it. Your data stays in a local SQLite file.
 
 ![Dashboard](docs/dashboard.png)
 
+This repository also holds [Allo Cars](https://cars.allo.land), the website and data pipelines behind the online tools:
+
+| Folder | What it is |
+|---|---|
+| `src/car_mcp/` | The car-mcp server described below |
+| `site/` | The cars.allo.land website and its hosted read-only MCP (Cloudflare Pages) |
+| `pipelines/` | Collectors that fetch open data (charging, fuel and electricity prices, recalls, registrations, chargers, ratings, vehicle catalog) into Cloudflare R2 |
+| `workers/collect-cron/` | Cloudflare cron Worker that starts the collector workflows on time |
+
 ## What it does
 
 | Area | Tools |
@@ -106,3 +115,15 @@ Layout:
 - `src/car_mcp/server.py`: MCP tools, prompts and the MCP Apps dashboard resource
 - `src/car_mcp/dashboard.html`: the dashboard UI (standalone or MCP App)
 - `src/car_mcp/sample.py`: deterministic demo data
+
+## Data and licences
+
+The code in this repository is under the [MIT License](LICENSE). The data the pipelines collect is not: it stays
+under its publishers' terms, and no collected data is stored in this repository. The
+[open data page](https://cars.allo.land/open-data/) lists every source, its licence and how to credit it. The
+Euro NCAP, Green NCAP and ADAC ratings have no open licence and belong to their publishers.
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). To report a security issue, follow [SECURITY.md](SECURITY.md) rather than
+opening a public issue.
