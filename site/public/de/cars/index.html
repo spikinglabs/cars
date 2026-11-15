@@ -34,7 +34,7 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=e6bd90f628">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=fd3c12cdce">
 <script src="/assets/site.js?v=92ed0a6c5f"></script>
 <script src="/assets/garage.js?v=74d932cdd7"></script>
 <style>
@@ -56,11 +56,6 @@
   .manual { display: grid; gap: 12px; }
   .linkbtn { background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline; font: inherit; cursor: pointer; justify-self: start; }
   .combo { position: relative; }
-  .combo__list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; max-height: min(320px, 45vh); overflow-y: auto; background: var(--surface-100); border: 1.5px solid var(--ink); border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
-  .combo__list li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 10px; min-height: 44px; box-sizing: border-box; border-radius: 6px; cursor: pointer; font-weight: 600; }
-  .combo__list li small { color: var(--ink-muted); font-weight: 400; white-space: nowrap; }
-  .combo__list li[aria-selected="true"], .combo__list li:hover { background: var(--surface-50); outline: 1.5px solid var(--ink); }
-  .combo__list li.combo__none { cursor: default; color: var(--ink-muted); outline: none; background: none; }
   .head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
   .head h2 { margin: 0; }
   .acts { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -159,7 +154,7 @@
     <ul class="ac-find__list" data-find-list role="listbox" aria-label="Auto suchen" hidden></ul>
   </form>
 </div>
-<script src="/assets/search.js?v=5a1dded372" defer></script>
+<script src="/assets/search.js?v=b67806420b" defer></script>
 <script src="/assets/garage.js?v=74d932cdd7" defer></script>
 <script src="/assets/notices.js?v=0628cb42ae" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
@@ -178,8 +173,7 @@
         <form class="addform" id="addform" hidden autocomplete="off">
           <div class="row" id="pickrow">
             <label class="fld fld--wide combo"><span>Marke und Modell</span>
-              <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-list" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Marke und Modell, z. B. VW Golf">
-              <ul id="q-list" class="combo__list" role="listbox" aria-label="Marke und Modell" hidden></ul>
+              <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Marke und Modell, z. B. VW Golf">
             </label>
           </div>
           <button type="button" class="linkbtn" id="manual-open">Mein Auto ist nicht in der Liste</button>
@@ -280,7 +274,7 @@
   </main>
 </div>
 <script src="/ev-grant/grant.js?v=1adf9d7ece"></script>
-<script src="/assets/poster.js?v=9fcd626877"></script>
-<script src="/cars/app.js?v=315b3c94e9"></script>
+<script src="/assets/poster.js?v=6f00d49aee"></script>
+<script src="/cars/app.js?v=2ef86ea885"></script>
 </body>
 </html>

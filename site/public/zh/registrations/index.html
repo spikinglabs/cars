@@ -36,7 +36,7 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=e6bd90f628">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=fd3c12cdce">
 <script src="/assets/site.js?v=92ed0a6c5f"></script>
 <style>
   #wave { display: grid; gap: 14px; min-width: 0; }
@@ -52,11 +52,6 @@
   .stack { display: grid; gap: var(--space-5); }
   .pick { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--space-4); }
   .combo { position: relative; flex: 1 1 220px; }
-  .combo__list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; max-height: min(320px, 45vh); overflow-y: auto; background: var(--surface-100); border: 1.5px solid var(--ink); border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
-  .combo__list li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 10px; min-height: 44px; box-sizing: border-box; border-radius: 6px; cursor: pointer; font-weight: 600; }
-  .combo__list li small { color: var(--ink-muted); font-weight: 400; white-space: nowrap; }
-  .combo__list li[aria-selected="true"], .combo__list li:hover { background: var(--surface-50); outline: 1.5px solid var(--ink); }
-  .combo__list li.combo__none { cursor: default; color: var(--ink-muted); outline: none; background: none; }
   .pick input { width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-sm); background: var(--surface-100); color: var(--ink); font: 700 18px/22px var(--font-display); }
   .b-ev { fill: var(--car-2); }
   .b-rest { fill: var(--fuel); opacity: .55; }
@@ -71,8 +66,6 @@
   #picked[hidden], #model-legend[hidden], #model-note[hidden] { display: none; }
   #model-note { margin: 0 0 var(--space-2); }
   .cmp-line { fill: none; stroke-width: 2.25; stroke-linejoin: round; }
-  .combo__list li.is-picked { background: var(--surface-200); }
-  .combo__list li.combo__more { justify-content: center; color: var(--ink); text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
   @media (max-width: 520px) { .ac-table.cmp .rk { display: none; } }
   .grid { stroke: var(--chart-grid); }
   .ac-table { width: 100%; }
@@ -113,7 +106,7 @@
     <ul class="ac-find__list" data-find-list role="listbox" aria-label="找车" hidden></ul>
   </form>
 </div>
-<script src="/assets/search.js?v=5a1dded372" defer></script>
+<script src="/assets/search.js?v=b67806420b" defer></script>
 <script src="/assets/garage.js?v=74d932cdd7" defer></script>
 <script src="/assets/notices.js?v=0628cb42ae" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
@@ -130,8 +123,7 @@
       <section class="ac-card">
         <form class="pick" id="pick" role="search">
           <div class="combo">
-            <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-list" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="品牌和车型，例如 Volvo EX30" aria-label="品牌和车型">
-            <ul id="q-list" class="combo__list" role="listbox" aria-label="品牌和车型" hidden></ul>
+            <input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="品牌和车型，例如 Volvo EX30" aria-label="品牌和车型">
           </div>
           <button class="ac-btn ac-btn--primary" type="submit">添加</button>
         </form>
@@ -258,6 +250,6 @@
 </div>
 <script src="/assets/range.js?v=c74355bdeb"></script>
 <script src="/registrations/wave.js?v=f9d5f95b13"></script>
-<script src="/registrations/app.js?v=09ebab1b8e"></script>
+<script src="/registrations/app.js?v=c445c659d6"></script>
 </body>
 </html>

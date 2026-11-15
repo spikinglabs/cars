@@ -503,7 +503,7 @@
     + ".acp__seg{display:flex;flex-wrap:wrap;gap:6px}.acp__seg button{min-height:40px;padding:0 14px;border:1.5px solid var(--ink,#17191b);border-radius:999px;background:var(--surface-100,#fff);color:var(--ink,#17191b);font:700 14px/1 var(--font-sans,sans-serif);cursor:pointer}"
     + ".acp__seg button[aria-pressed=true]{background:var(--ink,#17191b);color:var(--surface-100,#fff)}"
     + ".acp__pick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.acp__pick label{display:grid;gap:4px;font:600 13px/16px var(--font-sans,sans-serif);min-width:0}"
-    + ".acp__pick input{min-height:44px;padding:0 10px;border:1.5px solid var(--ink,#17191b);border-radius:12px;background:var(--surface-100,#fff);color:var(--ink,#17191b);font:600 16px/20px var(--font-sans,sans-serif);min-width:0;width:100%;box-sizing:border-box}"
+    + ".acp__box{display:block;position:relative;min-width:0}.acp__pick input{min-height:44px;padding:0 10px;border:1.5px solid var(--ink,#17191b);border-radius:12px;background:var(--surface-100,#fff);color:var(--ink,#17191b);font:600 16px/20px var(--font-sans,sans-serif);min-width:0;width:100%;box-sizing:border-box}"
     + ".acp__img{display:block;width:100%;height:auto;max-height:56dvh;object-fit:contain;border-radius:12px;background:#17191b;-webkit-touch-callout:default}"
     + ".acp__acts{display:flex;flex-wrap:wrap;gap:8px}.acp__acts .ac-btn{flex:1 1 140px}.acp__note{margin:0;color:var(--ink-muted,#5b6066);font-size:13px}"
     + ".acp__cap{width:100%;box-sizing:border-box;min-height:84px;padding:8px 10px;border:1px solid var(--border,#ddd);border-radius:12px;background:var(--surface-50,#f6f5f2);color:inherit;font:14px/1.4 var(--font-sans,sans-serif);resize:vertical}"
@@ -519,8 +519,8 @@
     box = document.createElement("dialog");
     box.className = "acp"; box.setAttribute("aria-labelledby", "acp-h");
     box.innerHTML = '<div class="acp__in"><div class="acp__head"><h2 id="acp-h"></h2><button type="button" class="acp__x" data-acp-close aria-label="' + esc(L.close) + '" title="' + esc(L.close) + '">×</button></div>'
-      + '<div class="acp__pick" data-acp-pick hidden><label>' + esc(L.carA) + '<input data-acp-car="0" list="acp-cars" autocomplete="off" spellcheck="false" placeholder="' + esc(L.pickPh) + '"></label>'
-      + '<label>' + esc(L.carB) + '<input data-acp-car="1" list="acp-cars" autocomplete="off" spellcheck="false" placeholder="' + esc(L.pickPh) + '"></label><datalist id="acp-cars"></datalist></div>'
+      + '<div class="acp__pick" data-acp-pick hidden><label>' + esc(L.carA) + '<span class="acp__box"><input data-acp-car="0" type="text" enterkeyhint="done" autocomplete="off" spellcheck="false" placeholder="' + esc(L.pickPh) + '"></span></label>'
+      + '<label>' + esc(L.carB) + '<span class="acp__box"><input data-acp-car="1" type="text" enterkeyhint="done" autocomplete="off" spellcheck="false" placeholder="' + esc(L.pickPh) + '"></span></label></div>'
       + '<div class="acp__seg" role="group">' + Object.keys(SIZES).map(function (k) { return '<button type="button" data-acp-fmt="' + k + '" aria-pressed="false">' + esc(L.fmt[k]) + "</button>"; }).join("") + "</div>"
       + '<img class="acp__img" data-acp-img alt="">'
       + '<p class="acp__note" data-acp-status role="status"></p>'
@@ -536,19 +536,35 @@
       if (e.target.closest("[data-acp-share]")) return share();
       if (e.target.closest("[data-acp-copy]")) return copy();
     });
-    box.addEventListener("change", function (e) {
-      var inp = e.target.closest("[data-acp-car]");
-      if (!inp) return;
-      loadData().then(function (D) {
-        var v = inp.value.trim().toLowerCase(), hit = D.catalog.filter(function (m) { return label(m).toLowerCase() === v; })[0]
-          || D.catalog.filter(function (m) { return m.name.toLowerCase() === v; })[0];
-        if (!hit) return;
-        st.ids[Number(inp.dataset.acpCar)] = hit.id;
-        render();
+    // the two car boxes: the site's car picker (assets/search.js), never a <datalist> (see there)
+    box.querySelectorAll("[data-acp-car]").forEach(function (inp) {
+      var i = Number(inp.dataset.acpCar);
+      if (!window.AlloFind || !AlloFind.picker) return;
+      AlloFind.picker(inp, {
+        items: function () { return loadData().then(function (D) { return D.catalog.filter(function (m) { return (m.registrations || 0) >= 50 || (m.years && m.years[1] >= D.year - 1); }); }); },
+        label: label,
+        skip: function (m) { return String(st.ids[1 - i] || "").split(":")[0] === m.id; },
+        row: function (m) { return { name: m.name, sub: (L.fuel[m.fuel] || m.fuel) + (m.years && m.years[1] < new Date().getFullYear() - 1 ? " · " + m.years[0] + "–" + m.years[1] : "") }; },
+        pick: function (m) { st.ids[i] = m.id; render(); }
       });
+    });
+    // a box left half typed shows its car again
+    box.addEventListener("focusout", function (e) {
+      var inp = e.target.closest && e.target.closest("[data-acp-car]");
+      if (inp) setTimeout(function () { if (document.activeElement !== inp) showNames(); }, 200);
     });
     box.addEventListener("close", function () { if (st.url) URL.revokeObjectURL(st.url); st.url = ""; });
     return box;
+  }
+  function showNames(D0) {
+    if (!st.vs) return;
+    (D0 ? Promise.resolve(D0) : loadData()).then(function (D) {
+      box.querySelectorAll("[data-acp-car]").forEach(function (inp, i) {
+        var m = D.byId[String(st.ids[i]).split(":")[0]];
+        if (!m || document.activeElement === inp) return;
+        if (inp.__pick) inp.__pick.set(m); else inp.value = label(m);
+      });
+    });
   }
   function label(m) { return m.name + " · " + (L.fuel[m.fuel] || m.fuel); }
   function status(t) { box.querySelector("[data-acp-status]").textContent = t; }
@@ -572,7 +588,7 @@
         st.caption = L.caption(title);
         st.pageUrl = location.origin + (lang === "en" ? "" : "/" + lang) + (st.vs ? "/compare/?cars=" + st.ids.slice(0, 2).map(encodeURIComponent).join(",") : "/car/?car=" + encodeURIComponent(st.ids[0].split(":")[0]));
         var cap = box.querySelector("[data-acp-cap]"); if (cap) cap.value = st.caption;
-        if (st.vs) box.querySelectorAll("[data-acp-car]").forEach(function (inp, i) { var m = D.byId[String(st.ids[i]).split(":")[0]]; if (m && document.activeElement !== inp) inp.value = label(m); });
+        if (st.vs) showNames(D);
         return new Promise(function (res) { cv.toBlob(res, "image/png"); }).then(function (blob) {
           if (me !== drawing) return;
           if (st.url) URL.revokeObjectURL(st.url);
@@ -614,9 +630,6 @@
     if (!box.open) box.showModal();
     if (window.AlloTrack) window.AlloTrack(st.vs ? "poster_vs" : "poster_one");
     loadData().then(function (D) {
-      var dl = box.querySelector("#acp-cars");
-      if (!dl.children.length) dl.innerHTML = D.catalog.filter(function (m) { return (m.registrations || 0) >= 50 || (m.years && m.years[1] >= D.year - 1); })
-        .map(function (m) { return '<option value="' + esc(label(m)) + '"></option>'; }).join("");
       if (st.vs && st.ids.length < 2) {
         // start with the most similar car still sold new, else the best-selling one of the same fuel
         var base = D.byId[String(st.ids[0]).split(":")[0]], G = window.AlloGarage;

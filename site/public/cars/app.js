@@ -158,12 +158,12 @@
   });
 
   /* ---------- add a car ---------- */
-  const form = $("addform"), q = $("q"), list = $("q-list");
-  let picked = null, shown = [], activeOpt = -1;
+  const form = $("addform"), q = $("q");
+  let picked = null;
   const thisYear = new Date().getFullYear();
   $("year").innerHTML = `<option value="0">–</option>` + Array.from({ length: thisYear - 1989 }, (_, i) => `<option>${thisYear - i}</option>`).join("");
   function openForm() {
-    form.hidden = false; picked = null; q.value = ""; $("nick").value = ""; $("year").value = "0";
+    form.hidden = false; picked = null; if (pk) pk.set(null); else q.value = ""; $("nick").value = ""; $("year").value = "0";
     $("manual").hidden = true; $("pickrow").hidden = false; q.focus();
   }
   $("add-cancel").addEventListener("click", () => { form.hidden = true; });
@@ -175,34 +175,11 @@
   const unitFor = () => { $("m-unit").textContent = T.unit($("m-fuel").value); };
   $("m-fuel").addEventListener("change", unitFor); unitFor();
 
-  const label = (m) => `${m.name}`;
-  function matches(text) {
-    const words = String(text).toLowerCase().replace("volkswagen", "vw").split(/\s+/).map(G.norm).filter(Boolean);
-    const hits = words.length ? catalog.filter((m) => { const h = G.norm(`${m.make} ${m.name} ${T.fuel[m.fuel] || m.fuel}`); return words.every((w) => h.includes(w)); }) : catalog;
-    return hits.slice().sort((a, b) => (b.registrations || 0) - (a.registrations || 0)).slice(0, 30);
-  }
-  function renderList() {
-    list.innerHTML = shown.length ? shown.map((m, i) => `<li role="option" id="q-opt-${i}" data-i="${i}" aria-selected="${i === activeOpt}">${esc(label(m))}<small>${esc(T.fuel[m.fuel] || m.fuel)}</small></li>`).join("")
-      : `<li class="combo__none" aria-disabled="true">${esc(T.noModel)}</li>`;
-    if (activeOpt >= 0) { q.setAttribute("aria-activedescendant", `q-opt-${activeOpt}`); $(`q-opt-${activeOpt}`)?.scrollIntoView({ block: "nearest" }); }
-    else q.removeAttribute("aria-activedescendant");
-  }
-  function openList(text) { shown = matches(text); activeOpt = -1; renderList(); list.hidden = false; q.setAttribute("aria-expanded", "true"); }
-  function closeList() { list.hidden = true; q.setAttribute("aria-expanded", "false"); q.removeAttribute("aria-activedescendant"); activeOpt = -1; }
-  function choose(m) { picked = m; q.value = `${label(m)} · ${T.fuel[m.fuel] || m.fuel}`; closeList(); $("year").focus(); }
-  q.addEventListener("focus", () => openList(picked ? "" : q.value));
-  q.addEventListener("input", () => { picked = null; openList(q.value); });
-  q.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault(); if (list.hidden) openList(q.value); if (!shown.length) return;
-      activeOpt = (activeOpt + (e.key === "ArrowDown" ? 1 : -1) + shown.length) % shown.length; renderList();
-    } else if (e.key === "Enter" && !list.hidden && shown.length) {
-      e.preventDefault(); choose(shown[activeOpt >= 0 ? activeOpt : 0]);
-    } else if (e.key === "Escape") closeList();
-  });
-  list.addEventListener("pointerdown", (e) => e.preventDefault());
-  list.addEventListener("click", (e) => { const li = e.target.closest("li[data-i]"); if (li) choose(shown[+li.dataset.i]); });
-  q.addEventListener("blur", () => setTimeout(closeList, 150));
+  // the site's car picker (AlloFind.picker in assets/search.js, deferred, so wait for it)
+  let pk = null;
+  const onReady = (fn) => (window.AlloFind ? fn() : addEventListener("DOMContentLoaded", fn));
+  onReady(() => { pk = AlloFind.picker(q, { none: T.noModel, label: (m) => `${m.name} · ${T.fuel[m.fuel] || m.fuel}`, pick: (m) => { picked = m; $("year").focus(); } }); });
+  q.addEventListener("input", () => { picked = null; });
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -214,8 +191,8 @@
       const [make, ...rest] = name.split(/\s+/);
       entry = { car: "", name, make, model: rest.join(" "), fuel: $("m-fuel").value, year, nick, cons: Number($("m-cons").value) || null };
     } else {
-      const m = picked || matches(q.value)[0];
-      if (!m || !q.value.trim()) { openList(q.value); return; }
+      const m = picked || (pk && pk.first(q.value));
+      if (!m || !q.value.trim()) { if (pk) pk.open(); q.focus(); return; }
       entry = { car: m.id, name: m.name, make: m.make, model: m.model, fuel: m.fuel, year, nick, cons: null };
     }
     const c = G.add(entry);

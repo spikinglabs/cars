@@ -269,37 +269,14 @@
     setIds([...st.ids, ...mine.filter((id) => !st.ids.includes(id))]);
   });
 
-  /* add a car: the same picker as My cars */
-  const q = $("q"), list = $("q-list");
-  let shownOpts = [], activeOpt = -1;
-  function matches(text) {
-    const words = String(text).toLowerCase().replace("volkswagen", "vw").split(/\s+/).map(G.norm).filter(Boolean);
-    const hits = (words.length ? catalog.filter((m) => { const h = G.norm(`${m.make} ${m.name} ${T.fuel[m.fuel] || m.fuel}`); return words.every((w) => h.includes(w)); }) : catalog)
-      .filter((m) => !st.ids.some((id) => baseId(id) === m.id));
-    return hits.slice().sort((a, b) => (b.registrations || 0) - (a.registrations || 0)).slice(0, 30);
-  }
-  function renderList() {
-    list.innerHTML = shownOpts.length ? shownOpts.map((m, i) => `<li role="option" id="q-opt-${i}" data-i="${i}" aria-selected="${i === activeOpt}">${esc(m.name)}<small>${esc(T.fuel[m.fuel] || m.fuel)}${m.years && m.years[1] < catalogYear ? ` · ${m.years[0]}–${m.years[1]}` : ""}</small></li>`).join("")
-      : `<li class="combo__none" aria-disabled="true">${esc(T.noModel)}</li>`;
-    if (activeOpt >= 0) { q.setAttribute("aria-activedescendant", `q-opt-${activeOpt}`); $(`q-opt-${activeOpt}`)?.scrollIntoView({ block: "nearest" }); }
-    else q.removeAttribute("aria-activedescendant");
-  }
-  function openList(text) { shownOpts = matches(text); activeOpt = -1; renderList(); list.hidden = false; q.setAttribute("aria-expanded", "true"); }
-  function closeList() { list.hidden = true; q.setAttribute("aria-expanded", "false"); q.removeAttribute("aria-activedescendant"); activeOpt = -1; }
-  function choose(m) { q.value = ""; closeList(); setIds([...st.ids, m.id]); q.blur(); }
-  q.addEventListener("focus", () => openList(q.value));
-  q.addEventListener("input", () => openList(q.value));
-  q.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault(); if (list.hidden) openList(q.value); if (!shownOpts.length) return;
-      activeOpt = (activeOpt + (e.key === "ArrowDown" ? 1 : -1) + shownOpts.length) % shownOpts.length; renderList();
-    } else if (e.key === "Enter" && !list.hidden && shownOpts.length) {
-      e.preventDefault(); choose(shownOpts[activeOpt >= 0 ? activeOpt : 0]);
-    } else if (e.key === "Escape") closeList();
-  });
-  list.addEventListener("pointerdown", (e) => e.preventDefault());
-  list.addEventListener("click", (e) => { const li = e.target.closest("li[data-i]"); if (li) choose(shownOpts[+li.dataset.i]); });
-  q.addEventListener("blur", () => setTimeout(closeList, 150));
+  /* add a car: the site's car picker (AlloFind.picker in assets/search.js, deferred, so wait for it) */
+  const onReady = (fn) => (window.AlloFind ? fn() : addEventListener("DOMContentLoaded", fn));
+  onReady(() => AlloFind.picker($("q"), {
+    fill: false,
+    skip: (m) => st.ids.some((id) => baseId(id) === m.id),
+    row: (m) => ({ name: m.name, sub: (T.fuel[m.fuel] || m.fuel) + (m.years && catalogYear && m.years[1] < catalogYear ? ` · ${m.years[0]}–${m.years[1]}` : "") }),
+    pick: (m, inp) => { setIds([...st.ids, m.id]); inp.blur(); },
+  }));
   addEventListener("ac:garage", drawMine);
 
   async function load() {

@@ -34,7 +34,7 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=e6bd90f628">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=fd3c12cdce">
 <script src="/assets/site.js?v=92ed0a6c5f"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
@@ -49,8 +49,8 @@
   #income { width: 8ch; }
   #reg { width: auto; font: 700 15px/20px var(--font-sign); }
   .phev { display: grid; gap: 12px; padding-top: 14px; border-top: 1px solid var(--border); }
-  .phev input[list] { width: min(100%, 320px); font: 600 15px/20px var(--font-sans); border: 1px solid var(--border); border-radius: var(--radius-xs); background: var(--surface-50); color: var(--ink); padding: 7px 10px; }
-  .phev input[list]:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px var(--gold); }
+  .phev #car { width: min(100%, 320px); font: 600 15px/20px var(--font-sans); border: 1px solid var(--border); border-radius: var(--radius-xs); background: var(--surface-50); color: var(--ink); padding: 7px 10px; }
+  .phev #car:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px var(--gold); }
   .verdict { margin: 0; font-size: 14px; line-height: 20px; }
   .verdict b.yes { color: var(--success); }
   .verdict b.no { color: var(--danger); }
@@ -110,7 +110,7 @@
     <ul class="ac-find__list" data-find-list role="listbox" aria-label="Auto suchen" hidden></ul>
   </form>
 </div>
-<script src="/assets/search.js?v=5a1dded372" defer></script>
+<script src="/assets/search.js?v=b67806420b" defer></script>
 <script src="/assets/garage.js?v=74d932cdd7" defer></script>
 <script src="/assets/notices.js?v=0628cb42ae" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
@@ -134,7 +134,7 @@
           <label class="ac-param"><span class="ac-param__label">Erstzulassung (optional)</span><span class="ac-param__box"><input id="reg" type="date" min="2025-01-01" max="2030-12-31"></span><span class="ac-param__hint">Zeigt den letzten Tag für den Antrag und wie lange du das Auto behalten musst.</span></label>
         </div>
         <div class="phev" id="phev" hidden>
-          <label class="ac-param" style="max-width:none;grid-template-columns:1fr"><span class="ac-param__label">Welcher Plug-in-Hybrid?</span><input id="car" list="cars" autocomplete="off" placeholder="z. B. VW Tiguan"><datalist id="cars"></datalist><span class="ac-param__hint">Plug-in-Hybride zählen nur mit höchstens 60 g CO2/km oder mindestens 80 km elektrischer Reichweite. Wähle das Modell für seinen offiziellen Schnitt, oder trag die Werte deines Autos aus der Übereinstimmungsbescheinigung (CoC) ein.</span></label>
+          <label class="ac-param" style="max-width:none;grid-template-columns:1fr"><span class="ac-param__label">Welcher Plug-in-Hybrid?</span><span class="ac-pick"><input id="car" type="text" autocomplete="off" enterkeyhint="done" placeholder="z. B. VW Tiguan"></span><span class="ac-param__hint">Plug-in-Hybride zählen nur mit höchstens 60 g CO2/km oder mindestens 80 km elektrischer Reichweite. Wähle das Modell für seinen offiziellen Schnitt, oder trag die Werte deines Autos aus der Übereinstimmungsbescheinigung (CoC) ein.</span></label>
           <div class="row">
             <label class="ac-param"><span class="ac-param__label">CO2</span><span class="ac-param__box"><input id="co2" type="number" min="0" max="400" step="1" inputmode="numeric"><span class="ac-param__unit">g/km</span></span></label>
             <label class="ac-param"><span class="ac-param__label">Elektrische Reichweite</span><span class="ac-param__box"><input id="range" type="number" min="0" max="400" step="1" inputmode="numeric"><span class="ac-param__unit">km</span></span></label>
@@ -282,6 +282,6 @@
 </div>
 <script src="/assets/components/bundle.js?v=a59ccf037e"></script>
 <script src="/ev-grant/grant.js?v=1adf9d7ece"></script>
-<script src="/ev-grant/app.js?v=ff247ec0c3"></script>
+<script src="/ev-grant/app.js?v=1c490700fb"></script>
 </body>
 </html>

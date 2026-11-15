@@ -428,6 +428,19 @@
 .ac-find--inline .ac-find__list { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); padding: 4px; background: var(--surface-100); border: 1.5px solid var(--ink); border-radius: var(--radius-sm, 10px); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
 .ac-find--inline { scroll-margin-top: 12px; }
 
+/* ---------- Car picker (AlloFind.picker in assets/search.js): every "pick a car model" box ---------- */
+.ac-pick { position: relative; }
+span.ac-pick { display: block; min-width: 0; }
+.ac-pick__list { position: absolute; z-index: 40; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; max-height: min(320px, 45vh); max-height: min(320px, 45dvh); overflow-y: auto; overscroll-behavior: contain; background: var(--surface-100); color: var(--ink); border: 1.5px solid var(--ink); border-radius: var(--radius-sm, 10px); box-shadow: 0 8px 24px rgba(0,0,0,.22); text-align: left; }
+.ac-pick__list[hidden] { display: none; }
+.ac-pick__list li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 12px 10px; min-height: 44px; box-sizing: border-box; border-radius: 6px; cursor: pointer; font: 600 15px/20px var(--font-sans); }
+.ac-pick__list li small { flex: none; color: var(--ink-muted); font-weight: 400; font-size: 13px; white-space: nowrap; }
+.ac-pick__list li[aria-selected="true"], .ac-pick__list li:hover { background: var(--surface-200); }
+.ac-pick__list li.is-picked { background: var(--surface-200); }
+.ac-pick__list li.ac-pick__more { justify-content: center; text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.ac-pick__list li.ac-pick__none { cursor: default; color: var(--ink-muted); font-weight: 400; background: none; }
+@media (max-width: 420px) { .ac-pick__list li small { white-space: normal; text-align: right; } }
+
 /* ---------- Recall bell in the header (assets/notices.js), the same as the notices bell on Allo Outings ---------- */
 .ac-top__right:has(.ac-notices) { position: relative; }
 .ac-notices { flex: none; }
