@@ -47,5 +47,6 @@
         }
       }
     ]
-  }
+  },
+  "status_job": "eu-fuel-prices"
 }

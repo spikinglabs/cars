@@ -200,5 +200,6 @@
         }
       }
     ]
-  }
+  },
+  "status_job": "ev-charging-prices"
 }
