@@ -1,0 +1,198 @@
+{
+  "spec": "dataherb/v2",
+  "owner": "spikinglabs",
+  "classification": "public",
+  "source": "git",
+  "uri": "https://github.com/spikinglabs/cars",
+  "id": "car-official-consumption",
+  "name": "Official consumption of new car models (WLTP)",
+  "description": "Type-approval (WLTP) consumption, CO2, power and mass of every car model with at least 20 new registrations in Germany in a year since 2021, averaged over the versions people bought, from the European Environment Agency's Regulation (EU) 2019/631 data. Refreshed monthly.",
+  "tags": [
+    "cars",
+    "consumption",
+    "co2",
+    "ev",
+    "eu"
+  ],
+  "update_frequency": "P1M",
+  "license": "CC-BY-4.0",
+  "attribution": "European Environment Agency",
+  "datapackage": {
+    "resources": [
+      {
+        "name": "models",
+        "path": "https://cars.allo.land/data/vehicle-catalog/de/models.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "One row per model and fuel type.",
+        "schema": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "make",
+              "type": "string"
+            },
+            {
+              "name": "model",
+              "type": "string"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "fuel",
+              "type": "string"
+            },
+            {
+              "name": "registrations",
+              "type": "integer"
+            },
+            {
+              "name": "kwh_per_100km",
+              "type": "number"
+            },
+            {
+              "name": "kwh_min",
+              "type": "number"
+            },
+            {
+              "name": "kwh_max",
+              "type": "number"
+            },
+            {
+              "name": "l_per_100km",
+              "type": "number"
+            },
+            {
+              "name": "l_min",
+              "type": "number"
+            },
+            {
+              "name": "l_max",
+              "type": "number"
+            },
+            {
+              "name": "co2_g_km",
+              "type": "integer"
+            },
+            {
+              "name": "power_kw",
+              "type": "integer"
+            },
+            {
+              "name": "mass_kg",
+              "type": "integer"
+            },
+            {
+              "name": "range_km",
+              "type": "integer"
+            },
+            {
+              "name": "range_min",
+              "type": "integer"
+            },
+            {
+              "name": "range_max",
+              "type": "integer"
+            },
+            {
+              "name": "variants",
+              "type": "integer"
+            },
+            {
+              "name": "year",
+              "type": "integer"
+            },
+            {
+              "name": "first_year",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      {
+        "name": "versions",
+        "path": "https://cars.allo.land/data/vehicle-catalog/de/versions.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "Versions (trims) of every model with official figures, commercial names and variant codes.",
+        "schema": {
+          "fields": [
+            {
+              "name": "ref",
+              "type": "string"
+            },
+            {
+              "name": "model",
+              "type": "string"
+            },
+            {
+              "name": "trim",
+              "type": "string"
+            },
+            {
+              "name": "fuel",
+              "type": "string"
+            },
+            {
+              "name": "power_kw",
+              "type": "integer"
+            },
+            {
+              "name": "kwh_per_100km",
+              "type": "number"
+            },
+            {
+              "name": "l_per_100km",
+              "type": "number"
+            },
+            {
+              "name": "co2_g_km",
+              "type": "integer"
+            },
+            {
+              "name": "mass_kg",
+              "type": "integer"
+            },
+            {
+              "name": "range_km",
+              "type": "integer"
+            },
+            {
+              "name": "range_min",
+              "type": "integer"
+            },
+            {
+              "name": "range_max",
+              "type": "integer"
+            },
+            {
+              "name": "registrations",
+              "type": "integer"
+            },
+            {
+              "name": "year",
+              "type": "integer"
+            },
+            {
+              "name": "first_year",
+              "type": "integer"
+            },
+            {
+              "name": "names",
+              "type": "string"
+            },
+            {
+              "name": "codes",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

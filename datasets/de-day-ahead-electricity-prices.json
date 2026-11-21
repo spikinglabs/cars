@@ -1,0 +1,86 @@
+{
+  "spec": "dataherb/v2",
+  "owner": "spikinglabs",
+  "classification": "public",
+  "source": "git",
+  "uri": "https://github.com/spikinglabs/cars",
+  "id": "de-day-ahead-electricity-prices",
+  "name": "German day-ahead electricity prices",
+  "description": "Day-ahead prices of the German power exchange (bidding zone DE-LU) from SMARD, the Bundesnetzagentur's energy market portal, since October 2018, in EUR/MWh. Read several times each afternoon.",
+  "tags": [
+    "electricity",
+    "prices",
+    "energy",
+    "germany",
+    "time-series"
+  ],
+  "update_frequency": "P1D",
+  "license": "CC-BY-4.0",
+  "attribution": "Bundesnetzagentur | SMARD.de",
+  "datapackage": {
+    "resources": [
+      {
+        "name": "daily",
+        "path": "https://cars.allo.land/data/electricity-prices/de/daily.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "One row per day since 2018: mean, min, max, cheapest 1 and 4 hour windows, negative hours.",
+        "schema": {
+          "fields": [
+            {
+              "name": "date",
+              "type": "string"
+            },
+            {
+              "name": "hours",
+              "type": "integer"
+            },
+            {
+              "name": "mean_eur_mwh",
+              "type": "number"
+            },
+            {
+              "name": "min_eur_mwh",
+              "type": "number"
+            },
+            {
+              "name": "max_eur_mwh",
+              "type": "number"
+            },
+            {
+              "name": "cheapest_1h_eur_mwh",
+              "type": "number"
+            },
+            {
+              "name": "cheapest_4h_eur_mwh",
+              "type": "number"
+            },
+            {
+              "name": "negative_hours",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      {
+        "name": "hourly",
+        "path": "https://cars.allo.land/data/electricity-prices/de/hourly.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "Every hour since 2018, EUR/MWh.",
+        "schema": {
+          "fields": [
+            {
+              "name": "start",
+              "type": "string"
+            },
+            {
+              "name": "eur_mwh",
+              "type": "number"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

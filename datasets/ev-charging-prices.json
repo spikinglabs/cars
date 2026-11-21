@@ -1,0 +1,204 @@
+{
+  "spec": "dataherb/v2",
+  "owner": "spikinglabs",
+  "classification": "public",
+  "source": "git",
+  "uri": "https://github.com/spikinglabs/cars",
+  "id": "ev-charging-prices",
+  "name": "Public ad-hoc EV charging prices in Germany",
+  "description": "Hourly snapshot of the published ad-hoc tariffs (pay without a contract) of public chargers in Germany, from the Open ChargePoint Database (MobiData BW), which merges the operators' AFIR price feeds on Mobilithek. Only sources with an open licence are kept. Series starts 2026-11-06. See https://cars.allo.land/open-data/.",
+  "tags": [
+    "ev",
+    "charging",
+    "prices",
+    "germany",
+    "energy"
+  ],
+  "update_frequency": "PT1H",
+  "license": "Per source, CC-BY-4.0 or CC0-1.0: see https://cars.allo.land/data/charging-prices/sources.json",
+  "datapackage": {
+    "resources": [
+      {
+        "name": "daily",
+        "path": "https://cars.allo.land/data/charging-prices/daily.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "Median, 10th and 90th percentile energy price per day and source (EUR/kWh).",
+        "schema": {
+          "fields": [
+            {
+              "name": "date",
+              "type": "string"
+            },
+            {
+              "name": "source",
+              "type": "string"
+            },
+            {
+              "name": "tariffs",
+              "type": "integer"
+            },
+            {
+              "name": "median",
+              "type": "number"
+            },
+            {
+              "name": "p10",
+              "type": "number"
+            },
+            {
+              "name": "p90",
+              "type": "number"
+            },
+            {
+              "name": "min",
+              "type": "number"
+            },
+            {
+              "name": "max",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      {
+        "name": "tariffs",
+        "path": "https://cars.allo.land/data/charging-prices/tariffs.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "Every current ad-hoc tariff with energy, time, parking and session prices, and its licence.",
+        "schema": {
+          "fields": [
+            {
+              "name": "observed_at",
+              "type": "string"
+            },
+            {
+              "name": "tariff_id",
+              "type": "integer"
+            },
+            {
+              "name": "original_id",
+              "type": "string"
+            },
+            {
+              "name": "source",
+              "type": "string"
+            },
+            {
+              "name": "licence",
+              "type": "string"
+            },
+            {
+              "name": "type",
+              "type": "string"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "energy_eur_per_kwh",
+              "type": "number"
+            },
+            {
+              "name": "time_eur_per_hour",
+              "type": "number"
+            },
+            {
+              "name": "parking_eur_per_hour",
+              "type": "string"
+            },
+            {
+              "name": "session_fee_eur",
+              "type": "number"
+            },
+            {
+              "name": "tax_basis",
+              "type": "string"
+            },
+            {
+              "name": "has_restrictions",
+              "type": "string"
+            },
+            {
+              "name": "start_date_time",
+              "type": "string"
+            },
+            {
+              "name": "end_date_time",
+              "type": "string"
+            },
+            {
+              "name": "last_updated",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "name": "operators",
+        "path": "https://cars.allo.land/data/charging-prices/operators.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "Median price per operator, overall and for AC, DC and high-power charge points.",
+        "schema": {
+          "fields": [
+            {
+              "name": "operator",
+              "type": "string"
+            },
+            {
+              "name": "charge_points",
+              "type": "integer"
+            },
+            {
+              "name": "median",
+              "type": "number"
+            },
+            {
+              "name": "p10",
+              "type": "number"
+            },
+            {
+              "name": "p90",
+              "type": "number"
+            },
+            {
+              "name": "min",
+              "type": "number"
+            },
+            {
+              "name": "max",
+              "type": "number"
+            },
+            {
+              "name": "ac_points",
+              "type": "integer"
+            },
+            {
+              "name": "ac_median",
+              "type": "number"
+            },
+            {
+              "name": "dc_points",
+              "type": "integer"
+            },
+            {
+              "name": "dc_median",
+              "type": "number"
+            },
+            {
+              "name": "hpc_points",
+              "type": "integer"
+            },
+            {
+              "name": "hpc_median",
+              "type": "number"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

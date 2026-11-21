@@ -1,0 +1,110 @@
+{
+  "spec": "dataherb/v2",
+  "owner": "spikinglabs",
+  "classification": "public",
+  "source": "git",
+  "uri": "https://github.com/spikinglabs/cars",
+  "id": "eu-vehicle-recalls",
+  "name": "EU motor vehicle recalls (Safety Gate)",
+  "description": "Every EU Safety Gate alert in the category motor vehicles since 2019 (cars, motorcycles, vans, trucks, e-scooters), including each German KBA recall, read daily, with an approximate component from the hazard text.",
+  "tags": [
+    "recalls",
+    "cars",
+    "product-safety",
+    "eu"
+  ],
+  "update_frequency": "P1D",
+  "license": "© European Union, reused under Commission Decision 2011/833/EU",
+  "attribution": "Source: EU Safety Gate, © European Union",
+  "datapackage": {
+    "resources": [
+      {
+        "name": "recalls",
+        "path": "https://cars.allo.land/data/recalls/eu/recalls.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "Every alert since 2019, one row each.",
+        "schema": {
+          "fields": [
+            {
+              "name": "date",
+              "type": "string"
+            },
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "brand",
+              "type": "string"
+            },
+            {
+              "name": "models",
+              "type": "string"
+            },
+            {
+              "name": "product",
+              "type": "string"
+            },
+            {
+              "name": "type_approval",
+              "type": "string"
+            },
+            {
+              "name": "production",
+              "type": "string"
+            },
+            {
+              "name": "risk",
+              "type": "string"
+            },
+            {
+              "name": "level",
+              "type": "string"
+            },
+            {
+              "name": "hazard",
+              "type": "string"
+            },
+            {
+              "name": "measure",
+              "type": "string"
+            },
+            {
+              "name": "taken_by",
+              "type": "string"
+            },
+            {
+              "name": "in_force",
+              "type": "string"
+            },
+            {
+              "name": "recall_code",
+              "type": "string"
+            },
+            {
+              "name": "notified_by",
+              "type": "string"
+            },
+            {
+              "name": "origin",
+              "type": "string"
+            },
+            {
+              "name": "url",
+              "type": "string"
+            },
+            {
+              "name": "report",
+              "type": "string"
+            },
+            {
+              "name": "component",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
