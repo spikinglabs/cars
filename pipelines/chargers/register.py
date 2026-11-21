@@ -35,8 +35,17 @@ def _cell(v) -> str:
     return str(v).strip()
 
 
+def _decode(data: bytes) -> str:
+    """UTF-8 as before; the 2026-11-12 file came in Windows-1252 (Latin-1), which must not turn
+    "Längengrad" into "L\ufffdngengrad" and leave every row without coordinates."""
+    try:
+        return data.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return data.decode("cp1252", "replace")
+
+
 def _rows_csv(data: bytes):
-    text = data.decode("utf-8-sig", "replace")
+    text = _decode(data)
     yield from csv.reader(io.StringIO(text), delimiter=";")
 
 
