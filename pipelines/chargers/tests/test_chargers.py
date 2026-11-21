@@ -30,6 +30,13 @@ class RegisterTest(unittest.TestCase):
         self.assertEqual(len(rows[0]["points"]), 2)
         self.assertEqual(rows[0]["Breitengrad"], "50,9413")
 
+    def test_reads_latin1_csv(self):
+        # The 2026-11-12 register came in Windows-1252 without a BOM.
+        text = sample_csv([row(1, "A", 22, "50,9413", "6,9583", "AC Typ 2 Steckdose")]).decode("utf-8-sig")
+        meta, rows = register.read(text.encode("cp1252"), "Ladesaeulenregister_BNetzA_2026-11-12.csv")
+        self.assertEqual(rows[0]["Längengrad"], "6,9583")
+        self.assertEqual(rows[0]["Ort"], "Köln")
+
     def test_newest_prefers_date_then_csv(self):
         base = "https://x/Ladesaeulenregister_BNetzA_"
         self.assertTrue(collect.newest([base + "2026-09-01.csv", base + "2026-09-30.xlsx"]).endswith("09-30.xlsx"))
