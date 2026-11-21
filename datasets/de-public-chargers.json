@@ -1,0 +1,186 @@
+{
+  "spec": "dataherb/v2",
+  "owner": "spikinglabs",
+  "classification": "public",
+  "source": "git",
+  "uri": "https://github.com/spikinglabs/cars",
+  "id": "de-public-chargers",
+  "name": "Public charge points in Germany",
+  "description": "The Bundesnetzagentur's Ladesäulenregister, grouped into locations (devices within about 10 m), with power, plugs, operator and payment, plus statistics per district with population and electric cars. Checked daily; the register is published a few times a year.",
+  "tags": [
+    "ev",
+    "charging",
+    "infrastructure",
+    "germany",
+    "geo"
+  ],
+  "update_frequency": "P1D",
+  "license": "CC-BY-4.0",
+  "attribution": "Bundesnetzagentur.de; population: Destatis; electric cars: Kraftfahrt-Bundesamt (both DL-DE-BY-2.0)",
+  "datapackage": {
+    "resources": [
+      {
+        "name": "stations",
+        "path": "https://cars.allo.land/data/chargers/de/stations.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "Every location with position, power, charge points, plugs, operator, address and payment.",
+        "schema": {
+          "fields": [
+            {
+              "name": "lat",
+              "type": "number"
+            },
+            {
+              "name": "lon",
+              "type": "number"
+            },
+            {
+              "name": "kw",
+              "type": "number"
+            },
+            {
+              "name": "points",
+              "type": "integer"
+            },
+            {
+              "name": "dc_points",
+              "type": "integer"
+            },
+            {
+              "name": "plugs",
+              "type": "string"
+            },
+            {
+              "name": "operator",
+              "type": "string"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "address",
+              "type": "string"
+            },
+            {
+              "name": "postcode",
+              "type": "integer"
+            },
+            {
+              "name": "town",
+              "type": "string"
+            },
+            {
+              "name": "state",
+              "type": "string"
+            },
+            {
+              "name": "open_24_7",
+              "type": "integer"
+            },
+            {
+              "name": "free",
+              "type": "integer"
+            },
+            {
+              "name": "card_payment",
+              "type": "integer"
+            },
+            {
+              "name": "customers_only",
+              "type": "integer"
+            },
+            {
+              "name": "plug_and_charge",
+              "type": "integer"
+            },
+            {
+              "name": "since",
+              "type": "integer"
+            },
+            {
+              "name": "devices",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      {
+        "name": "districts",
+        "path": "https://cars.allo.land/data/chargers/de/districts.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "Charge points, power, population and electric cars per district.",
+        "schema": {
+          "fields": [
+            {
+              "name": "ars",
+              "type": "integer"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "state",
+              "type": "string"
+            },
+            {
+              "name": "city",
+              "type": "integer"
+            },
+            {
+              "name": "points",
+              "type": "integer"
+            },
+            {
+              "name": "fast_points",
+              "type": "integer"
+            },
+            {
+              "name": "ultra_points",
+              "type": "integer"
+            },
+            {
+              "name": "dc_points",
+              "type": "integer"
+            },
+            {
+              "name": "devices",
+              "type": "integer"
+            },
+            {
+              "name": "power_kw",
+              "type": "integer"
+            },
+            {
+              "name": "population",
+              "type": "integer"
+            },
+            {
+              "name": "bev",
+              "type": "integer"
+            },
+            {
+              "name": "points_per_100k",
+              "type": "number"
+            },
+            {
+              "name": "fast_per_100k",
+              "type": "number"
+            },
+            {
+              "name": "bev_per_point",
+              "type": "number"
+            },
+            {
+              "name": "kw_per_bev",
+              "type": "number"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

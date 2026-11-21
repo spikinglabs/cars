@@ -1,0 +1,51 @@
+{
+  "spec": "dataherb/v2",
+  "owner": "spikinglabs",
+  "classification": "public",
+  "source": "git",
+  "uri": "https://github.com/spikinglabs/cars",
+  "id": "eu-fuel-prices",
+  "name": "EU weekly fuel prices",
+  "description": "National average pump prices of petrol, diesel and LPG including taxes, from the European Commission's Weekly Oil Bulletin, since 2005. This resource is the series used for Germany; other countries are under /data/fuel-prices/<country>/.",
+  "tags": [
+    "fuel",
+    "prices",
+    "energy",
+    "eu",
+    "time-series"
+  ],
+  "update_frequency": "P1W",
+  "license": "CC-BY-4.0",
+  "attribution": "European Commission, Weekly Oil Bulletin",
+  "datapackage": {
+    "resources": [
+      {
+        "name": "weekly",
+        "path": "https://cars.allo.land/data/fuel-prices/weekly.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "One row per week since 2005, EUR per litre.",
+        "schema": {
+          "fields": [
+            {
+              "name": "date",
+              "type": "string"
+            },
+            {
+              "name": "euro_super_95",
+              "type": "number"
+            },
+            {
+              "name": "diesel",
+              "type": "number"
+            },
+            {
+              "name": "lpg",
+              "type": "number"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

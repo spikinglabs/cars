@@ -1,0 +1,114 @@
+{
+  "spec": "dataherb/v2",
+  "owner": "spikinglabs",
+  "classification": "public",
+  "source": "git",
+  "uri": "https://github.com/spikinglabs/cars",
+  "id": "de-new-car-registrations",
+  "name": "New car registrations in Germany by model",
+  "description": "Monthly new registrations of passenger cars per brand and model series from the Kraftfahrt-Bundesamt (statistic FZ10) since December 2018, with drive type split, plus the market total and electric share.",
+  "tags": [
+    "cars",
+    "registrations",
+    "ev",
+    "germany",
+    "time-series"
+  ],
+  "update_frequency": "P1M",
+  "license": "DL-DE-BY-2.0",
+  "attribution": "© Kraftfahrt-Bundesamt, Flensburg",
+  "datapackage": {
+    "resources": [
+      {
+        "name": "monthly",
+        "path": "https://cars.allo.land/data/registrations/de/monthly.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "Every model, every month (total, diesel, hybrid, phev, bev).",
+        "schema": {
+          "fields": [
+            {
+              "name": "month",
+              "type": "string"
+            },
+            {
+              "name": "brand",
+              "type": "string"
+            },
+            {
+              "name": "model",
+              "type": "string"
+            },
+            {
+              "name": "slug",
+              "type": "string"
+            },
+            {
+              "name": "total",
+              "type": "integer"
+            },
+            {
+              "name": "diesel",
+              "type": "integer"
+            },
+            {
+              "name": "hybrid",
+              "type": "integer"
+            },
+            {
+              "name": "phev",
+              "type": "string"
+            },
+            {
+              "name": "bev",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      {
+        "name": "market",
+        "path": "https://cars.allo.land/data/registrations/de/market.csv",
+        "format": "csv",
+        "mediatype": "text/csv",
+        "description": "All new cars per month by drive type and the electric share.",
+        "schema": {
+          "fields": [
+            {
+              "name": "month",
+              "type": "string"
+            },
+            {
+              "name": "total",
+              "type": "integer"
+            },
+            {
+              "name": "diesel",
+              "type": "integer"
+            },
+            {
+              "name": "hybrid",
+              "type": "integer"
+            },
+            {
+              "name": "phev",
+              "type": "integer"
+            },
+            {
+              "name": "bev",
+              "type": "integer"
+            },
+            {
+              "name": "petrol_etc",
+              "type": "integer"
+            },
+            {
+              "name": "bev_share",
+              "type": "number"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
