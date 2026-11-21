@@ -110,5 +110,6 @@
         }
       }
     ]
-  }
+  },
+  "status_job": "de-new-car-registrations"
 }

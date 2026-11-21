@@ -33,3 +33,19 @@ jobs:
       - name: Check bucket variable
         run: test -n "$R2_BUCKET" || { echo "::error::Set the R2_BUCKET_EV repository variable"; exit 1; }
       - run: python -m pipelines.recalls.collect --r2 "$R2_BUCKET" --prefix recalls --since 2019 --budget 720
+      # Job status for the DataHerb catalog (dataherb.status/v1), served at
+      # https://cars.allo.land/data/recalls/status/eu-vehicle-recalls/latest.json. Never fails the run.
+      - name: Write DataHerb job status
+        if: always()
+        continue-on-error: true
+        uses: DataHerb/dataherb-explorer/.github/actions/emit-status@main
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+        with:
+          target: s3://${{ env.R2_BUCKET }}/recalls/public/status/
+          job-id: eu-vehicle-recalls
+          status: ${{ job.status }}
+          expected-interval: P1D
+          datasets: eu-vehicle-recalls

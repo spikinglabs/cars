@@ -82,5 +82,6 @@
         }
       }
     ]
-  }
+  },
+  "status_job": "de-day-ahead-electricity-prices"
 }

@@ -38,3 +38,19 @@ jobs:
       - run: pip install -r pipelines/charging_prices/requirements.txt
       - name: Collect
         run: python -m pipelines.charging_prices.collect --tier ${{ inputs.tier || 'hourly' }} --r2 "$R2_BUCKET" --prefix charging-prices
+      # Job status for the DataHerb catalog (dataherb.status/v1), served at
+      # https://cars.allo.land/data/charging-prices/status/ev-charging-prices/latest.json. Never fails the run.
+      - name: Write DataHerb job status
+        if: always() && (inputs.tier || 'hourly') == 'hourly'
+        continue-on-error: true
+        uses: DataHerb/dataherb-explorer/.github/actions/emit-status@main
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+        with:
+          target: s3://${{ env.R2_BUCKET }}/charging-prices/public/status/
+          job-id: ev-charging-prices
+          status: ${{ job.status }}
+          expected-interval: PT2H
+          datasets: ev-charging-prices
