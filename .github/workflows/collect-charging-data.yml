@@ -39,9 +39,9 @@ jobs:
       - name: Collect
         run: python -m pipelines.charging_prices.collect --tier ${{ inputs.tier || 'hourly' }} --r2 "$R2_BUCKET" --prefix charging-prices
       # Job status for the DataHerb catalog (dataherb.status/v1), served at
-      # https://cars.allo.land/data/charging-prices/status/ev-charging-prices/latest.json. Never fails the run.
+      # https://cars.allo.land/data/charging-prices/status/ev-charging-prices/latest.json. Only scheduled (dispatched) runs and main write it; never fails the run.
       - name: Write DataHerb job status
-        if: always() && (inputs.tier || 'hourly') == 'hourly'
+        if: always() && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') && (inputs.tier || 'hourly') == 'hourly'
         continue-on-error: true
         uses: DataHerb/dataherb-explorer/.github/actions/emit-status@main
         env:
