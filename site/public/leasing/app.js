@@ -44,6 +44,9 @@
     q3: "Home Assistant：如果你的车有接入（例如 Volvo 集成里的里程传感器），这个自动化每月最后一天给手机发通知，点开就会记下当时的里程。把 sensor 和 notify 换成你自己的。",
     q4: "读数保存在打开链接的那个浏览器里，所以要用你平时看这个页面的同一个浏览器（iPhone 上：同一个浏览器或同一个已安装的应用）。",
     haTitle: "租赁里程", haMsg: "里程表", haTap: "点一下记录",
+    csv: "下载读数（CSV）", bak: "备份我的全部数据", res: "从备份恢复", restored: (n) => `已从备份恢复（${n} 项）`, badFile: "这个文件不是 Allo Cars 备份。",
+    histNote: "读数会作为历史记录保存在这台设备上（每天一条）。时不时备份一下：清除浏览器数据会把它们删掉。",
+    csvH: ["日期", "里程表 km", "允许 km", "差额 km"],
     forCar: "租的是", noCar: "在“我的车”里加上你的车，每辆车可以单独保存租约。",
   } : de ? {
     locale: "de-DE",
@@ -77,6 +80,9 @@
     q3: "Home Assistant: Wenn dein Auto dort eingebunden ist (z. B. der Kilometerstand-Sensor der Volvo-Integration), schickt diese Automatisierung am letzten Tag jedes Monats eine Mitteilung ans Handy. Ein Tipp darauf trägt den aktuellen Stand ein. Sensor und notify durch deine ersetzen.",
     q4: "Die Ablesung wird in dem Browser gespeichert, in dem du den Link öffnest. Nimm denselben Browser wie für diese Seite (auf dem iPhone: denselben Browser oder dieselbe installierte App).",
     haTitle: "Leasing-km", haMsg: "Kilometerstand", haTap: "Tippen zum Eintragen",
+    csv: "Ablesungen herunterladen (CSV)", bak: "Alle meine Daten sichern", res: "Sicherung wiederherstellen", restored: (n) => `Aus der Sicherung wiederhergestellt (${n} Einträge)`, badFile: "Diese Datei ist keine Allo-Cars-Sicherung.",
+    histNote: "Ablesungen bleiben als Verlauf auf diesem Gerät (eine pro Tag). Sichere sie ab und zu: Wenn du die Browserdaten löschst, sind sie weg.",
+    csvH: ["Datum", "Kilometerstand km", "Erlaubt km", "Differenz km"],
     forCar: "Leasing für", noCar: "Leg dein Auto unter „Meine Autos“ an, dann merkt sich die Seite das Leasing für jedes Auto.",
   } : {
     locale: "en-GB",
@@ -110,6 +116,9 @@
     q3: "Home Assistant: if your car is connected there (the Volvo integration has an odometer sensor, for example), this automation sends your phone a notification on the last day of each month. Tapping it logs the odometer of that moment. Replace the sensor and notify names with yours.",
     q4: "The reading is saved in the browser that opens the link, so use the same browser you use for this page (on iPhone: the same browser or the same installed app).",
     haTitle: "Lease km", haMsg: "Odometer", haTap: "Tap to log it",
+    csv: "Download readings (CSV)", bak: "Back up all my data", res: "Restore a backup", restored: (n) => `Restored from the backup (${n} items)`, badFile: "That file is not an Allo Cars backup.",
+    histNote: "Readings stay on this device as history (one a day). Back them up now and then: clearing the browser's data deletes them.",
+    csvH: ["date", "odometer_km", "allowed_km", "difference_km"],
     forCar: "Lease for", noCar: "Add your car on My cars and the page keeps a lease for each car.",
   };
   const L = window.AlloLease, G = window.AlloGarage;
@@ -197,7 +206,7 @@
     history.replaceState(null, "", `${location.pathname}?${q.toString().replace(/%7E/gi, "~").replace(/%7C/gi, "|")}${location.hash}`);
   }
   function addReading(d, v, quiet) {
-    S.readings = S.readings.filter((r) => r.date !== d).concat([{ date: d, km: Math.round(v) }]).sort((a, b) => a.date < b.date ? -1 : 1).slice(-200);
+    S.readings = S.readings.filter((r) => r.date !== d).concat([{ date: d, km: Math.round(v) }]).sort((a, b) => a.date < b.date ? -1 : 1).slice(-5000);
     if (!quiet) changed();
   }
 
@@ -360,6 +369,21 @@
     el.textContent = T.last(date(r.date), n);
   }
 
+  /* ---------- history: CSV of the readings, backup and restore of everything on this device ---------- */
+  function drawExports() {
+    if ($("exports")) return;
+    $("reads").insertAdjacentHTML("afterend", `<p class="ac-caption" style="margin:12px 0 6px">${esc(T.histNote)}</p><div class="presets" id="exports"><button type="button" class="ac-chip" id="x-csv">${esc(T.csv)}</button><button type="button" class="ac-chip" id="x-bak">${esc(T.bak)}</button><label class="ac-chip" style="cursor:pointer">${esc(T.res)}<input type="file" id="x-res" accept="application/json,.json" hidden></label></div><p class="ac-caption" id="x-msg" role="status" style="margin:6px 0 0"></p>`);
+  }
+  function csv() {
+    const c = L.norm(contract()), car = G && carId !== "_" ? G.get(carId) : null;
+    const rows = [T.csvH.join(",")].concat(S.readings.map((r) => {
+      const a = c.start != null ? Math.round(L.allowedAt(c, L.day(r.date))) : "";
+      return [r.date, r.km, a, a === "" ? "" : r.km - a].join(",");
+    }));
+    const name = (car ? car.nick || car.name : "car").replace(/[^\w.-]+/g, "-").toLowerCase();
+    G.download(`allo-cars-odometer-${name}-${todayIso()}.csv`, rows.join("\n") + "\n", "text/csv");
+  }
+
   /* ---------- cars ---------- */
   function drawCars() {
     const cars = G ? G.list() : [];
@@ -370,7 +394,7 @@
   }
 
   function changed() { save(); url(); drawContract(); drawLast(); drawPlanOut(); drawCheckpoints(); }
-  function drawAll() { drawCars(); drawPlan(); drawQuick(); changed(); }
+  function drawAll() { drawCars(); drawPlan(); drawQuick(); drawExports(); changed(); }
 
   /* ---------- events ---------- */
   $("sc").addEventListener("input", (e) => {
@@ -426,6 +450,19 @@
     const txt = $(b.dataset.copy).textContent;
     const done = () => { b.textContent = T.copied; setTimeout(() => { b.textContent = T.copy; }, 1500); };
     try { navigator.clipboard.writeText(txt).then(done, () => {}); } catch (err) {}
+  });
+  $("odo").addEventListener("click", (e) => {
+    if (e.target.id === "x-csv") csv();
+    if (e.target.id === "x-bak") G.download(`allo-cars-backup-${todayIso()}.json`, JSON.stringify(G.backup(), null, 1), "application/json");
+  });
+  $("odo").addEventListener("change", (e) => {
+    if (e.target.id !== "x-res" || !e.target.files[0]) return;
+    e.target.files[0].text().then((t) => {
+      const n = G.restore(JSON.parse(t));
+      load(); drawAll();
+      $("x-msg").textContent = `✓ ${T.restored(n)}`;
+    }).catch(() => { $("x-msg").textContent = T.badFile; });
+    e.target.value = "";
   });
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawCheckpoints, 150); });
 

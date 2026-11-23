@@ -114,6 +114,54 @@
       + '<span class="ac-stars__num" aria-hidden="true">' + t + '/5</span></span>';
   }
 
+  /* Backup of everything Allo Cars keeps on this device (every localStorage key starting "allo-cars"),
+     as one JSON file, and restoring it. Restoring merges: cars by id, lease readings by date; other keys are replaced. */
+  var PREFIX = "allo-cars";
+  function backup() {
+    var data = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(PREFIX) === 0) { var v = localStorage.getItem(k); try { data[k] = JSON.parse(v); } catch (e) { data[k] = v; } }
+      }
+    } catch (e) {}
+    return { app: "allo-cars", v: 1, exported: new Date().toISOString(), data: data };
+  }
+  function mergeLease(old, add) {
+    old = old && old.cars ? old : { v: 1, cars: {} };
+    Object.keys((add && add.cars) || {}).forEach(function (id) {
+      var a = add.cars[id] || {}, o = old.cars[id];
+      var byDate = {};
+      ((o && o.readings) || []).concat(a.readings || []).forEach(function (r) { if (r && r.date) byDate[r.date] = r; });
+      var merged = Object.assign({}, o || {}, a);
+      merged.readings = Object.keys(byDate).sort().map(function (d) { return byDate[d]; });
+      old.cars[id] = merged;
+    });
+    return old;
+  }
+  function restore(file) {
+    if (!file || file.app !== "allo-cars" || !file.data || typeof file.data !== "object") throw new Error("not an Allo Cars backup");
+    var n = 0;
+    Object.keys(file.data).forEach(function (k) {
+      if (k.indexOf(PREFIX) !== 0) return;
+      var v = file.data[k], cur = null;
+      try { cur = JSON.parse(localStorage.getItem(k) || "null"); } catch (e) {}
+      if (k === KEY && cur && Array.isArray(cur.cars) && v && Array.isArray(v.cars)) {
+        var ids = {}; v.cars.forEach(function (c) { ids[c.id] = 1; });
+        v = { v: 1, active: v.active || cur.active, cars: cur.cars.filter(function (c) { return !ids[c.id]; }).concat(v.cars.map(clean)) };
+      } else if (k === "allo-cars-lease") v = mergeLease(cur, v);
+      try { localStorage.setItem(k, typeof v === "string" ? v : JSON.stringify(v)); n++; } catch (e) {}
+    });
+    try { dispatchEvent(new CustomEvent("ac:garage", { detail: read() })); } catch (e) {}
+    return n;
+  }
+  function download(name, text, type) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: type || "application/json" }));
+    a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
   window.AlloGarage = {
     stars: stars,
     KEY: KEY,
@@ -238,6 +286,7 @@
       }
       return out;
     },
+    backup: backup, restore: restore, mergeLease: mergeLease, download: download,
     electric: function (fuel) { return fuel === "electric"; },
     plugIn: function (fuel) { return /^phev/.test(fuel); }
   };

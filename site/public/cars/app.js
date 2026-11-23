@@ -148,6 +148,15 @@
       // with no car yet the add form is already open, so no second "Add a car" (and no Cancel)
       + (cars.length ? `<button type="button" class="ac-btn ac-btn--primary" id="add-open">+ ${esc(ADD)}</button>` : "");
     $("garage-none").hidden = cars.length > 0;
+    if (!$("backup") && G.backup) {
+      const B = zh ? ["备份我的全部数据", "从备份恢复", "车辆、租赁读数和设置只保存在这台设备上。"] : de ? ["Alle meine Daten sichern", "Sicherung wiederherstellen", "Autos, Leasing-Ablesungen und Einstellungen liegen nur auf diesem Gerät."] : ["Back up all my data", "Restore a backup", "Cars, lease readings and settings live only on this device."];
+      $("garage").parentNode.insertAdjacentHTML("beforeend", `<div id="backup" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px"><span class="ac-caption" style="margin:0;flex-basis:100%">${esc(B[2])}</span><button type="button" class="ac-chip" id="bk-save">${esc(B[0])}</button><label class="ac-chip" style="cursor:pointer">${esc(B[1])}<input type="file" id="bk-load" accept="application/json,.json" hidden></label><span class="ac-caption" id="bk-msg" role="status" style="margin:0"></span></div>`);
+      $("bk-save").addEventListener("click", () => { const d = new Date(); G.download(`allo-cars-backup-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}.json`, JSON.stringify(G.backup(), null, 1)); });
+      $("bk-load").addEventListener("change", (e) => {
+        const f = e.target.files[0]; if (!f) return;
+        f.text().then((t) => { G.restore(JSON.parse(t)); location.reload(); }).catch(() => { $("bk-msg").textContent = zh ? "这个文件不是 Allo Cars 备份。" : de ? "Diese Datei ist keine Allo-Cars-Sicherung." : "That file is not an Allo Cars backup."; });
+      });
+    }
     $("add-cancel").hidden = !cars.length;
   }
   if (MINE) {
@@ -759,7 +768,7 @@
       const all = JSON.parse(localStorage.getItem("allo-cars-lease") || "null") || { v: 1, cars: {} };
       const st = (all.cars = all.cars || {})[current.car.id];
       if (!st) return;
-      st.readings = (st.readings || []).filter((r) => r.date !== today).concat([{ date: today, km: v }]).sort((a, b) => a.date < b.date ? -1 : 1).slice(-200);
+      st.readings = (st.readings || []).filter((r) => r.date !== today).concat([{ date: today, km: v }]).sort((a, b) => a.date < b.date ? -1 : 1).slice(-5000);
       localStorage.setItem("allo-cars-lease", JSON.stringify(all));
     } catch (err) { return; }
     const box = $("leasing");
