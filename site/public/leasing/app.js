@@ -37,6 +37,13 @@
     src: { pace: (n) => `到目前为止每月 ${n}（按你的读数）`, plan: (n) => `按你的计划每月 ${n}`, allowance: (n) => `按合同每月 ${n}`, set: (n) => `你设的数；到目前为止每月 ${n}` },
     reset: "恢复", allowed: "允许", readings: "你的读数", expected: "预计", chart: "里程表读数与允许里程",
     notStarted: (d) => `租期 ${d} 开始`,
+    quick: "不用每次打开这个页面也能记录",
+    loggedMsg: (k, d) => `已保存 ${k}（${d}）`, last: (d, n) => `最近一次读数：${d}（${n} 天前）`, lastNone: "还没有读数。",
+    q1: "快捷链接：在链接末尾加上公里数并打开，就会存为今天的读数。可以加到书签或主屏幕。", copy: "复制", copied: "已复制",
+    q2: "手机快捷指令（iPhone“快捷指令”、安卓自动化应用）：先“询问数字”，再“打开网址”：上面的链接 + 这个数字。放到主屏幕上，一点就能记。",
+    q3: "Home Assistant：如果你的车有接入（例如 Volvo 集成里的里程传感器），这个自动化每月最后一天给手机发通知，点开就会记下当时的里程。把 sensor 和 notify 换成你自己的。",
+    q4: "读数保存在打开链接的那个浏览器里，所以要用你平时看这个页面的同一个浏览器（iPhone 上：同一个浏览器或同一个已安装的应用）。",
+    haTitle: "租赁里程", haMsg: "里程表", haTap: "点一下记录",
     forCar: "租的是", noCar: "在“我的车”里加上你的车，每辆车可以单独保存租约。",
   } : de ? {
     locale: "de-DE",
@@ -63,6 +70,13 @@
     src: { pace: (n) => `Bisher ${n} im Monat (aus deinen Ablesungen)`, plan: (n) => `${n} im Monat laut deinem Plan`, allowance: (n) => `${n} im Monat laut Vertrag`, set: (n) => `Von dir gesetzt; bisher ${n} im Monat` },
     reset: "Zurücksetzen", allowed: "Erlaubt", readings: "Deine Ablesungen", expected: "Erwartet", chart: "Kilometerstand und erlaubte Kilometer",
     notStarted: (d) => `Leasing beginnt am ${d}`,
+    quick: "Eintragen, ohne diese Seite aufzumachen",
+    loggedMsg: (k, d) => `${k} für ${d} gespeichert`, last: (d, n) => `Letzte Ablesung: ${d} (vor ${n} Tagen)`, lastNone: "Noch keine Ablesung.",
+    q1: "Schnell-Link: Kilometerstand hinten anhängen und öffnen, dann ist er als heutige Ablesung gespeichert. Als Lesezeichen oder auf dem Startbildschirm.", copy: "Kopieren", copied: "Kopiert",
+    q2: "Kurzbefehl auf dem Handy (iPhone „Kurzbefehle“, Android eine Automatisierungs-App): „Nach Zahl fragen“, dann „URL öffnen“ mit dem Link oben + der Zahl. Auf den Startbildschirm legen, dann ist es ein Tipp.",
+    q3: "Home Assistant: Wenn dein Auto dort eingebunden ist (z. B. der Kilometerstand-Sensor der Volvo-Integration), schickt diese Automatisierung am letzten Tag jedes Monats eine Mitteilung ans Handy. Ein Tipp darauf trägt den aktuellen Stand ein. Sensor und notify durch deine ersetzen.",
+    q4: "Die Ablesung wird in dem Browser gespeichert, in dem du den Link öffnest. Nimm denselben Browser wie für diese Seite (auf dem iPhone: denselben Browser oder dieselbe installierte App).",
+    haTitle: "Leasing-km", haMsg: "Kilometerstand", haTap: "Tippen zum Eintragen",
     forCar: "Leasing für", noCar: "Leg dein Auto unter „Meine Autos“ an, dann merkt sich die Seite das Leasing für jedes Auto.",
   } : {
     locale: "en-GB",
@@ -89,6 +103,13 @@
     src: { pace: (n) => `${n} a month so far (from your readings)`, plan: (n) => `${n} a month from your plan`, allowance: (n) => `${n} a month from the contract`, set: (n) => `Set by you; so far ${n} a month` },
     reset: "Reset", allowed: "Allowed", readings: "Your readings", expected: "Expected", chart: "Odometer and allowed km",
     notStarted: (d) => `Lease starts ${d}`,
+    quick: "Log it without opening this page",
+    loggedMsg: (k, d) => `Saved ${k} for ${d}`, last: (d, n) => `Last reading: ${d} (${n} days ago)`, lastNone: "No reading yet.",
+    q1: "Quick-log link: add the km at the end and open it, and it is saved as today's reading. Bookmark it or add it to your home screen.", copy: "Copy", copied: "Copied",
+    q2: "Phone shortcut (Shortcuts on iPhone, an automation app on Android): \u201cAsk for number\u201d, then \u201cOpen URL\u201d with the link above + that number. Put it on the home screen and it is one tap.",
+    q3: "Home Assistant: if your car is connected there (the Volvo integration has an odometer sensor, for example), this automation sends your phone a notification on the last day of each month. Tapping it logs the odometer of that moment. Replace the sensor and notify names with yours.",
+    q4: "The reading is saved in the browser that opens the link, so use the same browser you use for this page (on iPhone: the same browser or the same installed app).",
+    haTitle: "Lease km", haMsg: "Odometer", haTap: "Tap to log it",
     forCar: "Lease for", noCar: "Add your car on My cars and the page keeps a lease for each car.",
   };
   const L = window.AlloLease, G = window.AlloGarage;
@@ -110,7 +131,7 @@
     buf: D.buf, extra: D.extra, refund: D.refund, rate: D.rate, drive: null,
     start: "", months: D.months, km: null, odo0: 0, tol: 0, pm: null, readings: [],
   });
-  let carId = "_", S = fresh();
+  let carId = "_", S = fresh(), logged = null;
 
   const numP = (q, k, lo, hi) => { const v = parseFloat(q.get(k)); return isFinite(v) && v >= lo && v <= hi ? v : null; };
   function fromUrl(q) {
@@ -135,14 +156,20 @@
     carId = pick ? pick.id : "_";
     const all = store() || { v: 1, cars: {} };
     const saved = all.cars && all.cars[carId];
-    const own = ["plan", "buf", "extra", "refund", "rate", "drive", "start", "months", "km", "odo0", "odo", "tol", "pm"].some((k) => q.has(k));
-    if (own) {
-      S = fromUrl(q);
-      S.readings = saved && Array.isArray(saved.readings) ? saved.readings.slice() : [];
-      const odo = numP(q, "odo", 0, 2000000);
-      if (odo != null) addReading(L.day(q.get("at")) ? q.get("at") : todayIso(), odo, true);
-    } else if (saved) S = Object.assign(fresh(), saved);
-    else S = fresh();
+    // start from what is kept for this car; link parameters change only what they name, so a quick-log
+    // link (?mine=<id>&odo=<km>&at=<date>) adds a reading and leaves the plan and contract as they are
+    S = Object.assign(fresh(), saved || {});
+    S.readings = Array.isArray(S.readings) ? S.readings.slice() : [];
+    const u = fromUrl(q);
+    ["plan", "buf", "extra", "refund", "rate", "drive", "start", "months", "km", "odo0", "tol", "pm"].forEach((k) => { if (q.has(k) && (k === "start" ? L.day(q.get(k)) : isFinite(parseFloat(q.get(k))))) S[k] = u[k]; });
+    if (q.has("plan")) S.plan = u.plan;
+    const odo = numP(q, "odo", 0, 2000000);
+    if (odo != null) {
+      const d = L.day(q.get("at")) && q.get("at") <= todayIso() ? q.get("at") : todayIso();
+      const had = S.readings.find((r) => r.date === d && r.km === Math.round(odo));
+      addReading(d, odo, true);
+      if (!had) logged = { date: d, km: Math.round(odo) };
+    }
   }
   function save() {
     const all = store() || { v: 1, cars: {} };
@@ -297,6 +324,42 @@
     return svg + "</svg>";
   }
 
+  /* ---------- quick log: link, phone shortcut, Home Assistant ---------- */
+  function drawQuick() {
+    const base = `${location.origin}${location.pathname}?${carId !== "_" ? `mine=${encodeURIComponent(carId)}&` : ""}odo=`;
+    const ha = `${location.origin}${location.pathname}?${carId !== "_" ? `mine=${encodeURIComponent(carId)}&` : ""}at={{ now().date() }}&odo={{ km }}`;
+    const yaml = [
+      `alias: ${T.haTitle}`,
+      "triggers:",
+      "  - trigger: time",
+      '    at: "20:00:00"',
+      "conditions:",
+      "  - condition: template",
+      '    value_template: "{{ (now() + timedelta(days=1)).day == 1 }}"',
+      "variables:",
+      "  km: \"{{ states('sensor.YOUR_CAR_odometer') | float(0) | round(0) | int }}\"",
+      "actions:",
+      "  - action: notify.mobile_app_YOUR_PHONE",
+      "    data:",
+      `      title: "${T.haTitle}"`,
+      `      message: "${T.haMsg} {{ km }} km. ${T.haTap}"`,
+      "      data:",
+      `        url: "${ha}"`,
+      `        clickAction: "${ha}"`,
+    ].join("\n");
+    $("quick-s").textContent = T.quick;
+    $("quick-body").innerHTML = `<ol><li>${esc(T.q1)}<div class="link"><code id="qlink">${esc(base)}</code><button type="button" class="ac-btn ac-btn--quiet" data-copy="qlink">${esc(T.copy)}</button></div></li>`
+      + `<li>${esc(T.q2)}</li><li>${esc(T.q3)}<pre id="qyaml">${esc(yaml)}</pre><button type="button" class="ac-btn ac-btn--quiet" data-copy="qyaml" style="margin-top:6px">${esc(T.copy)}</button></li></ol><p class="ac-caption">${esc(T.q4)}</p>`;
+  }
+  function drawLast() {
+    const r = S.readings[S.readings.length - 1];
+    let el = $("last");
+    if (!el) { $("reads").insertAdjacentHTML("beforebegin", '<p class="ac-caption stale" id="last"></p>'); el = $("last"); }
+    if (!r) { el.textContent = T.lastNone; return; }
+    const n = Math.max(0, Math.round((L.day(todayIso()) - L.day(r.date)) / 86400000));
+    el.textContent = T.last(date(r.date), n);
+  }
+
   /* ---------- cars ---------- */
   function drawCars() {
     const cars = G ? G.list() : [];
@@ -306,8 +369,8 @@
       : `<span class="ac-caption" style="margin:0">${esc(T.noCar)} <a href="${PRE}/cars/">${esc(zh ? "我的车" : de ? "Meine Autos" : "My cars")}</a></span>`;
   }
 
-  function changed() { save(); url(); drawContract(); drawPlanOut(); drawCheckpoints(); }
-  function drawAll() { drawCars(); drawPlan(); changed(); }
+  function changed() { save(); url(); drawContract(); drawLast(); drawPlanOut(); drawCheckpoints(); }
+  function drawAll() { drawCars(); drawPlan(); drawQuick(); changed(); }
 
   /* ---------- events ---------- */
   $("sc").addEventListener("input", (e) => {
@@ -358,8 +421,21 @@
     S = Object.assign(fresh(), (all.cars || {})[carId] || {});
     drawAll();
   });
+  $("quick-body").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-copy]"); if (!b) return;
+    const txt = $(b.dataset.copy).textContent;
+    const done = () => { b.textContent = T.copied; setTimeout(() => { b.textContent = T.copy; }, 1500); };
+    try { navigator.clipboard.writeText(txt).then(done, () => {}); } catch (err) {}
+  });
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawCheckpoints, 150); });
 
   load();
   drawAll();
+  if (logged) {
+    $("logged").hidden = false;
+    $("logged").textContent = `✓ ${T.loggedMsg(km(logged.km), date(logged.date))}`;
+    const target = L.day(S.start) ? $("checkpoints") : $("odo");
+    requestAnimationFrame(() => target.scrollIntoView({ block: "start" }));
+    $("odo").scrollIntoView({ block: "start" });
+  }
 })();

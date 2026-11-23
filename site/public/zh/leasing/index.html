@@ -94,6 +94,14 @@
   .ac-chart svg text { font: 600 11px/1 var(--font-sign); fill: var(--ink-muted); }
   .more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
   .tight { margin: 0; }
+  #logged { display: inline-block; margin: 0 0 10px; }
+  .quick ol { margin: 8px 0 0; padding-left: 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .quick, .quick li, .quick pre { min-width: 0; max-width: 100%; }
+  .quick li { line-height: 1.45; }
+  .quick .link { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .quick .link code { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 12px; background: var(--surface-200); padding: 6px 8px; border-radius: var(--radius-xs); }
+  .quick pre { margin: 6px 0 0; padding: 10px; background: var(--surface-200); border-radius: var(--radius-xs); font-size: 11.5px; line-height: 1.4; overflow-x: auto; white-space: pre; }
+  .stale { color: var(--ink-muted); margin: 8px 0 0; }
 </style>
 </head>
 <body>
@@ -187,6 +195,7 @@
       </section>
 
       <section class="ac-card" id="odo">
+        <p class="ac-status ac-status--ok" id="logged" role="status" hidden></p>
         <h2 class="ac-card__title"><span class="step">3</span>里程表</h2>
         <p class="ac-card__desc">时不时看一眼仪表盘记下来。每多一次读数，预测就更准。</p>
         <div class="row">
@@ -195,6 +204,7 @@
           <button type="button" class="ac-btn ac-btn--gold" id="radd">保存读数</button>
         </div>
         <ul class="reads" id="reads"></ul>
+        <details class="more quick" id="quick"><summary id="quick-s"></summary><div id="quick-body"></div></details>
       </section>
 
       <section class="ac-card" id="checkpoints">
@@ -300,6 +310,6 @@
   </main>
 </div>
 <script src="/leasing/lease.js?v=46d3f144cd"></script>
-<script src="/leasing/app.js?v=2d69ee4d66"></script>
+<script src="/leasing/app.js?v=4d332aa5c4"></script>
 </body>
 </html>
