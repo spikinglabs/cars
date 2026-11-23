@@ -178,11 +178,14 @@
       for (var i = 1; i < pts.length; i++) if (t <= pts[i][0]) { var a = pts[i - 1], b = pts[i]; return b[0] === a[0] ? b[1] : a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0]); }
       return pts[pts.length - 1][1];
     };
+    var near = function (t) { return pts.some(function (p) { return Math.abs(p[0] - t) <= 5 * DAY; }); };
     var d0 = new Date(c.start), rows = [];
     for (var m = 0; m < c.months; m++) {
       var a = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + m, d0.getUTCDate()), b = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + m + 1, d0.getUTCDate());
-      if (b <= last) rows.push({ start: iso(a), km: Math.round(odo(b) - odo(a)), kind: "past", frac: 1 });
-      else if (a < last) rows.push({ start: iso(a), km: Math.round(odo(last) - odo(a)), kind: "now", frac: (last - a) / (b - a) });
+      // measured: a reading (or the handover) within 5 days of each end of the month; otherwise the month
+      // only gets its share of km spread evenly between two readings further apart, so it is an estimate
+      if (b <= last) rows.push({ start: iso(a), km: Math.round(odo(b) - odo(a)), kind: "past", frac: 1, est: !(near(a) && near(b)) });
+      else if (a < last) rows.push({ start: iso(a), km: Math.round(odo(last) - odo(a)), kind: "now", frac: (last - a) / (b - a), est: !near(a) });
       else rows.push({ start: iso(a), km: null, kind: "future", frac: 0 });
     }
     var start = c.start, end = c.end;
@@ -198,15 +201,15 @@
     en: { canDrive: function (n) { return "From now on you can drive " + n + " a month"; }, avg: function (n) { return "Allowance " + n + " km a month on average"; },
       left: function (km, m) { return km + " km left for " + m + " months"; }, over: function (km) { return km + " km over the whole allowance already"; },
       time: "Lease time gone", km: "Km used", note: "Km bar past the time line = driving faster than the allowance.",
-      allow: function (n) { return "allowance " + n + "/month"; }, legend: function (n) { return '<span class="sw o"></span>over the allowance <span class="sw u"></span>within <span class="sw f"></span>left: ' + n + " km a month"; } },
+      allow: function (n) { return "allowance " + n + "/month"; }, legend: function (n) { return '<span class="sw o"></span>over the allowance <span class="sw u"></span>within <span class="sw f"></span>left: ' + n + ' km a month<br><span class="sw e"></span>hatched: estimated, the km between two readings spread evenly over the days'; } },
     de: { canDrive: function (n) { return "Ab jetzt kannst du " + n + " im Monat fahren"; }, avg: function (n) { return "Kontingent im Schnitt " + n + " km im Monat"; },
       left: function (km, m) { return "noch " + km + " km für " + m + " Monate"; }, over: function (km) { return "schon " + km + " km über dem ganzen Kontingent"; },
       time: "Laufzeit vorbei", km: "Kilometer verbraucht", note: "Kilometer-Balken hinter der Zeitlinie = schneller als das Kontingent.",
-      allow: function (n) { return "Kontingent " + n + "/Monat"; }, legend: function (n) { return '<span class="sw o"></span>über dem Kontingent <span class="sw u"></span>darunter <span class="sw f"></span>übrig: ' + n + " km im Monat"; } },
+      allow: function (n) { return "Kontingent " + n + "/Monat"; }, legend: function (n) { return '<span class="sw o"></span>über dem Kontingent <span class="sw u"></span>darunter <span class="sw f"></span>übrig: ' + n + ' km im Monat<br><span class="sw e"></span>schraffiert: geschätzt, die km zwischen zwei Ablesungen gleichmäßig auf die Tage verteilt'; } },
     zh: { canDrive: function (n) { return "今后每月可开 " + n; }, avg: function (n) { return "额度平均每月 " + n + " km"; },
       left: function (km, m) { return "还剩 " + km + " km、" + m + " 个月"; }, over: function (km) { return "已经超出全部额度 " + km + " km"; },
       time: "租期已过", km: "公里已用", note: "公里条跑到时间线（竖线）前面 = 开得比额度快。",
-      allow: function (n) { return "额度 " + n + "/月"; }, legend: function (n) { return '<span class="sw o"></span>开多的月份 <span class="sw u"></span>没超的月份 <span class="sw f"></span>今后每月可开 ' + n + " km"; } }
+      allow: function (n) { return "额度 " + n + "/月"; }, legend: function (n) { return '<span class="sw o"></span>开多的月份 <span class="sw u"></span>没超的月份 <span class="sw f"></span>今后每月可开 ' + n + ' km<br><span class="sw e"></span>斜线：估算，两次读数之间的公里按天平均分摊'; } }
   };
   function words(lang) { return WORDS[lang] || WORDS.en; }
   /* Option A: the km budget. o.words: canDrive(n), avg(n), left(km, months), time, km, note, over */
@@ -234,11 +237,13 @@
     var mx = Math.max.apply(null, vals.concat([a * 1.5])) * 1.08, P = 4, Tp = 16, B = 20;
     var bw = (W - 2 * P) / m.rows.length, y = function (v) { return Tp + (1 - Math.max(0, v) / mx) * (H - Tp - B); };
     var f1 = function (n) { return n.toFixed(1); };
-    var svg = '<svg class="lbars" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + o.words.allow(fmt(a)) + '">';
+    var svg = '<svg class="lbars" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + o.words.allow(fmt(a)) + '">'
+      + '<defs><pattern id="lbh" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.2" height="5" fill="var(--ink)" opacity=".45"/></pattern></defs>';
     m.rows.forEach(function (r, i) {
       var x = P + i * bw + Math.min(1, bw * 0.12), w = Math.max(1, bw - 2 * Math.min(1, bw * 0.12)), v = r.kind === "future" ? fut : r.km;
       var cls = r.kind === "future" ? "f" : (r.kind === "now" ? r.km / Math.max(r.frac, 0.05) : r.km) > a ? "o" : "u";
-      svg += '<rect class="' + cls + (r.kind === "now" ? " n" : "") + '" x="' + f1(x) + '" y="' + f1(y(v)) + '" width="' + f1(w) + '" height="' + f1(Math.max(0, H - B - y(v))) + '"><title>' + r.start.slice(0, 7) + ": " + fmt(v) + " km</title></rect>";
+      svg += '<rect class="' + cls + (r.kind === "now" ? " n" : "") + (r.est ? " e" : "") + '" x="' + f1(x) + '" y="' + f1(y(v)) + '" width="' + f1(w) + '" height="' + f1(Math.max(0, H - B - y(v))) + '"><title>' + r.start.slice(0, 7) + ": " + fmt(v) + " km</title></rect>";
+      if (r.est) svg += '<rect class="h" x="' + f1(x) + '" y="' + f1(y(v)) + '" width="' + f1(w) + '" height="' + f1(Math.max(0, H - B - y(v))) + '" fill="url(#lbh)"/>';
     });
     svg += '<line class="al" x1="' + P + '" x2="' + (W - P) + '" y1="' + f1(y(a)) + '" y2="' + f1(y(a)) + '"/><text x="' + (W - P) + '" y="' + f1(y(a) - 4) + '" text-anchor="end">' + o.words.allow(fmt(a)) + "</text>";
     for (var i = 0; i < m.rows.length; i += 12) svg += '<text x="' + f1(P + i * bw) + '" y="' + (H - 5) + '">' + (o.month ? o.month(m.rows[i].start) : m.rows[i].start.slice(0, 7)) + "</text>";

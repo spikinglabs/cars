@@ -77,10 +77,16 @@ test("months: km per month from readings, the km a month left, and the budget an
   assert.equal(m.rows.length, 36);
   assert.equal(m.rows[0].kind, "past");
   assert.ok(Math.abs(m.rows[0].km - (300 + 700 * 21 / 31)) < 1); // 21 of the 31 days from Nov 10 to Dec 11
+  assert.equal(m.rows[0].est, true); // readings on Nov 10 and Dec 11: Dec 1 is not measured
   assert.equal(m.rows[1].kind, "now");
   assert.equal(m.rows[2].kind, "future");
   assert.equal(m.per_month_to_stay_within, L.track(c, [{ date: "2026-12-11", km: 1000 }], { today: "2026-12-20" }).per_month_to_stay_within);
   const html = L.budgetHtml(m, { words: L.words("en") });
   assert.match(html, /From now on you can drive <b class="(neg|pos)">\d+ km<\/b> a month/);
-  assert.match(L.barsSvg(m, { words: L.words("zh") }), /^<svg class="lbars"/);
+  const svg = L.barsSvg(m, { words: L.words("zh") });
+  assert.match(svg, /^<svg class="lbars"/);
+  assert.match(svg, /fill="url\(#lbh\)"/);
+  const monthly = L.months(c, [{ date: "2026-12-01", km: 600 }, { date: "2027-01-02", km: 1300 }], { today: "2027-01-05" });
+  assert.equal(monthly.rows[0].est, false);
+  assert.equal(monthly.rows[1].est, false);
 });
