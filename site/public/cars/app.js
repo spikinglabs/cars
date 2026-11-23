@@ -151,13 +151,16 @@
     if (!$("backup") && G.backup) {
       const B = zh ? ["备份我的全部数据", "从备份恢复", "车辆、租赁读数和设置只保存在这台设备上。"] : de ? ["Alle meine Daten sichern", "Sicherung wiederherstellen", "Autos, Leasing-Ablesungen und Einstellungen liegen nur auf diesem Gerät."] : ["Back up all my data", "Restore a backup", "Cars, lease readings and settings live only on this device."];
       $("garage").parentNode.insertAdjacentHTML("beforeend", `<div id="backup" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px"><span class="ac-caption" style="margin:0;flex-basis:100%">${esc(B[2])}</span><button type="button" class="ac-chip" id="bk-save">${esc(B[0])}</button><label class="ac-chip" style="cursor:pointer">${esc(B[1])}<input type="file" id="bk-load" accept="application/json,.json" hidden></label><span class="ac-caption" id="bk-msg" role="status" style="margin:0"></span></div>`);
-      $("bk-save").addEventListener("click", () => { const d = new Date(); G.download(`allo-cars-backup-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}.json`, JSON.stringify(G.backup(), null, 1)); });
+      $("bk-save").addEventListener("click", () => G.saveBackup());
+      $("garage").parentNode.insertAdjacentHTML("afterbegin", `<p id="bk-remind" hidden></p>`);
+      addEventListener("ac:backup", () => G.backupReminder($("bk-remind")));
       $("bk-load").addEventListener("change", (e) => {
         const f = e.target.files[0]; if (!f) return;
         f.text().then((t) => { G.restore(JSON.parse(t)); location.reload(); }).catch(() => { $("bk-msg").textContent = zh ? "这个文件不是 Allo Cars 备份。" : de ? "Diese Datei ist keine Allo-Cars-Sicherung." : "That file is not an Allo Cars backup."; });
       });
     }
     $("add-cancel").hidden = !cars.length;
+    if ($("bk-remind")) G.backupReminder($("bk-remind"));
   }
   if (MINE) {
   $("garage").addEventListener("click", (e) => {

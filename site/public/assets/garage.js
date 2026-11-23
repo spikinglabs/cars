@@ -122,7 +122,7 @@
     try {
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
-        if (k && k.indexOf(PREFIX) === 0) { var v = localStorage.getItem(k); try { data[k] = JSON.parse(v); } catch (e) { data[k] = v; } }
+        if (k && k.indexOf(PREFIX) === 0 && k.indexOf(BK) !== 0) { var v = localStorage.getItem(k); try { data[k] = JSON.parse(v); } catch (e) { data[k] = v; } }
       }
     } catch (e) {}
     return { app: "allo-cars", v: 1, exported: new Date().toISOString(), data: data };
@@ -154,6 +154,47 @@
     });
     try { dispatchEvent(new CustomEvent("ac:garage", { detail: read() })); } catch (e) {}
     return n;
+  }
+  /* Gentle backup reminder: data lives only in this browser. Shown when there is something worth keeping
+     and the last backup (or the day data first appeared) is 30+ days ago; "Later" hides it for 30 days. */
+  var BK = "allo-cars-backup", DAY = 864e5;
+  function today() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function bkState() { try { return JSON.parse(localStorage.getItem(BK) || "{}") || {}; } catch (e) { return {}; } }
+  function bkSet(o) { try { localStorage.setItem(BK, JSON.stringify(Object.assign(bkState(), o))); } catch (e) {} }
+  function hasData() {
+    if (read().cars.length) return true;
+    try { var l = JSON.parse(localStorage.getItem("allo-cars-lease") || "null"); return !!(l && l.cars && Object.keys(l.cars).some(function (k) { return (l.cars[k].readings || []).length; })); } catch (e) { return false; }
+  }
+  function backupDue(now) {
+    if (!hasData()) return null;
+    var st = bkState(), t = now || today();
+    if (!st.first && !st.last) { bkSet({ first: t }); return null; }
+    var days = function (a) { return Math.round((Date.parse(t) - Date.parse(a)) / DAY); };
+    if (st.snooze && st.snooze > t) return null;
+    var since = days(st.last || st.first);
+    return since >= 30 ? { last: st.last || null, days: since } : null;
+  }
+  function saveBackup() {
+    download("allo-cars-backup-" + today() + ".json", JSON.stringify(backup(), null, 1), "application/json");
+    bkSet({ last: today(), snooze: null });
+    try { dispatchEvent(new CustomEvent("ac:backup")); } catch (e) {}
+  }
+  function reminder(el) {
+    if (!el) return;
+    var due = backupDue(), lang = (document.documentElement.lang || "en").slice(0, 2);
+    if (!due) { el.hidden = true; el.innerHTML = ""; return; }
+    var W = lang === "zh" ? { never: "你的车辆和读数只保存在这个浏览器里。备份一下，换手机或清除数据时就不会丢。", last: function (n) { return "上次备份是 " + n + " 天前。"; }, now: "立即备份", later: "以后再说" }
+      : lang === "de" ? { never: "Deine Autos und Ablesungen liegen nur in diesem Browser. Sichere sie, damit sie ein neues Handy oder gelöschte Browserdaten überstehen.", last: function (n) { return "Letzte Sicherung vor " + n + " Tagen."; }, now: "Jetzt sichern", later: "Später" }
+      : { never: "Your cars and readings live only in this browser. Back them up so they survive a new phone or cleared browser data.", last: function (n) { return "Last backup " + n + " days ago."; }, now: "Back up now", later: "Later" };
+    el.hidden = false;
+    el.className = "ac-bk";
+    el.innerHTML = '<span>' + (due.last ? W.last(due.days) : W.never) + '</span><button type="button" class="ac-chip" data-bk="now">' + W.now + '</button><button type="button" class="ac-chip" data-bk="later">' + W.later + '</button>';
+    el.onclick = function (e) {
+      var b = e.target.closest("[data-bk]"); if (!b) return;
+      if (b.dataset.bk === "now") saveBackup();
+      else { var d = new Date(Date.now() + 30 * DAY); bkSet({ snooze: d.toISOString().slice(0, 10) }); }
+      reminder(el);
+    };
   }
   function download(name, text, type) {
     var a = document.createElement("a");
@@ -287,6 +328,7 @@
       return out;
     },
     backup: backup, restore: restore, mergeLease: mergeLease, download: download,
+    backupDue: backupDue, saveBackup: saveBackup, backupReminder: reminder,
     electric: function (fuel) { return fuel === "electric"; },
     plugIn: function (fuel) { return /^phev/.test(fuel); }
   };

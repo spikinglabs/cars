@@ -117,3 +117,14 @@ test("backup holds every allo-cars key; restore merges cars by id and lease read
   assert.deepStrictEqual(lease.cars[car.id].readings.map((r) => r.date), ["2026-05-01", "2026-08-01"]);
   assert.throws(() => b.G.restore({ hello: 1 }), /not an Allo Cars backup/);
 });
+
+test("backup reminder: only with data, 30 days after data first appeared or the last backup, snooze hides it", () => {
+  const G = load();
+  assert.strictEqual(G.backupDue("2026-01-01"), null); // nothing saved yet
+  G.add({ car: "volvo-ex30", name: "Volvo EX30", make: "Volvo", model: "EX30", fuel: "electric", year: 2026 });
+  assert.strictEqual(G.backupDue("2026-01-01"), null); // first sight: starts the clock
+  assert.strictEqual(G.backupDue("2026-01-20"), null);
+  const due = G.backupDue("2026-02-05");
+  assert.strictEqual(due.last, null);
+  assert.strictEqual(due.days, 35);
+});

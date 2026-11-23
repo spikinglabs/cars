@@ -34,9 +34,9 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=fd3c12cdce">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=731c2aee97">
 <script src="/assets/site.js?v=92ed0a6c5f"></script>
-<script src="/assets/garage.js?v=dab5097336"></script>
+<script src="/assets/garage.js?v=1b1e69cb5f"></script>
 <style>
   body { margin: 0; background: var(--surface-50); }
   main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
@@ -79,8 +79,8 @@
   .opt tr.on td { background: var(--surface-200); }
   .neg { color: var(--success); }
   .pos { color: var(--danger); }
-  .reads { display: grid; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
-  .reads li { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+  .reads { display: grid; gap: 0; margin: 8px 0 0; padding: 0; list-style: none; }
+  .reads li { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 2px 0; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
   .chk td:first-child { white-space: normal; }
   .ac-readout .pos, .ac-readout .neg { line-height: 1.05; }
   .chk small { display: block; color: var(--ink-muted); font-weight: 500; }
@@ -95,6 +95,7 @@
   .more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
   .tight { margin: 0; }
   #logged { display: inline-block; margin: 0 0 10px; }
+  .quick { margin-top: 10px; }
   .quick ol { margin: 8px 0 0; padding-left: 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .quick, .quick li, .quick pre { min-width: 0; max-width: 100%; }
   .quick li { line-height: 1.45; }
@@ -136,7 +137,7 @@
   </form>
 </div>
 <script src="/assets/search.js?v=b67806420b" defer></script>
-<script src="/assets/garage.js?v=dab5097336" defer></script>
+<script src="/assets/garage.js?v=1b1e69cb5f" defer></script>
 <script src="/assets/notices.js?v=0628cb42ae" defer></script>
 <aside class="ac-apphint" data-app-hint hidden>
   <span class="ac-apphint__text" data-app-hint-text>可以把 Allo Cars 添加到主屏幕，像 App 一样使用。</span>
@@ -310,6 +311,6 @@
   </main>
 </div>
 <script src="/leasing/lease.js?v=6ae0a0419b"></script>
-<script src="/leasing/app.js?v=0ea2a24e89"></script>
+<script src="/leasing/app.js?v=ec330e8820"></script>
 </body>
 </html>

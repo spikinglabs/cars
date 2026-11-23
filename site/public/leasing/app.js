@@ -37,7 +37,7 @@
     src: { pace: (n) => `到目前为止每月 ${n}（按你的读数）`, plan: (n) => `按你的计划每月 ${n}`, allowance: (n) => `按合同每月 ${n}`, set: (n) => `你设的数；到目前为止每月 ${n}` },
     reset: "恢复", allowed: "允许", readings: "你的读数", expected: "预计", chart: "里程表读数与允许里程",
     notStarted: (d) => `租期 ${d} 开始`,
-    quick: "不用每次打开这个页面也能记录",
+    quick: "记录方式和备份", optHere: "在这台设备上：在上面输入，或在“我的车”的车辆卡片上输入。", optPhone: "手机快捷指令", optHome: "智能家居（Home Assistant）", showYaml: "显示自动化配置", yourData: "你的数据", showAll: (n) => `显示全部 ${n} 条读数`, showLess: "收起",
     loggedMsg: (k, d) => `已保存 ${k}（${d}）`, last: (d, n) => `最近一次读数：${d}（${n} 天前）`, lastNone: "还没有读数。",
     q1: "快捷链接：在链接末尾加上公里数并打开，就会存为今天的读数。可以加到书签或主屏幕。", copy: "复制", copied: "已复制",
     q2: "手机快捷指令（iPhone“快捷指令”、安卓自动化应用）：先“询问数字”，再“打开网址”：上面的链接 + 这个数字。放到主屏幕上，一点就能记。",
@@ -73,7 +73,7 @@
     src: { pace: (n) => `Bisher ${n} im Monat (aus deinen Ablesungen)`, plan: (n) => `${n} im Monat laut deinem Plan`, allowance: (n) => `${n} im Monat laut Vertrag`, set: (n) => `Von dir gesetzt; bisher ${n} im Monat` },
     reset: "Zurücksetzen", allowed: "Erlaubt", readings: "Deine Ablesungen", expected: "Erwartet", chart: "Kilometerstand und erlaubte Kilometer",
     notStarted: (d) => `Leasing beginnt am ${d}`,
-    quick: "Eintragen, ohne diese Seite aufzumachen",
+    quick: "Eintragen und Sichern", optHere: "Auf diesem Gerät: oben eintragen oder auf der Auto-Karte unter „Meine Autos“.", optPhone: "Kurzbefehl auf dem Handy", optHome: "Smart Home (Home Assistant)", showYaml: "Automatisierung anzeigen", yourData: "Deine Daten", showAll: (n) => `Alle ${n} Ablesungen zeigen`, showLess: "Weniger zeigen",
     loggedMsg: (k, d) => `${k} für ${d} gespeichert`, last: (d, n) => `Letzte Ablesung: ${d} (vor ${n} Tagen)`, lastNone: "Noch keine Ablesung.",
     q1: "Schnell-Link: Kilometerstand hinten anhängen und öffnen, dann ist er als heutige Ablesung gespeichert. Als Lesezeichen oder auf dem Startbildschirm.", copy: "Kopieren", copied: "Kopiert",
     q2: "Kurzbefehl auf dem Handy (iPhone „Kurzbefehle“, Android eine Automatisierungs-App): „Nach Zahl fragen“, dann „URL öffnen“ mit dem Link oben + der Zahl. Auf den Startbildschirm legen, dann ist es ein Tipp.",
@@ -109,7 +109,7 @@
     src: { pace: (n) => `${n} a month so far (from your readings)`, plan: (n) => `${n} a month from your plan`, allowance: (n) => `${n} a month from the contract`, set: (n) => `Set by you; so far ${n} a month` },
     reset: "Reset", allowed: "Allowed", readings: "Your readings", expected: "Expected", chart: "Odometer and allowed km",
     notStarted: (d) => `Lease starts ${d}`,
-    quick: "Log it without opening this page",
+    quick: "Logging and backup", optHere: "On this device: type it above, or on the car's card in My cars.", optPhone: "Phone shortcut", optHome: "Smart home (Home Assistant)", showYaml: "Show the automation", yourData: "Your data", showAll: (n) => `Show all ${n} readings`, showLess: "Show fewer",
     loggedMsg: (k, d) => `Saved ${k} for ${d}`, last: (d, n) => `Last reading: ${d} (${n} days ago)`, lastNone: "No reading yet.",
     q1: "Quick-log link: add the km at the end and open it, and it is saved as today's reading. Bookmark it or add it to your home screen.", copy: "Copy", copied: "Copied",
     q2: "Phone shortcut (Shortcuts on iPhone, an automation app on Android): \u201cAsk for number\u201d, then \u201cOpen URL\u201d with the link above + that number. Put it on the home screen and it is one tap.",
@@ -140,7 +140,7 @@
     buf: D.buf, extra: D.extra, refund: D.refund, rate: D.rate, drive: null,
     start: "", months: D.months, km: null, odo0: 0, tol: 0, pm: null, readings: [],
   });
-  let carId = "_", S = fresh(), logged = null;
+  let carId = "_", S = fresh(), logged = null, showAllReads = false;
 
   const numP = (q, k, lo, hi) => { const v = parseFloat(q.get(k)); return isFinite(v) && v >= lo && v <= hi ? v : null; };
   function fromUrl(q) {
@@ -272,9 +272,11 @@
     set("start", S.start); set("km", S.km); set("odo0", S.odo0 || ""); set("tol", S.tol || "");
     set("buf", S.buf); $("bufr").value = S.buf; set("extra", S.extra); set("refund", S.refund); set("rate", S.rate);
     if (!$("rdate").value) $("rdate").value = todayIso();
+    const all = S.readings.slice().reverse(), shown = showAllReads ? all : all.slice(0, 3);
     $("reads").innerHTML = S.readings.length
-      ? S.readings.slice().reverse().map((r) => `<li><span>${esc(date(r.date))}</span><strong>${esc(km(r.km))}</strong><button type="button" class="ac-btn ac-btn--quiet" data-rm="${esc(r.date)}">${esc(T.remove)}</button></li>`).join("")
+      ? shown.map((r) => `<li><span>${esc(date(r.date))}</span><strong>${esc(km(r.km))}</strong><button type="button" class="ac-btn ac-btn--quiet" data-rm="${esc(r.date)}">${esc(T.remove)}</button></li>`).join("")
       : `<li class="ac-caption" style="border:0">${esc(T.noReads)}</li>`;
+    if (all.length > 3) $("reads").insertAdjacentHTML("beforeend", `<li style="border:0;justify-content:flex-start"><button type="button" class="ac-btn ac-btn--quiet" id="reads-more">${esc(showAllReads ? T.showLess : T.showAll(all.length))}</button></li>`);
   }
 
   /* ---------- checkpoints ---------- */
@@ -357,8 +359,10 @@
       `        clickAction: "${ha}"`,
     ].join("\n");
     $("quick-s").textContent = T.quick;
-    $("quick-body").innerHTML = `<ol><li>${esc(T.q1)}<div class="link"><code id="qlink">${esc(base)}</code><button type="button" class="ac-btn ac-btn--quiet" data-copy="qlink">${esc(T.copy)}</button></div></li>`
-      + `<li>${esc(T.q2)}</li><li>${esc(T.q3)}<pre id="qyaml">${esc(yaml)}</pre><button type="button" class="ac-btn ac-btn--quiet" data-copy="qyaml" style="margin-top:6px">${esc(T.copy)}</button></li></ol><p class="ac-caption">${esc(T.q4)}</p>`;
+    $("quick-body").innerHTML = `<ol><li>${esc(T.optHere)}</li>`
+      + `<li><strong>${esc(T.optPhone)}.</strong> ${esc(T.q1)} ${esc(T.q2)}<div class="link"><code id="qlink">${esc(base)}</code><button type="button" class="ac-btn ac-btn--quiet" data-copy="qlink">${esc(T.copy)}</button></div></li>`
+      + `<li><strong>${esc(T.optHome)}.</strong> ${esc(T.q3)}<details class="more"><summary>${esc(T.showYaml)}</summary><pre id="qyaml">${esc(yaml)}</pre><button type="button" class="ac-btn ac-btn--quiet" data-copy="qyaml" style="margin-top:6px">${esc(T.copy)}</button></details></li></ol>`
+      + `<p class="ac-caption">${esc(T.q4)}</p><h3 class="ac-param__label" style="margin:14px 0 4px">${esc(T.yourData)}</h3><div id="exports-box"></div>`;
   }
   function drawLast() {
     const r = S.readings[S.readings.length - 1];
@@ -372,7 +376,7 @@
   /* ---------- history: CSV of the readings, backup and restore of everything on this device ---------- */
   function drawExports() {
     if ($("exports")) return;
-    $("reads").insertAdjacentHTML("afterend", `<p class="ac-caption" style="margin:12px 0 6px">${esc(T.histNote)}</p><div class="presets" id="exports"><button type="button" class="ac-chip" id="x-csv">${esc(T.csv)}</button><button type="button" class="ac-chip" id="x-bak">${esc(T.bak)}</button><label class="ac-chip" style="cursor:pointer">${esc(T.res)}<input type="file" id="x-res" accept="application/json,.json" hidden></label></div><p class="ac-caption" id="x-msg" role="status" style="margin:6px 0 0"></p>`);
+    $("exports-box").insertAdjacentHTML("beforeend", `<p class="ac-caption" style="margin:0 0 6px">${esc(T.histNote)}</p><div class="presets" id="exports"><button type="button" class="ac-chip" id="x-csv">${esc(T.csv)}</button><button type="button" class="ac-chip" id="x-bak">${esc(T.bak)}</button><label class="ac-chip" style="cursor:pointer">${esc(T.res)}<input type="file" id="x-res" accept="application/json,.json" hidden></label></div><p class="ac-caption" id="x-msg" role="status" style="margin:6px 0 0"></p>`);
   }
   function csv() {
     const c = L.norm(contract()), car = G && carId !== "_" ? G.get(carId) : null;
@@ -393,8 +397,15 @@
       : `<span class="ac-caption" style="margin:0">${esc(T.noCar)} <a href="${PRE}/cars/">${esc(zh ? "我的车" : de ? "Meine Autos" : "My cars")}</a></span>`;
   }
 
-  function changed() { save(); url(); drawContract(); drawLast(); drawPlanOut(); drawCheckpoints(); }
-  function drawAll() { drawCars(); drawPlan(); drawQuick(); drawExports(); changed(); }
+  function changed() {
+    save(); url(); drawContract(); drawLast(); drawPlanOut(); drawCheckpoints();
+    if ($("bk-remind")) G.backupReminder($("bk-remind")); }
+  function drawRemind() {
+    if (!G || !G.backupReminder) return;
+    if (!$("bk-remind")) $("odo").querySelector(".ac-card__desc").insertAdjacentHTML("afterend", `<p id="bk-remind" hidden></p>`);
+    G.backupReminder($("bk-remind"));
+  }
+  function drawAll() { drawCars(); drawPlan(); drawQuick(); drawExports(); changed(); drawRemind(); }
 
   /* ---------- events ---------- */
   $("sc").addEventListener("input", (e) => {
@@ -435,6 +446,7 @@
     if (!L.day(d) || !isFinite(v) || v < 0) { $("rkm").focus(); return; }
     addReading(d, v); $("rkm").value = "";
   });
+  $("reads").addEventListener("click", (e) => { if (e.target.id === "reads-more") { showAllReads = !showAllReads; drawContract(); } });
   $("reads").addEventListener("click", (e) => { const b = e.target.closest("[data-rm]"); if (b) { S.readings = S.readings.filter((r) => r.date !== b.dataset.rm); changed(); } });
   $("cp-body").addEventListener("click", (e) => { if (e.target.id === "pm-reset") { S.pm = null; changed(); } });
   $("cars").addEventListener("click", (e) => {
@@ -453,7 +465,7 @@
   });
   $("odo").addEventListener("click", (e) => {
     if (e.target.id === "x-csv") csv();
-    if (e.target.id === "x-bak") G.download(`allo-cars-backup-${todayIso()}.json`, JSON.stringify(G.backup(), null, 1), "application/json");
+    if (e.target.id === "x-bak") G.saveBackup();
   });
   $("odo").addEventListener("change", (e) => {
     if (e.target.id !== "x-res" || !e.target.files[0]) return;
