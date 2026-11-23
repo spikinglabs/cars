@@ -101,7 +101,7 @@ test("notifications get 202 and no body", async () => {
 test("tools/list has every tool, read-only, with a schema", async () => {
   const { body } = await post({ jsonrpc: "2.0", id: 2, method: "tools/list" });
   const names = body.result.tools.map((t) => t.name);
-  assert.deepEqual(names, ["lookup_official_consumption", "get_car_versions", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "find_similar_cars", "get_car_ratings", "get_registrations", "check_ev_grant", "compare_cost_over_years", "find_chargers"]);
+  assert.deepEqual(names, ["lookup_official_consumption", "get_car_versions", "get_recalls", "check_used_car", "get_recall_statistics", "get_fuel_prices", "get_charging_prices", "get_cheapest_charging_time", "compare_cars", "get_rankings", "find_similar_cars", "get_car_ratings", "get_registrations", "check_ev_grant", "compare_cost_over_years", "plan_lease_mileage", "find_chargers"]);
   for (const t of body.result.tools) {
     assert.equal(t.annotations.readOnlyHint, true);
     assert.equal(t.inputSchema.type, "object");
@@ -347,4 +347,19 @@ test("find_chargers: says how easy living there without a wallbox is", async () 
   assert.equal(a.points_1km, 2, "the 22 kW station next door");
   assert.equal(a.verdict, "ok");
   assert.ok(a.nearest_fast_km > 3 && a.nearest_fast_km < 5, "the 300 kW station in Ehrenfeld");
+});
+
+test("plan_lease_mileage adds up trips, compares allowances and tracks the odometer", async () => {
+  const r = (await call("plan_lease_mileage", {
+    trips: [{ label: "Commute", km: 40, times: 5, per: "working_week" }, { label: "Holiday", km: 2400, per: "year" }],
+    start: "2025-01-01", months: 36, km_per_year: 12500, odometer: 11000, odometer_date: "2025-11-01", today: "2025-11-20",
+  })).structuredContent;
+  assert.equal(r.plan.km_per_year, 11600);
+  assert.equal(r.plan.suggested_km_per_year, 15000, "11,600 + 10 % rounds up to 15,000");
+  assert.ok(r.allowance_options.rows.some((o) => o.km_per_year === 12500));
+  assert.deepEqual(r.tracking.checkpoints.map((c) => c.id), ["today", "month", "quarter", "end"]);
+  assert.equal(r.tracking.per_month_source, "pace");
+  assert.ok(r.tracking.end.diff_km > 0, "about 1,100 km a month on a 12,500 km a year lease runs over");
+  assert.match(r.page, /^https:\/\/cars\.allo\.land\/leasing\/\?plan=Commute~40~5~wk\|Holiday~2400~1~y&/);
+  assert.match(r.page, /start=2025-01-01/);
 });

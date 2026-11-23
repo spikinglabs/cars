@@ -24,6 +24,7 @@ import ChargeHere from "../public/chargers/here.js";
 import Years from "../public/ev-cost/years.js";
 import Battery from "../public/recalls/battery.js";
 import Wave from "../public/registrations/wave.js";
+import Lease from "../public/leasing/lease.js";
 
 export class ToolError extends Error {}
 
@@ -910,6 +911,48 @@ async function costOverYears(get, { ev_price, fuel_car_price, years = 6, km_per_
   };
 }
 
+// ---------- lease mileage ----------
+
+// How many km a year to put in a lease from usage scenarios, what more or fewer km in the contract cost, and,
+// with a contract start, where the odometer stands at today, end of month, quarter, year and lease (as on /leasing/).
+async function planLeaseMileage(get, { trips = [], margin_pct = 10, extra_eur_per_km = 0.10, refund_eur_per_km = 0.05, rate_eur_per_month_per_1000km = 6,
+  start = null, months = 36, km_per_year = null, start_odometer = 0, odometer = null, odometer_date = null, tolerance_km = 0, km_per_month = null, today = null } = {}) {
+  if (!Array.isArray(trips)) throw new ToolError("trips must be a list of { label, km, times, per }");
+  if (start != null && !Lease.day(start)) throw new ToolError("start must be a date as YYYY-MM-DD");
+  if (odometer_date != null && !Lease.day(odometer_date)) throw new ToolError("odometer_date must be a date as YYYY-MM-DD");
+  const items = trips.slice(0, 20).map((t) => ({ label: String(t.label || "trip"), km: Number(t.km) || 0, n: t.times == null ? 1 : Number(t.times) || 0, per: { working_week: "wk", week: "w", month: "m", year: "y" }[t.per] || "y" }));
+  const p = Lease.plan(items), r = Lease.recommend(p.total, margin_pct);
+  const months_ = clamp(months, 1, 120, 36);
+  const contractKm = km_per_year || (p.total ? r.step_2500 : null);
+  const c = Lease.norm({ start: "2000-01-01", months: months_, km: contractKm || 1000, extra: extra_eur_per_km, refund: refund_eur_per_km, tol: tolerance_km, rate: rate_eur_per_month_per_1000km });
+  const drive = p.total || contractKm || 0;
+  const base = Math.max(2500, Math.round(drive / 2500) * 2500);
+  const steps = [...new Set([-5000, -2500, 0, 2500, 5000].map((d) => base + d).filter((a) => a >= 2500).concat(contractKm ? [contractKm] : []))].sort((a, b) => a - b);
+  const refRate = (drive - base) / 1000 * c.rate * months_;
+  const options = drive ? Lease.options(drive, c, steps).map((o) => ({ km_per_year: o.km, rate_change_eur: Math.round(o.rate_eur - refRate), end_settlement_eur: o.settlement_eur, total_eur: Math.round(o.rate_eur - refRate) + o.settlement_eur })) : [];
+  const q = new URLSearchParams();
+  if (items.length) q.set("plan", items.map((x) => [x.label.replace(/[|~]/g, " "), x.km, x.n, x.per].join("~")).join("|"));
+  q.set("buf", r.need ? margin_pct : 10); q.set("extra", c.extra); q.set("refund", c.refund); q.set("rate", c.rate);
+  const out = {
+    plan: p.total ? { trips: p.rows.map((x) => ({ label: x.label, km: x.km, times: x.n, per: { wk: "working_week", w: "week", m: "month", y: "year" }[x.per], km_per_year: x.year })), km_per_year: r.need, with_margin: r.with_margin, margin_pct, suggested_km_per_year: r.step_2500, suggested_in_5000_steps: r.step_5000, km_over_term: r.step_2500 * months_ / 12 } : null,
+    allowance_options: options.length ? { compared_with_driving: drive, term_months: months_, rows: options } : null,
+  };
+  if (start) {
+    const readings = odometer != null ? [{ date: odometer_date || today || new Date().toISOString().slice(0, 10), km: odometer }] : [];
+    const t = Lease.track({ start, months: months_, km: contractKm || 15000, odo0: start_odometer, extra: c.extra, refund: c.refund, tol: tolerance_km }, readings,
+      { today: today || undefined, per_month: km_per_month, plan_year: p.total || null });
+    out.tracking = t;
+    q.set("start", start); q.set("months", months_); q.set("km", contractKm || 15000);
+    if (start_odometer) q.set("odo0", start_odometer);
+    if (tolerance_km) q.set("tol", tolerance_km);
+    if (odometer != null) { q.set("odo", odometer); q.set("at", readings[0].date); }
+    if (km_per_month != null) q.set("pm", km_per_month);
+  }
+  out.page = `${SITE}/leasing/?${q.toString().replace(/%7E/gi, "~").replace(/%7C/gi, "|")}`;
+  out.note = "Working week = 46 a year. The allowance grows evenly from the handover. Expected km continue from the newest reading at km_per_month, else the pace so far, else the plan. Settlement: km beyond the tolerance × extra (over) or × refund (under). Contracts differ (refund caps, one-way tolerances): check the contract. Rate per 1,000 km is an estimate unless taken from two offers.";
+  return out;
+}
+
 // ---------- tool list ----------
 
 const str = (description, extra = {}) => ({ type: "string", description, ...extra });
@@ -1091,6 +1134,30 @@ export const TOOLS = [
       co2_g_km: num("Fuel car official CO2 in g/km (WLTP), for the tax.", { default: 130 }),
     } },
     run: costOverYears,
+  },
+  {
+    name: "plan_lease_mileage",
+    title: "Lease mileage: km to contract and checkpoints",
+    description: "For a car lease: adds up usage scenarios (commute, holidays, weekends ...) to the km a year to put in the contract, with a safety margin and rounded to the usual 2,500 km steps; compares contracting more or fewer km (higher monthly rate against extra km charges or refunds at the end); and, given the lease start and an odometer reading, where the car stands against the allowance today, at the end of the month, quarter and year and at the end of the lease, with the expected settlement and the km a month that keep it within. Returns a link to the same view on cars.allo.land/leasing/, where the person can keep it per car on their device. Pure calculation, no data lookup.",
+    inputSchema: { type: "object", properties: {
+      trips: { type: "array", description: "Usage scenarios, km there and back.", items: { type: "object", properties: {
+        label: str("Name, e.g. 'Commute' or 'Summer holiday'."), km: num("km each time (round trip)."), times: num("How many times per period.", { default: 1 }),
+        per: str("Period: working_week (46 a year), week, month or year.", { enum: ["working_week", "week", "month", "year"] }) }, required: ["km", "per"] } },
+      margin_pct: num("Safety margin on top of the plan, in %.", { default: 10 }),
+      extra_eur_per_km: num("Price per km over the allowance (Mehrkilometer).", { default: 0.10 }),
+      refund_eur_per_km: num("Refund per km under the allowance (Minderkilometer).", { default: 0.05 }),
+      rate_eur_per_month_per_1000km: num("How much the monthly rate rises per 1,000 km a year more.", { default: 6 }),
+      start: str("Lease start (handover), YYYY-MM-DD. Needed for the checkpoints."),
+      months: int("Lease term in months.", { default: 36 }),
+      km_per_year: num("km a year in the contract; default the suggested figure from trips."),
+      start_odometer: num("Odometer at handover.", { default: 0 }),
+      odometer: num("Odometer now (or on odometer_date)."),
+      odometer_date: str("Date of that reading, YYYY-MM-DD; default today."),
+      tolerance_km: num("Free tolerance in km before extra km cost or refunds apply.", { default: 0 }),
+      km_per_month: num("km a month from now on for the forecast; default the pace so far, else the plan."),
+      today: str("Date to count from, YYYY-MM-DD; default today."),
+    } },
+    run: planLeaseMileage,
   },
   {
     name: "find_chargers",

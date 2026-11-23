@@ -1,0 +1,365 @@
+/* Leasing mileage planner: how many km a year to put in a lease (usage scenarios added up), what more or
+   fewer km in the contract cost, and where the odometer stands against the contract at checkpoints (today,
+   end of month, quarter, year and lease), with a chart. Maths in /leasing/lease.js (also used by the MCP server).
+   One script for /leasing/, /de/leasing/ and /zh/leasing/.
+   Kept per car of My cars (assets/garage.js) on this device under "allo-cars-lease" as
+     { v: 1, cars: { "<garage car id or _>": { plan, buf, extra, refund, rate, drive, start, months, km, odo0, tol, pm, readings: [{ date, km }] } } }
+   Link parameters (a link or an AI can fill the page): plan=<label~km~times~per|…> with per wk (working week),
+   w (week), m (month) or y (year) and label a preset id (commute, errands, weekend, holiday, family) or free text;
+   buf=<% margin>, extra=<€/km>, refund=<€/km>, rate=<€/month per 1,000 km>, drive=<km a year you really drive>,
+   start=<YYYY-MM-DD>, months, km=<km a year in the contract>, odo0=<odometer at handover>, odo=<odometer now>,
+   at=<date of that reading>, tol=<free km>, pm=<km a month from now on>, mine=<My cars id>. */
+(() => {
+  const lang = (document.documentElement.lang || "en").slice(0, 2);
+  const de = lang === "de", zh = lang === "zh";
+  const T = zh ? {
+    locale: "zh-CN",
+    preset: { commute: "通勤", errands: "购物和日常", weekend: "周末出游", holiday: "度假", family: "探亲访友" },
+    per: { wk: "每个工作周", w: "每周", m: "每月", y: "每年" },
+    times: "次", add: (n) => `+ ${n}`, other: "+ 其他行程", otherName: "行程", del: "删除",
+    perYear: (n) => `${n} 公里/年`, need: "你每年大约开", needB: (n) => `按上面 ${n} 项加起来`,
+    pick: "建议合同里写", pickB: (m, k5) => `已含 ${m} 余量，按 2500 公里一档向上取整（按 5000 一档则是 ${k5}）`,
+    termB: "合同期内的总里程",
+    useplan: (k) => `按我的计划用 ${k}`,
+    th: ["每年", (m) => `${m} 个月月租差`, "到期结算", "合计"],
+    best: "最省", suggested: "建议",
+    optNote: (d, x, r, k) => `与正好签 ${d} 相比。少签的每公里到期要付 ${x}，多签没用完的每公里退 ${r}，而多签 1000 公里每公里约合 ${k} 的月租。`,
+    optMore: "多签一点通常比到期补付超出的公里更划算。", optLess: "按这些价格，少签一点、到期按公里补付更划算。",
+    driveH: (n) => `你的计划：每年 ${n}。拖动滑块看看多开或少开会怎样。`,
+    months: (n) => `${n} 个月`,
+    remove: "删除", noReads: "还没有读数。没有读数时，预计里程按你的计划计算。", handover: "交车",
+    cp: { today: "今天", month: "本月底", quarter: "本季度末", year: "年底", end: "合同到期" }, and: "和",
+    cpH: ["检查点", "日期", "预计", "允许", "差额"],
+    under: (n) => `少 ${n}`, over: (n) => `超 ${n}`, even: "持平",
+    todayV: "今天", todayB: (a, o, d) => `今天允许 ${a} · 里程表 ${o}（${d}）`, expectedToday: (o) => `今天预计 ${o}`,
+    endV: (d) => `到期 ${d}`, pay: (e) => `到期约需补付 ${e}`, back: (e) => `到期约退还 ${e}`, nothing: "在免费容差内，不用结算",
+    stay: "想不超，每月最多开", stayB: (n) => `现在按每月 ${n} 计算`, ended: "合同已到期",
+    src: { pace: (n) => `到目前为止每月 ${n}（按你的读数）`, plan: (n) => `按你的计划每月 ${n}`, allowance: (n) => `按合同每月 ${n}`, set: (n) => `你设的数；到目前为止每月 ${n}` },
+    reset: "恢复", allowed: "允许", readings: "你的读数", expected: "预计", chart: "里程表读数与允许里程",
+    notStarted: (d) => `租期 ${d} 开始`,
+    forCar: "租的是", noCar: "在“我的车”里加上你的车，每辆车可以单独保存租约。",
+  } : de ? {
+    locale: "de-DE",
+    preset: { commute: "Arbeitsweg", errands: "Einkauf und Erledigungen", weekend: "Wochenendausflüge", holiday: "Urlaub", family: "Familienbesuche" },
+    per: { wk: "pro Arbeitswoche", w: "pro Woche", m: "pro Monat", y: "pro Jahr" },
+    times: "Mal", add: (n) => `+ ${n}`, other: "+ Andere Fahrt", otherName: "Fahrt", del: "Entfernen",
+    perYear: (n) => `${n} km/Jahr`, need: "Du fährst rund", needB: (n) => `${n} Fahrten oben zusammengezählt`,
+    pick: "Im Vertrag ansetzen", pickB: (m, k5) => `Mit ${m} Puffer, aufgerundet auf 2.500-km-Stufen (in 5.000er-Stufen ${k5})`,
+    termB: "Gesamtkilometer über die Laufzeit",
+    useplan: (k) => `${k} aus meinem Plan nehmen`,
+    th: ["Pro Jahr", (m) => `Rate, ${m} Monate`, "Am Ende", "Zusammen"],
+    best: "am günstigsten", suggested: "Vorschlag",
+    optNote: (d, x, r, k) => `Im Vergleich zu genau ${d}. Jeder fehlende km kostet am Ende ${x}, jeder nicht gefahrene bringt ${r} zurück, während 1.000 km mehr im Vertrag rund ${k} je km Rate kosten.`,
+    optMore: "Ein paar km mehr im Vertrag sind meist günstiger als Mehrkilometer am Ende.", optLess: "Bei diesen Preisen sind etwas weniger km im Vertrag und Mehrkilometer am Ende günstiger.",
+    driveH: (n) => `Dein Plan: ${n} im Jahr. Schieb den Regler und sieh, was passiert, wenn du mehr oder weniger fährst.`,
+    months: (n) => `${n} Monate`,
+    remove: "Entfernen", noReads: "Noch keine Ablesung. Ohne Ablesung rechnet die Prognose mit deinem Plan.", handover: "Übergabe",
+    cp: { today: "Heute", month: "Monatsende", quarter: "Quartalsende", year: "Jahresende", end: "Vertragsende" }, and: " und ",
+    cpH: ["Zeitpunkt", "Datum", "Erwartet", "Erlaubt", "Differenz"],
+    under: (n) => `${n} unter`, over: (n) => `${n} über`, even: "genau im Plan",
+    todayV: "Heute", todayB: (a, o, d) => `Heute erlaubt ${a} · Tacho ${o} (${d})`, expectedToday: (o) => `heute erwartet ${o}`,
+    endV: (d) => `Ende ${d}`, pay: (e) => `Am Ende rund ${e} nachzahlen`, back: (e) => `Am Ende rund ${e} zurück`, nothing: "Innerhalb der Toleranz, keine Abrechnung",
+    stay: "Um im Rahmen zu bleiben, höchstens", stayB: (n) => `Gerechnet wird mit ${n} im Monat`, ended: "Vertrag ist zu Ende",
+    src: { pace: (n) => `Bisher ${n} im Monat (aus deinen Ablesungen)`, plan: (n) => `${n} im Monat laut deinem Plan`, allowance: (n) => `${n} im Monat laut Vertrag`, set: (n) => `Von dir gesetzt; bisher ${n} im Monat` },
+    reset: "Zurücksetzen", allowed: "Erlaubt", readings: "Deine Ablesungen", expected: "Erwartet", chart: "Kilometerstand und erlaubte Kilometer",
+    notStarted: (d) => `Leasing beginnt am ${d}`,
+    forCar: "Leasing für", noCar: "Leg dein Auto unter „Meine Autos“ an, dann merkt sich die Seite das Leasing für jedes Auto.",
+  } : {
+    locale: "en-GB",
+    preset: { commute: "Commute", errands: "Shopping and errands", weekend: "Weekend trips", holiday: "Holidays", family: "Family visits" },
+    per: { wk: "per working week", w: "per week", m: "per month", y: "per year" },
+    times: "times", add: (n) => `+ ${n}`, other: "+ Other trip", otherName: "Trip", del: "Remove",
+    perYear: (n) => `${n} km/yr`, need: "You drive about", needB: (n) => `${n} kinds of trips above, added up`,
+    pick: "Put in the contract", pickB: (m, k5) => `With ${m} margin, rounded up to 2,500 km steps (${k5} in 5,000 km steps)`,
+    termB: "Total km over the lease",
+    useplan: (k) => `Use ${k} from my plan`,
+    th: ["A year", (m) => `Rate, ${m} months`, "At the end", "Together"],
+    best: "cheapest", suggested: "suggested",
+    optNote: (d, x, r, k) => `Compared with exactly ${d}. Each km short costs ${x} at the end, each km not driven returns ${r}, while 1,000 km more in the contract cost about ${k} per km in rate.`,
+    optMore: "A few km more in the contract are usually cheaper than extra km at the end.", optLess: "At these prices, a few km less in the contract and paying extra km at the end is cheaper.",
+    driveH: (n) => `Your plan: ${n} a year. Move the slider to see what happens if you drive more or less.`,
+    months: (n) => `${n} months`,
+    remove: "Remove", noReads: "No reading yet. Until there is one, expected km follow your plan.", handover: "Handover",
+    cp: { today: "Today", month: "End of month", quarter: "End of quarter", year: "End of year", end: "End of lease" }, and: " and ",
+    cpH: ["Checkpoint", "Date", "Expected", "Allowed", "Difference"],
+    under: (n) => `${n} under`, over: (n) => `${n} over`, even: "right on plan",
+    todayV: "Today", todayB: (a, o, d) => `Allowed today ${a} · odometer ${o} (${d})`, expectedToday: (o) => `expected today ${o}`,
+    endV: (d) => `End ${d}`, pay: (e) => `About ${e} to pay at the end`, back: (e) => `About ${e} back at the end`, nothing: "Within the tolerance, nothing to settle",
+    stay: "To stay within, at most", stayB: (n) => `Now counting ${n} a month`, ended: "The lease has ended",
+    src: { pace: (n) => `${n} a month so far (from your readings)`, plan: (n) => `${n} a month from your plan`, allowance: (n) => `${n} a month from the contract`, set: (n) => `Set by you; so far ${n} a month` },
+    reset: "Reset", allowed: "Allowed", readings: "Your readings", expected: "Expected", chart: "Odometer and allowed km",
+    notStarted: (d) => `Lease starts ${d}`,
+    forCar: "Lease for", noCar: "Add your car on My cars and the page keeps a lease for each car.",
+  };
+  const L = window.AlloLease, G = window.AlloGarage;
+  const PRE = de ? "/de" : zh ? "/zh" : "";
+  const KEY = "allo-cars-lease", TERMS = [24, 36, 48];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const nf = (v) => new Intl.NumberFormat(T.locale, { maximumFractionDigits: 0 }).format(Math.round(v));
+  const km = (v) => `${nf(v)} km`;
+  const eur = (v, d = 0) => new Intl.NumberFormat(T.locale, { style: "currency", currency: "EUR", minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+  const pct = (v) => `${nf(v)} %`;
+  const date = (s) => new Date(L.day(s)).toLocaleDateString(T.locale, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  const todayIso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  const store = (v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(KEY) || "null"); localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { return null; } };
+
+  const D = L.DEFAULTS;
+  const fresh = () => ({
+    plan: L.PRESETS.slice(0, 4).map((p) => ({ id: p.id, label: "", km: p.km, n: p.n, per: p.per })),
+    buf: D.buf, extra: D.extra, refund: D.refund, rate: D.rate, drive: null,
+    start: "", months: D.months, km: null, odo0: 0, tol: 0, pm: null, readings: [],
+  });
+  let carId = "_", S = fresh();
+
+  const numP = (q, k, lo, hi) => { const v = parseFloat(q.get(k)); return isFinite(v) && v >= lo && v <= hi ? v : null; };
+  function fromUrl(q) {
+    const s = fresh();
+    if (q.get("plan") != null) {
+      s.plan = q.get("plan").split("|").filter(Boolean).slice(0, 20).map((x) => {
+        const [label, k, n, per] = x.split("~");
+        const preset = L.PRESETS.find((p) => p.id === label);
+        return { id: preset ? preset.id : "", label: preset ? "" : String(label || "").slice(0, 60), km: Number(k) || 0, n: Number(n) || 0, per: L.PER[per] ? per : "w" };
+      });
+    }
+    [["buf", 0, 100], ["extra", 0, 5], ["refund", 0, 5], ["rate", 0, 1000], ["drive", 0, 500000], ["months", 1, 120], ["km", 1000, 200000], ["odo0", 0, 2000000], ["tol", 0, 100000], ["pm", 0, 50000]]
+      .forEach(([k, lo, hi]) => { const v = numP(q, k, lo, hi); if (v != null) s[k] = v; });
+    if (L.day(q.get("start"))) s.start = q.get("start");
+    return s;
+  }
+  function load() {
+    const q = new URLSearchParams(location.search);
+    const cars = G ? G.list() : [];
+    const mine = q.get("mine") && cars.find((c) => c.id === q.get("mine"));
+    const pick = mine || (G && G.active()) || cars[0];
+    carId = pick ? pick.id : "_";
+    const all = store() || { v: 1, cars: {} };
+    const saved = all.cars && all.cars[carId];
+    const own = ["plan", "buf", "extra", "refund", "rate", "drive", "start", "months", "km", "odo0", "odo", "tol", "pm"].some((k) => q.has(k));
+    if (own) {
+      S = fromUrl(q);
+      S.readings = saved && Array.isArray(saved.readings) ? saved.readings.slice() : [];
+      const odo = numP(q, "odo", 0, 2000000);
+      if (odo != null) addReading(L.day(q.get("at")) ? q.get("at") : todayIso(), odo, true);
+    } else if (saved) S = Object.assign(fresh(), saved);
+    else S = fresh();
+  }
+  function save() {
+    const all = store() || { v: 1, cars: {} };
+    all.cars = all.cars || {};
+    all.cars[carId] = S;
+    store(all);
+    try { dispatchEvent(new CustomEvent("ac:lease", { detail: { car: carId } })); } catch (e) {}
+  }
+  function url() {
+    const q = new URLSearchParams();
+    if (carId !== "_") q.set("mine", carId);
+    q.set("plan", S.plan.map((p) => [p.id || (p.label || "").replace(/[|~]/g, " "), p.km, p.n, p.per].join("~")).join("|"));
+    q.set("buf", S.buf);
+    if (S.drive != null) q.set("drive", S.drive);
+    ["extra", "refund", "rate"].forEach((k) => q.set(k, S[k]));
+    if (S.start) {
+      q.set("start", S.start); q.set("months", S.months);
+      if (S.km) q.set("km", S.km);
+      if (S.odo0) q.set("odo0", S.odo0);
+      if (S.tol) q.set("tol", S.tol);
+      const r = S.readings[S.readings.length - 1];
+      if (r) { q.set("odo", r.km); q.set("at", r.date); }
+      if (S.pm != null) q.set("pm", S.pm);
+    }
+    history.replaceState(null, "", `${location.pathname}?${q.toString().replace(/%7E/gi, "~").replace(/%7C/gi, "|")}${location.hash}`);
+  }
+  function addReading(d, v, quiet) {
+    S.readings = S.readings.filter((r) => r.date !== d).concat([{ date: d, km: Math.round(v) }]).sort((a, b) => a.date < b.date ? -1 : 1).slice(-200);
+    if (!quiet) changed();
+  }
+
+  /* ---------- 1 plan ---------- */
+  const label = (p) => p.id && !p.label ? T.preset[p.id] : p.label;
+  function rowHtml(p, i) {
+    const opts = Object.keys(L.PER).map((k) => `<option value="${k}"${p.per === k ? " selected" : ""}>${esc(T.per[k])}</option>`).join("");
+    return `<div class="sc-row" data-i="${i}"><input class="nm" data-f="label" value="${esc(label(p))}" placeholder="${esc(T.otherName)}" aria-label="${esc(T.otherName)}"><span class="km u"><input data-f="km" type="number" min="0" max="100000" step="1" inputmode="numeric" value="${p.km}" aria-label="km"><i>km</i></span><span class="x">×</span><span class="n u"><input data-f="n" type="number" min="0" max="1000" step="1" inputmode="numeric" value="${p.n}" aria-label="${esc(T.times)}"><i>${esc(T.times)}</i></span><select class="per" data-f="per" aria-label="${esc(T.per.w)}">${opts}</select><span class="yr"></span><button type="button" class="ac-btn ac-btn--quiet del" data-del="${i}" aria-label="${esc(T.del)}">×</button></div>`;
+  }
+  function drawPlan() {
+    const box = $("sc");
+    [].slice.call(box.querySelectorAll(".sc-row:not(.sc-head)")).forEach((r) => r.remove());
+    box.insertAdjacentHTML("beforeend", S.plan.map(rowHtml).join(""));
+    const have = new Set(S.plan.map((p) => p.id).filter(Boolean));
+    $("presets").innerHTML = `<span class="ac-caption">${esc(zh ? "添加：" : de ? "Dazu:" : "Add:")}</span>` + L.PRESETS.filter((p) => !have.has(p.id)).map((p) => `<button type="button" class="ac-chip" data-add="${p.id}">${esc(T.add(T.preset[p.id]))}</button>`).join("") + `<button type="button" class="ac-chip" data-add="">${esc(T.other)}</button>`;
+  }
+  function planNumbers() {
+    const p = L.plan(S.plan), r = L.recommend(p.total, S.buf);
+    return { p, r };
+  }
+  function drawPlanOut() {
+    const { p, r } = planNumbers();
+    [].forEach.call($("sc").querySelectorAll(".sc-row[data-i]"), (row) => { const x = p.rows[+row.dataset.i]; row.querySelector(".yr").textContent = x ? T.perYear(nf(x.year)) : ""; });
+    const months = S.start ? S.months : D.months;
+    $("plan-out").innerHTML = [
+      [km(r.need), T.need, T.needB(p.rows.filter((x) => x.year > 0).length)],
+      [km(r.step_2500), T.pick, T.pickB(pct(S.buf), km(r.step_5000))],
+      [km(r.step_2500 * months / 12), T.termB, T.months(months)],
+    ].map(([v, a, b], i) => `<div class="ac-readout ac-readout--md"><div class="ac-readout__basis">${esc(a)}</div><div class="ac-readout__value">${esc(v)}${i < 2 ? `<small> /${zh ? "年" : de ? "Jahr" : "yr"}</small>` : ""}</div><div class="ac-readout__basis">${esc(b)}</div></div>`).join("");
+    $("useplan").textContent = T.useplan(km(r.step_2500));
+    $("useplan").dataset.km = r.step_2500;
+    drawOptions(p, r);
+  }
+  function drawOptions(p, r) {
+    const drive = S.drive != null ? S.drive : r.need;
+    if (document.activeElement !== $("drive")) $("drive").value = drive;
+    $("driver").max = Math.max(60000, Math.ceil(drive * 1.5 / 5000) * 5000);
+    $("driver").value = drive;
+    $("drive-h").textContent = T.driveH(km(r.need));
+    const months = S.start ? S.months : D.months;
+    const c = L.norm({ start: "2000-01-01", months, km: drive || 1000, extra: S.extra, refund: S.refund, tol: S.tol, rate: S.rate });
+    const base = Math.max(2500, Math.round(drive / 2500) * 2500);
+    const steps = new Set([-5000, -2500, 0, 2500, 5000].map((d) => base + d).filter((a) => a >= 2500));
+    steps.add(r.step_2500); if (S.km) steps.add(S.km);
+    const rows = L.options(drive, c, [...steps].sort((a, b) => a - b));
+    // relative to contracting exactly `drive` km
+    const ref = { rate: (drive - base) / 1000 * S.rate * months };
+    const min = Math.min(...rows.map((x) => x.total_eur - ref.rate));
+    const sign = (v) => v === 0 ? "0" : `${v > 0 ? "+" : "−"}${nf(Math.abs(v))}`;
+    $("opt").innerHTML = `<thead><tr><th>${esc(T.th[0])} (km)</th><th class="num">${esc(T.th[1](months))} (€)</th><th class="num">${esc(T.th[2])} (€)</th><th class="num">${esc(T.th[3])} (€)</th></tr></thead><tbody>` + rows.map((x) => {
+      const rate = Math.round(x.rate_eur - ref.rate), tot = rate + x.settlement_eur, best = Math.round(tot) === Math.round(min);
+      const tags = [best ? T.best : "", x.km === r.step_2500 ? T.suggested : ""].filter(Boolean);
+      return `<tr class="${best ? "on" : ""}"><td><strong>${esc(nf(x.km))}</strong>${tags.length ? `<br><span class="ac-status ac-status--${best ? "ok" : "info"}">${esc(tags.join(" · "))}</span>` : ""}</td><td class="num">${sign(rate)}</td><td class="num ${x.settlement_eur > 0 ? "pos" : x.settlement_eur < 0 ? "neg" : ""}">${sign(x.settlement_eur)}</td><td class="num${best ? " on" : ""}">${sign(tot)}</td></tr>`;
+    }).join("") + "</tbody>";
+    const perKm = S.rate * 12 / 1000;
+    $("opt-note").textContent = `${T.optNote(km(drive), eur(S.extra, 2), eur(S.refund, 2), eur(perKm, 3))} ${S.extra - perKm >= perKm - S.refund ? T.optMore : T.optLess}`;
+  }
+
+  /* ---------- 2 contract, 3 readings ---------- */
+  function drawContract() {
+    $("months").innerHTML = TERMS.concat(TERMS.includes(S.months) ? [] : [S.months]).map((m) => `<button type="button" data-m="${m}" aria-pressed="${S.months === m}">${esc(T.months(m))}</button>`).join("");
+    const set = (id, v) => { if (document.activeElement !== $(id)) $(id).value = v == null ? "" : v; };
+    set("start", S.start); set("km", S.km); set("odo0", S.odo0 || ""); set("tol", S.tol || "");
+    set("buf", S.buf); $("bufr").value = S.buf; set("extra", S.extra); set("refund", S.refund); set("rate", S.rate);
+    if (!$("rdate").value) $("rdate").value = todayIso();
+    $("reads").innerHTML = S.readings.length
+      ? S.readings.slice().reverse().map((r) => `<li><span>${esc(date(r.date))}</span><strong>${esc(km(r.km))}</strong><button type="button" class="ac-btn ac-btn--quiet" data-rm="${esc(r.date)}">${esc(T.remove)}</button></li>`).join("")
+      : `<li class="ac-caption" style="border:0">${esc(T.noReads)}</li>`;
+  }
+
+  /* ---------- checkpoints ---------- */
+  function contract() { return { start: S.start, months: S.months, km: S.km || planNumbers().r.step_2500, odo0: S.odo0, extra: S.extra, refund: S.refund, tol: S.tol }; }
+  const cpName = (x) => [x.id].concat(x.also).map((k, i) => i && lang === "en" ? T.cp[k].toLowerCase() : T.cp[k]).join(T.and);
+  const diffTxt = (d) => Math.abs(d) < 1 ? T.even : d > 0 ? T.over(km(d)) : T.under(km(-d));
+  const diffCls = (d) => Math.abs(d) < 1 ? "" : d > 0 ? "pos" : "neg";
+  function drawCheckpoints() {
+    const ok = !!L.day(S.start);
+    $("cp-empty").hidden = ok; $("cp-body").hidden = !ok;
+    if (!ok) return;
+    const { p } = planNumbers();
+    const opts = { today: todayIso(), per_month: S.pm, plan_year: p.total };
+    const ser = L.series(contract(), S.readings, opts), t = ser.track;
+    const auto = L.track(contract(), S.readings, Object.assign({}, opts, { per_month: null }));
+    if (document.activeElement !== $("pm")) $("pm").value = t.per_month;
+    $("pmr").max = Math.max(5000, Math.ceil(t.per_month * 1.5 / 500) * 500);
+    $("pmr").value = t.per_month;
+    $("pm-h").innerHTML = esc(S.pm != null ? T.src.set(nf(auto.per_month)) : T.src[t.per_month_source](nf(t.per_month))) + (S.pm != null ? ` <button type="button" class="ac-btn ac-btn--quiet" id="pm-reset" style="padding:2px 10px;min-height:0">${esc(T.reset)}</button>` : "");
+    const today = t.checkpoints.find((x) => x.id === "today") || t.checkpoints[0];
+    const fresh = t.reading.date === todayIso();
+    const endE = t.end.settlement_eur;
+    const outs = [];
+    if (!t.started) outs.push([T.notStarted(date(t.contract.start)), "", ""]);
+    else outs.push([diffTxt(today.diff_km), T.todayV, T.todayB(km(today.allowed_km), km(t.reading.km), t.reading.handover ? T.handover : date(t.reading.date)) + (fresh || t.reading.handover && !S.readings.length ? "" : ` · ${T.expectedToday(km(today.expected_km))}`), diffCls(today.diff_km)]);
+    outs.push([diffTxt(t.end.diff_km), T.endV(date(t.contract.end)), endE > 0 ? T.pay(eur(endE)) : endE < 0 ? T.back(eur(-endE)) : T.nothing, diffCls(t.end.diff_km)]);
+    outs.push(t.ended ? [T.ended, "", ""] : [`${km(t.per_month_to_stay_within)}`, T.stay, T.stayB(km(t.per_month)), ""]);
+    $("cp-out").innerHTML = outs.map(([v, a, b, cls], i) => `<div class="ac-readout ac-readout--md">${a ? `<div class="ac-readout__basis">${esc(a)}</div>` : ""}<div class="ac-readout__value ${cls || ""}">${esc(v)}${i === 2 && !t.ended ? `<small> /${zh ? "月" : de ? "Monat" : "month"}</small>` : ""}</div>${b ? `<div class="ac-readout__basis">${esc(b)}</div>` : ""}</div>`).join("");
+    $("cp").innerHTML = `<thead><tr>${T.cpH.filter((h, i) => i !== 1).map((h, i) => `<th${i ? ' class="num"' : ""}>${esc(h)}${i ? " (km)" : ""}</th>`).join("")}</tr></thead><tbody>` + t.checkpoints.map((x) => {
+      const name = cpName(x);
+      return `<tr><td><strong>${esc(name)}</strong><small>${esc(date(x.date))}</small></td><td class="num">${esc(nf(x.expected_km))}</td><td class="num">${esc(nf(x.allowed_km))}</td><td class="num ${diffCls(x.diff_km)}">${esc(x.diff_km > 0 ? "+" : x.diff_km < 0 ? "−" : "")}${esc(nf(Math.abs(x.diff_km)))}</td></tr>`;
+    }).join("") + "</tbody>";
+    $("chart").innerHTML = chart(ser);
+  }
+  function chart(s) {
+    const W = Math.max(300, Math.min(900, $("chart").clientWidth || 860)), H = W < 600 ? 230 : 280, Lp = W < 600 ? 50 : 60, R = 10, Tp = 12, B = 26;
+    const pts = [].concat(s.allowance, s.readings, s.projection), t = s.track;
+    const ys = pts.map((p) => p[1]).concat(t.checkpoints.map((c) => c.expected_km));
+    const step = (() => { const span = Math.max(...ys) - Math.min(...ys) || 1000; const raw = span / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))); return [1, 2, 2.5, 5, 10].map((k) => k * mag).find((k) => k >= raw); })();
+    const y0 = Math.floor(Math.min(...ys) / step) * step, y1 = Math.ceil(Math.max(...ys) / step) * step || step;
+    const x = (ms) => Lp + (ms - s.start) / (s.end - s.start) * (W - Lp - R);
+    const y = (v) => Tp + (1 - (v - y0) / (y1 - y0 || 1)) * (H - Tp - B);
+    const line = (arr, cls) => arr.length > 1 ? `<polyline class="${cls}" points="${arr.map((p) => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(" ")}"/>` : "";
+    const short = (v) => v >= 1e6 ? `${nf(v / 1e5) / 10}M` : v >= 1000 ? `${nf(v / 1000)}k` : nf(v);
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(T.chart)}">`;
+    for (let v = y0; v <= y1 + 1e-6; v += step) svg += `<line class="grid" x1="${Lp}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${Lp - 6}" y="${y(v) + 4}" text-anchor="end">${short(v)}</text>`;
+    // x labels: each 1 January inside the lease, plus start and end on wide screens
+    const y0d = new Date(s.start).getUTCFullYear(), y1d = new Date(s.end).getUTCFullYear();
+    const yrs = []; for (let yy = y0d + 1; yy <= y1d; yy++) yrs.push(Date.UTC(yy, 0, 1));
+    yrs.forEach((ms) => { svg += `<line class="grid" x1="${x(ms)}" x2="${x(ms)}" y1="${Tp}" y2="${H - B}" style="stroke-dasharray:2 4"/><text x="${x(ms)}" y="${H - 8}" text-anchor="middle">${new Date(ms).getUTCFullYear()}</text>`; });
+    svg += line(s.allowance, "allow") + line(s.readings, "actual") + line(s.projection, "proj");
+    s.readings.slice(1).forEach((p) => { svg += `<circle class="dot" cx="${x(p[0])}" cy="${y(p[1])}" r="3.5"><title>${esc(date(L.iso(p[0])))}: ${esc(km(p[1]))}</title></circle>`; });
+    t.checkpoints.forEach((c) => { const ms = L.day(c.date); svg += `<circle class="cp" cx="${x(ms)}" cy="${y(c.expected_km)}" r="4.5"><title>${esc(cpName(c))} · ${esc(date(c.date))}: ${esc(km(c.expected_km))} / ${esc(T.allowed)} ${esc(km(c.allowed_km))}</title></circle>`; });
+    const now = L.day(todayIso());
+    if (now > s.start && now < s.end) svg += `<line class="now" x1="${x(now)}" x2="${x(now)}" y1="${Tp}" y2="${H - B}"/>`;
+    return svg + "</svg>";
+  }
+
+  /* ---------- cars ---------- */
+  function drawCars() {
+    const cars = G ? G.list() : [];
+    $("for-car").hidden = false;
+    $("cars").innerHTML = cars.length
+      ? cars.map((c) => `<button type="button" class="ac-chip" data-car="${esc(c.id)}" aria-pressed="${c.id === carId}">${esc(c.nick || c.name)}${c.year ? ` <small>${c.year}</small>` : ""}</button>`).join("")
+      : `<span class="ac-caption" style="margin:0">${esc(T.noCar)} <a href="${PRE}/cars/">${esc(zh ? "我的车" : de ? "Meine Autos" : "My cars")}</a></span>`;
+  }
+
+  function changed() { save(); url(); drawContract(); drawPlanOut(); drawCheckpoints(); }
+  function drawAll() { drawCars(); drawPlan(); changed(); }
+
+  /* ---------- events ---------- */
+  $("sc").addEventListener("input", (e) => {
+    const row = e.target.closest(".sc-row[data-i]"); if (!row) return;
+    const p = S.plan[+row.dataset.i], f = e.target.dataset.f;
+    if (f === "label") { p.label = e.target.value.slice(0, 60); if (p.id && p.label !== T.preset[p.id]) p.id = ""; if (p.id) p.label = ""; }
+    else if (f === "per") p.per = e.target.value;
+    else p[f] = Math.max(0, Number(e.target.value) || 0);
+    save(); url(); drawPlanOut(); drawCheckpoints();
+  });
+  $("sc").addEventListener("click", (e) => {
+    const d = e.target.closest("[data-del]"); if (!d) return;
+    S.plan.splice(+d.dataset.del, 1); drawPlan(); changed();
+  });
+  $("presets").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-add]"); if (!b) return;
+    const p = L.PRESETS.find((x) => x.id === b.dataset.add);
+    S.plan.push(p ? { id: p.id, label: "", km: p.km, n: p.n, per: p.per } : { id: "", label: "", km: 50, n: 1, per: "m" });
+    drawPlan(); changed();
+    if (!p) { const rows = $("sc").querySelectorAll(".sc-row[data-i] .nm"); rows[rows.length - 1].focus(); }
+  });
+  const bindNum = (id, key, lo, hi, nullable) => $(id).addEventListener("input", (e) => {
+    const v = parseFloat(e.target.value);
+    if (e.target.value === "" && nullable) S[key] = null;
+    else if (isFinite(v) && v >= lo && v <= hi) S[key] = v; else return;
+    changed();
+  });
+  bindNum("buf", "buf", 0, 100); bindNum("bufr", "buf", 0, 100);
+  bindNum("extra", "extra", 0, 5); bindNum("refund", "refund", 0, 5); bindNum("rate", "rate", 0, 1000);
+  bindNum("drive", "drive", 0, 500000, true); bindNum("driver", "drive", 0, 500000);
+  bindNum("km", "km", 1000, 200000, true); bindNum("odo0", "odo0", 0, 2000000, true); bindNum("tol", "tol", 0, 100000, true);
+  bindNum("pm", "pm", 0, 50000, true); bindNum("pmr", "pm", 0, 50000);
+  $("start").addEventListener("change", (e) => { S.start = L.day(e.target.value) ? e.target.value : ""; changed(); });
+  $("months").addEventListener("click", (e) => { const b = e.target.closest("[data-m]"); if (b) { S.months = +b.dataset.m; changed(); } });
+  $("useplan").addEventListener("click", () => { S.km = +$("useplan").dataset.km; changed(); });
+  $("radd").addEventListener("click", () => {
+    const d = $("rdate").value, v = parseFloat($("rkm").value);
+    if (!L.day(d) || !isFinite(v) || v < 0) { $("rkm").focus(); return; }
+    addReading(d, v); $("rkm").value = "";
+  });
+  $("reads").addEventListener("click", (e) => { const b = e.target.closest("[data-rm]"); if (b) { S.readings = S.readings.filter((r) => r.date !== b.dataset.rm); changed(); } });
+  $("cp-body").addEventListener("click", (e) => { if (e.target.id === "pm-reset") { S.pm = null; changed(); } });
+  $("cars").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-car]"); if (!b || b.dataset.car === carId) return;
+    save();
+    carId = b.dataset.car;
+    const all = store() || { cars: {} };
+    S = Object.assign(fresh(), (all.cars || {})[carId] || {});
+    drawAll();
+  });
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawCheckpoints, 150); });
+
+  load();
+  drawAll();
+})();

@@ -62,7 +62,7 @@
   };
   /* words for the sections added to make each car page complete: jump links, grant, rankings, search results */
   const W = zh ? {
-    jump: "本页内容", sec: { cost: "费用", versions: "版本", ratings: "评级", children: "带娃", recalls: "召回", registrations: "登记量", grant: "补贴", rankings: "排名", similar: "相似车型" },
+    jump: "本页内容", sec: { leasing: "租赁", cost: "费用", versions: "版本", ratings: "评级", children: "带娃", recalls: "召回", registrations: "登记量", grant: "补贴", rankings: "排名", similar: "相似车型" },
     perYear: (c, km) => `每年约 ${c}（${km} 公里）`,
     grant: "电动车补贴（2026）", bev: "2026 年 1 月 1 日起首次登记的纯电动新车可以申请。", amount: (a, b) => `按家庭收入 ${a} 到 ${b}`, perChild: (p, n) => `每个孩子再加 ${p}，最多 ${n} 个`,
     phevOk: (c, r) => `这个版本符合条件：${c}。插电混动需要不超过 60 g CO₂/km 或纯电续航至少 80 km。`, phevNo: (c, r) => `这个版本不符合条件：${c}。插电混动需要不超过 60 g CO₂/km 或纯电续航至少 80 km。`,
@@ -73,7 +73,7 @@
     why: { few500: "2025 年登记不足 500 辆", few1000: "2025 年登记不足 1000 辆", old: "已不再销售新车", proto: "未按最新规程测试", regs: "登记统计里没有单独列出" },
     results: (q) => `“${q}”的搜索结果`, resultsN: (n) => `${n} 款车型`, noResults: (q) => `没有找到“${q}”。试试品牌和车型，例如“大众 ID.3”。`, regsN: (n) => `近 12 个月 ${n} 辆`,
   } : de ? {
-    jump: "Auf dieser Seite", sec: { cost: "Kosten", versions: "Versionen", ratings: "Bewertungen", children: "Kinder", recalls: "Rückrufe", registrations: "Zulassungen", grant: "Förderung", rankings: "Ranglisten", similar: "Ähnliche Autos" },
+    jump: "Auf dieser Seite", sec: { leasing: "Leasing", cost: "Kosten", versions: "Versionen", ratings: "Bewertungen", children: "Kinder", recalls: "Rückrufe", registrations: "Zulassungen", grant: "Förderung", rankings: "Ranglisten", similar: "Ähnliche Autos" },
     perYear: (c, km) => `rund ${c} im Jahr bei ${km} km`,
     grant: "E-Auto-Förderung (2026)", bev: "Neue reine E-Autos mit Erstzulassung ab 1. Januar 2026 sind förderfähig.", amount: (a, b) => `${a} bis ${b}, je nach Haushaltseinkommen`, perChild: (p, n) => `plus ${p} je Kind, für bis zu ${n} Kinder`,
     phevOk: (c, r) => `Diese Version ist förderfähig: ${c}. Ein Plug-in-Hybrid braucht höchstens 60 g CO₂/km oder mindestens 80 km elektrische Reichweite.`, phevNo: (c, r) => `Diese Version ist nicht förderfähig: ${c}. Ein Plug-in-Hybrid braucht höchstens 60 g CO₂/km oder mindestens 80 km elektrische Reichweite.`,
@@ -84,7 +84,7 @@
     why: { few500: "2025 unter 500 Neuzulassungen", few1000: "2025 unter 1.000 Neuzulassungen", old: "nicht mehr neu zu kaufen", proto: "nicht nach dem neuesten Protokoll getestet", regs: "in der Zulassungsstatistik nicht einzeln aufgeführt" },
     results: (q) => `Treffer für „${q}“`, resultsN: (n) => `${n} Modelle`, noResults: (q) => `Nichts gefunden für „${q}“. Versuch Marke und Modell, z. B. „VW ID.3“.`, regsN: (n) => `${n} in 12 Monaten`,
   } : {
-    jump: "On this page", sec: { cost: "Cost", versions: "Versions", ratings: "Ratings", children: "Children", recalls: "Recalls", registrations: "Registrations", grant: "Grant", rankings: "Rankings", similar: "Similar cars" },
+    jump: "On this page", sec: { leasing: "Leasing", cost: "Cost", versions: "Versions", ratings: "Ratings", children: "Children", recalls: "Recalls", registrations: "Registrations", grant: "Grant", rankings: "Rankings", similar: "Similar cars" },
     perYear: (c, km) => `about ${c} a year at ${km} km`,
     grant: "E-Auto grant (2026)", bev: "New fully electric cars first registered from 1 January 2026 qualify.", amount: (a, b) => `${a} to ${b}, depending on household income`, perChild: (p, n) => `plus ${p} per child, for up to ${n} children`,
     phevOk: (c, r) => `This version qualifies: ${c}. A plug-in hybrid needs at most 60 g CO₂/km or at least 80 km electric range.`, phevNo: (c, r) => `This version does not qualify: ${c}. A plug-in hybrid needs at most 60 g CO₂/km or at least 80 km electric range.`,
@@ -625,10 +625,38 @@
       <ul class="links"><li><a href="${PRE}/rankings/">${esc(W.rankAll)}</a></li></ul></section>`;
   }
 
+  /* lease of a car kept in My cars (/leasing/, maths in /leasing/lease.js): where the odometer stands, kept on this device */
+  const LW = zh ? { btn: "租赁里程", title: "租赁里程", today: "今天", end: (d) => `到期 ${d}`, under: (n) => `少 ${n}`, over: (n) => `超 ${n}`, even: "持平", pay: (e) => `约需补付 ${e}`, back: (e) => `约退还 ${e}`, nothing: "不用结算", open: "打开租赁里程规划", allowed: (n) => `允许 ${n}` }
+    : de ? { btn: "Leasing-km", title: "Leasing-Kilometer", today: "Heute", end: (d) => `Ende ${d}`, under: (n) => `${n} unter`, over: (n) => `${n} über`, even: "genau im Plan", pay: (e) => `rund ${e} nachzahlen`, back: (e) => `rund ${e} zurück`, nothing: "nichts abzurechnen", open: "Leasing-Planer öffnen", allowed: (n) => `erlaubt ${n}` }
+    : { btn: "Lease km", title: "Lease kilometres", today: "Today", end: (d) => `End ${d}`, under: (n) => `${n} under`, over: (n) => `${n} over`, even: "right on plan", pay: (e) => `about ${e} to pay`, back: (e) => `about ${e} back`, nothing: "nothing to settle", open: "Open the lease planner", allowed: (n) => `allowed ${n}` };
+  const leaseHref = (c) => `${PRE}/leasing/?mine=${encodeURIComponent(c.id)}`;
+  function leaseBlock(c) {
+    const A = window.AlloLease;
+    if (!A || !c) return "";
+    let st = null;
+    try { st = ((JSON.parse(localStorage.getItem("allo-cars-lease") || "null") || {}).cars || {})[c.id]; } catch (e) {}
+    if (!st || !A.day(st.start)) return "";
+    const d = new Date(), today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const plan = A.plan(st.plan || []);
+    const t = A.track({ start: st.start, months: st.months, km: st.km || A.recommend(plan.total, st.buf).step_2500, odo0: st.odo0, extra: st.extra, refund: st.refund, tol: st.tol },
+      st.readings || [], { today, per_month: st.pm, plan_year: plan.total });
+    if (!t) return "";
+    const nk = (v) => `${Math.round(Math.abs(v)).toLocaleString(T.locale)} km`;
+    const txt = (v) => Math.abs(v) < 1 ? LW.even : v > 0 ? LW.over(nk(v)) : LW.under(nk(v));
+    const col = (v) => Math.abs(v) < 1 ? "" : v > 0 ? "color:var(--danger)" : "color:var(--success)";
+    const now = t.checkpoints[0], e = t.end.settlement_eur;
+    const money = e > 0 ? LW.pay(eur(e, 0)) : e < 0 ? LW.back(eur(-e, 0)) : LW.nothing;
+    const endDate = new Date(A.day(t.contract.end)).toLocaleDateString(T.locale, { month: "short", year: "numeric", timeZone: "UTC" });
+    return `<section class="ac-card" id="leasing"><h2 class="ac-card__title">${esc(LW.title)}</h2><div class="ac-readouts" style="margin-top:8px">`
+      + (t.started ? `<div class="ac-readout ac-readout--md"><div class="ac-readout__basis">${esc(LW.today)}</div><div class="ac-readout__value" style="${col(now.diff_km)}">${esc(txt(now.diff_km))}</div><div class="ac-readout__basis">${esc(LW.allowed(nk(now.allowed_km)))}</div></div>` : "")
+      + `<div class="ac-readout ac-readout--md"><div class="ac-readout__basis">${esc(LW.end(endDate))}</div><div class="ac-readout__value" style="${col(t.end.diff_km)}">${esc(txt(t.end.diff_km))}</div><div class="ac-readout__basis">${esc(money)}</div></div></div>`
+      + `<p style="margin:12px 0 0"><a class="ac-btn ac-btn--ghost" href="${leaseHref(c)}">${esc(LW.open)}</a></p></section>`;
+  }
+
   /* jump links to each section of the car page */
   function jumpNav(html) {
     // in the order the cards come on this page (My cars puts recalls before versions)
-    const ids = ["cost", "versions", "grant", "ratings", "children", "recalls", "registrations", "rankings", "similar"].filter((id) => html.includes(`id="${id}"`))
+    const ids = ["leasing", "cost", "versions", "grant", "ratings", "children", "recalls", "registrations", "rankings", "similar"].filter((id) => html.includes(`id="${id}"`))
       .sort((x, y) => html.indexOf(`id="${x}"`) - html.indexOf(`id="${y}"`));
     return ids.length > 2 ? `<nav class="jump" aria-label="${esc(W.jump)}">${ids.map((id) => `<a class="ac-chip" href="#${id}">${esc(W.sec[id])}</a>`).join("")}</nav>` : "";
   }
@@ -671,7 +699,8 @@
     // share posters (assets/poster.js): this car, or this car against another
     const P = zh ? ["生成海报", "PK 海报"] : de ? ["Poster", "Duell-Poster"] : ["Poster", "Head-to-head poster"];
     const posters = s.m && window.AlloPoster ? `<button type="button" class="ac-btn ac-btn--ghost" data-poster="one">${esc(P[0])}</button><button type="button" class="ac-btn ac-btn--ghost" data-poster="vs">${esc(P[1])}</button>` : "";
-    const headHtml = `<section class="ac-card"><div class="head"><div>${MINE ? `<h2 class="ac-card__title">${esc(title)}</h2>` : ""}<p class="ac-card__desc" style="margin:4px 0 0">${esc(sub)}</p>${badges(s)}</div><div class="acts">${acts}${posters}</div></div><div class="acts cmp" id="cmp-row">${cmpHtml(s)}</div></section>`;
+    const lease = MINE && current.car ? `<a class="ac-btn ac-btn--ghost" href="${leaseHref(current.car)}">${esc(LW.btn)}</a>` : "";
+    const headHtml = `<section class="ac-card"><div class="head"><div>${MINE ? `<h2 class="ac-card__title">${esc(title)}</h2>` : ""}<p class="ac-card__desc" style="margin:4px 0 0">${esc(sub)}</p>${badges(s)}</div><div class="acts">${acts}${posters}${lease}</div></div><div class="acts cmp" id="cmp-row">${cmpHtml(s)}</div></section>`;
     $("profile").innerHTML = `<div class="stack">${headHtml}<div class="cards">${costBlock(s)}<section class="ac-card"><p class="ac-caption">…</p></section><section class="ac-card"><p class="ac-caption">…</p></section></div></div>`;
     const info = await recallInfo(s).catch(() => null);
     const [rc, rg, kid] = await Promise.all([recallBlock(s, info).catch((e) => ""), regBlock(s).catch((e) => ""), childBlock(s).catch((e) => "")]);
@@ -682,7 +711,7 @@
     const owner = MINE && current.car;
     const R = window.EvGrant && EvGrant.RULES, early = R && s.year && s.year < Number(R.registered_from.slice(0, 4));
     const html = owner
-      ? (info ? attentionBlock(s, info) : "") + costBlock(s) + rc + ratingsBlock(s) + kid + versionBlock(s, list) + rg + rankBlock(s) + similarBlock(s) + (early ? "" : grantBlock(s, list))
+      ? (info ? attentionBlock(s, info) : "") + leaseBlock(current.car) + costBlock(s) + rc + ratingsBlock(s) + kid + versionBlock(s, list) + rg + rankBlock(s) + similarBlock(s) + (early ? "" : grantBlock(s, list))
       : costBlock(s) + versionBlock(s, list) + grantBlock(s, list) + ratingsBlock(s) + kid + rc + rg + rankBlock(s) + similarBlock(s);
     cards.innerHTML = html;
     const head = $("profile").querySelector(".head");

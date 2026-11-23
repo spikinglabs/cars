@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>租赁里程规划 · Allo Cars</title>
+<meta name="description" content="按你的出行习惯算出租车合同每年该签多少公里，并看看里程表和合同相比的情况：今天、月底、季度末、年底和合同到期时。">
+<!-- chrome:head -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Allo Cars">
+<meta property="og:title" content="租赁里程规划 · Allo Cars">
+<meta property="og:description" content="按你的出行习惯算出租车合同每年该签多少公里，并看看里程表和合同相比的情况：今天、月底、季度末、年底和合同到期时。">
+<meta property="og:url" content="https://cars.allo.land/zh/leasing/">
+<meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Allo Cars">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_GB">
+<meta property="og:locale:alternate" content="de_DE">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" hreflang="en" href="https://cars.allo.land/leasing/">
+<link rel="alternate" hreflang="de" href="https://cars.allo.land/de/leasing/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/leasing/">
+<link rel="alternate" hreflang="x-default" href="https://cars.allo.land/leasing/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/zh/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Allo Cars">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
+<!-- /chrome:head -->
+<link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=fd3c12cdce">
+<script src="/assets/site.js?v=92ed0a6c5f"></script>
+<script src="/assets/garage.js?v=74d932cdd7"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; }
+  .stack { display: grid; gap: var(--space-5); }
+  [hidden] { display: none !important; }
+  .step { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: var(--gold-ink); font: 800 14px/1 var(--font-sign); margin-right: 8px; vertical-align: 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: end; }
+  .row > div > .ac-param__label { display: block; margin-bottom: 6px; }
+  .row .ac-param { min-width: 140px; flex: 1 1 140px; grid-template-columns: minmax(0, 1fr); align-content: start; }
+  .row .ac-param__box { justify-self: start; }
+  .row { align-items: start; }
+  .ac-table th { white-space: normal; }
+  .ac-table td, .ac-table th { padding-left: 8px; padding-right: 8px; }
+  .cars { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .sc { display: grid; gap: 10px; margin: 14px 0; }
+  .sc-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(70px, .7fr) auto minmax(54px, .5fr) minmax(0, 1.2fr) auto auto; gap: 8px; align-items: center; }
+  .sc-row input, .sc-row select { width: 100%; box-sizing: border-box; min-height: 40px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-xs); background: var(--surface-50); color: var(--ink); font: 500 15px/1.2 var(--font-sans); }
+  .sc-row input:focus, .sc-row select:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px var(--gold); }
+  .sc-row input[type=number] { font: 700 16px/1.2 var(--font-sign); text-align: right; }
+  .ac-param__box input[type=date] { width: auto; text-align: left; font-size: 15px; }
+  .ac-param__box input.wide { width: 8ch; }
+  .sc-row .x { color: var(--ink-muted); font-weight: 700; }
+  .sc-row .yr { font: 700 15px/1.2 var(--font-sign); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; min-width: 84px; }
+  .sc-row .del { min-width: 40px; padding: 0 10px; }
+  .sc-row .u { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .sc-row .u i { font: 500 13px/1 var(--font-sans); font-style: normal; color: var(--ink-muted); }
+  .sc-head { font: 700 12px/16px var(--font-sign); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+  @media (max-width: 640px) {
+    .sc-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; grid-template-areas: "name name del" "km n ." "per per yr"; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .sc-row .nm { grid-area: name; } .sc-row .km { grid-area: km; } .sc-row .x { display: none; } .sc-row .n { grid-area: n; } .sc-row .per { grid-area: per; } .sc-row .yr { grid-area: yr; } .sc-row .del { grid-area: del; }
+    .sc-head { display: none; }
+  }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .presets .ac-caption { margin: 0 4px 0 0; }
+  .opt td.on { font-weight: 800; }
+  .opt .ac-status { margin-top: 4px; }
+  @media (max-width: 480px) { .ac-table td, .ac-table th { padding-left: 5px; padding-right: 5px; } .ac-table { font-size: 13px; } }
+  .opt tr.on td { background: var(--surface-200); }
+  .neg { color: var(--success); }
+  .pos { color: var(--danger); }
+  .reads { display: grid; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+  .reads li { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+  .chk td:first-child { white-space: normal; }
+  .ac-readout .pos, .ac-readout .neg { line-height: 1.05; }
+  .chk small { display: block; color: var(--ink-muted); font-weight: 500; }
+  .grid { stroke: var(--chart-grid); }
+  .allow { stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 6 5; fill: none; }
+  .actual { stroke: var(--car-1); stroke-width: 3; fill: none; }
+  .proj { stroke: var(--gold); stroke-width: 3; stroke-dasharray: 2 5; stroke-linecap: round; fill: none; }
+  .dot { fill: var(--car-1); }
+  .cp { fill: var(--gold); stroke: var(--ink); stroke-width: 1; }
+  .now { stroke: var(--danger); stroke-width: 1.5; }
+  .ac-chart svg text { font: 600 11px/1 var(--font-sign); fill: var(--ink-muted); }
+  .more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
+  .tight { margin: 0; }
+</style>
+</head>
+<body>
+<div class="ac">
+  <div class="ac-flagbar"></div>
+  <main>
+    <!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/zh/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/zh/cars/">我的车</a>
+    <a href="/zh/compare/">对比</a>
+    <a href="/zh/rankings/">排行榜</a>
+    <a href="/zh/recalls/">召回</a>
+    <a href="/zh/electric/">买电动车</a>
+    <a href="/zh/ev-cost/">充电成本</a>
+    <a href="/zh/chargers/">充电桩地图</a>
+    <a href="/zh/fuel-prices/">油价</a>
+  </nav>
+  <div class="ac-top__right">
+    <details class="ac-notices" data-notices hidden><summary aria-label="我的车的召回" title="我的车的召回" data-count="notices_open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><i class="ac-notices__dot" data-notices-dot hidden><span class="ac-sr">新</span></i></summary><div class="ac-notices__panel" role="region" aria-label="我的车的召回" data-notices-panel></div></details>
+    <button type="button" class="ac-iconbtn" popovertarget="ac-find" aria-controls="ac-find" aria-label="找车" title="找车 (/)" data-count="find_open"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
+    <details class="ac-langmenu" data-langmenu><summary aria-label="语言" title="语言"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>中文</span></summary><div class="ac-langmenu__list"><a class="ac-lang" href="/leasing/" hreflang="en" lang="en" data-lang="en">English</a><a class="ac-lang" href="/de/leasing/" hreflang="de" lang="de" data-lang="de">Deutsch</a><a class="ac-lang" href="/zh/leasing/" hreflang="zh-Hans" lang="zh-Hans" data-lang="zh" aria-current="true">简体中文</a></div></details>
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="切换浅色或深色" title="切换浅色或深色"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="ac-find" id="ac-find" popover role="dialog" aria-label="找车">
+  <form class="ac-find__form" action="/zh/car/" role="search" data-find>
+    <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="品牌和车型，例如 大众 ID.3" aria-label="找车" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
+    <button type="button" class="ac-iconbtn" popovertarget="ac-find" popovertargetaction="hide" aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <ul class="ac-find__list" data-find-list role="listbox" aria-label="找车" hidden></ul>
+  </form>
+</div>
+<script src="/assets/search.js?v=b67806420b" defer></script>
+<script src="/assets/garage.js?v=74d932cdd7" defer></script>
+<script src="/assets/notices.js?v=0628cb42ae" defer></script>
+<aside class="ac-apphint" data-app-hint hidden>
+  <span class="ac-apphint__text" data-app-hint-text>可以把 Allo Cars 添加到主屏幕，像 App 一样使用。</span>
+  <button type="button" class="ac-apphint__go" data-app-hint-go hidden>安装</button>
+  <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="关闭">×</button>
+</aside>
+<!-- /chrome:header -->
+
+    <h1>规划你的<span class="ac-hl">租赁</span>里程</h1>
+    <p class="lead">把你平时开车的情况加起来，算出租赁合同（Leasing）每年该签多少公里。之后再盯着里程表：今天、月底、季度末、年底和合同到期时各是什么情况。所有数据只保存在这台设备上，无需账户。</p>
+
+    <div class="stack">
+      <section class="ac-card" id="for-car" hidden>
+        <span class="ac-param__label">租的是</span>
+        <div class="cars" id="cars" role="group" aria-label="租的是"></div>
+      </section>
+
+      <section class="ac-card" id="plan">
+        <h2 class="ac-card__title"><span class="step">1</span>你开多少公里？</h2>
+        <p class="ac-card__desc">按普通的一年来算：每种出行一行，公里数按往返算。把示例改成你自己的。</p>
+        <div class="sc" id="sc">
+          <div class="sc-row sc-head" aria-hidden="true"><span>行程</span><span>公里</span><span></span><span>次数</span><span>频率</span><span style="text-align:right">每年公里</span><span></span></div>
+        </div>
+        <div class="presets" id="presets"><span class="ac-caption">添加：</span></div>
+        <div class="row" style="margin-top:14px">
+          <label class="ac-param"><span class="ac-param__label">余量</span><span class="ac-param__box"><input id="buf" type="number" min="0" max="50" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><input id="bufr" type="range" min="0" max="30" step="1" aria-label="余量滑块"><span class="ac-param__hint">留给还说不准的出行。一般留 10 %。</span></label>
+        </div>
+        <div class="ac-readouts" id="plan-out" style="margin-top:14px"></div>
+      </section>
+
+      <section class="ac-card">
+        <h2 class="ac-card__title">多签公里，还是到期补付超出的公里？</h2>
+        <p class="ac-card__desc">合同里公里数越多，月租越高。签少了到期要补付超出的公里，没开完的公里按更低的价格退还。填上你报价单里的价格。</p>
+        <div class="row">
+          <label class="ac-param"><span class="ac-param__label">超出公里单价</span><span class="ac-param__box"><input id="extra" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">德语 Mehrkilometer，通常 0.06 到 0.15 €/km</span></label>
+          <label class="ac-param"><span class="ac-param__label">未用公里退款</span><span class="ac-param__box"><input id="refund" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">德语 Minderkilometer，通常 0.03 到 0.08 €/km</span></label>
+          <label class="ac-param"><span class="ac-param__label">每多 1000 公里的月租</span><span class="ac-param__box"><input id="rate" type="number" min="0" max="100" step="0.5" inputmode="decimal"><span class="ac-param__unit">€/月</span></span><span class="ac-param__hint">两份报价的月租差 ÷ 公里差 × 1000</span></label>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <label class="ac-param"><span class="ac-param__label" id="drive-l">如果你实际每年开</span><span class="ac-param__box"><input id="drive" class="wide" type="number" min="0" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">公里/年</span></span><input id="driver" type="range" min="0" max="60000" step="500" aria-label="实际里程滑块"><span class="ac-param__hint" id="drive-h"></span></label>
+        </div>
+        <div class="ac-table-wrap" style="margin-top:10px"><table class="ac-table opt" id="opt"></table></div>
+        <p class="ac-caption" id="opt-note"></p>
+      </section>
+
+      <section class="ac-card" id="contract">
+        <h2 class="ac-card__title"><span class="step">2</span>你的租赁合同</h2>
+        <p class="ac-card__desc">按合同填写。还在比较报价时可以先空着。</p>
+        <div class="row">
+          <label class="ac-param"><span class="ac-param__label">开始（交车日）</span><span class="ac-param__box"><input id="start" type="date"></span></label>
+          <div><span class="ac-param__label">期限</span><div class="ac-seg" id="months" role="group" aria-label="期限"></div></div>
+          <label class="ac-param"><span class="ac-param__label">合同每年公里数</span><span class="ac-param__box"><input id="km" class="wide" type="number" min="1000" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><button type="button" class="ac-chip" id="useplan" style="justify-self:start"></button></label>
+          <label class="ac-param"><span class="ac-param__label">交车时里程</span><span class="ac-param__box"><input id="odo0" class="wide" type="number" min="0" max="2000000" step="1" inputmode="numeric"><span class="ac-param__unit">km</span></span></label>
+          <label class="ac-param"><span class="ac-param__label">免费容差</span><span class="ac-param__box"><input id="tol" class="wide" type="number" min="0" max="100000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">超出或少开在这个范围内不结算，如果你的合同有这一条</span></label>
+        </div>
+      </section>
+
+      <section class="ac-card" id="odo">
+        <h2 class="ac-card__title"><span class="step">3</span>里程表</h2>
+        <p class="ac-card__desc">时不时看一眼仪表盘记下来。每多一次读数，预测就更准。</p>
+        <div class="row">
+          <label class="ac-param"><span class="ac-param__label">日期</span><span class="ac-param__box"><input id="rdate" type="date"></span></label>
+          <label class="ac-param"><span class="ac-param__label">里程表读数</span><span class="ac-param__box"><input id="rkm" class="wide" type="number" min="0" max="2000000" step="1" inputmode="numeric"><span class="ac-param__unit">km</span></span></label>
+          <button type="button" class="ac-btn ac-btn--gold" id="radd">保存读数</button>
+        </div>
+        <ul class="reads" id="reads"></ul>
+      </section>
+
+      <section class="ac-card" id="checkpoints">
+        <h2 class="ac-card__title">现在的情况</h2>
+        <p class="ac-card__desc" id="cp-desc">允许的公里数在合同期内每天均匀增加。预计里程按下面的速度计算。</p>
+        <div id="cp-empty" class="ac-caption">在上面填上租赁开始日期，就能看到各个检查点。</div>
+        <div id="cp-body" hidden>
+          <div class="ac-readouts" id="cp-out"></div>
+          <div class="row" style="margin-top:14px">
+            <label class="ac-param"><span class="ac-param__label">今后每月开</span><span class="ac-param__box"><input id="pm" class="wide" type="number" min="0" max="20000" step="50" inputmode="numeric"><span class="ac-param__unit">公里/月</span></span><input id="pmr" type="range" min="0" max="5000" step="50" aria-label="今后每月里程滑块"><span class="ac-param__hint" id="pm-h"></span></label>
+          </div>
+          <div class="ac-table-wrap" style="margin-top:10px"><table class="ac-table chk" id="cp"></table></div>
+          <div class="ac-legend" style="margin-top:14px"><span class="ac-legend--dash"><i style="border-color:var(--ink-muted)"></i>允许</span><span><i style="border-color:var(--car-1);border-top-width:3px"></i>你的读数</span><span><i style="border-color:var(--gold);border-top-width:3px;border-top-style:dotted"></i>预计</span></div>
+          <div class="ac-chart" id="chart"></div>
+        </div>
+      </section>
+
+      <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>合同各不相同：有的未用公里只退到一定上限，有的容差只适用一个方向，有的提前还车也按超出公里收费。请看你自己的合同。车损和磨损另外结算。</span></p>
+      <details class="more">
+        <summary>怎么算的</summary>
+        <p class="ac-caption">工作周按每年 46 周算（52 周减去假期和法定节日）。允许的公里数从交车起均匀增加：每年公里数 × 年数 × 已过天数 ÷ 合同总天数。预计里程从你最新的读数出发，按你设的每月公里数，否则按到目前为止的速度（至少开了两周），否则按你的计划。到期结算：超出容差的部分 × 超出公里单价，少开超出容差的部分 × 退款单价。上面表格里的月租差是整个合同期多付（或省下）的月租。链接参数：plan、buf、start、months、km、odo0、odo、at、extra、refund、tol、rate、pm。</p>
+      </details>
+    </div>
+    <!-- chrome:footer -->
+<footer class="ac-foot">
+  <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F" data-share-done="链接已复制" data-share-manual="复制这个链接：">
+    <div class="ac-share__row">
+      <h2 id="share-h">分享这个页面</h2>
+      <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>复制链接</span></button>
+      <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>分享…</span></button>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>更多</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
+    <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">按你的出行习惯算出租车合同每年该签多少公里，并看看里程表和合同相比的情况：今天、月底、季度末、年底和合同到期时。</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%E8%A7%84%E5%88%92%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F&amp;title=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%E8%A7%84%E5%88%92%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_weibo">微博</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F&amp;text=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%E8%A7%84%E5%88%92%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="mailto:?subject=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%E8%A7%84%E5%88%92%20%C2%B7%20Allo%20Cars&amp;body=%E6%8C%89%E4%BD%A0%E7%9A%84%E5%87%BA%E8%A1%8C%E4%B9%A0%E6%83%AF%E7%AE%97%E5%87%BA%E7%A7%9F%E8%BD%A6%E5%90%88%E5%90%8C%E6%AF%8F%E5%B9%B4%E8%AF%A5%E7%AD%BE%E5%A4%9A%E5%B0%91%E5%85%AC%E9%87%8C%EF%BC%8C%E5%B9%B6%E7%9C%8B%E7%9C%8B%E9%87%8C%E7%A8%8B%E8%A1%A8%E5%92%8C%E5%90%88%E5%90%8C%E7%9B%B8%E6%AF%94%E7%9A%84%E6%83%85%E5%86%B5%EF%BC%9A%E4%BB%8A%E5%A4%A9%E3%80%81%E6%9C%88%E5%BA%95%E3%80%81%E5%AD%A3%E5%BA%A6%E6%9C%AB%E3%80%81%E5%B9%B4%E5%BA%95%E5%92%8C%E5%90%88%E5%90%8C%E5%88%B0%E6%9C%9F%E6%97%B6%E3%80%82%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F" data-share-link data-count="share_email">邮件</a>
+      </div>
+      <p class="ac-share__note">分享到微信：复制链接后粘贴到聊天里，或在手机上点“分享…”。</p>
+    </div>
+  </section>
+  <p class="ac-foot__links"><a href="/zh/cars/">我的车</a> · <a href="/zh/leasing/">租赁里程</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/children/">带娃乘车规定</a> · <a href="/zh/electric/">买电动车</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/rankings/">排行榜</a> · <a href="/zh/ev-grant/">电动车补贴</a> · <a href="/zh/registrations/">新车登记</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/chargers/stats/">充电桩统计</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
+  <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">Allo 的其他产品</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>身边的亲子出游和活动</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>婴幼儿和儿童用品召回，来自官方渠道</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>给父母的私密宝宝日志</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>在德国安顿生活</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars 是 <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a> 的产品。</p>
+  <p class="ac-country"><label for="ac-country">国家</label> <select id="ac-country" data-country><option value="de" selected>德国</option></select></p>
+  <p class="ac-install" data-install hidden>
+    <button type="button" class="ac-btn ac-btn--gold" data-install-btn>安装 App</button>
+    <span class="ac-install__how" data-install-how role="status" hidden></span>
+  </p>
+</footer>
+<nav class="ac-tabs" aria-label="Allo Cars">
+  <a href="/zh/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>首页</span></a>
+  <a href="/zh/cars/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>我的车</span></a>
+  <a href="/zh/compare/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>对比</span></a>
+  <a href="/zh/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电</span></a>
+  <button type="button" class="ac-tabs__more" popovertarget="ac-more" aria-controls="ac-more" data-more-btn data-current><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>更多</span></button>
+</nav>
+<div class="ac-sheet" id="ac-more" popover role="dialog" aria-labelledby="ac-more-h">
+  <div class="ac-sheet__head"><h2 id="ac-more-h">全部页面</h2><button type="button" class="ac-iconbtn" popovertarget="ac-more" popovertargetaction="hide" data-more-close aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <h3>我的车</h3>
+  <ul>
+    <li><a href="/zh/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>我的车</span></a></li>
+    <li><a href="/zh/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>召回</span></a></li>
+    <li><a href="/zh/children/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="2.2"/><path d="M5 20v-5a4 4 0 0 1 8 0v5M15 11l4-1M17 10v9"/></svg><span>带娃乘车规定</span></a></li>
+    <li><a href="/zh/leasing/" aria-current="page" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5M3 20h18"/></svg><span>租赁里程</span></a></li>
+  </ul>
+  <h3>选车</h3>
+  <ul>
+    <li><a href="/zh/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>买电动车</span></a></li>
+    <li><a href="/zh/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>车型对比</span></a></li>
+    <li><a href="/zh/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>排行榜</span></a></li>
+    <li><a href="/zh/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>电动车补贴</span></a></li>
+    <li><a href="/zh/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>新车登记</span></a></li>
+  </ul>
+  <h3>充电</h3>
+  <ul>
+    <li><a href="/zh/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>充电成本</span></a></li>
+    <li><a href="/zh/chargers/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>充电桩地图</span></a></li>
+    <li><a href="/zh/chargers/stats/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>充电桩统计</span></a></li>
+    <li><a href="/zh/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>价格档案</span></a></li>
+    <li><a href="/zh/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>最佳充电时段</span></a></li>
+  </ul>
+  <h3>加油</h3>
+  <ul>
+    <li><a href="/zh/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>油价</span></a></li>
+  </ul>
+  <h3>数据</h3>
+  <ul>
+    <li><a href="/zh/open-data/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg><span>数据与来源</span></a></li>
+    <li><a href="/zh/open-data/#ai" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>接入 AI</span></a></li>
+  </ul>
+</div>
+<!-- /chrome:footer -->
+  </main>
+</div>
+<script src="/leasing/lease.js?v=46d3f144cd"></script>
+<script src="/leasing/app.js?v=2d69ee4d66"></script>
+</body>
+</html>

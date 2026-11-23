@@ -78,6 +78,12 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/fuel-prices/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/fuel-prices/"/>
   </url>
+  <url><loc>https://cars.allo.land/leasing/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/leasing/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/leasing/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/leasing/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/leasing/"/>
+  </url>
   <url><loc>https://cars.allo.land/legal/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/legal/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/legal/"/>
@@ -186,6 +192,12 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/fuel-prices/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/fuel-prices/"/>
   </url>
+  <url><loc>https://cars.allo.land/de/leasing/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/leasing/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/leasing/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/leasing/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/leasing/"/>
+  </url>
   <url><loc>https://cars.allo.land/de/legal/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/legal/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/legal/"/>
@@ -281,6 +293,12 @@
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/fuel-prices/"/>
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/fuel-prices/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/fuel-prices/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/leasing/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/leasing/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/leasing/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/leasing/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/leasing/"/>
   </url>
   <url><loc>https://cars.allo.land/zh/legal/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/legal/"/>
