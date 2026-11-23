@@ -140,7 +140,7 @@
   const fresh = () => ({
     plan: L.PRESETS.slice(0, 4).map((p) => ({ id: p.id, label: "", km: p.km, n: p.n, per: p.per })),
     buf: D.buf, extra: D.extra, refund: D.refund, rate: D.rate, drive: null,
-    start: "", months: D.months, km: null, odo0: 0, tol: 0, pm: null, readings: [],
+    start: "", months: D.months, km: null, odo0: null, tol: 0, pm: null, readings: [],
   });
   let carId = "_", S = fresh(), logged = null, showAllReads = false;
 
@@ -211,7 +211,7 @@
     if (S.start) {
       q.set("start", S.start); q.set("months", S.months);
       if (S.km) q.set("km", S.km);
-      if (S.odo0) q.set("odo0", S.odo0);
+      if (S.odo0 != null) q.set("odo0", S.odo0);
       if (S.tol) q.set("tol", S.tol);
       const r = S.readings[S.readings.length - 1];
       if (r) { q.set("odo", r.km); q.set("at", r.date); }
@@ -283,7 +283,7 @@
     const set = (id, v) => { if ($(id) && document.activeElement !== $(id)) $(id).value = v == null ? "" : v; };
     set("extra", S.extra); set("refund", S.refund);
     if (PLAN) { set("buf", S.buf); $("bufr").value = S.buf; set("rate", S.rate); return; }
-    set("start", S.start); set("km", S.km); set("odo0", S.odo0 || ""); set("tol", S.tol || "");
+    set("start", S.start); set("km", S.km); set("odo0", S.odo0); set("tol", S.tol || "");
     if (!$("rdate").value) $("rdate").value = todayIso();
     const all = S.readings.slice().reverse(), shown = showAllReads ? all : all.slice(0, 3);
     $("reads").innerHTML = S.readings.length
