@@ -20,7 +20,6 @@
     perYear: (n) => `${n} 公里/年`, need: "你每年大约开", needB: (n) => `按上面 ${n} 项加起来`,
     pick: "建议合同里写", pickB: (m, k5) => `已含 ${m} 余量，按 2500 公里一档向上取整（按 5000 一档则是 ${k5}）`,
     termB: "合同期内的总里程",
-    useplan: (k) => `按我的计划用 ${k}`,
     th: ["每年", (m) => `${m} 个月月租差`, "到期结算", "合计"],
     best: "最省", suggested: "建议",
     optNote: (d, x, r, k) => `与正好签 ${d} 相比。少签的每公里到期要付 ${x}，多签没用完的每公里退 ${r}，而多签 1000 公里每公里约合 ${k} 的月租。`,
@@ -56,7 +55,6 @@
     perYear: (n) => `${n} km/Jahr`, need: "Du fährst rund", needB: (n) => `${n} Fahrten oben zusammengezählt`,
     pick: "Im Vertrag ansetzen", pickB: (m, k5) => `Mit ${m} Puffer, aufgerundet auf 2.500-km-Stufen (in 5.000er-Stufen ${k5})`,
     termB: "Gesamtkilometer über die Laufzeit",
-    useplan: (k) => `${k} aus meinem Plan nehmen`,
     th: ["Pro Jahr", (m) => `Rate, ${m} Monate`, "Am Ende", "Zusammen"],
     best: "am günstigsten", suggested: "Vorschlag",
     optNote: (d, x, r, k) => `Im Vergleich zu genau ${d}. Jeder fehlende km kostet am Ende ${x}, jeder nicht gefahrene bringt ${r} zurück, während 1.000 km mehr im Vertrag rund ${k} je km Rate kosten.`,
@@ -92,7 +90,6 @@
     perYear: (n) => `${n} km/yr`, need: "You drive about", needB: (n) => `${n} kinds of trips above, added up`,
     pick: "Put in the contract", pickB: (m, k5) => `With ${m} margin, rounded up to 2,500 km steps (${k5} in 5,000 km steps)`,
     termB: "Total km over the lease",
-    useplan: (k) => `Use ${k} from my plan`,
     th: ["A year", (m) => `Rate, ${m} months`, "At the end", "Together"],
     best: "cheapest", suggested: "suggested",
     optNote: (d, x, r, k) => `Compared with exactly ${d}. Each km short costs ${x} at the end, each km not driven returns ${r}, while 1,000 km more in the contract cost about ${k} per km in rate.`,
@@ -123,8 +120,12 @@
   };
   const L = window.AlloLease, G = window.AlloGarage;
   const PRE = de ? "/de" : zh ? "/zh" : "";
-  const KEY = "allo-cars-lease", TERMS = [24, 36, 48];
+  const KEY = "allo-cars-lease", KEYP = "allo-cars-lease-plan", TERMS = [24, 36, 48];
   const $ = (id) => document.getElementById(id);
+  // one script, two pages: /leasing/plan/ works out the km to put in a lease (before you sign, no car);
+  // /leasing/ tracks the lease of a car you have (contract, odometer, checkpoints)
+  const PLAN = !!$("plan");
+  const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const nf = (v) => new Intl.NumberFormat(T.locale, { maximumFractionDigits: 0 }).format(Math.round(v));
   const km = (v) => `${nf(v)} km`;
@@ -132,7 +133,8 @@
   const pct = (v) => `${nf(v)} %`;
   const date = (s) => new Date(L.day(s)).toLocaleDateString(T.locale, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
   const todayIso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
-  const store = (v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(KEY) || "null"); localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { return null; } };
+  const store = (v, k) => { k = k || KEY; try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
+  const PLAN_KEYS = ["plan", "buf", "extra", "refund", "rate", "drive", "months"];
 
   const D = L.DEFAULTS;
   const fresh = () => ({
@@ -159,6 +161,13 @@
   }
   function load() {
     const q = new URLSearchParams(location.search);
+    if (PLAN) {
+      S = Object.assign(fresh(), store(undefined, KEYP) || {});
+      const u = fromUrl(q);
+      PLAN_KEYS.forEach((k) => { if (k !== "plan" && q.has(k) && isFinite(parseFloat(q.get(k)))) S[k] = u[k]; });
+      if (q.has("plan")) S.plan = u.plan;
+      return;
+    }
     const cars = G ? G.list() : [];
     const mine = q.get("mine") && cars.find((c) => c.id === q.get("mine"));
     const pick = mine || (G && G.active()) || cars[0];
@@ -170,8 +179,7 @@
     S = Object.assign(fresh(), saved || {});
     S.readings = Array.isArray(S.readings) ? S.readings.slice() : [];
     const u = fromUrl(q);
-    ["plan", "buf", "extra", "refund", "rate", "drive", "start", "months", "km", "odo0", "tol", "pm"].forEach((k) => { if (q.has(k) && (k === "start" ? L.day(q.get(k)) : isFinite(parseFloat(q.get(k))))) S[k] = u[k]; });
-    if (q.has("plan")) S.plan = u.plan;
+    ["extra", "refund", "start", "months", "km", "odo0", "tol", "pm"].forEach((k) => { if (q.has(k) && (k === "start" ? L.day(q.get(k)) : isFinite(parseFloat(q.get(k))))) S[k] = u[k]; });
     const odo = numP(q, "odo", 0, 2000000);
     if (odo != null) {
       const d = L.day(q.get("at")) && q.get("at") <= todayIso() ? q.get("at") : todayIso();
@@ -181,6 +189,7 @@
     }
   }
   function save() {
+    if (PLAN) { const o = {}; PLAN_KEYS.forEach((k) => { o[k] = S[k]; }); store(o, KEYP); return; }
     const all = store() || { v: 1, cars: {} };
     all.cars = all.cars || {};
     all.cars[carId] = S;
@@ -189,11 +198,16 @@
   }
   function url() {
     const q = new URLSearchParams();
+    if (PLAN) {
+      q.set("plan", S.plan.map((p) => [p.id || (p.label || "").replace(/[|~]/g, " "), p.km, p.n, p.per].join("~")).join("|"));
+      q.set("buf", S.buf); q.set("months", S.months);
+      if (S.drive != null) q.set("drive", S.drive);
+      ["extra", "refund", "rate"].forEach((k) => q.set(k, S[k]));
+      history.replaceState(null, "", `${location.pathname}?${q.toString().replace(/%7E/gi, "~").replace(/%7C/gi, "|")}${location.hash}`);
+      return;
+    }
     if (carId !== "_") q.set("mine", carId);
-    q.set("plan", S.plan.map((p) => [p.id || (p.label || "").replace(/[|~]/g, " "), p.km, p.n, p.per].join("~")).join("|"));
-    q.set("buf", S.buf);
-    if (S.drive != null) q.set("drive", S.drive);
-    ["extra", "refund", "rate"].forEach((k) => q.set(k, S[k]));
+    ["extra", "refund"].forEach((k) => q.set(k, S[k]));
     if (S.start) {
       q.set("start", S.start); q.set("months", S.months);
       if (S.km) q.set("km", S.km);
@@ -230,14 +244,12 @@
   function drawPlanOut() {
     const { p, r } = planNumbers();
     [].forEach.call($("sc").querySelectorAll(".sc-row[data-i]"), (row) => { const x = p.rows[+row.dataset.i]; row.querySelector(".yr").textContent = x ? T.perYear(nf(x.year)) : ""; });
-    const months = S.start ? S.months : D.months;
+    const months = S.months;
     $("plan-out").innerHTML = [
       [km(r.need), T.need, T.needB(p.rows.filter((x) => x.year > 0).length)],
       [km(r.step_2500), T.pick, T.pickB(pct(S.buf), km(r.step_5000))],
       [km(r.step_2500 * months / 12), T.termB, T.months(months)],
     ].map(([v, a, b], i) => `<div class="ac-readout ac-readout--md"><div class="ac-readout__basis">${esc(a)}</div><div class="ac-readout__value">${esc(v)}${i < 2 ? `<small> /${zh ? "年" : de ? "Jahr" : "yr"}</small>` : ""}</div><div class="ac-readout__basis">${esc(b)}</div></div>`).join("");
-    $("useplan").textContent = T.useplan(km(r.step_2500));
-    $("useplan").dataset.km = r.step_2500;
     drawOptions(p, r);
   }
   function drawOptions(p, r) {
@@ -246,11 +258,11 @@
     $("driver").max = Math.max(60000, Math.ceil(drive * 1.5 / 5000) * 5000);
     $("driver").value = drive;
     $("drive-h").textContent = T.driveH(km(r.need));
-    const months = S.start ? S.months : D.months;
+    const months = S.months;
     const c = L.norm({ start: "2000-01-01", months, km: drive || 1000, extra: S.extra, refund: S.refund, tol: S.tol, rate: S.rate });
     const base = Math.max(2500, Math.round(drive / 2500) * 2500);
     const steps = new Set([-5000, -2500, 0, 2500, 5000].map((d) => base + d).filter((a) => a >= 2500));
-    steps.add(r.step_2500); if (S.km) steps.add(S.km);
+    steps.add(r.step_2500);
     const rows = L.options(drive, c, [...steps].sort((a, b) => a - b));
     // relative to contracting exactly `drive` km
     const ref = { rate: (drive - base) / 1000 * S.rate * months };
@@ -268,9 +280,10 @@
   /* ---------- 2 contract, 3 readings ---------- */
   function drawContract() {
     $("months").innerHTML = TERMS.concat(TERMS.includes(S.months) ? [] : [S.months]).map((m) => `<button type="button" data-m="${m}" aria-pressed="${S.months === m}">${esc(T.months(m))}</button>`).join("");
-    const set = (id, v) => { if (document.activeElement !== $(id)) $(id).value = v == null ? "" : v; };
+    const set = (id, v) => { if ($(id) && document.activeElement !== $(id)) $(id).value = v == null ? "" : v; };
+    set("extra", S.extra); set("refund", S.refund);
+    if (PLAN) { set("buf", S.buf); $("bufr").value = S.buf; set("rate", S.rate); return; }
     set("start", S.start); set("km", S.km); set("odo0", S.odo0 || ""); set("tol", S.tol || "");
-    set("buf", S.buf); $("bufr").value = S.buf; set("extra", S.extra); set("refund", S.refund); set("rate", S.rate);
     if (!$("rdate").value) $("rdate").value = todayIso();
     const all = S.readings.slice().reverse(), shown = showAllReads ? all : all.slice(0, 3);
     $("reads").innerHTML = S.readings.length
@@ -280,7 +293,7 @@
   }
 
   /* ---------- checkpoints ---------- */
-  function contract() { return { start: S.start, months: S.months, km: S.km || planNumbers().r.step_2500, odo0: S.odo0, extra: S.extra, refund: S.refund, tol: S.tol }; }
+  function contract() { return { start: S.start, months: S.months, km: S.km || D.km, odo0: S.odo0, extra: S.extra, refund: S.refund, tol: S.tol }; }
   const cpName = (x) => [x.id].concat(x.also).map((k, i) => i && lang === "en" ? T.cp[k].toLowerCase() : T.cp[k]).join(T.and);
   const diffTxt = (d) => Math.abs(d) < 1 ? T.even : d > 0 ? T.over(km(d)) : T.under(km(-d));
   const diffCls = (d) => Math.abs(d) < 1 ? "" : d > 0 ? "pos" : "neg";
@@ -288,8 +301,7 @@
     const ok = !!L.day(S.start);
     $("cp-empty").hidden = ok; $("cp-body").hidden = !ok;
     if (!ok) return;
-    const { p } = planNumbers();
-    const opts = { today: todayIso(), per_month: S.pm, plan_year: p.total };
+    const opts = { today: todayIso(), per_month: S.pm };
     const ser = L.series(contract(), S.readings, opts), t = ser.track;
     const auto = L.track(contract(), S.readings, Object.assign({}, opts, { per_month: null }));
     if (document.activeElement !== $("pm")) $("pm").value = t.per_month;
@@ -398,36 +410,42 @@
   }
 
   function changed() {
-    save(); url(); drawContract(); drawLast(); drawPlanOut(); drawCheckpoints();
-    if ($("bk-remind")) G.backupReminder($("bk-remind")); }
+    save(); url(); drawContract();
+    if (PLAN) { drawPlanOut(); return; }
+    drawLast(); drawCheckpoints();
+    if ($("bk-remind")) G.backupReminder($("bk-remind"));
+  }
   function drawRemind() {
     if (!G || !G.backupReminder) return;
     if (!$("bk-remind")) $("odo").querySelector(".ac-card__desc").insertAdjacentHTML("afterend", `<p id="bk-remind" hidden></p>`);
     G.backupReminder($("bk-remind"));
   }
-  function drawAll() { drawCars(); drawPlan(); drawQuick(); drawExports(); changed(); drawRemind(); }
+  function drawAll() {
+    if (PLAN) { drawPlan(); changed(); return; }
+    drawCars(); drawQuick(); drawExports(); changed(); drawRemind();
+  }
 
   /* ---------- events ---------- */
-  $("sc").addEventListener("input", (e) => {
+  on("sc", "input", (e) => {
     const row = e.target.closest(".sc-row[data-i]"); if (!row) return;
     const p = S.plan[+row.dataset.i], f = e.target.dataset.f;
     if (f === "label") { p.label = e.target.value.slice(0, 60); if (p.id && p.label !== T.preset[p.id]) p.id = ""; if (p.id) p.label = ""; }
     else if (f === "per") p.per = e.target.value;
     else p[f] = Math.max(0, Number(e.target.value) || 0);
-    save(); url(); drawPlanOut(); drawCheckpoints();
+    save(); url(); drawPlanOut();
   });
-  $("sc").addEventListener("click", (e) => {
+  on("sc", "click", (e) => {
     const d = e.target.closest("[data-del]"); if (!d) return;
     S.plan.splice(+d.dataset.del, 1); drawPlan(); changed();
   });
-  $("presets").addEventListener("click", (e) => {
+  on("presets", "click", (e) => {
     const b = e.target.closest("[data-add]"); if (!b) return;
     const p = L.PRESETS.find((x) => x.id === b.dataset.add);
     S.plan.push(p ? { id: p.id, label: "", km: p.km, n: p.n, per: p.per } : { id: "", label: "", km: 50, n: 1, per: "m" });
     drawPlan(); changed();
     if (!p) { const rows = $("sc").querySelectorAll(".sc-row[data-i] .nm"); rows[rows.length - 1].focus(); }
   });
-  const bindNum = (id, key, lo, hi, nullable) => $(id).addEventListener("input", (e) => {
+  const bindNum = (id, key, lo, hi, nullable) => on(id, "input", (e) => {
     const v = parseFloat(e.target.value);
     if (e.target.value === "" && nullable) S[key] = null;
     else if (isFinite(v) && v >= lo && v <= hi) S[key] = v; else return;
@@ -438,18 +456,17 @@
   bindNum("drive", "drive", 0, 500000, true); bindNum("driver", "drive", 0, 500000);
   bindNum("km", "km", 1000, 200000, true); bindNum("odo0", "odo0", 0, 2000000, true); bindNum("tol", "tol", 0, 100000, true);
   bindNum("pm", "pm", 0, 50000, true); bindNum("pmr", "pm", 0, 50000);
-  $("start").addEventListener("change", (e) => { S.start = L.day(e.target.value) ? e.target.value : ""; changed(); });
-  $("months").addEventListener("click", (e) => { const b = e.target.closest("[data-m]"); if (b) { S.months = +b.dataset.m; changed(); } });
-  $("useplan").addEventListener("click", () => { S.km = +$("useplan").dataset.km; changed(); });
-  $("radd").addEventListener("click", () => {
+  on("start", "change", (e) => { S.start = L.day(e.target.value) ? e.target.value : ""; changed(); });
+  on("months", "click", (e) => { const b = e.target.closest("[data-m]"); if (b) { S.months = +b.dataset.m; changed(); } });
+  on("radd", "click", () => {
     const d = $("rdate").value, v = parseFloat($("rkm").value);
     if (!L.day(d) || !isFinite(v) || v < 0) { $("rkm").focus(); return; }
     addReading(d, v); $("rkm").value = "";
   });
-  $("reads").addEventListener("click", (e) => { if (e.target.id === "reads-more") { showAllReads = !showAllReads; drawContract(); } });
-  $("reads").addEventListener("click", (e) => { const b = e.target.closest("[data-rm]"); if (b) { S.readings = S.readings.filter((r) => r.date !== b.dataset.rm); changed(); } });
-  $("cp-body").addEventListener("click", (e) => { if (e.target.id === "pm-reset") { S.pm = null; changed(); } });
-  $("cars").addEventListener("click", (e) => {
+  on("reads", "click", (e) => { if (e.target.id === "reads-more") { showAllReads = !showAllReads; drawContract(); } });
+  on("reads", "click", (e) => { const b = e.target.closest("[data-rm]"); if (b) { S.readings = S.readings.filter((r) => r.date !== b.dataset.rm); changed(); } });
+  on("cp-body", "click", (e) => { if (e.target.id === "pm-reset") { S.pm = null; changed(); } });
+  on("cars", "click", (e) => {
     const b = e.target.closest("[data-car]"); if (!b || b.dataset.car === carId) return;
     save();
     carId = b.dataset.car;
@@ -457,17 +474,17 @@
     S = Object.assign(fresh(), (all.cars || {})[carId] || {});
     drawAll();
   });
-  $("quick-body").addEventListener("click", (e) => {
+  on("quick-body", "click", (e) => {
     const b = e.target.closest("[data-copy]"); if (!b) return;
     const txt = $(b.dataset.copy).textContent;
     const done = () => { b.textContent = T.copied; setTimeout(() => { b.textContent = T.copy; }, 1500); };
     try { navigator.clipboard.writeText(txt).then(done, () => {}); } catch (err) {}
   });
-  $("odo").addEventListener("click", (e) => {
+  on("odo", "click", (e) => {
     if (e.target.id === "x-csv") csv();
     if (e.target.id === "x-bak") G.saveBackup();
   });
-  $("odo").addEventListener("change", (e) => {
+  on("odo", "change", (e) => {
     if (e.target.id !== "x-res" || !e.target.files[0]) return;
     e.target.files[0].text().then((t) => {
       const n = G.restore(JSON.parse(t));
@@ -476,7 +493,7 @@
     }).catch(() => { $("x-msg").textContent = T.badFile; });
     e.target.value = "";
   });
-  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawCheckpoints, 150); });
+  let rt; if (!PLAN) addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawCheckpoints, 150); });
 
   load();
   drawAll();

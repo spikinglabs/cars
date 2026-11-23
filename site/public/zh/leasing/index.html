@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>租赁里程规划 · Allo Cars</title>
-<meta name="description" content="按你的出行习惯算出租车合同每年该签多少公里，并看看里程表和合同相比的情况：今天、月底、季度末、年底和合同到期时。">
+<title>租赁里程 · Allo Cars</title>
+<meta name="description" content="跟踪你租赁车辆的里程：今天、月底、季度末、年底和合同到期时，里程表和合同相比的情况，以及可能的费用。">
 <!-- chrome:head -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Allo Cars">
-<meta property="og:title" content="租赁里程规划 · Allo Cars">
-<meta property="og:description" content="按你的出行习惯算出租车合同每年该签多少公里，并看看里程表和合同相比的情况：今天、月底、季度末、年底和合同到期时。">
+<meta property="og:title" content="租赁里程 · Allo Cars">
+<meta property="og:description" content="跟踪你租赁车辆的里程：今天、月底、季度末、年底和合同到期时，里程表和合同相比的情况，以及可能的费用。">
 <meta property="og:url" content="https://cars.allo.land/zh/leasing/">
 <meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
 <meta property="og:image:width" content="512">
@@ -146,8 +146,8 @@
 </aside>
 <!-- /chrome:header -->
 
-    <h1>规划你的<span class="ac-hl">租赁</span>里程</h1>
-    <p class="lead">把你平时开车的情况加起来，算出租赁合同（Leasing）每年该签多少公里。之后再盯着里程表：今天、月底、季度末、年底和合同到期时各是什么情况。所有数据只保存在这台设备上，无需账户。</p>
+    <h1>你的<span class="ac-hl">租赁</span>里程</h1>
+    <p class="lead">填好合同，时不时记一下里程表读数。你会看到今天、月底、季度末、年底和合同到期时各是什么情况。所有数据只保存在这台设备上，无需账户。</p>
 
     <div class="stack">
       <section class="ac-card" id="for-car" hidden>
@@ -155,49 +155,23 @@
         <div class="cars" id="cars" role="group" aria-label="租的是"></div>
       </section>
 
-      <section class="ac-card" id="plan">
-        <h2 class="ac-card__title"><span class="step">1</span>你开多少公里？</h2>
-        <p class="ac-card__desc">按普通的一年来算：每种出行一行，公里数按往返算。把示例改成你自己的。</p>
-        <div class="sc" id="sc">
-          <div class="sc-row sc-head" aria-hidden="true"><span>行程</span><span>公里</span><span></span><span>次数</span><span>频率</span><span style="text-align:right">每年公里</span><span></span></div>
-        </div>
-        <div class="presets" id="presets"><span class="ac-caption">添加：</span></div>
-        <div class="row" style="margin-top:14px">
-          <label class="ac-param"><span class="ac-param__label">余量</span><span class="ac-param__box"><input id="buf" type="number" min="0" max="50" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><input id="bufr" type="range" min="0" max="30" step="1" aria-label="余量滑块"><span class="ac-param__hint">留给还说不准的出行。一般留 10 %。</span></label>
-        </div>
-        <div class="ac-readouts" id="plan-out" style="margin-top:14px"></div>
-      </section>
-
-      <section class="ac-card">
-        <h2 class="ac-card__title">多签公里，还是到期补付超出的公里？</h2>
-        <p class="ac-card__desc">合同里公里数越多，月租越高。签少了到期要补付超出的公里，没开完的公里按更低的价格退还。填上你报价单里的价格。</p>
-        <div class="row">
-          <label class="ac-param"><span class="ac-param__label">超出公里单价</span><span class="ac-param__box"><input id="extra" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">德语 Mehrkilometer，通常 0.06 到 0.15 €/km</span></label>
-          <label class="ac-param"><span class="ac-param__label">未用公里退款</span><span class="ac-param__box"><input id="refund" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">德语 Minderkilometer，通常 0.03 到 0.08 €/km</span></label>
-          <label class="ac-param"><span class="ac-param__label">每多 1000 公里的月租</span><span class="ac-param__box"><input id="rate" type="number" min="0" max="100" step="0.5" inputmode="decimal"><span class="ac-param__unit">€/月</span></span><span class="ac-param__hint">两份报价的月租差 ÷ 公里差 × 1000</span></label>
-        </div>
-        <div class="row" style="margin-top:14px">
-          <label class="ac-param"><span class="ac-param__label" id="drive-l">如果你实际每年开</span><span class="ac-param__box"><input id="drive" class="wide" type="number" min="0" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">公里/年</span></span><input id="driver" type="range" min="0" max="60000" step="500" aria-label="实际里程滑块"><span class="ac-param__hint" id="drive-h"></span></label>
-        </div>
-        <div class="ac-table-wrap" style="margin-top:10px"><table class="ac-table opt" id="opt"></table></div>
-        <p class="ac-caption" id="opt-note"></p>
-      </section>
-
       <section class="ac-card" id="contract">
-        <h2 class="ac-card__title"><span class="step">2</span>你的租赁合同</h2>
-        <p class="ac-card__desc">按合同填写。还在比较报价时可以先空着。</p>
+        <h2 class="ac-card__title"><span class="step">1</span>你的租赁合同</h2>
+        <p class="ac-card__desc">照合同填写。</p>
         <div class="row">
           <label class="ac-param"><span class="ac-param__label">开始（交车日）</span><span class="ac-param__box"><input id="start" type="date"></span></label>
           <div><span class="ac-param__label">期限</span><div class="ac-seg" id="months" role="group" aria-label="期限"></div></div>
-          <label class="ac-param"><span class="ac-param__label">合同每年公里数</span><span class="ac-param__box"><input id="km" class="wide" type="number" min="1000" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><button type="button" class="ac-chip" id="useplan" style="justify-self:start"></button></label>
+          <label class="ac-param"><span class="ac-param__label">合同每年公里数</span><span class="ac-param__box"><input id="km" class="wide" type="number" min="1000" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">还在挑选报价？<a href="/zh/leasing/plan/">算算该签多少公里</a></span></label>
           <label class="ac-param"><span class="ac-param__label">交车时里程</span><span class="ac-param__box"><input id="odo0" class="wide" type="number" min="0" max="2000000" step="1" inputmode="numeric"><span class="ac-param__unit">km</span></span></label>
           <label class="ac-param"><span class="ac-param__label">免费容差</span><span class="ac-param__box"><input id="tol" class="wide" type="number" min="0" max="100000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">超出或少开在这个范围内不结算，如果你的合同有这一条</span></label>
+          <label class="ac-param"><span class="ac-param__label">超出公里单价</span><span class="ac-param__box"><input id="extra" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">德语 Mehrkilometer，通常 0.06 到 0.15 €/km</span></label>
+          <label class="ac-param"><span class="ac-param__label">未用公里退款</span><span class="ac-param__box"><input id="refund" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">德语 Minderkilometer，通常 0.03 到 0.08 €/km</span></label>
         </div>
       </section>
 
       <section class="ac-card" id="odo">
         <p class="ac-status ac-status--ok" id="logged" role="status" hidden></p>
-        <h2 class="ac-card__title"><span class="step">3</span>里程表</h2>
+        <h2 class="ac-card__title"><span class="step">2</span>里程表</h2>
         <p class="ac-card__desc">时不时看一眼仪表盘记下来。每多一次读数，预测就更准。</p>
         <div class="row">
           <label class="ac-param"><span class="ac-param__label">日期</span><span class="ac-param__box"><input id="rdate" type="date"></span></label>
@@ -226,7 +200,7 @@
       <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>合同各不相同：有的未用公里只退到一定上限，有的容差只适用一个方向，有的提前还车也按超出公里收费。请看你自己的合同。车损和磨损另外结算。</span></p>
       <details class="more">
         <summary>怎么算的</summary>
-        <p class="ac-caption">工作周按每年 46 周算（52 周减去假期和法定节日）。允许的公里数从交车起均匀增加：每年公里数 × 年数 × 已过天数 ÷ 合同总天数。预计里程从你最新的读数出发，按你设的每月公里数，否则按到目前为止的速度（至少开了两周），否则按你的计划。到期结算：超出容差的部分 × 超出公里单价，少开超出容差的部分 × 退款单价。上面表格里的月租差是整个合同期多付（或省下）的月租。链接参数：plan、buf、start、months、km、odo0、odo、at、extra、refund、tol、rate、pm。</p>
+        <p class="ac-caption">公里额度从交车起每天均匀增加：每年公里数 × 年数 × 已过天数 ÷ 租期天数。预计公里数从你最新的读数开始，按你设置的每月公里数往后推；没有设置就按你目前的速度（至少开了两周），否则按额度。到期结算：超出额度且超过容差的公里 × 超公里费，少于额度且超过容差的公里 × 退款。链接参数：mine、start、months、km、odo0、odo、at、extra、refund、tol、pm。</p>
       </details>
     </div>
     <!-- chrome:footer -->
@@ -240,14 +214,14 @@
     </div>
     <p class="ac-share__status" data-share-status role="status"></p>
     <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
-      <p class="ac-share__desc">按你的出行习惯算出租车合同每年该签多少公里，并看看里程表和合同相比的情况：今天、月底、季度末、年底和合同到期时。</p>
+      <p class="ac-share__desc">跟踪你租赁车辆的里程：今天、月底、季度末、年底和合同到期时，里程表和合同相比的情况，以及可能的费用。</p>
       <div class="ac-share__row">
-        <a href="https://wa.me/?text=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%E8%A7%84%E5%88%92%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F&amp;title=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%E8%A7%84%E5%88%92%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_weibo">微博</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F&amp;text=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%E8%A7%84%E5%88%92%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="mailto:?subject=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%E8%A7%84%E5%88%92%20%C2%B7%20Allo%20Cars&amp;body=%E6%8C%89%E4%BD%A0%E7%9A%84%E5%87%BA%E8%A1%8C%E4%B9%A0%E6%83%AF%E7%AE%97%E5%87%BA%E7%A7%9F%E8%BD%A6%E5%90%88%E5%90%8C%E6%AF%8F%E5%B9%B4%E8%AF%A5%E7%AD%BE%E5%A4%9A%E5%B0%91%E5%85%AC%E9%87%8C%EF%BC%8C%E5%B9%B6%E7%9C%8B%E7%9C%8B%E9%87%8C%E7%A8%8B%E8%A1%A8%E5%92%8C%E5%90%88%E5%90%8C%E7%9B%B8%E6%AF%94%E7%9A%84%E6%83%85%E5%86%B5%EF%BC%9A%E4%BB%8A%E5%A4%A9%E3%80%81%E6%9C%88%E5%BA%95%E3%80%81%E5%AD%A3%E5%BA%A6%E6%9C%AB%E3%80%81%E5%B9%B4%E5%BA%95%E5%92%8C%E5%90%88%E5%90%8C%E5%88%B0%E6%9C%9F%E6%97%B6%E3%80%82%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F" data-share-link data-count="share_email">邮件</a>
+        <a href="https://wa.me/?text=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F&amp;title=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_weibo">微博</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F&amp;text=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="mailto:?subject=%E7%A7%9F%E8%B5%81%E9%87%8C%E7%A8%8B%20%C2%B7%20Allo%20Cars&amp;body=%E8%B7%9F%E8%B8%AA%E4%BD%A0%E7%A7%9F%E8%B5%81%E8%BD%A6%E8%BE%86%E7%9A%84%E9%87%8C%E7%A8%8B%EF%BC%9A%E4%BB%8A%E5%A4%A9%E3%80%81%E6%9C%88%E5%BA%95%E3%80%81%E5%AD%A3%E5%BA%A6%E6%9C%AB%E3%80%81%E5%B9%B4%E5%BA%95%E5%92%8C%E5%90%88%E5%90%8C%E5%88%B0%E6%9C%9F%E6%97%B6%EF%BC%8C%E9%87%8C%E7%A8%8B%E8%A1%A8%E5%92%8C%E5%90%88%E5%90%8C%E7%9B%B8%E6%AF%94%E7%9A%84%E6%83%85%E5%86%B5%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%8F%AF%E8%83%BD%E7%9A%84%E8%B4%B9%E7%94%A8%E3%80%82%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fzh%2Fleasing%2F" data-share-link data-count="share_email">邮件</a>
       </div>
       <p class="ac-share__note">分享到微信：复制链接后粘贴到聊天里，或在手机上点“分享…”。</p>
     </div>
   </section>
-  <p class="ac-foot__links"><a href="/zh/cars/">我的车</a> · <a href="/zh/leasing/">租赁里程</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/children/">带娃乘车规定</a> · <a href="/zh/electric/">买电动车</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/rankings/">排行榜</a> · <a href="/zh/ev-grant/">电动车补贴</a> · <a href="/zh/registrations/">新车登记</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/chargers/stats/">充电桩统计</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
+  <p class="ac-foot__links"><a href="/zh/cars/">我的车</a> · <a href="/zh/leasing/">租赁里程</a> · <a href="/zh/recalls/">召回</a> · <a href="/zh/children/">带娃乘车规定</a> · <a href="/zh/electric/">买电动车</a> · <a href="/zh/leasing/plan/">租赁该签多少公里</a> · <a href="/zh/compare/">车型对比</a> · <a href="/zh/rankings/">排行榜</a> · <a href="/zh/ev-grant/">电动车补贴</a> · <a href="/zh/registrations/">新车登记</a> · <a href="/zh/ev-cost/">充电成本</a> · <a href="/zh/chargers/">充电桩地图</a> · <a href="/zh/chargers/stats/">充电桩统计</a> · <a href="/zh/charging-prices/">价格档案</a> · <a href="/zh/charge-times/">最佳充电时段</a> · <a href="/zh/fuel-prices/">油价</a> · <a href="/zh/open-data/">数据与来源</a> · <a href="/zh/open-data/#ai">接入 AI</a></p>
   <p>以上为估算值和收集到的价格，不作任何保证。依赖某个数字之前，请先核对你自己的电价或资费。<a href="/zh/legal/">法律信息与隐私</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Allo 的其他产品</h2>
@@ -311,6 +285,6 @@
   </main>
 </div>
 <script src="/leasing/lease.js?v=6ae0a0419b"></script>
-<script src="/leasing/app.js?v=ec330e8820"></script>
+<script src="/leasing/app.js?v=88380c00ad"></script>
 </body>
 </html>
