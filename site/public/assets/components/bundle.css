@@ -488,3 +488,6 @@ span.ac-pick { display: block; min-width: 0; }
 .ac-bk { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface-100); border: 1px solid var(--border); font-size: .9rem; }
 .ac-bk span { flex: 1 1 100%; color: var(--ink-muted); }
 .ac-bk[hidden] { display: none; }
+.ac-bk:not(.ac-bk--due) { padding: 0; border: 0; background: none; }
+.ac-bk--due { border-color: var(--gold); }
+.ac-bk__msg:empty { display: none; }

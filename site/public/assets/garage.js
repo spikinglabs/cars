@@ -179,21 +179,31 @@
     bkSet({ last: today(), snooze: null });
     try { dispatchEvent(new CustomEvent("ac:backup")); } catch (e) {}
   }
-  function reminder(el) {
+  /* One backup block. Quiet (opts.full): a caption + Back up + Restore. When a backup is due it becomes the
+     highlighted reminder with a Later button. Without opts.full it only appears when due. */
+  function reminder(el, opts) {
     if (!el) return;
-    var due = backupDue(), lang = (document.documentElement.lang || "en").slice(0, 2);
-    if (!due) { el.hidden = true; el.innerHTML = ""; return; }
-    var W = lang === "zh" ? { never: "你的车辆和读数只保存在这个浏览器里。备份一下，换手机或清除数据时就不会丢。", last: function (n) { return "上次备份是 " + n + " 天前。"; }, now: "立即备份", later: "以后再说" }
-      : lang === "de" ? { never: "Deine Autos und Ablesungen liegen nur in diesem Browser. Sichere sie, damit sie ein neues Handy oder gelöschte Browserdaten überstehen.", last: function (n) { return "Letzte Sicherung vor " + n + " Tagen."; }, now: "Jetzt sichern", later: "Später" }
-      : { never: "Your cars and readings live only in this browser. Back them up so they survive a new phone or cleared browser data.", last: function (n) { return "Last backup " + n + " days ago."; }, now: "Back up now", later: "Later" };
+    var full = opts && opts.full, due = backupDue(), st = bkState(), lang = (document.documentElement.lang || "en").slice(0, 2);
+    var W = lang === "zh" ? { never: "你的车辆和读数只保存在这个浏览器里。备份一下，换手机或清除数据时就不会丢。", last: function (n) { return "上次备份是 " + n + " 天前。备份一下，换手机或清除数据时就不会丢。"; }, quiet: "车辆、租赁读数和设置只保存在这台设备上。", lastOn: function (d) { return "上次备份：" + d + "。"; }, now: "备份", res: "从备份恢复", later: "以后再说", bad: "这个文件不是 Allo Cars 备份。" }
+      : lang === "de" ? { never: "Deine Autos und Ablesungen liegen nur in diesem Browser. Sichere sie, damit sie ein neues Handy oder gelöschte Browserdaten überstehen.", last: function (n) { return "Letzte Sicherung vor " + n + " Tagen. Sichere neu, damit nichts verloren geht."; }, quiet: "Autos, Leasing-Ablesungen und Einstellungen liegen nur auf diesem Gerät.", lastOn: function (d) { return "Letzte Sicherung: " + d + "."; }, now: "Sichern", res: "Wiederherstellen", later: "Später", bad: "Diese Datei ist keine Allo-Cars-Sicherung." }
+      : { never: "Your cars and readings live only in this browser. Back them up so they survive a new phone or cleared browser data.", last: function (n) { return "Last backup " + n + " days ago. Back up again so nothing gets lost."; }, quiet: "Cars, lease readings and settings live only on this device.", lastOn: function (d) { return "Last backup: " + d + "."; }, now: "Back up", res: "Restore", later: "Later", bad: "That file is not an Allo Cars backup." };
+    if (!due && !full) { el.hidden = true; el.innerHTML = ""; return; }
+    var text = due ? (due.last ? W.last(due.days) : W.never) : W.quiet + (st.last ? " " + W.lastOn(new Date(st.last + "T12:00").toLocaleDateString(lang === "zh" ? "zh-CN" : lang, { day: "numeric", month: "short", year: "numeric" })) : "");
     el.hidden = false;
-    el.className = "ac-bk";
-    el.innerHTML = '<span>' + (due.last ? W.last(due.days) : W.never) + '</span><button type="button" class="ac-chip" data-bk="now">' + W.now + '</button><button type="button" class="ac-chip" data-bk="later">' + W.later + '</button>';
+    el.className = due ? "ac-bk ac-bk--due" : "ac-bk";
+    el.innerHTML = '<span>' + text + '</span><button type="button" class="ac-chip" data-bk="now">' + W.now + '</button>'
+      + (full ? '<label class="ac-chip" style="cursor:pointer">' + W.res + '<input type="file" data-bk="res" accept="application/json,.json" hidden></label>' : "")
+      + (due ? '<button type="button" class="ac-chip" data-bk="later">' + W.later + '</button>' : "")
+      + '<span class="ac-bk__msg" role="status"></span>';
     el.onclick = function (e) {
-      var b = e.target.closest("[data-bk]"); if (!b) return;
+      var b = e.target.closest("button[data-bk]"); if (!b) return;
       if (b.dataset.bk === "now") saveBackup();
       else { var d = new Date(Date.now() + 30 * DAY); bkSet({ snooze: d.toISOString().slice(0, 10) }); }
-      reminder(el);
+      reminder(el, opts);
+    };
+    el.onchange = function (e) {
+      var f = e.target.files && e.target.files[0]; if (!f) return;
+      f.text().then(function (t) { restore(JSON.parse(t)); location.reload(); }).catch(function () { el.querySelector(".ac-bk__msg").textContent = W.bad; });
     };
   }
   function download(name, text, type) {
