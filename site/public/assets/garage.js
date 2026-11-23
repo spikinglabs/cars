@@ -114,6 +114,105 @@
       + '<span class="ac-stars__num" aria-hidden="true">' + t + '/5</span></span>';
   }
 
+  /* Backup of everything Allo Cars keeps on this device (every localStorage key starting "allo-cars"),
+     as one JSON file, and restoring it. Restoring merges: cars by id, lease readings by date; other keys are replaced. */
+  var PREFIX = "allo-cars";
+  function backup() {
+    var data = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(PREFIX) === 0 && k.indexOf(BK) !== 0) { var v = localStorage.getItem(k); try { data[k] = JSON.parse(v); } catch (e) { data[k] = v; } }
+      }
+    } catch (e) {}
+    return { app: "allo-cars", v: 1, exported: new Date().toISOString(), data: data };
+  }
+  function mergeLease(old, add) {
+    old = old && old.cars ? old : { v: 1, cars: {} };
+    Object.keys((add && add.cars) || {}).forEach(function (id) {
+      var a = add.cars[id] || {}, o = old.cars[id];
+      var byDate = {};
+      ((o && o.readings) || []).concat(a.readings || []).forEach(function (r) { if (r && r.date) byDate[r.date] = r; });
+      var merged = Object.assign({}, o || {}, a);
+      merged.readings = Object.keys(byDate).sort().map(function (d) { return byDate[d]; });
+      old.cars[id] = merged;
+    });
+    return old;
+  }
+  function restore(file) {
+    if (!file || file.app !== "allo-cars" || !file.data || typeof file.data !== "object") throw new Error("not an Allo Cars backup");
+    var n = 0;
+    Object.keys(file.data).forEach(function (k) {
+      if (k.indexOf(PREFIX) !== 0) return;
+      var v = file.data[k], cur = null;
+      try { cur = JSON.parse(localStorage.getItem(k) || "null"); } catch (e) {}
+      if (k === KEY && cur && Array.isArray(cur.cars) && v && Array.isArray(v.cars)) {
+        var ids = {}; v.cars.forEach(function (c) { ids[c.id] = 1; });
+        v = { v: 1, active: v.active || cur.active, cars: cur.cars.filter(function (c) { return !ids[c.id]; }).concat(v.cars.map(clean)) };
+      } else if (k === "allo-cars-lease") v = mergeLease(cur, v);
+      try { localStorage.setItem(k, typeof v === "string" ? v : JSON.stringify(v)); n++; } catch (e) {}
+    });
+    try { dispatchEvent(new CustomEvent("ac:garage", { detail: read() })); } catch (e) {}
+    return n;
+  }
+  /* Gentle backup reminder: data lives only in this browser. Shown when there is something worth keeping
+     and the last backup (or the day data first appeared) is 30+ days ago; "Later" hides it for 30 days. */
+  var BK = "allo-cars-backup", DAY = 864e5;
+  function today() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function bkState() { try { return JSON.parse(localStorage.getItem(BK) || "{}") || {}; } catch (e) { return {}; } }
+  function bkSet(o) { try { localStorage.setItem(BK, JSON.stringify(Object.assign(bkState(), o))); } catch (e) {} }
+  function hasData() {
+    if (read().cars.length) return true;
+    try { var l = JSON.parse(localStorage.getItem("allo-cars-lease") || "null"); return !!(l && l.cars && Object.keys(l.cars).some(function (k) { return (l.cars[k].readings || []).length; })); } catch (e) { return false; }
+  }
+  function backupDue(now) {
+    if (!hasData()) return null;
+    var st = bkState(), t = now || today();
+    if (!st.first && !st.last) { bkSet({ first: t }); return null; }
+    var days = function (a) { return Math.round((Date.parse(t) - Date.parse(a)) / DAY); };
+    if (st.snooze && st.snooze > t) return null;
+    var since = days(st.last || st.first);
+    return since >= 30 ? { last: st.last || null, days: since } : null;
+  }
+  function saveBackup() {
+    download("allo-cars-backup-" + today() + ".json", JSON.stringify(backup(), null, 1), "application/json");
+    bkSet({ last: today(), snooze: null });
+    try { dispatchEvent(new CustomEvent("ac:backup")); } catch (e) {}
+  }
+  /* One backup block. Quiet (opts.full): a caption + Back up + Restore. When a backup is due it becomes the
+     highlighted reminder with a Later button. Without opts.full it only appears when due. */
+  function reminder(el, opts) {
+    if (!el) return;
+    var full = opts && opts.full, due = backupDue(), st = bkState(), lang = (document.documentElement.lang || "en").slice(0, 2);
+    var W = lang === "zh" ? { never: "你的车辆和读数只保存在这个浏览器里。备份一下，换手机或清除数据时就不会丢。", last: function (n) { return "上次备份是 " + n + " 天前。备份一下，换手机或清除数据时就不会丢。"; }, quiet: "车辆、租赁读数和设置只保存在这台设备上。", lastOn: function (d) { return "上次备份：" + d + "。"; }, now: "备份", res: "从备份恢复", later: "以后再说", bad: "这个文件不是 Allo Cars 备份。" }
+      : lang === "de" ? { never: "Deine Autos und Ablesungen liegen nur in diesem Browser. Sichere sie, damit sie ein neues Handy oder gelöschte Browserdaten überstehen.", last: function (n) { return "Letzte Sicherung vor " + n + " Tagen. Sichere neu, damit nichts verloren geht."; }, quiet: "Autos, Leasing-Ablesungen und Einstellungen liegen nur auf diesem Gerät.", lastOn: function (d) { return "Letzte Sicherung: " + d + "."; }, now: "Sichern", res: "Wiederherstellen", later: "Später", bad: "Diese Datei ist keine Allo-Cars-Sicherung." }
+      : { never: "Your cars and readings live only in this browser. Back them up so they survive a new phone or cleared browser data.", last: function (n) { return "Last backup " + n + " days ago. Back up again so nothing gets lost."; }, quiet: "Cars, lease readings and settings live only on this device.", lastOn: function (d) { return "Last backup: " + d + "."; }, now: "Back up", res: "Restore", later: "Later", bad: "That file is not an Allo Cars backup." };
+    if (!due && !full) { el.hidden = true; el.innerHTML = ""; return; }
+    var text = due ? (due.last ? W.last(due.days) : W.never) : W.quiet + (st.last ? " " + W.lastOn(new Date(st.last + "T12:00").toLocaleDateString(lang === "zh" ? "zh-CN" : lang, { day: "numeric", month: "short", year: "numeric" })) : "");
+    el.hidden = false;
+    el.className = due ? "ac-bk ac-bk--due" : "ac-bk";
+    el.innerHTML = '<span>' + text + '</span><button type="button" class="ac-chip" data-bk="now">' + W.now + '</button>'
+      + (full ? '<label class="ac-chip" style="cursor:pointer">' + W.res + '<input type="file" data-bk="res" accept="application/json,.json" hidden></label>' : "")
+      + (due ? '<button type="button" class="ac-chip" data-bk="later">' + W.later + '</button>' : "")
+      + '<span class="ac-bk__msg" role="status"></span>';
+    el.onclick = function (e) {
+      var b = e.target.closest("button[data-bk]"); if (!b) return;
+      if (b.dataset.bk === "now") saveBackup();
+      else { var d = new Date(Date.now() + 30 * DAY); bkSet({ snooze: d.toISOString().slice(0, 10) }); }
+      reminder(el, opts);
+    };
+    el.onchange = function (e) {
+      var f = e.target.files && e.target.files[0]; if (!f) return;
+      f.text().then(function (t) { restore(JSON.parse(t)); location.reload(); }).catch(function () { el.querySelector(".ac-bk__msg").textContent = W.bad; });
+    };
+  }
+  function download(name, text, type) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: type || "application/json" }));
+    a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
   window.AlloGarage = {
     stars: stars,
     KEY: KEY,
@@ -238,6 +337,8 @@
       }
       return out;
     },
+    backup: backup, restore: restore, mergeLease: mergeLease, download: download,
+    backupDue: backupDue, saveBackup: saveBackup, backupReminder: reminder,
     electric: function (fuel) { return fuel === "electric"; },
     plugIn: function (fuel) { return /^phev/.test(fuel); }
   };

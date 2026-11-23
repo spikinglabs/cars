@@ -91,3 +91,40 @@ test("child recalls: ISOFIX, child locks, child seat airbag switch; not hood lat
   yes.forEach((h) => assert.equal(G.childRecall({ hazard: h }), true, h));
   no.forEach((h) => assert.equal(G.childRecall({ hazard: h }), false, h));
 });
+
+test("backup holds every allo-cars key; restore merges cars by id and lease readings by date", () => {
+  const mk = () => {
+    const store = new Map();
+    const ls = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), key: (i) => [...store.keys()][i], get length() { return store.size; } };
+    const ctx = { localStorage: ls, dispatchEvent: () => {}, CustomEvent: function (t, o) { this.type = t; this.detail = o && o.detail; } };
+    ctx.window = ctx;
+    vm.runInNewContext(fs.readFileSync(path.join(__dirname, "../public/assets/garage.js"), "utf8"), ctx);
+    return { G: ctx.AlloGarage, store };
+  };
+  const a = mk();
+  const car = a.G.add({ car: "volvo-ex30", name: "Volvo EX30", make: "Volvo", model: "EX30", fuel: "electric", year: 2026 });
+  a.store.set("allo-cars-lease", JSON.stringify({ v: 1, cars: { [car.id]: { start: "2026-02-01", readings: [{ date: "2026-05-01", km: 3000 }] } } }));
+  a.store.set("other-site", "x");
+  const file = JSON.parse(JSON.stringify(a.G.backup()));
+  assert.deepStrictEqual(Object.keys(file.data).sort(), ["allo-cars-garage", "allo-cars-lease"]);
+
+  const b = mk();
+  const own = b.G.add({ car: "mazda-cx-30", name: "Mazda CX-30", make: "Mazda", model: "CX-30", fuel: "petrol", year: 2025 });
+  b.store.set("allo-cars-lease", JSON.stringify({ v: 1, cars: { [car.id]: { start: "2026-02-01", readings: [{ date: "2026-08-01", km: 6000 }] } } }));
+  b.G.restore(file);
+  assert.deepStrictEqual([...b.G.list().map((c) => c.id)].sort(), [own.id, car.id].sort());
+  const lease = JSON.parse(b.store.get("allo-cars-lease"));
+  assert.deepStrictEqual(lease.cars[car.id].readings.map((r) => r.date), ["2026-05-01", "2026-08-01"]);
+  assert.throws(() => b.G.restore({ hello: 1 }), /not an Allo Cars backup/);
+});
+
+test("backup reminder: only with data, 30 days after data first appeared or the last backup, snooze hides it", () => {
+  const G = load();
+  assert.strictEqual(G.backupDue("2026-01-01"), null); // nothing saved yet
+  G.add({ car: "volvo-ex30", name: "Volvo EX30", make: "Volvo", model: "EX30", fuel: "electric", year: 2026 });
+  assert.strictEqual(G.backupDue("2026-01-01"), null); // first sight: starts the clock
+  assert.strictEqual(G.backupDue("2026-01-20"), null);
+  const due = G.backupDue("2026-02-05");
+  assert.strictEqual(due.last, null);
+  assert.strictEqual(due.days, 35);
+});

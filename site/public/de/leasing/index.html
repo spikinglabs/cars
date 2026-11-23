@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leasing-Kilometer planen · Allo Cars</title>
+<meta name="description" content="Wie viele Kilometer im Jahr du im Leasingvertrag ansetzen solltest, zusammengezählt aus deinen Fahrten, und wo dein Kilometerstand gegenüber dem Vertrag steht: heute, zum Monats-, Quartals- und Jahresende und am Vertragsende.">
+<!-- chrome:head -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Allo Cars">
+<meta property="og:title" content="Leasing-Kilometer planen · Allo Cars">
+<meta property="og:description" content="Wie viele Kilometer im Jahr du im Leasingvertrag ansetzen solltest, zusammengezählt aus deinen Fahrten, und wo dein Kilometerstand gegenüber dem Vertrag steht: heute, zum Monats-, Quartals- und Jahresende und am Vertragsende.">
+<meta property="og:url" content="https://cars.allo.land/de/leasing/">
+<meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Allo Cars">
+<meta property="og:locale" content="de_DE">
+<meta property="og:locale:alternate" content="en_GB">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" hreflang="en" href="https://cars.allo.land/leasing/">
+<link rel="alternate" hreflang="de" href="https://cars.allo.land/de/leasing/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/leasing/">
+<link rel="alternate" hreflang="x-default" href="https://cars.allo.land/leasing/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/de/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Allo Cars">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffcc00" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<script>addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__acInstall = e; dispatchEvent(new Event("ac:installable")); });</script>
+<script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
+<!-- /chrome:head -->
+<link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=866ffae4e5">
+<script src="/assets/site.js?v=92ed0a6c5f"></script>
+<script src="/assets/garage.js?v=e6b832ce77"></script>
+<style>
+  body { margin: 0; background: var(--surface-50); }
+  main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { font: 800 clamp(28px, 5vw, 40px)/1.1 var(--font-display); letter-spacing: -0.02em; margin: var(--space-6) 0 var(--space-2); }
+  .lead { color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; }
+  .stack { display: grid; gap: var(--space-5); }
+  [hidden] { display: none !important; }
+  .step { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: var(--gold-ink); font: 800 14px/1 var(--font-sign); margin-right: 8px; vertical-align: 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: end; }
+  .row > div > .ac-param__label { display: block; margin-bottom: 6px; }
+  .row .ac-param { min-width: 140px; flex: 1 1 140px; grid-template-columns: minmax(0, 1fr); align-content: start; }
+  .row .ac-param__box { justify-self: start; }
+  .row { align-items: start; }
+  .ac-table th { white-space: normal; }
+  .ac-table td, .ac-table th { padding-left: 8px; padding-right: 8px; }
+  .cars { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .sc { display: grid; gap: 10px; margin: 14px 0; }
+  .sc-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(70px, .7fr) auto minmax(54px, .5fr) minmax(0, 1.2fr) auto auto; gap: 8px; align-items: center; }
+  .sc-row input, .sc-row select { width: 100%; box-sizing: border-box; min-height: 40px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-xs); background: var(--surface-50); color: var(--ink); font: 500 15px/1.2 var(--font-sans); }
+  .sc-row input:focus, .sc-row select:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px var(--gold); }
+  .sc-row input[type=number] { font: 700 16px/1.2 var(--font-sign); text-align: right; }
+  .ac-param__box input[type=date] { width: auto; text-align: left; font-size: 15px; }
+  .ac-param__box input.wide { width: 8ch; }
+  .sc-row .x { color: var(--ink-muted); font-weight: 700; }
+  .sc-row .yr { font: 700 15px/1.2 var(--font-sign); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; min-width: 84px; }
+  .sc-row .del { min-width: 40px; padding: 0 10px; }
+  .sc-row .u { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .sc-row .u i { font: 500 13px/1 var(--font-sans); font-style: normal; color: var(--ink-muted); }
+  .sc-head { font: 700 12px/16px var(--font-sign); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+  @media (max-width: 640px) {
+    .sc-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; grid-template-areas: "name name del" "km n ." "per per yr"; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .sc-row .nm { grid-area: name; } .sc-row .km { grid-area: km; } .sc-row .x { display: none; } .sc-row .n { grid-area: n; } .sc-row .per { grid-area: per; } .sc-row .yr { grid-area: yr; } .sc-row .del { grid-area: del; }
+    .sc-head { display: none; }
+  }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .presets .ac-caption { margin: 0 4px 0 0; }
+  .opt td.on { font-weight: 800; }
+  .opt .ac-status { margin-top: 4px; }
+  @media (max-width: 480px) { .ac-table td, .ac-table th { padding-left: 5px; padding-right: 5px; } .ac-table { font-size: 13px; } }
+  .opt tr.on td { background: var(--surface-200); }
+  .neg { color: var(--success); }
+  .pos { color: var(--danger); }
+  .reads { display: grid; gap: 0; margin: 8px 0 0; padding: 0; list-style: none; }
+  .reads li { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 2px 0; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+  .chk td:first-child { white-space: normal; }
+  .ac-readout .pos, .ac-readout .neg { line-height: 1.05; }
+  .chk small { display: block; color: var(--ink-muted); font-weight: 500; }
+  .grid { stroke: var(--chart-grid); }
+  .allow { stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 6 5; fill: none; }
+  .actual { stroke: var(--car-1); stroke-width: 3; fill: none; }
+  .proj { stroke: var(--gold); stroke-width: 3; stroke-dasharray: 2 5; stroke-linecap: round; fill: none; }
+  .dot { fill: var(--car-1); }
+  .cp { fill: var(--gold); stroke: var(--ink); stroke-width: 1; }
+  .now { stroke: var(--danger); stroke-width: 1.5; }
+  .ac-chart svg text { font: 600 11px/1 var(--font-sign); fill: var(--ink-muted); }
+  .more summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink-muted); padding: 4px 0; }
+  .tight { margin: 0; }
+  #logged { display: inline-block; margin: 0 0 10px; }
+  .quick { margin-top: 10px; }
+  .quick ol { margin: 8px 0 0; padding-left: 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .quick, .quick li, .quick pre { min-width: 0; max-width: 100%; }
+  .quick li { line-height: 1.45; }
+  .quick .link { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .quick .link code { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 12px; background: var(--surface-200); padding: 6px 8px; border-radius: var(--radius-xs); }
+  .quick pre { margin: 6px 0 0; padding: 10px; background: var(--surface-200); border-radius: var(--radius-xs); font-size: 11.5px; line-height: 1.4; overflow-x: auto; white-space: pre; }
+  .stale { color: var(--ink-muted); margin: 8px 0 0; }
+</style>
+</head>
+<body>
+<div class="ac">
+  <div class="ac-flagbar"></div>
+  <main>
+    <!-- chrome:header -->
+<header class="ac-top">
+  <a class="ac-appbar__brand" href="/de/">Allo <span>Cars</span></a>
+  <nav class="ac-topnav" aria-label="Allo Cars">
+    <a href="/de/cars/">Meine Autos</a>
+    <a href="/de/compare/">Vergleich</a>
+    <a href="/de/rankings/">Ranglisten</a>
+    <a href="/de/recalls/">Rückrufe</a>
+    <a href="/de/electric/">E-Auto kaufen</a>
+    <a href="/de/ev-cost/">Ladekosten</a>
+    <a href="/de/chargers/">Ladesäulen</a>
+    <a href="/de/fuel-prices/">Spritpreise</a>
+  </nav>
+  <div class="ac-top__right">
+    <details class="ac-notices" data-notices hidden><summary aria-label="Rückrufe für meine Autos" title="Rückrufe für meine Autos" data-count="notices_open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><i class="ac-notices__dot" data-notices-dot hidden><span class="ac-sr">neu</span></i></summary><div class="ac-notices__panel" role="region" aria-label="Rückrufe für meine Autos" data-notices-panel></div></details>
+    <button type="button" class="ac-iconbtn" popovertarget="ac-find" aria-controls="ac-find" aria-label="Auto suchen" title="Auto suchen (/)" data-count="find_open"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
+    <details class="ac-langmenu" data-langmenu><summary aria-label="Sprache" title="Sprache"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>DE</span></summary><div class="ac-langmenu__list"><a class="ac-lang" href="/leasing/" hreflang="en" lang="en" data-lang="en">English</a><a class="ac-lang" href="/de/leasing/" hreflang="de" lang="de" data-lang="de" aria-current="true">Deutsch</a><a class="ac-lang" href="/zh/leasing/" hreflang="zh-Hans" lang="zh-Hans" data-lang="zh">简体中文</a></div></details>
+    <button type="button" class="ac-iconbtn" data-theme-flip aria-label="Hell / dunkel umschalten" title="Hell / dunkel umschalten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="ac-find" id="ac-find" popover role="dialog" aria-label="Auto suchen">
+  <form class="ac-find__form" action="/de/car/" role="search" data-find>
+    <label class="ac-find__box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" name="q" placeholder="Marke und Modell, z. B. VW ID.3" aria-label="Auto suchen" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
+    <button type="button" class="ac-iconbtn" popovertarget="ac-find" popovertargetaction="hide" aria-label="Schließen" title="Schließen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <ul class="ac-find__list" data-find-list role="listbox" aria-label="Auto suchen" hidden></ul>
+  </form>
+</div>
+<script src="/assets/search.js?v=b67806420b" defer></script>
+<script src="/assets/garage.js?v=e6b832ce77" defer></script>
+<script src="/assets/notices.js?v=0628cb42ae" defer></script>
+<aside class="ac-apphint" data-app-hint hidden>
+  <span class="ac-apphint__text" data-app-hint-text>Allo Cars lässt sich wie eine App auf den Startbildschirm legen.</span>
+  <button type="button" class="ac-apphint__go" data-app-hint-go hidden>Installieren</button>
+  <button type="button" class="ac-apphint__x" data-app-hint-x aria-label="Ausblenden">×</button>
+</aside>
+<!-- /chrome:header -->
+
+    <h1><span class="ac-hl">Leasing</span>-Kilometer planen</h1>
+    <p class="lead">Zähl zusammen, wie du fährst, und sieh, wie viele km im Jahr in den Leasingvertrag gehören. Danach behältst du den Tacho im Blick: wo du heute stehst, zum Monats-, Quartals- und Jahresende und am Vertragsende. Alles bleibt auf diesem Gerät, ohne Konto.</p>
+
+    <div class="stack">
+      <section class="ac-card" id="for-car" hidden>
+        <span class="ac-param__label">Leasing für</span>
+        <div class="cars" id="cars" role="group" aria-label="Leasing für"></div>
+      </section>
+
+      <section class="ac-card" id="plan">
+        <h2 class="ac-card__title"><span class="step">1</span>Wie viel fährst du?</h2>
+        <p class="ac-card__desc">Rechne ein normales Jahr zusammen: eine Zeile pro Art von Fahrt, mit den km hin und zurück. Ersetz die Beispiele durch deine eigenen.</p>
+        <div class="sc" id="sc">
+          <div class="sc-row sc-head" aria-hidden="true"><span>Fahrt</span><span>km</span><span></span><span>Mal</span><span>Wie oft</span><span style="text-align:right">km im Jahr</span><span></span></div>
+        </div>
+        <div class="presets" id="presets"><span class="ac-caption">Dazu:</span></div>
+        <div class="row" style="margin-top:14px">
+          <label class="ac-param"><span class="ac-param__label">Puffer</span><span class="ac-param__box"><input id="buf" type="number" min="0" max="50" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><input id="bufr" type="range" min="0" max="30" step="1" aria-label="Regler für den Puffer"><span class="ac-param__hint">Für Fahrten, die du noch nicht absehen kannst. 10 % sind üblich.</span></label>
+        </div>
+        <div class="ac-readouts" id="plan-out" style="margin-top:14px"></div>
+      </section>
+
+      <section class="ac-card">
+        <h2 class="ac-card__title">Mehr km im Vertrag oder Mehrkilometer zahlen?</h2>
+        <p class="ac-card__desc">Mehr km im Vertrag erhöhen die Monatsrate. Zu wenige kosten am Ende extra, und nicht gefahrene km werden zu einem niedrigeren Preis erstattet. Trag die Preise aus deinem Angebot ein.</p>
+        <div class="row">
+          <label class="ac-param"><span class="ac-param__label">Mehrkilometer</span><span class="ac-param__box"><input id="extra" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">oft 0,06 bis 0,15 €/km</span></label>
+          <label class="ac-param"><span class="ac-param__label">Minderkilometer</span><span class="ac-param__box"><input id="refund" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">oft 0,03 bis 0,08 €/km</span></label>
+          <label class="ac-param"><span class="ac-param__label">Rate je 1.000 km mehr</span><span class="ac-param__box"><input id="rate" type="number" min="0" max="100" step="0.5" inputmode="decimal"><span class="ac-param__unit">€/Monat</span></span><span class="ac-param__hint">Ratenunterschied zweier Angebote ÷ km-Unterschied × 1.000</span></label>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <label class="ac-param"><span class="ac-param__label" id="drive-l">Wenn du tatsächlich fährst</span><span class="ac-param__box"><input id="drive" class="wide" type="number" min="0" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km/Jahr</span></span><input id="driver" type="range" min="0" max="60000" step="500" aria-label="Regler für die tatsächlich gefahrenen km"><span class="ac-param__hint" id="drive-h"></span></label>
+        </div>
+        <div class="ac-table-wrap" style="margin-top:10px"><table class="ac-table opt" id="opt"></table></div>
+        <p class="ac-caption" id="opt-note"></p>
+      </section>
+
+      <section class="ac-card" id="contract">
+        <h2 class="ac-card__title"><span class="step">2</span>Dein Leasingvertrag</h2>
+        <p class="ac-card__desc">Aus dem Vertrag. Lass das leer, solange du noch Angebote vergleichst.</p>
+        <div class="row">
+          <label class="ac-param"><span class="ac-param__label">Beginn (Übergabe)</span><span class="ac-param__box"><input id="start" type="date"></span></label>
+          <div><span class="ac-param__label">Laufzeit</span><div class="ac-seg" id="months" role="group" aria-label="Laufzeit"></div></div>
+          <label class="ac-param"><span class="ac-param__label">km pro Jahr im Vertrag</span><span class="ac-param__box"><input id="km" class="wide" type="number" min="1000" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><button type="button" class="ac-chip" id="useplan" style="justify-self:start"></button></label>
+          <label class="ac-param"><span class="ac-param__label">Kilometerstand bei Übergabe</span><span class="ac-param__box"><input id="odo0" class="wide" type="number" min="0" max="2000000" step="1" inputmode="numeric"><span class="ac-param__unit">km</span></span></label>
+          <label class="ac-param"><span class="ac-param__label">Freie Toleranz</span><span class="ac-param__box"><input id="tol" class="wide" type="number" min="0" max="100000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">km darüber oder darunter, die nichts kosten, falls dein Vertrag das vorsieht</span></label>
+        </div>
+      </section>
+
+      <section class="ac-card" id="odo">
+        <p class="ac-status ac-status--ok" id="logged" role="status" hidden></p>
+        <h2 class="ac-card__title"><span class="step">3</span>Kilometerstand</h2>
+        <p class="ac-card__desc">Lies ihn ab und zu am Tacho ab. Jede Ablesung macht die Prognose genauer.</p>
+        <div class="row">
+          <label class="ac-param"><span class="ac-param__label">Datum</span><span class="ac-param__box"><input id="rdate" type="date"></span></label>
+          <label class="ac-param"><span class="ac-param__label">Kilometerstand</span><span class="ac-param__box"><input id="rkm" class="wide" type="number" min="0" max="2000000" step="1" inputmode="numeric"><span class="ac-param__unit">km</span></span></label>
+          <button type="button" class="ac-btn ac-btn--gold" id="radd">Speichern</button>
+        </div>
+        <ul class="reads" id="reads"></ul>
+        <details class="more quick" id="quick"><summary id="quick-s"></summary><div id="quick-body"></div></details>
+      </section>
+
+      <section class="ac-card" id="checkpoints">
+        <h2 class="ac-card__title">Wo du stehst</h2>
+        <p class="ac-card__desc" id="cp-desc">Die erlaubten km wachsen jeden Tag gleichmäßig mit. Die erwarteten km folgen dem Tempo unten.</p>
+        <div id="cp-empty" class="ac-caption">Trag oben den Beginn deines Leasings ein, dann siehst du deine Zeitpunkte.</div>
+        <div id="cp-body" hidden>
+          <div class="ac-readouts" id="cp-out"></div>
+          <div class="row" style="margin-top:14px">
+            <label class="ac-param"><span class="ac-param__label">Ab jetzt fährst du</span><span class="ac-param__box"><input id="pm" class="wide" type="number" min="0" max="20000" step="50" inputmode="numeric"><span class="ac-param__unit">km/Monat</span></span><input id="pmr" type="range" min="0" max="5000" step="50" aria-label="Regler für km pro Monat ab jetzt"><span class="ac-param__hint" id="pm-h"></span></label>
+          </div>
+          <div class="ac-table-wrap" style="margin-top:10px"><table class="ac-table chk" id="cp"></table></div>
+          <div class="ac-legend" style="margin-top:14px"><span class="ac-legend--dash"><i style="border-color:var(--ink-muted)"></i>Erlaubt</span><span><i style="border-color:var(--car-1);border-top-width:3px"></i>Deine Ablesungen</span><span><i style="border-color:var(--gold);border-top-width:3px;border-top-style:dotted"></i>Erwartet</span></div>
+          <div class="ac-chart" id="chart"></div>
+        </div>
+      </section>
+
+      <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>Verträge sind verschieden: Manche erstatten Minderkilometer nur bis zu einer Grenze, manche haben eine Toleranz nur in eine Richtung, und manche berechnen Mehrkilometer schon bei vorzeitiger Rückgabe. Schau in deinen. Schäden und Verschleiß werden getrennt abgerechnet.</span></p>
+      <details class="more">
+        <summary>So wird gerechnet</summary>
+        <p class="ac-caption">Eine Arbeitswoche zählt 46-mal im Jahr (52 Wochen ohne Urlaub und Feiertage). Die erlaubten km wachsen ab der Übergabe gleichmäßig: km pro Jahr × Jahre × bisherige Tage ÷ Tage der Laufzeit. Die erwarteten km gehen von deiner neuesten Ablesung aus weiter, mit den km pro Monat, die du einstellst, sonst mit deinem bisherigen Tempo (ab zwei Wochen Fahrt), sonst nach deinem Plan. Abrechnung am Ende: km über dem Rahmen jenseits der Toleranz × Mehrkilometerpreis, km darunter jenseits der Toleranz × Minderkilometerpreis. In der Tabelle oben ist die Rate die höhere (oder gesparte) Monatsrate über die ganze Laufzeit. Link-Parameter: plan, buf, start, months, km, odo0, odo, at, extra, refund, tol, rate, pm.</p>
+      </details>
+    </div>
+    <!-- chrome:footer -->
+<footer class="ac-foot">
+  <section class="ac-share" aria-labelledby="share-h" data-share data-share-url="https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" data-share-done="Link kopiert" data-share-manual="Diesen Link kopieren:">
+    <div class="ac-share__row">
+      <h2 id="share-h">Diese Seite teilen</h2>
+      <button type="button" class="ac-share__btn" data-share-copy data-count="share_copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span>Link kopieren</span></button>
+      <button type="button" class="ac-share__btn" data-share-native data-count="share_native" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Teilen …</span></button>
+      <button type="button" class="ac-share__btn ac-share__toggle" aria-expanded="false" aria-controls="ac-share-more" data-share-toggle><span>Mehr</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
+    <p class="ac-share__status" data-share-status role="status"></p>
+    <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
+      <p class="ac-share__desc">Wie viele Kilometer im Jahr du im Leasingvertrag ansetzen solltest, zusammengezählt aus deinen Fahrten, und wo dein Kilometerstand gegenüber dem Vertrag steht: heute, zum Monats-, Quartals- und Jahresende und am Vertragsende.</p>
+      <div class="ac-share__row">
+        <a href="https://wa.me/?text=Leasing-Kilometer%20planen%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F&amp;text=Leasing-Kilometer%20planen%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Leasing-Kilometer%20planen%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Leasing-Kilometer%20planen%20%C2%B7%20Allo%20Cars&amp;body=Wie%20viele%20Kilometer%20im%20Jahr%20du%20im%20Leasingvertrag%20ansetzen%20solltest%2C%20zusammengez%C3%A4hlt%20aus%20deinen%20Fahrten%2C%20und%20wo%20dein%20Kilometerstand%20gegen%C3%BCber%20dem%20Vertrag%20steht%3A%20heute%2C%20zum%20Monats-%2C%20Quartals-%20und%20Jahresende%20und%20am%20Vertragsende.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" data-share-link data-count="share_email">E-Mail</a>
+      </div>
+    </div>
+  </section>
+  <p class="ac-foot__links"><a href="/de/cars/">Meine Autos</a> · <a href="/de/leasing/">Leasing-Kilometer</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/children/">Kinder im Auto</a> · <a href="/de/electric/">E-Auto kaufen</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/rankings/">Ranglisten</a> · <a href="/de/ev-grant/">E-Auto-Förderung</a> · <a href="/de/registrations/">Neuzulassungen</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/chargers/stats/">Ladesäulen in Zahlen</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
+  <nav class="ac-family" aria-labelledby="family-h">
+    <h2 id="family-h">Mehr von Allo</h2>
+    <ul>
+      <li><a href="https://outings.allo.land/"><b>Allo Outings</b><span>Familienausflüge und Veranstaltungen in deiner Nähe</span></a></li>
+      <li><a href="https://recalls.allo.land/"><b>Allo Recalls</b><span>Rückrufe von Baby- und Kinderprodukten, aus amtlichen Quellen</span></a></li>
+      <li><a href="https://auri.allo.land/"><b>Allo Auri</b><span>Ein privates Babytagebuch für Eltern</span></a></li>
+      <li><a href="https://allo.land/"><b>Alloland</b><span>Ankommen und leben in Deutschland</span></a></li>
+    </ul>
+  </nav>
+  <p class="ac-maker">Allo Cars ist ein Produkt von <a href="https://spikinglabs.com/" target="_blank" rel="noopener">Spiking Labs</a>.</p>
+  <p class="ac-country"><label for="ac-country">Land</label> <select id="ac-country" data-country><option value="de" selected>Deutschland</option></select></p>
+  <p class="ac-install" data-install hidden>
+    <button type="button" class="ac-btn ac-btn--gold" data-install-btn>App installieren</button>
+    <span class="ac-install__how" data-install-how role="status" hidden></span>
+  </p>
+</footer>
+<nav class="ac-tabs" aria-label="Allo Cars">
+  <a href="/de/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Start</span></a>
+  <a href="/de/cars/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>Meine Autos</span></a>
+  <a href="/de/compare/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Vergleich</span></a>
+  <a href="/de/ev-cost/" data-tab><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Laden</span></a>
+  <button type="button" class="ac-tabs__more" popovertarget="ac-more" aria-controls="ac-more" data-more-btn data-current><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span>Mehr</span></button>
+</nav>
+<div class="ac-sheet" id="ac-more" popover role="dialog" aria-labelledby="ac-more-h">
+  <div class="ac-sheet__head"><h2 id="ac-more-h">Alle Seiten</h2><button type="button" class="ac-iconbtn" popovertarget="ac-more" popovertargetaction="hide" data-more-close aria-label="Schließen" title="Schließen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <h3>Dein Auto</h3>
+  <ul>
+    <li><a href="/de/cars/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M3 16h18v3H3zM7.5 13.5h.01M16.5 13.5h.01"/></svg><span>Meine Autos</span></a></li>
+    <li><a href="/de/recalls/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.1-8 9-4.6-.9-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.5"/></svg><span>Rückrufe</span></a></li>
+    <li><a href="/de/children/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="2.2"/><path d="M5 20v-5a4 4 0 0 1 8 0v5M15 11l4-1M17 10v9"/></svg><span>Kinder im Auto</span></a></li>
+    <li><a href="/de/leasing/" aria-current="page" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5M3 20h18"/></svg><span>Leasing-Kilometer</span></a></li>
+  </ul>
+  <h3>Ein Auto aussuchen</h3>
+  <ul>
+    <li><a href="/de/electric/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V12l2-5h8l2 5v5M2 17h16v3H2zM19 4l-2 4h3l-2 4"/></svg><span>E-Auto kaufen</span></a></li>
+    <li><a href="/de/compare/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6zM10 12h4"/></svg><span>Autos vergleichen</span></a></li>
+    <li><a href="/de/rankings/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20v-6h4v6M10 20V8h4v12M14 20v-9h4v9"/></svg><span>Ranglisten</span></a></li>
+    <li><a href="/de/ev-grant/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A6.5 6.5 0 1 0 17 17.5M4 10.5h9M4 13.5h9"/></svg><span>E-Auto-Förderung</span></a></li>
+    <li><a href="/de/registrations/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>Neuzulassungen</span></a></li>
+  </ul>
+  <h3>Laden</h3>
+  <ul>
+    <li><a href="/de/ev-cost/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Ladekosten</span></a></li>
+    <li><a href="/de/chargers/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12.8 7.2 10.8 10.6h2.6l-2 3.4"/></svg><span>Ladesäulenkarte</span></a></li>
+    <li><a href="/de/chargers/stats/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V4M15 20v-7M20 20V8"/></svg><span>Ladesäulen in Zahlen</span></a></li>
+    <li><a href="/de/charging-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 16l4-5 4 3 6-8"/></svg><span>Preisarchiv</span></a></li>
+    <li><a href="/de/charge-times/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Günstigste Ladezeit</span></a></li>
+  </ul>
+  <h3>Tanken</h3>
+  <ul>
+    <li><a href="/de/fuel-prices/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 2v7a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><span>Spritpreise</span></a></li>
+  </ul>
+  <h3>Daten</h3>
+  <ul>
+    <li><a href="/de/open-data/" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg><span>Daten und Quellen</span></a></li>
+    <li><a href="/de/open-data/#ai" data-more><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>Mit KI nutzen</span></a></li>
+  </ul>
+</div>
+<!-- /chrome:footer -->
+  </main>
+</div>
+<script src="/leasing/lease.js?v=6ae0a0419b"></script>
+<script src="/leasing/app.js?v=ec330e8820"></script>
+</body>
+</html>
