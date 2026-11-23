@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Leasing mileage planner · Allo Cars</title>
-<meta name="description" content="How many km a year to put in your car lease, added up from how you drive, and where your odometer stands against the contract today, at the end of the month, quarter and year and at the end of the lease.">
+<title>Lease kilometres · Allo Cars</title>
+<meta name="description" content="Track the kilometres of your leased car: where your odometer stands against the contract today, at the end of the month, quarter and year and when the lease ends, and what that would cost.">
 <!-- chrome:head -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Allo Cars">
-<meta property="og:title" content="Leasing mileage planner · Allo Cars">
-<meta property="og:description" content="How many km a year to put in your car lease, added up from how you drive, and where your odometer stands against the contract today, at the end of the month, quarter and year and at the end of the lease.">
+<meta property="og:title" content="Lease kilometres · Allo Cars">
+<meta property="og:description" content="Track the kilometres of your leased car: where your odometer stands against the contract today, at the end of the month, quarter and year and when the lease ends, and what that would cost.">
 <meta property="og:url" content="https://cars.allo.land/leasing/">
 <meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
 <meta property="og:image:width" content="512">
@@ -146,8 +146,8 @@
 </aside>
 <!-- /chrome:header -->
 
-    <h1>Plan your <span class="ac-hl">lease</span> kilometres</h1>
-    <p class="lead">Add up how you drive to see how many km a year to put in a lease. Then keep an eye on the odometer: where you stand today, at the end of the month, the quarter and the year, and when the lease ends. Everything stays on this device, no account.</p>
+    <h1>Your <span class="ac-hl">lease</span> kilometres</h1>
+    <p class="lead">Enter your contract and read the odometer now and then. You see where you stand today, at the end of the month, the quarter and the year, and when the lease ends. Everything stays on this device, no account.</p>
 
     <div class="stack">
       <section class="ac-card" id="for-car" hidden>
@@ -155,49 +155,23 @@
         <div class="cars" id="cars" role="group" aria-label="Lease for"></div>
       </section>
 
-      <section class="ac-card" id="plan">
-        <h2 class="ac-card__title"><span class="step">1</span>How much do you drive?</h2>
-        <p class="ac-card__desc">Add up a normal year: one line per kind of trip, with the km there and back. Change the examples to your own.</p>
-        <div class="sc" id="sc">
-          <div class="sc-row sc-head" aria-hidden="true"><span>Trip</span><span>km</span><span></span><span>Times</span><span>How often</span><span style="text-align:right">km a year</span><span></span></div>
-        </div>
-        <div class="presets" id="presets"><span class="ac-caption">Add:</span></div>
-        <div class="row" style="margin-top:14px">
-          <label class="ac-param"><span class="ac-param__label">Safety margin</span><span class="ac-param__box"><input id="buf" type="number" min="0" max="50" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><input id="bufr" type="range" min="0" max="30" step="1" aria-label="Safety margin slider"><span class="ac-param__hint">For trips you can't plan yet. 10 % is a common choice.</span></label>
-        </div>
-        <div class="ac-readouts" id="plan-out" style="margin-top:14px"></div>
-      </section>
-
-      <section class="ac-card">
-        <h2 class="ac-card__title">More km or pay for extra km?</h2>
-        <p class="ac-card__desc">More km in the contract raise the monthly rate. Too few cost extra at the end, and unused km are refunded at a lower price. Enter the prices from your offer.</p>
-        <div class="row">
-          <label class="ac-param"><span class="ac-param__label">Extra km cost</span><span class="ac-param__box"><input id="extra" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">Mehrkilometer, often 0.06 to 0.15 €/km</span></label>
-          <label class="ac-param"><span class="ac-param__label">Unused km refund</span><span class="ac-param__box"><input id="refund" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">Minderkilometer, often 0.03 to 0.08 €/km</span></label>
-          <label class="ac-param"><span class="ac-param__label">Rate per 1,000 km more</span><span class="ac-param__box"><input id="rate" type="number" min="0" max="100" step="0.5" inputmode="decimal"><span class="ac-param__unit">€/month</span></span><span class="ac-param__hint">Rate difference between two offers ÷ km difference × 1,000</span></label>
-        </div>
-        <div class="row" style="margin-top:14px">
-          <label class="ac-param"><span class="ac-param__label" id="drive-l">If you really drive</span><span class="ac-param__box"><input id="drive" class="wide" type="number" min="0" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km/yr</span></span><input id="driver" type="range" min="0" max="60000" step="500" aria-label="Slider for the km you really drive"><span class="ac-param__hint" id="drive-h"></span></label>
-        </div>
-        <div class="ac-table-wrap" style="margin-top:10px"><table class="ac-table opt" id="opt"></table></div>
-        <p class="ac-caption" id="opt-note"></p>
-      </section>
-
       <section class="ac-card" id="contract">
-        <h2 class="ac-card__title"><span class="step">2</span>Your lease</h2>
-        <p class="ac-card__desc">From the contract. Leave this empty while you are still choosing an offer.</p>
+        <h2 class="ac-card__title"><span class="step">1</span>Your lease</h2>
+        <p class="ac-card__desc">From your contract.</p>
         <div class="row">
           <label class="ac-param"><span class="ac-param__label">Start (handover)</span><span class="ac-param__box"><input id="start" type="date"></span></label>
           <div><span class="ac-param__label">Term</span><div class="ac-seg" id="months" role="group" aria-label="Term"></div></div>
-          <label class="ac-param"><span class="ac-param__label">km a year in the contract</span><span class="ac-param__box"><input id="km" class="wide" type="number" min="1000" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><button type="button" class="ac-chip" id="useplan" style="justify-self:start"></button></label>
+          <label class="ac-param"><span class="ac-param__label">km a year in the contract</span><span class="ac-param__box"><input id="km" class="wide" type="number" min="1000" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">Still choosing an offer? <a href="/leasing/plan/">Work out how many km to lease</a></span></label>
           <label class="ac-param"><span class="ac-param__label">Odometer at handover</span><span class="ac-param__box"><input id="odo0" class="wide" type="number" min="0" max="2000000" step="1" inputmode="numeric"><span class="ac-param__unit">km</span></span></label>
           <label class="ac-param"><span class="ac-param__label">Free tolerance</span><span class="ac-param__box"><input id="tol" class="wide" type="number" min="0" max="100000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">km over or under that cost nothing, if your contract has them</span></label>
+          <label class="ac-param"><span class="ac-param__label">Extra km cost</span><span class="ac-param__box"><input id="extra" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">Mehrkilometer, often 0.06 to 0.15 €/km</span></label>
+          <label class="ac-param"><span class="ac-param__label">Unused km refund</span><span class="ac-param__box"><input id="refund" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">Minderkilometer, often 0.03 to 0.08 €/km</span></label>
         </div>
       </section>
 
       <section class="ac-card" id="odo">
         <p class="ac-status ac-status--ok" id="logged" role="status" hidden></p>
-        <h2 class="ac-card__title"><span class="step">3</span>Odometer</h2>
+        <h2 class="ac-card__title"><span class="step">2</span>Odometer</h2>
         <p class="ac-card__desc">Read it off the dashboard now and then. Each reading makes the forecast better.</p>
         <div class="row">
           <label class="ac-param"><span class="ac-param__label">Date</span><span class="ac-param__box"><input id="rdate" type="date"></span></label>
@@ -226,7 +200,7 @@
       <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>Contracts differ: some refund unused km only up to a limit, some have a tolerance only one way, and some charge extra km already when you hand back early. Check yours. Damage and wear are settled separately.</span></p>
       <details class="more">
         <summary>How this is worked out</summary>
-        <p class="ac-caption">A working week counts 46 times a year (52 weeks minus holidays and public holidays). The allowance grows evenly from the handover: km a year × years × days so far ÷ days of the lease. Expected km continue from your newest reading at the km a month you set, or at your pace so far (from at least two weeks of driving), else at your plan. End settlement: km over the allowance beyond the tolerance × extra km cost, km under it beyond the tolerance × refund. In the table above, the rate change is the extra (or saved) monthly rate over the whole term. Link parameters: plan, buf, start, months, km, odo0, odo, at, extra, refund, tol, rate, pm.</p>
+        <p class="ac-caption">The allowance grows evenly from the handover: km a year × years × days so far ÷ days of the lease. Expected km continue from your newest reading at the km a month you set, or at your pace so far (from at least two weeks of driving), else at the allowance. End settlement: km over the allowance beyond the tolerance × extra km cost, km under it beyond the tolerance × refund. Link parameters: mine, start, months, km, odo0, odo, at, extra, refund, tol, pm.</p>
       </details>
     </div>
     <!-- chrome:footer -->
@@ -240,13 +214,13 @@
     </div>
     <p class="ac-share__status" data-share-status role="status"></p>
     <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
-      <p class="ac-share__desc">How many km a year to put in your car lease, added up from how you drive, and where your odometer stands against the contract today, at the end of the month, quarter and year and at the end of the lease.</p>
+      <p class="ac-share__desc">Track the kilometres of your leased car: where your odometer stands against the contract today, at the end of the month, quarter and year and when the lease ends, and what that would cost.</p>
       <div class="ac-share__row">
-        <a href="https://wa.me/?text=Leasing%20mileage%20planner%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fleasing%2F&amp;text=Leasing%20mileage%20planner%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Leasing%20mileage%20planner%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Leasing%20mileage%20planner%20%C2%B7%20Allo%20Cars&amp;body=How%20many%20km%20a%20year%20to%20put%20in%20your%20car%20lease%2C%20added%20up%20from%20how%20you%20drive%2C%20and%20where%20your%20odometer%20stands%20against%20the%20contract%20today%2C%20at%20the%20end%20of%20the%20month%2C%20quarter%20and%20year%20and%20at%20the%20end%20of%20the%20lease.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fleasing%2F" data-share-link data-count="share_email">Email</a>
+        <a href="https://wa.me/?text=Lease%20kilometres%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fleasing%2F&amp;text=Lease%20kilometres%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Lease%20kilometres%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Lease%20kilometres%20%C2%B7%20Allo%20Cars&amp;body=Track%20the%20kilometres%20of%20your%20leased%20car%3A%20where%20your%20odometer%20stands%20against%20the%20contract%20today%2C%20at%20the%20end%20of%20the%20month%2C%20quarter%20and%20year%20and%20when%20the%20lease%20ends%2C%20and%20what%20that%20would%20cost.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fleasing%2F" data-share-link data-count="share_email">Email</a>
       </div>
     </div>
   </section>
-  <p class="ac-foot__links"><a href="/cars/">My cars</a> · <a href="/leasing/">Lease kilometres</a> · <a href="/recalls/">Recalls</a> · <a href="/children/">Children in the car</a> · <a href="/electric/">Buying electric</a> · <a href="/compare/">Compare cars</a> · <a href="/rankings/">Car rankings</a> · <a href="/ev-grant/">EV grant</a> · <a href="/registrations/">New registrations</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/chargers/">Charger map</a> · <a href="/chargers/stats/">Charger statistics</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
+  <p class="ac-foot__links"><a href="/cars/">My cars</a> · <a href="/leasing/">Lease kilometres</a> · <a href="/recalls/">Recalls</a> · <a href="/children/">Children in the car</a> · <a href="/electric/">Buying electric</a> · <a href="/leasing/plan/">How many km to lease</a> · <a href="/compare/">Compare cars</a> · <a href="/rankings/">Car rankings</a> · <a href="/ev-grant/">EV grant</a> · <a href="/registrations/">New registrations</a> · <a href="/ev-cost/">Charging cost</a> · <a href="/chargers/">Charger map</a> · <a href="/chargers/stats/">Charger statistics</a> · <a href="/charging-prices/">Price archive</a> · <a href="/charge-times/">Best time to charge</a> · <a href="/fuel-prices/">Fuel prices</a> · <a href="/open-data/">Data and sources</a> · <a href="/open-data/#ai">Use with AI</a></p>
   <p>Estimates and collected prices, with no guarantee. Check your own tariff before you rely on a number. <a href="/legal/">Imprint and privacy</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">More from Allo</h2>
@@ -310,6 +284,6 @@
   </main>
 </div>
 <script src="/leasing/lease.js?v=6ae0a0419b"></script>
-<script src="/leasing/app.js?v=ec330e8820"></script>
+<script src="/leasing/app.js?v=88380c00ad"></script>
 </body>
 </html>

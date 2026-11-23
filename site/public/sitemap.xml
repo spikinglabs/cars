@@ -228,6 +228,12 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/registrations/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/registrations/"/>
   </url>
+  <url><loc>https://cars.allo.land/leasing/plan/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/leasing/plan/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/leasing/plan/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/leasing/plan/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/leasing/plan/"/>
+  </url>
   <url><loc>https://cars.allo.land/zh/car/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/car/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/car/"/>
@@ -336,10 +342,22 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/stats/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/stats/"/>
   </url>
+  <url><loc>https://cars.allo.land/de/leasing/plan/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/leasing/plan/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/leasing/plan/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/leasing/plan/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/leasing/plan/"/>
+  </url>
   <url><loc>https://cars.allo.land/zh/chargers/stats/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/chargers/stats/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/chargers/stats/"/>
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/chargers/stats/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/chargers/stats/"/>
+  </url>
+  <url><loc>https://cars.allo.land/zh/leasing/plan/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cars.allo.land/leasing/plan/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://cars.allo.land/de/leasing/plan/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://cars.allo.land/zh/leasing/plan/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cars.allo.land/leasing/plan/"/>
   </url>
 </urlset>

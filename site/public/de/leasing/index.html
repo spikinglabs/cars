@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Leasing-Kilometer planen · Allo Cars</title>
-<meta name="description" content="Wie viele Kilometer im Jahr du im Leasingvertrag ansetzen solltest, zusammengezählt aus deinen Fahrten, und wo dein Kilometerstand gegenüber dem Vertrag steht: heute, zum Monats-, Quartals- und Jahresende und am Vertragsende.">
+<title>Leasing-Kilometer · Allo Cars</title>
+<meta name="description" content="Behalte die Kilometer deines Leasingautos im Blick: wo dein Kilometerstand gegenüber dem Vertrag heute, zum Monats-, Quartals- und Jahresende und am Vertragsende steht und was das kosten würde.">
 <!-- chrome:head -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Allo Cars">
-<meta property="og:title" content="Leasing-Kilometer planen · Allo Cars">
-<meta property="og:description" content="Wie viele Kilometer im Jahr du im Leasingvertrag ansetzen solltest, zusammengezählt aus deinen Fahrten, und wo dein Kilometerstand gegenüber dem Vertrag steht: heute, zum Monats-, Quartals- und Jahresende und am Vertragsende.">
+<meta property="og:title" content="Leasing-Kilometer · Allo Cars">
+<meta property="og:description" content="Behalte die Kilometer deines Leasingautos im Blick: wo dein Kilometerstand gegenüber dem Vertrag heute, zum Monats-, Quartals- und Jahresende und am Vertragsende steht und was das kosten würde.">
 <meta property="og:url" content="https://cars.allo.land/de/leasing/">
 <meta property="og:image" content="https://cars.allo.land/icons/icon-512.png">
 <meta property="og:image:width" content="512">
@@ -146,8 +146,8 @@
 </aside>
 <!-- /chrome:header -->
 
-    <h1><span class="ac-hl">Leasing</span>-Kilometer planen</h1>
-    <p class="lead">Zähl zusammen, wie du fährst, und sieh, wie viele km im Jahr in den Leasingvertrag gehören. Danach behältst du den Tacho im Blick: wo du heute stehst, zum Monats-, Quartals- und Jahresende und am Vertragsende. Alles bleibt auf diesem Gerät, ohne Konto.</p>
+    <h1>Deine <span class="ac-hl">Leasing</span>-Kilometer</h1>
+    <p class="lead">Trag deinen Vertrag ein und lies ab und zu den Kilometerstand ab. Du siehst, wo du heute stehst, zum Monats-, Quartals- und Jahresende und am Vertragsende. Alles bleibt auf diesem Gerät, ohne Konto.</p>
 
     <div class="stack">
       <section class="ac-card" id="for-car" hidden>
@@ -155,49 +155,23 @@
         <div class="cars" id="cars" role="group" aria-label="Leasing für"></div>
       </section>
 
-      <section class="ac-card" id="plan">
-        <h2 class="ac-card__title"><span class="step">1</span>Wie viel fährst du?</h2>
-        <p class="ac-card__desc">Rechne ein normales Jahr zusammen: eine Zeile pro Art von Fahrt, mit den km hin und zurück. Ersetz die Beispiele durch deine eigenen.</p>
-        <div class="sc" id="sc">
-          <div class="sc-row sc-head" aria-hidden="true"><span>Fahrt</span><span>km</span><span></span><span>Mal</span><span>Wie oft</span><span style="text-align:right">km im Jahr</span><span></span></div>
-        </div>
-        <div class="presets" id="presets"><span class="ac-caption">Dazu:</span></div>
-        <div class="row" style="margin-top:14px">
-          <label class="ac-param"><span class="ac-param__label">Puffer</span><span class="ac-param__box"><input id="buf" type="number" min="0" max="50" step="1" inputmode="numeric"><span class="ac-param__unit">%</span></span><input id="bufr" type="range" min="0" max="30" step="1" aria-label="Regler für den Puffer"><span class="ac-param__hint">Für Fahrten, die du noch nicht absehen kannst. 10 % sind üblich.</span></label>
-        </div>
-        <div class="ac-readouts" id="plan-out" style="margin-top:14px"></div>
-      </section>
-
-      <section class="ac-card">
-        <h2 class="ac-card__title">Mehr km im Vertrag oder Mehrkilometer zahlen?</h2>
-        <p class="ac-card__desc">Mehr km im Vertrag erhöhen die Monatsrate. Zu wenige kosten am Ende extra, und nicht gefahrene km werden zu einem niedrigeren Preis erstattet. Trag die Preise aus deinem Angebot ein.</p>
-        <div class="row">
-          <label class="ac-param"><span class="ac-param__label">Mehrkilometer</span><span class="ac-param__box"><input id="extra" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">oft 0,06 bis 0,15 €/km</span></label>
-          <label class="ac-param"><span class="ac-param__label">Minderkilometer</span><span class="ac-param__box"><input id="refund" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">oft 0,03 bis 0,08 €/km</span></label>
-          <label class="ac-param"><span class="ac-param__label">Rate je 1.000 km mehr</span><span class="ac-param__box"><input id="rate" type="number" min="0" max="100" step="0.5" inputmode="decimal"><span class="ac-param__unit">€/Monat</span></span><span class="ac-param__hint">Ratenunterschied zweier Angebote ÷ km-Unterschied × 1.000</span></label>
-        </div>
-        <div class="row" style="margin-top:14px">
-          <label class="ac-param"><span class="ac-param__label" id="drive-l">Wenn du tatsächlich fährst</span><span class="ac-param__box"><input id="drive" class="wide" type="number" min="0" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km/Jahr</span></span><input id="driver" type="range" min="0" max="60000" step="500" aria-label="Regler für die tatsächlich gefahrenen km"><span class="ac-param__hint" id="drive-h"></span></label>
-        </div>
-        <div class="ac-table-wrap" style="margin-top:10px"><table class="ac-table opt" id="opt"></table></div>
-        <p class="ac-caption" id="opt-note"></p>
-      </section>
-
       <section class="ac-card" id="contract">
-        <h2 class="ac-card__title"><span class="step">2</span>Dein Leasingvertrag</h2>
-        <p class="ac-card__desc">Aus dem Vertrag. Lass das leer, solange du noch Angebote vergleichst.</p>
+        <h2 class="ac-card__title"><span class="step">1</span>Dein Leasingvertrag</h2>
+        <p class="ac-card__desc">Aus deinem Vertrag.</p>
         <div class="row">
           <label class="ac-param"><span class="ac-param__label">Beginn (Übergabe)</span><span class="ac-param__box"><input id="start" type="date"></span></label>
           <div><span class="ac-param__label">Laufzeit</span><div class="ac-seg" id="months" role="group" aria-label="Laufzeit"></div></div>
-          <label class="ac-param"><span class="ac-param__label">km pro Jahr im Vertrag</span><span class="ac-param__box"><input id="km" class="wide" type="number" min="1000" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><button type="button" class="ac-chip" id="useplan" style="justify-self:start"></button></label>
+          <label class="ac-param"><span class="ac-param__label">km pro Jahr im Vertrag</span><span class="ac-param__box"><input id="km" class="wide" type="number" min="1000" max="200000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">Noch bei der Angebotswahl? <a href="/de/leasing/plan/">Rechne aus, wie viele km du brauchst</a></span></label>
           <label class="ac-param"><span class="ac-param__label">Kilometerstand bei Übergabe</span><span class="ac-param__box"><input id="odo0" class="wide" type="number" min="0" max="2000000" step="1" inputmode="numeric"><span class="ac-param__unit">km</span></span></label>
           <label class="ac-param"><span class="ac-param__label">Freie Toleranz</span><span class="ac-param__box"><input id="tol" class="wide" type="number" min="0" max="100000" step="500" inputmode="numeric"><span class="ac-param__unit">km</span></span><span class="ac-param__hint">km darüber oder darunter, die nichts kosten, falls dein Vertrag das vorsieht</span></label>
+          <label class="ac-param"><span class="ac-param__label">Mehrkilometer</span><span class="ac-param__box"><input id="extra" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">oft 0,06 bis 0,15 €/km</span></label>
+          <label class="ac-param"><span class="ac-param__label">Minderkilometer</span><span class="ac-param__box"><input id="refund" type="number" min="0" max="2" step="0.01" inputmode="decimal"><span class="ac-param__unit">€/km</span></span><span class="ac-param__hint">oft 0,03 bis 0,08 €/km</span></label>
         </div>
       </section>
 
       <section class="ac-card" id="odo">
         <p class="ac-status ac-status--ok" id="logged" role="status" hidden></p>
-        <h2 class="ac-card__title"><span class="step">3</span>Kilometerstand</h2>
+        <h2 class="ac-card__title"><span class="step">2</span>Kilometerstand</h2>
         <p class="ac-card__desc">Lies ihn ab und zu am Tacho ab. Jede Ablesung macht die Prognose genauer.</p>
         <div class="row">
           <label class="ac-param"><span class="ac-param__label">Datum</span><span class="ac-param__box"><input id="rdate" type="date"></span></label>
@@ -226,7 +200,7 @@
       <p class="ac-notice"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg><span>Verträge sind verschieden: Manche erstatten Minderkilometer nur bis zu einer Grenze, manche haben eine Toleranz nur in eine Richtung, und manche berechnen Mehrkilometer schon bei vorzeitiger Rückgabe. Schau in deinen. Schäden und Verschleiß werden getrennt abgerechnet.</span></p>
       <details class="more">
         <summary>So wird gerechnet</summary>
-        <p class="ac-caption">Eine Arbeitswoche zählt 46-mal im Jahr (52 Wochen ohne Urlaub und Feiertage). Die erlaubten km wachsen ab der Übergabe gleichmäßig: km pro Jahr × Jahre × bisherige Tage ÷ Tage der Laufzeit. Die erwarteten km gehen von deiner neuesten Ablesung aus weiter, mit den km pro Monat, die du einstellst, sonst mit deinem bisherigen Tempo (ab zwei Wochen Fahrt), sonst nach deinem Plan. Abrechnung am Ende: km über dem Rahmen jenseits der Toleranz × Mehrkilometerpreis, km darunter jenseits der Toleranz × Minderkilometerpreis. In der Tabelle oben ist die Rate die höhere (oder gesparte) Monatsrate über die ganze Laufzeit. Link-Parameter: plan, buf, start, months, km, odo0, odo, at, extra, refund, tol, rate, pm.</p>
+        <p class="ac-caption">Das Kontingent wächst ab der Übergabe gleichmäßig: km im Jahr × Jahre × bisherige Tage ÷ Tage der Laufzeit. Die erwarteten km gehen von deiner neuesten Ablesung mit den km im Monat weiter, die du einstellst, sonst mit deinem bisherigen Tempo (ab zwei Wochen Fahren), sonst mit dem Kontingent. Abrechnung am Ende: km über dem Kontingent jenseits der Toleranz × Mehrkilometer-Preis, km darunter jenseits der Toleranz × Minderkilometer-Vergütung. Link-Parameter: mine, start, months, km, odo0, odo, at, extra, refund, tol, pm.</p>
       </details>
     </div>
     <!-- chrome:footer -->
@@ -240,13 +214,13 @@
     </div>
     <p class="ac-share__status" data-share-status role="status"></p>
     <div class="ac-share__more" id="ac-share-more" data-share-more hidden>
-      <p class="ac-share__desc">Wie viele Kilometer im Jahr du im Leasingvertrag ansetzen solltest, zusammengezählt aus deinen Fahrten, und wo dein Kilometerstand gegenüber dem Vertrag steht: heute, zum Monats-, Quartals- und Jahresende und am Vertragsende.</p>
+      <p class="ac-share__desc">Behalte die Kilometer deines Leasingautos im Blick: wo dein Kilometerstand gegenüber dem Vertrag heute, zum Monats-, Quartals- und Jahresende und am Vertragsende steht und was das kosten würde.</p>
       <div class="ac-share__row">
-        <a href="https://wa.me/?text=Leasing-Kilometer%20planen%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F&amp;text=Leasing-Kilometer%20planen%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Leasing-Kilometer%20planen%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Leasing-Kilometer%20planen%20%C2%B7%20Allo%20Cars&amp;body=Wie%20viele%20Kilometer%20im%20Jahr%20du%20im%20Leasingvertrag%20ansetzen%20solltest%2C%20zusammengez%C3%A4hlt%20aus%20deinen%20Fahrten%2C%20und%20wo%20dein%20Kilometerstand%20gegen%C3%BCber%20dem%20Vertrag%20steht%3A%20heute%2C%20zum%20Monats-%2C%20Quartals-%20und%20Jahresende%20und%20am%20Vertragsende.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" data-share-link data-count="share_email">E-Mail</a>
+        <a href="https://wa.me/?text=Leasing-Kilometer%20%C2%B7%20Allo%20Cars%20https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_whatsapp">WhatsApp</a> <a href="https://t.me/share/url?url=https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F&amp;text=Leasing-Kilometer%20%C2%B7%20Allo%20Cars" target="_blank" rel="noopener" data-share-link data-count="share_telegram">Telegram</a> <a href="https://x.com/intent/post?text=Leasing-Kilometer%20%C2%B7%20Allo%20Cars&amp;url=https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_x">X</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" target="_blank" rel="noopener" data-share-link data-count="share_facebook">Facebook</a> <a href="mailto:?subject=Leasing-Kilometer%20%C2%B7%20Allo%20Cars&amp;body=Behalte%20die%20Kilometer%20deines%20Leasingautos%20im%20Blick%3A%20wo%20dein%20Kilometerstand%20gegen%C3%BCber%20dem%20Vertrag%20heute%2C%20zum%20Monats-%2C%20Quartals-%20und%20Jahresende%20und%20am%20Vertragsende%20steht%20und%20was%20das%20kosten%20w%C3%BCrde.%0A%0Ahttps%3A%2F%2Fcars.allo.land%2Fde%2Fleasing%2F" data-share-link data-count="share_email">E-Mail</a>
       </div>
     </div>
   </section>
-  <p class="ac-foot__links"><a href="/de/cars/">Meine Autos</a> · <a href="/de/leasing/">Leasing-Kilometer</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/children/">Kinder im Auto</a> · <a href="/de/electric/">E-Auto kaufen</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/rankings/">Ranglisten</a> · <a href="/de/ev-grant/">E-Auto-Förderung</a> · <a href="/de/registrations/">Neuzulassungen</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/chargers/stats/">Ladesäulen in Zahlen</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
+  <p class="ac-foot__links"><a href="/de/cars/">Meine Autos</a> · <a href="/de/leasing/">Leasing-Kilometer</a> · <a href="/de/recalls/">Rückrufe</a> · <a href="/de/children/">Kinder im Auto</a> · <a href="/de/electric/">E-Auto kaufen</a> · <a href="/de/leasing/plan/">Wie viele km leasen</a> · <a href="/de/compare/">Autos vergleichen</a> · <a href="/de/rankings/">Ranglisten</a> · <a href="/de/ev-grant/">E-Auto-Förderung</a> · <a href="/de/registrations/">Neuzulassungen</a> · <a href="/de/ev-cost/">Ladekosten</a> · <a href="/de/chargers/">Ladesäulenkarte</a> · <a href="/de/chargers/stats/">Ladesäulen in Zahlen</a> · <a href="/de/charging-prices/">Preisarchiv</a> · <a href="/de/charge-times/">Günstigste Ladezeit</a> · <a href="/de/fuel-prices/">Spritpreise</a> · <a href="/de/open-data/">Daten und Quellen</a> · <a href="/de/open-data/#ai">Mit KI nutzen</a></p>
   <p>Schätzungen und gesammelte Preise, alle Angaben ohne Gewähr. Prüfe deinen eigenen Tarif, bevor du dich auf eine Zahl verlässt. <a href="/de/legal/">Impressum und Datenschutz</a></p>
   <nav class="ac-family" aria-labelledby="family-h">
     <h2 id="family-h">Mehr von Allo</h2>
@@ -310,6 +284,6 @@
   </main>
 </div>
 <script src="/leasing/lease.js?v=6ae0a0419b"></script>
-<script src="/leasing/app.js?v=ec330e8820"></script>
+<script src="/leasing/app.js?v=88380c00ad"></script>
 </body>
 </html>

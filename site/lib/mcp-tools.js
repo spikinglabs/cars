@@ -914,7 +914,7 @@ async function costOverYears(get, { ev_price, fuel_car_price, years = 6, km_per_
 // ---------- lease mileage ----------
 
 // How many km a year to put in a lease from usage scenarios, what more or fewer km in the contract cost, and,
-// with a contract start, where the odometer stands at today, end of month, quarter, year and lease (as on /leasing/).
+// with a contract start, where the odometer stands at today, end of month, quarter, year and lease (as on /leasing/plan/ and /leasing/).
 async function planLeaseMileage(get, { trips = [], margin_pct = 10, extra_eur_per_km = 0.10, refund_eur_per_km = 0.05, rate_eur_per_month_per_1000km = 6,
   start = null, months = 36, km_per_year = null, start_odometer = 0, odometer = null, odometer_date = null, tolerance_km = 0, km_per_month = null, today = null } = {}) {
   if (!Array.isArray(trips)) throw new ToolError("trips must be a list of { label, km, times, per }");
@@ -930,9 +930,13 @@ async function planLeaseMileage(get, { trips = [], margin_pct = 10, extra_eur_pe
   const steps = [...new Set([-5000, -2500, 0, 2500, 5000].map((d) => base + d).filter((a) => a >= 2500).concat(contractKm ? [contractKm] : []))].sort((a, b) => a - b);
   const refRate = (drive - base) / 1000 * c.rate * months_;
   const options = drive ? Lease.options(drive, c, steps).map((o) => ({ km_per_year: o.km, rate_change_eur: Math.round(o.rate_eur - refRate), end_settlement_eur: o.settlement_eur, total_eur: Math.round(o.rate_eur - refRate) + o.settlement_eur })) : [];
+  // two pages: /leasing/plan/ for choosing the allowance before signing, /leasing/ for tracking a lease you have
+  const link = (path, qs) => `${SITE}${path}?${qs.toString().replace(/%7E/gi, "~").replace(/%7C/gi, "|")}`;
+  const qp = new URLSearchParams();
+  if (items.length) qp.set("plan", items.map((x) => [x.label.replace(/[|~]/g, " "), x.km, x.n, x.per].join("~")).join("|"));
+  qp.set("buf", r.need ? margin_pct : 10); qp.set("months", months_); qp.set("extra", c.extra); qp.set("refund", c.refund); qp.set("rate", c.rate);
   const q = new URLSearchParams();
-  if (items.length) q.set("plan", items.map((x) => [x.label.replace(/[|~]/g, " "), x.km, x.n, x.per].join("~")).join("|"));
-  q.set("buf", r.need ? margin_pct : 10); q.set("extra", c.extra); q.set("refund", c.refund); q.set("rate", c.rate);
+  q.set("extra", c.extra); q.set("refund", c.refund);
   const out = {
     plan: p.total ? { trips: p.rows.map((x) => ({ label: x.label, km: x.km, times: x.n, per: { wk: "working_week", w: "week", m: "month", y: "year" }[x.per], km_per_year: x.year })), km_per_year: r.need, with_margin: r.with_margin, margin_pct, suggested_km_per_year: r.step_2500, suggested_in_5000_steps: r.step_5000, km_over_term: r.step_2500 * months_ / 12 } : null,
     allowance_options: options.length ? { compared_with_driving: drive, term_months: months_, rows: options } : null,
@@ -948,7 +952,8 @@ async function planLeaseMileage(get, { trips = [], margin_pct = 10, extra_eur_pe
     if (odometer != null) { q.set("odo", odometer); q.set("at", readings[0].date); }
     if (km_per_month != null) q.set("pm", km_per_month);
   }
-  out.page = `${SITE}/leasing/?${q.toString().replace(/%7E/gi, "~").replace(/%7C/gi, "|")}`;
+  if (items.length) out.plan_page = link("/leasing/plan/", qp);
+  out.page = start ? link("/leasing/", q) : link("/leasing/plan/", qp);
   out.note = "Working week = 46 a year. The allowance grows evenly from the handover. Expected km continue from the newest reading at km_per_month, else the pace so far, else the plan. Settlement: km beyond the tolerance × extra (over) or × refund (under). Contracts differ (refund caps, one-way tolerances): check the contract. Rate per 1,000 km is an estimate unless taken from two offers.";
   return out;
 }
@@ -1138,7 +1143,7 @@ export const TOOLS = [
   {
     name: "plan_lease_mileage",
     title: "Lease mileage: km to contract and checkpoints",
-    description: "For a car lease: adds up usage scenarios (commute, holidays, weekends ...) to the km a year to put in the contract, with a safety margin and rounded to the usual 2,500 km steps; compares contracting more or fewer km (higher monthly rate against extra km charges or refunds at the end); and, given the lease start and an odometer reading, where the car stands against the allowance today, at the end of the month, quarter and year and at the end of the lease, with the expected settlement and the km a month that keep it within. Returns a link to the same view on cars.allo.land/leasing/, where the person can keep it per car on their device. Pure calculation, no data lookup.",
+    description: "For a car lease: adds up usage scenarios (commute, holidays, weekends ...) to the km a year to put in the contract, with a safety margin and rounded to the usual 2,500 km steps; compares contracting more or fewer km (higher monthly rate against extra km charges or refunds at the end); and, given the lease start and an odometer reading, where the car stands against the allowance today, at the end of the month, quarter and year and at the end of the lease, with the expected settlement and the km a month that keep it within. Returns page: cars.allo.land/leasing/ (tracking a lease, kept per car on the person's device) when a start is given, else cars.allo.land/leasing/plan/ (choosing the allowance before signing); plan_page links the planner too. Pure calculation, no data lookup.",
     inputSchema: { type: "object", properties: {
       trips: { type: "array", description: "Usage scenarios, km there and back.", items: { type: "object", properties: {
         label: str("Name, e.g. 'Commute' or 'Summer holiday'."), km: num("km each time (round trip)."), times: num("How many times per period.", { default: 1 }),

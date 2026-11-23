@@ -652,9 +652,8 @@
     try { st = ((JSON.parse(localStorage.getItem("allo-cars-lease") || "null") || {}).cars || {})[c.id]; } catch (e) {}
     if (!st || !A.day(st.start)) return "";
     const d = new Date(), today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    const plan = A.plan(st.plan || []);
-    const t = A.track({ start: st.start, months: st.months, km: st.km || A.recommend(plan.total, st.buf).step_2500, odo0: st.odo0, extra: st.extra, refund: st.refund, tol: st.tol },
-      st.readings || [], { today, per_month: st.pm, plan_year: plan.total });
+    const t = A.track({ start: st.start, months: st.months, km: st.km || A.DEFAULTS.km, odo0: st.odo0, extra: st.extra, refund: st.refund, tol: st.tol },
+      st.readings || [], { today, per_month: st.pm });
     if (!t) return "";
     const nk = (v) => `${Math.round(Math.abs(v)).toLocaleString(T.locale)} km`;
     const txt = (v) => Math.abs(v) < 1 ? LW.even : v > 0 ? LW.over(nk(v)) : LW.under(nk(v));

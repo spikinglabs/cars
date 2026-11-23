@@ -360,6 +360,7 @@ test("plan_lease_mileage adds up trips, compares allowances and tracks the odome
   assert.deepEqual(r.tracking.checkpoints.map((c) => c.id), ["today", "month", "quarter", "end"]);
   assert.equal(r.tracking.per_month_source, "pace");
   assert.ok(r.tracking.end.diff_km > 0, "about 1,100 km a month on a 12,500 km a year lease runs over");
-  assert.match(r.page, /^https:\/\/cars\.allo\.land\/leasing\/\?plan=Commute~40~5~wk\|Holiday~2400~1~y&/);
+  assert.match(r.page, /^https:\/\/cars\.allo\.land\/leasing\/\?extra=/);
+  assert.match(r.plan_page, /^https:\/\/cars\.allo\.land\/leasing\/plan\/\?plan=Commute~40~5~wk\|Holiday~2400~1~y&/);
   assert.match(r.page, /start=2025-01-01/);
 });

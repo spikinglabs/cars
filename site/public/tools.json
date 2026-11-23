@@ -22,27 +22,42 @@
       "url_zh": "https://cars.allo.land/zh/electric/"
     },
     {
-      "name": "lease_mileage",
-      "title": "Leasing mileage planner",
-      "url": "https://cars.allo.land/leasing/",
-      "description": "How many km a year to put in a car lease, added up from usage scenarios with a safety margin; what contracting more or fewer km costs (monthly rate against extra km charges or refunds at the end); and, with the lease start and odometer readings, expected against allowed km today, at the end of the month, quarter and year and at the end of the lease, with a chart and the km a month that keep it within. Kept per car of My cars on the person's device. Same maths as the MCP tool plan_lease_mileage.",
+      "name": "lease_plan",
+      "title": "How many km to lease",
+      "url": "https://cars.allo.land/leasing/plan/",
+      "description": "Before signing a car lease: how many km a year to put in it, added up from usage scenarios with a safety margin, and what contracting more or fewer km costs (monthly rate against extra km charges or refunds at the end). Not tied to a car. Same maths as the MCP tool plan_lease_mileage.",
       "parameters": {
         "plan": "trips as label~km~times~per joined by |, per = wk (working week, 46 a year), w, m or y; label a preset (commute, errands, weekend, holiday, family) or free text",
         "buf": "safety margin in %",
+        "months": "term in months",
+        "drive": "km a year you really drive, for the allowance comparison (optional)",
         "extra": "€ per km over the allowance",
         "refund": "€ per km under the allowance",
-        "rate": "€ a month more per 1,000 km a year in the contract",
-        "drive": "km a year you really drive, for the allowance comparison (optional)",
+        "rate": "€ a month more per 1,000 km a year in the contract"
+      },
+      "example": "https://cars.allo.land/leasing/plan/?plan=commute~40~5~wk|holiday~2400~1~y&buf=10&months=36",
+      "url_de": "https://cars.allo.land/de/leasing/plan/",
+      "url_zh": "https://cars.allo.land/zh/leasing/plan/"
+    },
+    {
+      "name": "lease_mileage",
+      "title": "Lease kilometres",
+      "url": "https://cars.allo.land/leasing/",
+      "description": "For a lease the person already has: with the lease start and odometer readings, expected against allowed km today, at the end of the month, quarter and year and at the end of the lease, with a chart, the expected settlement and the km a month that keep it within. Kept per car of My cars on the person's device. Same maths as the MCP tool plan_lease_mileage.",
+      "parameters": {
+        "mine": "id of a car in My cars (optional)",
         "start": "lease start YYYY-MM-DD",
         "months": "term in months",
         "km": "km a year in the contract",
         "odo0": "odometer at handover",
         "odo": "odometer reading",
         "at": "date of that reading YYYY-MM-DD",
+        "extra": "€ per km over the allowance",
+        "refund": "€ per km under the allowance",
         "tol": "free tolerance in km",
         "pm": "km a month from now on (optional; else the pace so far)"
       },
-      "example": "https://cars.allo.land/leasing/?plan=commute~40~5~wk|holiday~2400~1~y&buf=10&start=2025-03-01&months=36&km=15000&odo=21500&at=2026-11-15",
+      "example": "https://cars.allo.land/leasing/?start=2025-03-01&months=36&km=15000&odo=21500&at=2026-11-15",
       "url_de": "https://cars.allo.land/de/leasing/",
       "url_zh": "https://cars.allo.land/zh/leasing/"
     },
