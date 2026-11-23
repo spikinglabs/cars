@@ -104,7 +104,8 @@
   // km a day so far, from handover to the newest reading; null with less than two weeks to go on
   function pace(c, r) {
     var days = (r.t - c.start) / DAY;
-    return days >= 14 && r.km >= c.odo0 ? (r.km - c.odo0) / days : null;
+    // a pace from a few weeks says little about years: use it only after two months of driving
+    return days >= 61 && r.km >= c.odo0 ? (r.km - c.odo0) / days : null;
   }
 
   /* Where the contract stands. c: contract fields (start "YYYY-MM-DD", months, km a year, odo0, extra, refund, tol);

@@ -90,3 +90,12 @@ test("months: km per month from readings, the km a month left, and the budget an
   assert.equal(monthly.rows[0].est, false);
   assert.equal(monthly.rows[1].est, false);
 });
+
+test("the pace so far counts only after two months of driving; before that the forecast uses the allowance", () => {
+  const c = { start: "2026-11-01", months: 36, km: 7500, odo0: 0 };
+  const early = L.track(c, [{ date: "2026-11-23", km: 848 }], { today: "2026-11-23" });
+  assert.equal(early.per_month_source, "allowance");
+  assert.equal(early.per_month, 625);
+  const later = L.track(c, [{ date: "2027-01-05", km: 2000 }], { today: "2027-01-05" });
+  assert.equal(later.per_month_source, "pace");
+});
