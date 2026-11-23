@@ -69,3 +69,13 @@ test("checkpoints after the contract end fall away; no reading uses the plan", (
   assert.equal(L.addMonths(L.day("2024-01-31"), 1), L.day("2024-02-29"));
   assert.equal(L.track({ months: 36 }, []), null);
 });
+
+test("gapSvg draws km over or under the allowance, shaded, with today and end labels", () => {
+  const s = L.series({ start: "2026-11-01", months: 36, km: 7500, odo0: 0 }, [{ date: "2026-11-23", km: 848 }], { today: "2026-11-23", per_month: 700 });
+  const svg = L.gapSvg(s, { id: "t", today: L.day("2026-11-23"), words: { allow: "allowance", today: "Today", end: "End" } });
+  assert.match(svg, /^<svg class="gap"/);
+  assert.match(svg, /class="g-over"/);
+  assert.match(svg, /Today \+396 km/);
+  assert.match(svg, /End \+\d+ km/);
+  assert.doesNotMatch(L.gapSvg(s, { id: "t", labels: false }), /g-lab/);
+});

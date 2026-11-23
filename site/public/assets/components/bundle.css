@@ -491,3 +491,16 @@ span.ac-pick { display: block; min-width: 0; }
 .ac-bk:not(.ac-bk--due) { padding: 0; border: 0; background: none; }
 .ac-bk--due { border-color: var(--gold); }
 .ac-bk__msg:empty { display: none; }
+
+/* Lease "over or under the allowance" chart (AlloLease.gapSvg), on /leasing/ and the lease card in My cars */
+svg.gap { display: block; width: 100%; height: auto; overflow: visible; }
+svg.gap text { font: 500 11px var(--font-sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
+svg.gap .g-lab { font-weight: 700; fill: var(--ink); }
+svg.gap .g-over { fill: var(--danger); opacity: .18; }
+svg.gap .g-under { fill: var(--success); opacity: .18; }
+svg.gap .g-zero { stroke: var(--ink-muted); stroke-width: 1.5; }
+svg.gap .g-grid { stroke: var(--border); stroke-dasharray: 2 4; }
+svg.gap .g-act { stroke: var(--ink); stroke-width: 3; fill: none; stroke-linejoin: round; }
+svg.gap .g-proj { stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 2 5; stroke-linecap: round; fill: none; }
+svg.gap .g-now { stroke: var(--gold); stroke-width: 2; }
+svg.gap .g-dot { fill: var(--gold); stroke: var(--surface-100); stroke-width: 2; }

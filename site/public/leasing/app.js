@@ -34,7 +34,7 @@
     endV: (d) => `到期 ${d}`, pay: (e) => `到期约需补付 ${e}`, back: (e) => `到期约退还 ${e}`, nothing: "在免费容差内，不用结算",
     stay: "想不超，每月最多开", stayB: (n) => `现在按每月 ${n} 计算`, ended: "合同已到期",
     src: { pace: (n) => `到目前为止每月 ${n}（按你的读数）`, plan: (n) => `按你的计划每月 ${n}`, allowance: (n) => `按合同每月 ${n}`, set: (n) => `你设的数；到目前为止每月 ${n}` },
-    reset: "恢复", allowed: "允许", readings: "你的读数", expected: "预计", chart: "里程表读数与允许里程",
+    reset: "恢复", allowed: "允许", readings: "你的读数", expected: "预计", chart: "比额度多开或少开的公里", gAllow: "额度", gToday: "今天", gEnd: "到期", gNote: "线在额度上方（红色）表示开多了，下方（绿色）表示还有余量。实线是你的读数，虚线是预计。",
     notStarted: (d) => `租期 ${d} 开始`,
     quick: "记录方式和备份", optHere: "在这台设备上：在上面输入，或在“我的车”的车辆卡片上输入。", optPhone: "手机快捷指令", optHome: "智能家居（Home Assistant）", showYaml: "显示自动化配置", yourData: "你的数据", showAll: (n) => `显示全部 ${n} 条读数`, showLess: "收起",
     loggedMsg: (k, d) => `已保存 ${k}（${d}）`, last: (d, n) => `最近一次读数：${d}（${n} 天前）`, lastNone: "还没有读数。",
@@ -69,7 +69,7 @@
     endV: (d) => `Ende ${d}`, pay: (e) => `Am Ende rund ${e} nachzahlen`, back: (e) => `Am Ende rund ${e} zurück`, nothing: "Innerhalb der Toleranz, keine Abrechnung",
     stay: "Um im Rahmen zu bleiben, höchstens", stayB: (n) => `Gerechnet wird mit ${n} im Monat`, ended: "Vertrag ist zu Ende",
     src: { pace: (n) => `Bisher ${n} im Monat (aus deinen Ablesungen)`, plan: (n) => `${n} im Monat laut deinem Plan`, allowance: (n) => `${n} im Monat laut Vertrag`, set: (n) => `Von dir gesetzt; bisher ${n} im Monat` },
-    reset: "Zurücksetzen", allowed: "Erlaubt", readings: "Deine Ablesungen", expected: "Erwartet", chart: "Kilometerstand und erlaubte Kilometer",
+    reset: "Zurücksetzen", allowed: "Erlaubt", readings: "Deine Ablesungen", expected: "Erwartet", chart: "Kilometer über oder unter dem Kontingent", gAllow: "Kontingent", gToday: "Heute", gEnd: "Ende", gNote: "Über der Linie (rot) fährst du mehr als erlaubt, darunter (grün) hast du Luft. Durchgezogen: deine Ablesungen, gepunktet: erwartet.",
     notStarted: (d) => `Leasing beginnt am ${d}`,
     quick: "Eintragen und Sichern", optHere: "Auf diesem Gerät: oben eintragen oder auf der Auto-Karte unter „Meine Autos“.", optPhone: "Kurzbefehl auf dem Handy", optHome: "Smart Home (Home Assistant)", showYaml: "Automatisierung anzeigen", yourData: "Deine Daten", showAll: (n) => `Alle ${n} Ablesungen zeigen`, showLess: "Weniger zeigen",
     loggedMsg: (k, d) => `${k} für ${d} gespeichert`, last: (d, n) => `Letzte Ablesung: ${d} (vor ${n} Tagen)`, lastNone: "Noch keine Ablesung.",
@@ -104,7 +104,7 @@
     endV: (d) => `End ${d}`, pay: (e) => `About ${e} to pay at the end`, back: (e) => `About ${e} back at the end`, nothing: "Within the tolerance, nothing to settle",
     stay: "To stay within, at most", stayB: (n) => `Now counting ${n} a month`, ended: "The lease has ended",
     src: { pace: (n) => `${n} a month so far (from your readings)`, plan: (n) => `${n} a month from your plan`, allowance: (n) => `${n} a month from the contract`, set: (n) => `Set by you; so far ${n} a month` },
-    reset: "Reset", allowed: "Allowed", readings: "Your readings", expected: "Expected", chart: "Odometer and allowed km",
+    reset: "Reset", allowed: "Allowed", readings: "Your readings", expected: "Expected", chart: "Km over or under the allowance", gAllow: "allowance", gToday: "Today", gEnd: "End", gNote: "Above the line (red) you drive more than allowed, below it (green) you have room. Solid: your readings, dotted: expected.",
     notStarted: (d) => `Lease starts ${d}`,
     quick: "Logging and backup", optHere: "On this device: type it above, or on the car's card in My cars.", optPhone: "Phone shortcut", optHome: "Smart home (Home Assistant)", showYaml: "Show the automation", yourData: "Your data", showAll: (n) => `Show all ${n} readings`, showLess: "Show fewer",
     loggedMsg: (k, d) => `Saved ${k} for ${d}`, last: (d, n) => `Last reading: ${d} (${n} days ago)`, lastNone: "No reading yet.",
@@ -321,31 +321,11 @@
       const name = cpName(x);
       return `<tr><td><strong>${esc(name)}</strong><small>${esc(date(x.date))}</small></td><td class="num">${esc(nf(x.expected_km))}</td><td class="num">${esc(nf(x.allowed_km))}</td><td class="num ${diffCls(x.diff_km)}">${esc(x.diff_km > 0 ? "+" : x.diff_km < 0 ? "−" : "")}${esc(nf(Math.abs(x.diff_km)))}</td></tr>`;
     }).join("") + "</tbody>";
-    $("chart").innerHTML = chart(ser);
+    const w = Math.max(300, Math.min(900, $("chart").clientWidth || 860));
+    $("chart").innerHTML = L.gapSvg(ser, { w, h: w < 600 ? 220 : 260, id: "gp", today: L.day(todayIso()), fmt: nf, words: { allow: T.gAllow, today: T.gToday, end: T.gEnd } });
+    $("chart-note").textContent = T.gNote;
   }
-  function chart(s) {
-    const W = Math.max(300, Math.min(900, $("chart").clientWidth || 860)), H = W < 600 ? 230 : 280, Lp = W < 600 ? 50 : 60, R = 10, Tp = 12, B = 26;
-    const pts = [].concat(s.allowance, s.readings, s.projection), t = s.track;
-    const ys = pts.map((p) => p[1]).concat(t.checkpoints.map((c) => c.expected_km));
-    const step = (() => { const span = Math.max(...ys) - Math.min(...ys) || 1000; const raw = span / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))); return [1, 2, 2.5, 5, 10].map((k) => k * mag).find((k) => k >= raw); })();
-    const y0 = Math.floor(Math.min(...ys) / step) * step, y1 = Math.ceil(Math.max(...ys) / step) * step || step;
-    const x = (ms) => Lp + (ms - s.start) / (s.end - s.start) * (W - Lp - R);
-    const y = (v) => Tp + (1 - (v - y0) / (y1 - y0 || 1)) * (H - Tp - B);
-    const line = (arr, cls) => arr.length > 1 ? `<polyline class="${cls}" points="${arr.map((p) => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(" ")}"/>` : "";
-    const short = (v) => v >= 1e6 ? `${nf(v / 1e5) / 10}M` : v >= 1000 ? `${nf(v / 1000)}k` : nf(v);
-    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(T.chart)}">`;
-    for (let v = y0; v <= y1 + 1e-6; v += step) svg += `<line class="grid" x1="${Lp}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${Lp - 6}" y="${y(v) + 4}" text-anchor="end">${short(v)}</text>`;
-    // x labels: each 1 January inside the lease, plus start and end on wide screens
-    const y0d = new Date(s.start).getUTCFullYear(), y1d = new Date(s.end).getUTCFullYear();
-    const yrs = []; for (let yy = y0d + 1; yy <= y1d; yy++) yrs.push(Date.UTC(yy, 0, 1));
-    yrs.forEach((ms) => { svg += `<line class="grid" x1="${x(ms)}" x2="${x(ms)}" y1="${Tp}" y2="${H - B}" style="stroke-dasharray:2 4"/><text x="${x(ms)}" y="${H - 8}" text-anchor="middle">${new Date(ms).getUTCFullYear()}</text>`; });
-    svg += line(s.allowance, "allow") + line(s.readings, "actual") + line(s.projection, "proj");
-    s.readings.slice(1).forEach((p) => { svg += `<circle class="dot" cx="${x(p[0])}" cy="${y(p[1])}" r="3.5"><title>${esc(date(L.iso(p[0])))}: ${esc(km(p[1]))}</title></circle>`; });
-    t.checkpoints.forEach((c) => { const ms = L.day(c.date); svg += `<circle class="cp" cx="${x(ms)}" cy="${y(c.expected_km)}" r="4.5"><title>${esc(cpName(c))} · ${esc(date(c.date))}: ${esc(km(c.expected_km))} / ${esc(T.allowed)} ${esc(km(c.allowed_km))}</title></circle>`; });
-    const now = L.day(todayIso());
-    if (now > s.start && now < s.end) svg += `<line class="now" x1="${x(now)}" x2="${x(now)}" y1="${Tp}" y2="${H - B}"/>`;
-    return svg + "</svg>";
-  }
+
 
   /* ---------- quick log: link, phone shortcut, Home Assistant ---------- */
   function drawQuick() {

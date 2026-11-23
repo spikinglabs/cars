@@ -157,7 +157,7 @@
     var rs = (readings || []).map(function (x) { return { t: day(x.date), km: Number(x.km) }; }).filter(function (x) { return x.t != null && isFinite(x.km); }).sort(function (a, b) { return a.t - b.t; });
     var r = { t: day(tr.reading.date), km: tr.reading.km };
     return {
-      start: c.start, end: c.end,
+      start: c.start, end: c.end, c: c,
       allowance: [[c.start, c.odo0], [c.end, c.odo0 + c.total]],
       readings: [[c.start, c.odo0]].concat(rs.map(function (x) { return [x.t, x.km]; })),
       projection: r.t < c.end ? [[r.t, r.km], [c.end, tr.end.expected_km]] : [],
@@ -165,5 +165,52 @@
     };
   }
 
-  return { PER: PER, DEFAULTS: DEFAULTS, PRESETS: PRESETS, day: day, iso: iso, addMonths: addMonths, plan: plan, recommend: recommend, options: options, settle: settle, norm: norm, allowedAt: allowedAt, track: track, series: series };
+  /* "Ahead of or behind the allowance" chart as an SVG string, for /leasing/ and the lease card on My cars.
+     y = km driven minus km allowed so far (0 = exactly on the allowance), so the gap is what you read, not two
+     close lines. Above 0 is shaded red (over), below green (under); solid = your readings, dotted = expected.
+     s: series(); o: { w, h, id (unique per chart), fmt(km) -> "1.234", year(ms) -> "2027", today (ms),
+     words: { allow, today, end } } */
+  function gapSvg(s, o) {
+    if (!s) return "";
+    var c = s.c, W = o.w || 600, H = o.h || 200, id = o.id || "g", fmt = o.fmt || function (v) { return String(Math.round(v)); };
+    var words = o.words || { allow: "allowance", today: "today", end: "end" };
+    var gap = function (p) { return [p[0], p[1] - allowedAt(c, p[0])]; };
+    var act = s.readings.map(gap), proj = s.projection.map(gap);
+    var pts = act.concat(proj), ys = pts.map(function (p) { return p[1]; }).concat([0]);
+    var lo = Math.min.apply(null, ys), hi = Math.max.apply(null, ys);
+    var span = Math.max(hi - lo, 200), raw = span / 3, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var step = [1, 2, 2.5, 5, 10].map(function (k) { return k * mag; }).filter(function (k) { return k >= raw; })[0];
+    var y0 = Math.floor(lo / step) * step, y1 = Math.ceil(hi / step) * step;
+    if (y1 === y0) y1 = y0 + step;
+    var Lp = 8, R = 8, Tp = 22, B = 22;
+    var x = function (ms) { return Lp + (ms - s.start) / (s.end - s.start) * (W - Lp - R); };
+    var y = function (v) { return Tp + (1 - (v - y0) / (y1 - y0)) * (H - Tp - B); };
+    var f1 = function (n) { return n.toFixed(1); };
+    var poly = function (arr) { return arr.map(function (p) { return f1(x(p[0])) + "," + f1(y(p[1])); }).join(" "); };
+    var sign = function (v) { return (v > 0.5 ? "+" : v < -0.5 ? "−" : "") + fmt(Math.abs(v)) + " km"; };
+    var all = act.concat(proj.slice(1));
+    var area = all.length > 1 ? f1(x(all[0][0])) + "," + f1(y(0)) + " " + poly(all) + " " + f1(x(all[all.length - 1][0])) + "," + f1(y(0)) : "";
+    var z = y(0), svg = '<svg class="gap" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + words.allow + '">';
+    svg += '<defs><clipPath id="' + id + '-o"><rect x="0" y="0" width="' + W + '" height="' + f1(z) + '"/></clipPath><clipPath id="' + id + '-u"><rect x="0" y="' + f1(z) + '" width="' + W + '" height="' + f1(H - z) + '"/></clipPath></defs>';
+    if (area) svg += '<polygon class="g-over" clip-path="url(#' + id + '-o)" points="' + area + '"/><polygon class="g-under" clip-path="url(#' + id + '-u)" points="' + area + '"/>';
+    // years
+    var yA = new Date(s.start).getUTCFullYear(), yB = new Date(s.end).getUTCFullYear();
+    for (var yy = yA + 1; yy <= yB; yy++) { var ms = Date.UTC(yy, 0, 1), xx = x(ms); svg += '<line class="g-grid" x1="' + f1(xx) + '" x2="' + f1(xx) + '" y1="' + Tp + '" y2="' + (H - B) + '"/><text x="' + f1(xx) + '" y="' + (H - 6) + '" text-anchor="middle">' + (o.year ? o.year(ms) : yy) + "</text>"; }
+    svg += '<line class="g-zero" x1="' + Lp + '" x2="' + (W - R) + '" y1="' + f1(z) + '" y2="' + f1(z) + '"/><text x="' + (W - R) + '" y="' + f1(s.track.end.diff_km >= 0 ? z + 14 : z - 6) + '" text-anchor="end">' + words.allow + "</text>";
+    if (act.length > 1) svg += '<polyline class="g-act" points="' + poly(act) + '"/>';
+    if (proj.length > 1) svg += '<polyline class="g-proj" points="' + poly(proj) + '"/>';
+    // today marker with the gap today, and the gap at the end
+    var tr = s.track, now = o.today;
+    if (now != null && now > s.start && now < s.end) {
+      var cpT = tr.checkpoints.filter(function (k) { return k.id === "today"; })[0];
+      var gT = cpT ? cpT.diff_km : null, xt = x(now);
+      svg += '<line class="g-now" x1="' + f1(xt) + '" x2="' + f1(xt) + '" y1="' + Tp + '" y2="' + (H - B) + '"/>';
+      if (gT != null) svg += '<circle class="g-dot" cx="' + f1(xt) + '" cy="' + f1(y(gT)) + '" r="4.5"/>' + (o.labels === false ? "" : '<text class="g-dot" cx="' + f1(xt) + '" cy="' + f1(y(gT)) + '" r="4.5"/><text class="g-lab" x="' + f1(Math.min(xt + 6, W - R - 90)) + '" y="14">' + words.today + " " + sign(gT) + "</text>");
+    }
+    var gE = tr.end.diff_km;
+    svg += '<circle class="g-dot g-end" cx="' + f1(x(s.end)) + '" cy="' + f1(y(gE)) + '" r="4.5"/>' + (o.labels === false ? "" : '<text class="g-lab" x="' + (W - R) + '" y="' + f1(Math.max(12, Math.min(H - B - 6, y(gE) + (gE >= 0 ? -10 : 18)))) + '" text-anchor="end">' + words.end + " " + sign(gE) + "</text>");
+    return svg + "</svg>";
+  }
+
+  return { PER: PER, DEFAULTS: DEFAULTS, PRESETS: PRESETS, day: day, iso: iso, addMonths: addMonths, plan: plan, recommend: recommend, options: options, settle: settle, norm: norm, allowedAt: allowedAt, track: track, series: series, gapSvg: gapSvg };
 });

@@ -34,7 +34,7 @@
 <script>window.__acRegions = {"default":"de","regions":[{"code":"de","name":{"en":"Germany","de":"Deutschland","zh":"德国"},"currency":"EUR","locale":"de-DE"}]};</script>
 <!-- /chrome:head -->
 <link rel="stylesheet" href="/assets/tokens.css?v=ed062bae17">
-<link rel="stylesheet" href="/assets/components/bundle.css?v=866ffae4e5">
+<link rel="stylesheet" href="/assets/components/bundle.css?v=1f3178e509">
 <script src="/assets/site.js?v=92ed0a6c5f"></script>
 <script src="/assets/garage.js?v=e6b832ce77"></script>
 <style>
@@ -192,8 +192,8 @@
             <label class="ac-param"><span class="ac-param__label">Ab jetzt fährst du</span><span class="ac-param__box"><input id="pm" class="wide" type="number" min="0" max="20000" step="50" inputmode="numeric"><span class="ac-param__unit">km/Monat</span></span><input id="pmr" type="range" min="0" max="5000" step="50" aria-label="Regler für km pro Monat ab jetzt"><span class="ac-param__hint" id="pm-h"></span></label>
           </div>
           <div class="ac-table-wrap" style="margin-top:10px"><table class="ac-table chk" id="cp"></table></div>
-          <div class="ac-legend" style="margin-top:14px"><span class="ac-legend--dash"><i style="border-color:var(--ink-muted)"></i>Erlaubt</span><span><i style="border-color:var(--car-1);border-top-width:3px"></i>Deine Ablesungen</span><span><i style="border-color:var(--gold);border-top-width:3px;border-top-style:dotted"></i>Erwartet</span></div>
-          <div class="ac-chart" id="chart"></div>
+          <div class="ac-chart" id="chart" style="margin-top:14px"></div>
+          <p class="ac-caption" id="chart-note"></p>
         </div>
       </section>
 
@@ -283,7 +283,7 @@
 <!-- /chrome:footer -->
   </main>
 </div>
-<script src="/leasing/lease.js?v=6ae0a0419b"></script>
-<script src="/leasing/app.js?v=8b72aea08f"></script>
+<script src="/leasing/lease.js?v=08fc6cc526"></script>
+<script src="/leasing/app.js?v=7e73f26b94"></script>
 </body>
 </html>
