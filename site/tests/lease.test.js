@@ -69,3 +69,33 @@ test("checkpoints after the contract end fall away; no reading uses the plan", (
   assert.equal(L.addMonths(L.day("2024-01-31"), 1), L.day("2024-02-29"));
   assert.equal(L.track({ months: 36 }, []), null);
 });
+
+test("months: km per month from readings, the km a month left, and the budget and bar renderers", () => {
+  const c = { start: "2026-11-01", months: 36, km: 7500, odo0: 0, tol: 2500 };
+  const m = L.months(c, [{ date: "2026-11-10", km: 300 }, { date: "2026-12-11", km: 1000 }], { today: "2026-12-20" });
+  assert.equal(m.allow_per_month, 625);
+  assert.equal(m.rows.length, 36);
+  assert.equal(m.rows[0].kind, "past");
+  assert.ok(Math.abs(m.rows[0].km - (300 + 700 * 21 / 31)) < 1); // 21 of the 31 days from Nov 10 to Dec 11
+  assert.equal(m.rows[0].est, true); // readings on Nov 10 and Dec 11: Dec 1 is not measured
+  assert.equal(m.rows[1].kind, "now");
+  assert.equal(m.rows[2].kind, "future");
+  assert.equal(m.per_month_to_stay_within, L.track(c, [{ date: "2026-12-11", km: 1000 }], { today: "2026-12-20" }).per_month_to_stay_within);
+  const html = L.budgetHtml(m, { words: L.words("en") });
+  assert.match(html, /From now on you can drive <b class="(neg|pos)">\d+ km<\/b> a month/);
+  const svg = L.barsSvg(m, { words: L.words("zh") });
+  assert.match(svg, /^<svg class="lbars"/);
+  assert.match(svg, /fill="url\(#lbh\)"/);
+  const monthly = L.months(c, [{ date: "2026-12-01", km: 600 }, { date: "2027-01-02", km: 1300 }], { today: "2027-01-05" });
+  assert.equal(monthly.rows[0].est, false);
+  assert.equal(monthly.rows[1].est, false);
+});
+
+test("the pace so far counts only after two months of driving; before that the forecast uses the allowance", () => {
+  const c = { start: "2026-11-01", months: 36, km: 7500, odo0: 0 };
+  const early = L.track(c, [{ date: "2026-11-23", km: 848 }], { today: "2026-11-23" });
+  assert.equal(early.per_month_source, "allowance");
+  assert.equal(early.per_month, 625);
+  const later = L.track(c, [{ date: "2027-01-05", km: 2000 }], { today: "2027-01-05" });
+  assert.equal(later.per_month_source, "pace");
+});

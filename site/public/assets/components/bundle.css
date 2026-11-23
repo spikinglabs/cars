@@ -491,3 +491,29 @@ span.ac-pick { display: block; min-width: 0; }
 .ac-bk:not(.ac-bk--due) { padding: 0; border: 0; background: none; }
 .ac-bk--due { border-color: var(--gold); }
 .ac-bk__msg:empty { display: none; }
+
+/* Lease km budget and monthly bars (AlloLease.budgetHtml / barsSvg), on /leasing/ and the lease card in My cars */
+.lb-big { font-size: 1rem; color: var(--ink); }
+.lb-big b { font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.lb-big b.neg { color: var(--danger); }
+.lb-big b.pos { color: var(--success); }
+.lb-cap { color: var(--ink-muted); font-size: .85rem; margin: 4px 0 8px; }
+.lb-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: .9rem; }
+.lb-row b { font-variant-numeric: tabular-nums; }
+.lb-bar { position: relative; height: 12px; border-radius: 6px; background: var(--surface-200); }
+.lb-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; }
+.lb-bar i.t { background: var(--ink-muted); }
+.lb-bar i.o { background: var(--danger); }
+.lb-bar i.u { background: var(--success); }
+.lb-bar em { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--gold); }
+svg.lbars { display: block; width: 100%; height: auto; overflow: visible; }
+svg.lbars text { font: 500 11px var(--font-sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
+svg.lbars rect.o { fill: var(--danger); }
+svg.lbars rect.u { fill: var(--success); }
+svg.lbars rect.f { fill: var(--ink-muted); opacity: .3; }
+svg.lbars rect.n { opacity: .55; }
+svg.lbars .al { stroke: var(--ink); stroke-dasharray: 4 3; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 4px 0 10px; vertical-align: -1px; }
+.sw:first-child { margin-left: 0; }
+.sw.o { background: var(--danger); } .sw.u { background: var(--success); } .sw.f { background: var(--ink-muted); opacity: .4; }
+.sw.e { background: repeating-linear-gradient(45deg, var(--ink-muted) 0 2px, transparent 2px 5px); border: 1px solid var(--ink-muted); }

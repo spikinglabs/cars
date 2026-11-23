@@ -631,9 +631,9 @@
   }
 
   /* lease of a car kept in My cars (/leasing/, maths in /leasing/lease.js): where the odometer stands, kept on this device */
-  const LW = zh ? { btn: "租赁里程", title: "租赁里程", today: "今天", end: (d) => `到期 ${d}`, under: (n) => `少 ${n}`, over: (n) => `超 ${n}`, even: "持平", pay: (e) => `约需补付 ${e}`, back: (e) => `约退还 ${e}`, nothing: "不用结算", open: "打开租赁里程规划", allowed: (n) => `允许 ${n}`, log: "今天的里程表", save: "保存", last: (n) => n ? `最近读数 ${n} 天前` : "今天已记录", none: "还没有读数", saved: "已保存" }
-    : de ? { btn: "Leasing-km", title: "Leasing-Kilometer", today: "Heute", end: (d) => `Ende ${d}`, under: (n) => `${n} unter`, over: (n) => `${n} über`, even: "genau im Plan", pay: (e) => `rund ${e} nachzahlen`, back: (e) => `rund ${e} zurück`, nothing: "nichts abzurechnen", open: "Leasing-Planer öffnen", allowed: (n) => `erlaubt ${n}`, log: "Kilometerstand heute", save: "Speichern", last: (n) => n ? `Letzte Ablesung vor ${n} Tagen` : "Heute abgelesen", none: "Noch keine Ablesung", saved: "Gespeichert" }
-    : { btn: "Lease km", title: "Lease kilometres", today: "Today", end: (d) => `End ${d}`, under: (n) => `${n} under`, over: (n) => `${n} over`, even: "right on plan", pay: (e) => `about ${e} to pay`, back: (e) => `about ${e} back`, nothing: "nothing to settle", open: "Open the lease planner", allowed: (n) => `allowed ${n}`, log: "Odometer today", save: "Save", last: (n) => n ? `Last reading ${n} days ago` : "Read today", none: "No reading yet", saved: "Saved" };
+  const LW = zh ? { btn: "租赁里程", title: "租赁里程", today: "今天", end: (d) => `到期 ${d}`, under: (n) => `少 ${n}`, over: (n) => `超 ${n}`, even: "持平", pay: (e) => `约需补付 ${e}`, back: (e) => `约退还 ${e}`, nothing: "不用结算", open: "查看租赁里程详情", allowed: (n) => `允许 ${n}`, log: "今天的里程表", save: "保存", last: (n) => n ? `最近读数 ${n} 天前` : "今天已记录", none: "还没有读数", saved: "已保存" }
+    : de ? { btn: "Leasing-km", title: "Leasing-Kilometer", today: "Heute", end: (d) => `Ende ${d}`, under: (n) => `${n} unter`, over: (n) => `${n} über`, even: "genau im Plan", pay: (e) => `rund ${e} nachzahlen`, back: (e) => `rund ${e} zurück`, nothing: "nichts abzurechnen", open: "Leasing-Details", allowed: (n) => `erlaubt ${n}`, log: "Kilometerstand heute", save: "Speichern", last: (n) => n ? `Letzte Ablesung vor ${n} Tagen` : "Heute abgelesen", none: "Noch keine Ablesung", saved: "Gespeichert" }
+    : { btn: "Lease km", title: "Lease kilometres", today: "Today", end: (d) => `End ${d}`, under: (n) => `${n} under`, over: (n) => `${n} over`, even: "right on plan", pay: (e) => `about ${e} to pay`, back: (e) => `about ${e} back`, nothing: "nothing to settle", open: "Lease details", allowed: (n) => `allowed ${n}`, log: "Odometer today", save: "Save", last: (n) => n ? `Last reading ${n} days ago` : "Read today", none: "No reading yet", saved: "Saved" };
   const leaseHref = (c) => `${PRE}/leasing/?mine=${encodeURIComponent(c.id)}`;
   // type today's odometer right on the card; after 30 days without a reading the box asks for one
   function quickLog(st, today) {
@@ -644,6 +644,12 @@
       + `<label class="ac-param"><span class="ac-param__label">${esc(LW.log)}</span><span class="ac-param__box"${stale ? ' style="border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)"' : ""}><input name="km" type="number" min="0" max="2000000" step="1" inputmode="numeric" style="width:8ch" placeholder="${r ? esc(String(r.km)) : ""}"><span class="ac-param__unit">km</span></span></label>`
       + `<button type="submit" class="ac-btn ac-btn--${stale ? "gold" : "ghost"}">${esc(LW.save)}</button>`
       + `<span class="ac-caption" style="margin:0">${esc(days == null ? LW.none : LW.last(days))}</span></form>`;
+  }
+  // the km budget of /leasing/: how much can still be driven a month, time gone against km used
+  function budget(A, st, today) {
+    if (!A.budgetHtml) return "";
+    const m = A.months({ start: st.start, months: st.months, km: st.km || A.DEFAULTS.km, odo0: st.odo0, extra: st.extra, refund: st.refund, tol: st.tol }, st.readings || [], { today, per_month: st.pm });
+    return m && !m.track.ended ? `<div style="margin-top:14px">${A.budgetHtml(m, { fmt: (v) => Math.round(v).toLocaleString(T.locale), words: A.words(lang) })}</div>` : "";
   }
   function leaseBlock(c) {
     const A = window.AlloLease;
@@ -664,7 +670,7 @@
     return `<section class="ac-card" id="leasing"><h2 class="ac-card__title">${esc(LW.title)}</h2><div class="ac-readouts" style="margin-top:8px">`
       + (t.started ? `<div class="ac-readout ac-readout--md"><div class="ac-readout__basis">${esc(LW.today)}</div><div class="ac-readout__value" style="${col(now.diff_km)}">${esc(txt(now.diff_km))}</div><div class="ac-readout__basis">${esc(LW.allowed(nk(now.allowed_km)))}</div></div>` : "")
       + `<div class="ac-readout ac-readout--md"><div class="ac-readout__basis">${esc(LW.end(endDate))}</div><div class="ac-readout__value" style="${col(t.end.diff_km)}">${esc(txt(t.end.diff_km))}</div><div class="ac-readout__basis">${esc(money)}</div></div></div>`
-      + quickLog(st, today) + `<p style="margin:12px 0 0"><a class="ac-btn ac-btn--ghost" href="${leaseHref(c)}">${esc(LW.open)}</a></p></section>`;
+      + budget(A, st, today) + quickLog(st, today) + `<p style="margin:12px 0 0"><a class="ac-btn ac-btn--ghost" href="${leaseHref(c)}">${esc(LW.open)}</a></p></section>`;
   }
 
   /* jump links to each section of the car page */

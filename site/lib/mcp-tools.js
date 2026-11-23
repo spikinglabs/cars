@@ -954,7 +954,7 @@ async function planLeaseMileage(get, { trips = [], margin_pct = 10, extra_eur_pe
   }
   if (items.length) out.plan_page = link("/leasing/plan/", qp);
   out.page = start ? link("/leasing/", q) : link("/leasing/plan/", qp);
-  out.note = "Working week = 46 a year. The allowance grows evenly from the handover. Expected km continue from the newest reading at km_per_month, else the pace so far, else the plan. Settlement: km beyond the tolerance × extra (over) or × refund (under). Contracts differ (refund caps, one-way tolerances): check the contract. Rate per 1,000 km is an estimate unless taken from two offers.";
+  out.note = "Working week = 46 a year. The allowance grows evenly from the handover. Expected km continue from the newest reading at km_per_month, else the pace so far (after at least two months of driving), else the plan, else the allowance. Settlement: km beyond the tolerance × extra (over) or × refund (under). Contracts differ (refund caps, one-way tolerances): check the contract. Rate per 1,000 km is an estimate unless taken from two offers.";
   return out;
 }
 
