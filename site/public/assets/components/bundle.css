@@ -492,15 +492,27 @@ span.ac-pick { display: block; min-width: 0; }
 .ac-bk--due { border-color: var(--gold); }
 .ac-bk__msg:empty { display: none; }
 
-/* Lease "over or under the allowance" chart (AlloLease.gapSvg), on /leasing/ and the lease card in My cars */
-svg.gap { display: block; width: 100%; height: auto; overflow: visible; }
-svg.gap text { font: 500 11px var(--font-sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
-svg.gap .g-lab { font-weight: 700; fill: var(--ink); }
-svg.gap .g-over { fill: var(--danger); opacity: .18; }
-svg.gap .g-under { fill: var(--success); opacity: .18; }
-svg.gap .g-zero { stroke: var(--ink-muted); stroke-width: 1.5; }
-svg.gap .g-grid { stroke: var(--border); stroke-dasharray: 2 4; }
-svg.gap .g-act { stroke: var(--ink); stroke-width: 3; fill: none; stroke-linejoin: round; }
-svg.gap .g-proj { stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 2 5; stroke-linecap: round; fill: none; }
-svg.gap .g-now { stroke: var(--gold); stroke-width: 2; }
-svg.gap .g-dot { fill: var(--gold); stroke: var(--surface-100); stroke-width: 2; }
+/* Lease km budget and monthly bars (AlloLease.budgetHtml / barsSvg), on /leasing/ and the lease card in My cars */
+.lb-big { font-size: 1rem; color: var(--ink); }
+.lb-big b { font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.lb-big b.neg { color: var(--danger); }
+.lb-big b.pos { color: var(--success); }
+.lb-cap { color: var(--ink-muted); font-size: .85rem; margin: 4px 0 8px; }
+.lb-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: .9rem; }
+.lb-row b { font-variant-numeric: tabular-nums; }
+.lb-bar { position: relative; height: 12px; border-radius: 6px; background: var(--surface-200); }
+.lb-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; }
+.lb-bar i.t { background: var(--ink-muted); }
+.lb-bar i.o { background: var(--danger); }
+.lb-bar i.u { background: var(--success); }
+.lb-bar em { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--gold); }
+svg.lbars { display: block; width: 100%; height: auto; overflow: visible; }
+svg.lbars text { font: 500 11px var(--font-sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
+svg.lbars rect.o { fill: var(--danger); }
+svg.lbars rect.u { fill: var(--success); }
+svg.lbars rect.f { fill: var(--ink-muted); opacity: .3; }
+svg.lbars rect.n { opacity: .55; }
+svg.lbars .al { stroke: var(--ink); stroke-dasharray: 4 3; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 4px 0 10px; vertical-align: -1px; }
+.sw:first-child { margin-left: 0; }
+.sw.o { background: var(--danger); } .sw.u { background: var(--success); } .sw.f { background: var(--ink-muted); opacity: .4; }

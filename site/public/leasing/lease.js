@@ -165,52 +165,85 @@
     };
   }
 
-  /* "Ahead of or behind the allowance" chart as an SVG string, for /leasing/ and the lease card on My cars.
-     y = km driven minus km allowed so far (0 = exactly on the allowance), so the gap is what you read, not two
-     close lines. Above 0 is shaded red (over), below green (under); solid = your readings, dotted = expected.
-     s: series(); o: { w, h, id (unique per chart), fmt(km) -> "1.234", year(ms) -> "2027", today (ms),
-     words: { allow, today, end } } */
-  function gapSvg(s, o) {
-    if (!s) return "";
-    var c = s.c, W = o.w || 600, H = o.h || 200, id = o.id || "g", fmt = o.fmt || function (v) { return String(Math.round(v)); };
-    var words = o.words || { allow: "allowance", today: "today", end: "end" };
-    var gap = function (p) { return [p[0], p[1] - allowedAt(c, p[0])]; };
-    var act = s.readings.map(gap), proj = s.projection.map(gap);
-    var pts = act.concat(proj), ys = pts.map(function (p) { return p[1]; }).concat([0]);
-    var lo = Math.min.apply(null, ys), hi = Math.max.apply(null, ys);
-    var span = Math.max(hi - lo, 200), raw = span / 3, mag = Math.pow(10, Math.floor(Math.log10(raw)));
-    var step = [1, 2, 2.5, 5, 10].map(function (k) { return k * mag; }).filter(function (k) { return k >= raw; })[0];
-    var y0 = Math.floor(lo / step) * step, y1 = Math.ceil(hi / step) * step;
-    if (y1 === y0) y1 = y0 + step;
-    var Lp = 8, R = 8, Tp = 22, B = 22;
-    var x = function (ms) { return Lp + (ms - s.start) / (s.end - s.start) * (W - Lp - R); };
-    var y = function (v) { return Tp + (1 - (v - y0) / (y1 - y0)) * (H - Tp - B); };
-    var f1 = function (n) { return n.toFixed(1); };
-    var poly = function (arr) { return arr.map(function (p) { return f1(x(p[0])) + "," + f1(y(p[1])); }).join(" "); };
-    var sign = function (v) { return (v > 0.5 ? "+" : v < -0.5 ? "−" : "") + fmt(Math.abs(v)) + " km"; };
-    var all = act.concat(proj.slice(1));
-    var area = all.length > 1 ? f1(x(all[0][0])) + "," + f1(y(0)) + " " + poly(all) + " " + f1(x(all[all.length - 1][0])) + "," + f1(y(0)) : "";
-    var z = y(0), svg = '<svg class="gap" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + words.allow + '">';
-    svg += '<defs><clipPath id="' + id + '-o"><rect x="0" y="0" width="' + W + '" height="' + f1(z) + '"/></clipPath><clipPath id="' + id + '-u"><rect x="0" y="' + f1(z) + '" width="' + W + '" height="' + f1(H - z) + '"/></clipPath></defs>';
-    if (area) svg += '<polygon class="g-over" clip-path="url(#' + id + '-o)" points="' + area + '"/><polygon class="g-under" clip-path="url(#' + id + '-u)" points="' + area + '"/>';
-    // years
-    var yA = new Date(s.start).getUTCFullYear(), yB = new Date(s.end).getUTCFullYear();
-    for (var yy = yA + 1; yy <= yB; yy++) { var ms = Date.UTC(yy, 0, 1), xx = x(ms); svg += '<line class="g-grid" x1="' + f1(xx) + '" x2="' + f1(xx) + '" y1="' + Tp + '" y2="' + (H - B) + '"/><text x="' + f1(xx) + '" y="' + (H - 6) + '" text-anchor="middle">' + (o.year ? o.year(ms) : yy) + "</text>"; }
-    svg += '<line class="g-zero" x1="' + Lp + '" x2="' + (W - R) + '" y1="' + f1(z) + '" y2="' + f1(z) + '"/><text x="' + (W - R) + '" y="' + f1(s.track.end.diff_km >= 0 ? z + 14 : z - 6) + '" text-anchor="end">' + words.allow + "</text>";
-    if (act.length > 1) svg += '<polyline class="g-act" points="' + poly(act) + '"/>';
-    if (proj.length > 1) svg += '<polyline class="g-proj" points="' + poly(proj) + '"/>';
-    // today marker with the gap today, and the gap at the end
-    var tr = s.track, now = o.today;
-    if (now != null && now > s.start && now < s.end) {
-      var cpT = tr.checkpoints.filter(function (k) { return k.id === "today"; })[0];
-      var gT = cpT ? cpT.diff_km : null, xt = x(now);
-      svg += '<line class="g-now" x1="' + f1(xt) + '" x2="' + f1(xt) + '" y1="' + Tp + '" y2="' + (H - B) + '"/>';
-      if (gT != null) svg += '<circle class="g-dot" cx="' + f1(xt) + '" cy="' + f1(y(gT)) + '" r="4.5"/>' + (o.labels === false ? "" : '<text class="g-dot" cx="' + f1(xt) + '" cy="' + f1(y(gT)) + '" r="4.5"/><text class="g-lab" x="' + f1(Math.min(xt + 6, W - R - 90)) + '" y="14">' + words.today + " " + sign(gT) + "</text>");
+  /* Km driven per calendar month of the lease, from the readings (spread evenly between two readings),
+     and what is left: the questions a driver has are "how much can I still drive a month?" and
+     "which months did I drive more than the allowance?". */
+  function months(cIn, readings, opts) {
+    var c = norm(cIn), tr = track(cIn, readings, opts);
+    if (!tr) return null;
+    var pts = [[c.start, c.odo0]].concat((readings || []).map(function (x) { return [day(x.date), Number(x.km)]; })
+      .filter(function (x) { return x[0] != null && isFinite(x[1]) && x[0] >= c.start; }).sort(function (a, b) { return a[0] - b[0]; }));
+    var last = pts[pts.length - 1][0];
+    var odo = function (t) {
+      for (var i = 1; i < pts.length; i++) if (t <= pts[i][0]) { var a = pts[i - 1], b = pts[i]; return b[0] === a[0] ? b[1] : a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0]); }
+      return pts[pts.length - 1][1];
+    };
+    var d0 = new Date(c.start), rows = [];
+    for (var m = 0; m < c.months; m++) {
+      var a = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + m, d0.getUTCDate()), b = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + m + 1, d0.getUTCDate());
+      if (b <= last) rows.push({ start: iso(a), km: Math.round(odo(b) - odo(a)), kind: "past", frac: 1 });
+      else if (a < last) rows.push({ start: iso(a), km: Math.round(odo(last) - odo(a)), kind: "now", frac: (last - a) / (b - a) });
+      else rows.push({ start: iso(a), km: null, kind: "future", frac: 0 });
     }
-    var gE = tr.end.diff_km;
-    svg += '<circle class="g-dot g-end" cx="' + f1(x(s.end)) + '" cy="' + f1(y(gE)) + '" r="4.5"/>' + (o.labels === false ? "" : '<text class="g-lab" x="' + (W - R) + '" y="' + f1(Math.max(12, Math.min(H - B - 6, y(gE) + (gE >= 0 ? -10 : 18)))) + '" text-anchor="end">' + words.end + " " + sign(gE) + "</text>");
+    var start = c.start, end = c.end;
+    return {
+      allow_per_month: c.total / c.months, per_month_to_stay_within: tr.per_month_to_stay_within, months_left: Math.round(tr.days_left / (365.25 / 12)),
+      left_km: tr.left_km, used_km: Math.max(0, tr.reading.km - c.odo0), total_km: c.total,
+      time_used: Math.max(0, Math.min(1, ((day(opts && opts.today) || Date.now()) - start) / (end - start))), km_used: Math.max(0, tr.reading.km - c.odo0) / c.total,
+      rows: rows, track: tr
+    };
+  }
+  /* Words for budgetHtml / barsSvg, shared by /leasing/ and My cars */
+  var WORDS = {
+    en: { canDrive: function (n) { return "From now on you can drive " + n + " a month"; }, avg: function (n) { return "Allowance " + n + " km a month on average"; },
+      left: function (km, m) { return km + " km left for " + m + " months"; }, over: function (km) { return km + " km over the whole allowance already"; },
+      time: "Lease time gone", km: "Km used", note: "Km bar past the time line = driving faster than the allowance.",
+      allow: function (n) { return "allowance " + n + "/month"; }, legend: function (n) { return '<span class="sw o"></span>over the allowance <span class="sw u"></span>within <span class="sw f"></span>left: ' + n + " km a month"; } },
+    de: { canDrive: function (n) { return "Ab jetzt kannst du " + n + " im Monat fahren"; }, avg: function (n) { return "Kontingent im Schnitt " + n + " km im Monat"; },
+      left: function (km, m) { return "noch " + km + " km für " + m + " Monate"; }, over: function (km) { return "schon " + km + " km über dem ganzen Kontingent"; },
+      time: "Laufzeit vorbei", km: "Kilometer verbraucht", note: "Kilometer-Balken hinter der Zeitlinie = schneller als das Kontingent.",
+      allow: function (n) { return "Kontingent " + n + "/Monat"; }, legend: function (n) { return '<span class="sw o"></span>über dem Kontingent <span class="sw u"></span>darunter <span class="sw f"></span>übrig: ' + n + " km im Monat"; } },
+    zh: { canDrive: function (n) { return "今后每月可开 " + n; }, avg: function (n) { return "额度平均每月 " + n + " km"; },
+      left: function (km, m) { return "还剩 " + km + " km、" + m + " 个月"; }, over: function (km) { return "已经超出全部额度 " + km + " km"; },
+      time: "租期已过", km: "公里已用", note: "公里条跑到时间线（竖线）前面 = 开得比额度快。",
+      allow: function (n) { return "额度 " + n + "/月"; }, legend: function (n) { return '<span class="sw o"></span>开多的月份 <span class="sw u"></span>没超的月份 <span class="sw f"></span>今后每月可开 ' + n + " km"; } }
+  };
+  function words(lang) { return WORDS[lang] || WORDS.en; }
+  /* Option A: the km budget. o.words: canDrive(n), avg(n), left(km, months), time, km, note, over */
+  function budgetHtml(m, o) {
+    if (!m) return "";
+    var w = o.words, fmt = o.fmt || function (v) { return String(Math.round(v)); }, pct = function (f) { return Math.round(f * 100) + "%"; };
+    var pm = m.per_month_to_stay_within, tight = pm != null && pm < m.allow_per_month;
+    var bar = function (label, f, txt, cls) {
+      return '<div class="lb-row"><span>' + label + "</span><b>" + txt + '</b></div><div class="lb-bar"><i class="' + cls + '" style="width:' + (Math.min(1, f) * 100).toFixed(1) + '%"></i><em style="left:' + (Math.min(1, m.time_used) * 100).toFixed(1) + '%"></em></div>';
+    };
+    var tu = Math.max(0, Math.min(1, m.time_used));
+    return '<div class="lb">' + (pm == null ? "" : '<div class="lb-big">' + w.canDrive('<b class="' + (tight ? "neg" : "pos") + '">' + fmt(pm) + " km</b>") + "</div>")
+      + '<p class="lb-cap">' + w.avg(fmt(m.allow_per_month)) + (m.left_km >= 0 ? " · " + w.left(fmt(m.left_km), m.months_left) : " · " + w.over(fmt(-m.left_km))) + "</p>"
+      + bar(w.time, tu, pct(tu), "t") + bar(w.km, m.km_used, pct(m.km_used) + " · " + fmt(m.used_km) + " / " + fmt(m.total_km) + " km", m.km_used > tu ? "o" : "u")
+      + '<p class="lb-cap">' + w.note + "</p></div>";
+  }
+  /* Option B: one bar per month of the lease: past months green (within) or red (over the monthly allowance),
+     the current month lighter, future months grey at the km a month that keep you within.
+     o: { w, h, fmt, month(isoDate) -> "2027.1", words: { allow(n) } } */
+  function barsSvg(m, o) {
+    if (!m) return "";
+    var W = o.w || 600, H = o.h || 200, fmt = o.fmt || function (v) { return String(Math.round(v)); }, a = m.allow_per_month;
+    var fut = m.per_month_to_stay_within != null ? m.per_month_to_stay_within : a;
+    var vals = m.rows.map(function (r) { return r.kind === "future" ? fut : r.kind === "now" ? r.km / Math.max(r.frac, 0.05) : r.km; });
+    var mx = Math.max.apply(null, vals.concat([a * 1.5])) * 1.08, P = 4, Tp = 16, B = 20;
+    var bw = (W - 2 * P) / m.rows.length, y = function (v) { return Tp + (1 - Math.max(0, v) / mx) * (H - Tp - B); };
+    var f1 = function (n) { return n.toFixed(1); };
+    var svg = '<svg class="lbars" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + o.words.allow(fmt(a)) + '">';
+    m.rows.forEach(function (r, i) {
+      var x = P + i * bw + Math.min(1, bw * 0.12), w = Math.max(1, bw - 2 * Math.min(1, bw * 0.12)), v = r.kind === "future" ? fut : r.km;
+      var cls = r.kind === "future" ? "f" : (r.kind === "now" ? r.km / Math.max(r.frac, 0.05) : r.km) > a ? "o" : "u";
+      svg += '<rect class="' + cls + (r.kind === "now" ? " n" : "") + '" x="' + f1(x) + '" y="' + f1(y(v)) + '" width="' + f1(w) + '" height="' + f1(Math.max(0, H - B - y(v))) + '"><title>' + r.start.slice(0, 7) + ": " + fmt(v) + " km</title></rect>";
+    });
+    svg += '<line class="al" x1="' + P + '" x2="' + (W - P) + '" y1="' + f1(y(a)) + '" y2="' + f1(y(a)) + '"/><text x="' + (W - P) + '" y="' + f1(y(a) - 4) + '" text-anchor="end">' + o.words.allow(fmt(a)) + "</text>";
+    for (var i = 0; i < m.rows.length; i += 12) svg += '<text x="' + f1(P + i * bw) + '" y="' + (H - 5) + '">' + (o.month ? o.month(m.rows[i].start) : m.rows[i].start.slice(0, 7)) + "</text>";
     return svg + "</svg>";
   }
 
-  return { PER: PER, DEFAULTS: DEFAULTS, PRESETS: PRESETS, day: day, iso: iso, addMonths: addMonths, plan: plan, recommend: recommend, options: options, settle: settle, norm: norm, allowedAt: allowedAt, track: track, series: series, gapSvg: gapSvg };
+  return { PER: PER, DEFAULTS: DEFAULTS, PRESETS: PRESETS, day: day, iso: iso, addMonths: addMonths, plan: plan, recommend: recommend, options: options, settle: settle, norm: norm, allowedAt: allowedAt, track: track, series: series, months: months, budgetHtml: budgetHtml, barsSvg: barsSvg, words: words };
 });

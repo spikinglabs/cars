@@ -32,9 +32,9 @@
     under: (n) => `少 ${n}`, over: (n) => `超 ${n}`, even: "持平",
     todayV: "今天", todayB: (a, o, d) => `今天允许 ${a} · 里程表 ${o}（${d}）`, expectedToday: (o) => `今天预计 ${o}`,
     endV: (d) => `到期 ${d}`, pay: (e) => `到期约需补付 ${e}`, back: (e) => `到期约退还 ${e}`, nothing: "在免费容差内，不用结算",
-    stay: "想不超，每月最多开", stayB: (n) => `现在按每月 ${n} 计算`, ended: "合同已到期",
+    ended: "合同已到期",
     src: { pace: (n) => `到目前为止每月 ${n}（按你的读数）`, plan: (n) => `按你的计划每月 ${n}`, allowance: (n) => `按合同每月 ${n}`, set: (n) => `你设的数；到目前为止每月 ${n}` },
-    reset: "恢复", allowed: "允许", readings: "你的读数", expected: "预计", chart: "比额度多开或少开的公里", gAllow: "额度", gToday: "今天", gEnd: "到期", gNote: "线在额度上方（红色）表示开多了，下方（绿色）表示还有余量。实线是你的读数，虚线是预计。",
+    reset: "恢复", allowed: "允许", readings: "你的读数", expected: "预计", chart: "比额度多开或少开的公里",
     notStarted: (d) => `租期 ${d} 开始`,
     quick: "记录方式和备份", optHere: "在这台设备上：在上面输入，或在“我的车”的车辆卡片上输入。", optPhone: "手机快捷指令", optHome: "智能家居（Home Assistant）", showYaml: "显示自动化配置", yourData: "你的数据", showAll: (n) => `显示全部 ${n} 条读数`, showLess: "收起",
     loggedMsg: (k, d) => `已保存 ${k}（${d}）`, last: (d, n) => `最近一次读数：${d}（${n} 天前）`, lastNone: "还没有读数。",
@@ -67,9 +67,9 @@
     under: (n) => `${n} unter`, over: (n) => `${n} über`, even: "genau im Plan",
     todayV: "Heute", todayB: (a, o, d) => `Heute erlaubt ${a} · Tacho ${o} (${d})`, expectedToday: (o) => `heute erwartet ${o}`,
     endV: (d) => `Ende ${d}`, pay: (e) => `Am Ende rund ${e} nachzahlen`, back: (e) => `Am Ende rund ${e} zurück`, nothing: "Innerhalb der Toleranz, keine Abrechnung",
-    stay: "Um im Rahmen zu bleiben, höchstens", stayB: (n) => `Gerechnet wird mit ${n} im Monat`, ended: "Vertrag ist zu Ende",
+    ended: "Vertrag ist zu Ende",
     src: { pace: (n) => `Bisher ${n} im Monat (aus deinen Ablesungen)`, plan: (n) => `${n} im Monat laut deinem Plan`, allowance: (n) => `${n} im Monat laut Vertrag`, set: (n) => `Von dir gesetzt; bisher ${n} im Monat` },
-    reset: "Zurücksetzen", allowed: "Erlaubt", readings: "Deine Ablesungen", expected: "Erwartet", chart: "Kilometer über oder unter dem Kontingent", gAllow: "Kontingent", gToday: "Heute", gEnd: "Ende", gNote: "Über der Linie (rot) fährst du mehr als erlaubt, darunter (grün) hast du Luft. Durchgezogen: deine Ablesungen, gepunktet: erwartet.",
+    reset: "Zurücksetzen", allowed: "Erlaubt", readings: "Deine Ablesungen", expected: "Erwartet", chart: "Kilometer über oder unter dem Kontingent",
     notStarted: (d) => `Leasing beginnt am ${d}`,
     quick: "Eintragen und Sichern", optHere: "Auf diesem Gerät: oben eintragen oder auf der Auto-Karte unter „Meine Autos“.", optPhone: "Kurzbefehl auf dem Handy", optHome: "Smart Home (Home Assistant)", showYaml: "Automatisierung anzeigen", yourData: "Deine Daten", showAll: (n) => `Alle ${n} Ablesungen zeigen`, showLess: "Weniger zeigen",
     loggedMsg: (k, d) => `${k} für ${d} gespeichert`, last: (d, n) => `Letzte Ablesung: ${d} (vor ${n} Tagen)`, lastNone: "Noch keine Ablesung.",
@@ -102,9 +102,9 @@
     under: (n) => `${n} under`, over: (n) => `${n} over`, even: "right on plan",
     todayV: "Today", todayB: (a, o, d) => `Allowed today ${a} · odometer ${o} (${d})`, expectedToday: (o) => `expected today ${o}`,
     endV: (d) => `End ${d}`, pay: (e) => `About ${e} to pay at the end`, back: (e) => `About ${e} back at the end`, nothing: "Within the tolerance, nothing to settle",
-    stay: "To stay within, at most", stayB: (n) => `Now counting ${n} a month`, ended: "The lease has ended",
+    ended: "The lease has ended",
     src: { pace: (n) => `${n} a month so far (from your readings)`, plan: (n) => `${n} a month from your plan`, allowance: (n) => `${n} a month from the contract`, set: (n) => `Set by you; so far ${n} a month` },
-    reset: "Reset", allowed: "Allowed", readings: "Your readings", expected: "Expected", chart: "Km over or under the allowance", gAllow: "allowance", gToday: "Today", gEnd: "End", gNote: "Above the line (red) you drive more than allowed, below it (green) you have room. Solid: your readings, dotted: expected.",
+    reset: "Reset", allowed: "Allowed", readings: "Your readings", expected: "Expected", chart: "Km over or under the allowance",
     notStarted: (d) => `Lease starts ${d}`,
     quick: "Logging and backup", optHere: "On this device: type it above, or on the car's card in My cars.", optPhone: "Phone shortcut", optHome: "Smart home (Home Assistant)", showYaml: "Show the automation", yourData: "Your data", showAll: (n) => `Show all ${n} readings`, showLess: "Show fewer",
     loggedMsg: (k, d) => `Saved ${k} for ${d}`, last: (d, n) => `Last reading: ${d} (${n} days ago)`, lastNone: "No reading yet.",
@@ -315,15 +315,17 @@
     if (!t.started) outs.push([T.notStarted(date(t.contract.start)), "", ""]);
     else outs.push([diffTxt(today.diff_km), T.todayV, T.todayB(km(today.allowed_km), km(t.reading.km), t.reading.handover ? T.handover : date(t.reading.date)) + (fresh || t.reading.handover && !S.readings.length ? "" : ` · ${T.expectedToday(km(today.expected_km))}`), diffCls(today.diff_km)]);
     outs.push([diffTxt(t.end.diff_km), T.endV(date(t.contract.end)), endE > 0 ? T.pay(eur(endE)) : endE < 0 ? T.back(eur(-endE)) : T.nothing, diffCls(t.end.diff_km)]);
-    outs.push(t.ended ? [T.ended, "", ""] : [`${km(t.per_month_to_stay_within)}`, T.stay, T.stayB(km(t.per_month)), ""]);
-    $("cp-out").innerHTML = outs.map(([v, a, b, cls], i) => `<div class="ac-readout ac-readout--md">${a ? `<div class="ac-readout__basis">${esc(a)}</div>` : ""}<div class="ac-readout__value ${cls || ""}">${esc(v)}${i === 2 && !t.ended ? `<small> /${zh ? "月" : de ? "Monat" : "month"}</small>` : ""}</div>${b ? `<div class="ac-readout__basis">${esc(b)}</div>` : ""}</div>`).join("");
+    if (t.ended) outs.push([T.ended, "", ""]);
+    $("cp-out").innerHTML = outs.map(([v, a, b, cls], i) => `<div class="ac-readout ac-readout--md">${a ? `<div class="ac-readout__basis">${esc(a)}</div>` : ""}<div class="ac-readout__value ${cls || ""}">${esc(v)}</div>${b ? `<div class="ac-readout__basis">${esc(b)}</div>` : ""}</div>`).join("");
     $("cp").innerHTML = `<thead><tr>${T.cpH.filter((h, i) => i !== 1).map((h, i) => `<th${i ? ' class="num"' : ""}>${esc(h)}${i ? " (km)" : ""}</th>`).join("")}</tr></thead><tbody>` + t.checkpoints.map((x) => {
       const name = cpName(x);
       return `<tr><td><strong>${esc(name)}</strong><small>${esc(date(x.date))}</small></td><td class="num">${esc(nf(x.expected_km))}</td><td class="num">${esc(nf(x.allowed_km))}</td><td class="num ${diffCls(x.diff_km)}">${esc(x.diff_km > 0 ? "+" : x.diff_km < 0 ? "−" : "")}${esc(nf(Math.abs(x.diff_km)))}</td></tr>`;
     }).join("") + "</tbody>";
+    const m = L.months(contract(), S.readings, opts), Wd = L.words(lang);
+    $("budget").innerHTML = t.ended ? "" : L.budgetHtml(m, { fmt: nf, words: Wd });
     const w = Math.max(300, Math.min(900, $("chart").clientWidth || 860));
-    $("chart").innerHTML = L.gapSvg(ser, { w, h: w < 600 ? 220 : 260, id: "gp", today: L.day(todayIso()), fmt: nf, words: { allow: T.gAllow, today: T.gToday, end: T.gEnd } });
-    $("chart-note").textContent = T.gNote;
+    $("chart").innerHTML = L.barsSvg(m, { w, h: w < 600 ? 200 : 240, fmt: nf, month: (d) => `${d.slice(0, 4)}.${+d.slice(5, 7)}`, words: Wd });
+    $("chart-note").innerHTML = Wd.legend(nf(m.per_month_to_stay_within != null ? m.per_month_to_stay_within : m.allow_per_month));
   }
 
 

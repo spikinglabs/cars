@@ -645,13 +645,11 @@
       + `<button type="submit" class="ac-btn ac-btn--${stale ? "gold" : "ghost"}">${esc(LW.save)}</button>`
       + `<span class="ac-caption" style="margin:0">${esc(days == null ? LW.none : LW.last(days))}</span></form>`;
   }
-  // the "over or under the allowance" chart of /leasing/, small, without labels (the readouts above carry the numbers)
-  function gapChart(A, st, today, c) {
-    if (!A.gapSvg) return "";
-    const s = A.series({ start: st.start, months: st.months, km: st.km || A.DEFAULTS.km, odo0: st.odo0, extra: st.extra, refund: st.refund, tol: st.tol }, st.readings || [], { today, per_month: st.pm });
-    const allow = zh ? "额度" : de ? "Kontingent" : "allowance";
-    const note = zh ? "红色：开多了 · 绿色：还有余量" : de ? "Rot: mehr als erlaubt · Grün: Luft" : "Red: over the allowance · green: room left";
-    return `<a href="${leaseHref(c)}" style="display:block;margin-top:12px;text-decoration:none">${A.gapSvg(s, { w: 360, h: 150, id: `gc-${c.id}`, today: A.day(today), labels: false, fmt: (v) => Math.round(v).toLocaleString(T.locale), year: (ms) => String(new Date(ms).getUTCFullYear()), words: { allow, today: "", end: "" } })}</a><p class="ac-caption" style="margin:4px 0 0">${esc(note)}</p>`;
+  // the km budget of /leasing/: how much can still be driven a month, time gone against km used
+  function budget(A, st, today) {
+    if (!A.budgetHtml) return "";
+    const m = A.months({ start: st.start, months: st.months, km: st.km || A.DEFAULTS.km, odo0: st.odo0, extra: st.extra, refund: st.refund, tol: st.tol }, st.readings || [], { today, per_month: st.pm });
+    return m && !m.track.ended ? `<div style="margin-top:14px">${A.budgetHtml(m, { fmt: (v) => Math.round(v).toLocaleString(T.locale), words: A.words(lang) })}</div>` : "";
   }
   function leaseBlock(c) {
     const A = window.AlloLease;
@@ -672,7 +670,7 @@
     return `<section class="ac-card" id="leasing"><h2 class="ac-card__title">${esc(LW.title)}</h2><div class="ac-readouts" style="margin-top:8px">`
       + (t.started ? `<div class="ac-readout ac-readout--md"><div class="ac-readout__basis">${esc(LW.today)}</div><div class="ac-readout__value" style="${col(now.diff_km)}">${esc(txt(now.diff_km))}</div><div class="ac-readout__basis">${esc(LW.allowed(nk(now.allowed_km)))}</div></div>` : "")
       + `<div class="ac-readout ac-readout--md"><div class="ac-readout__basis">${esc(LW.end(endDate))}</div><div class="ac-readout__value" style="${col(t.end.diff_km)}">${esc(txt(t.end.diff_km))}</div><div class="ac-readout__basis">${esc(money)}</div></div></div>`
-      + gapChart(A, st, today, c) + quickLog(st, today) + `<p style="margin:12px 0 0"><a class="ac-btn ac-btn--ghost" href="${leaseHref(c)}">${esc(LW.open)}</a></p></section>`;
+      + budget(A, st, today) + quickLog(st, today) + `<p style="margin:12px 0 0"><a class="ac-btn ac-btn--ghost" href="${leaseHref(c)}">${esc(LW.open)}</a></p></section>`;
   }
 
   /* jump links to each section of the car page */
